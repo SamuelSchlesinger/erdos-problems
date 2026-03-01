@@ -210,4 +210,43 @@ theorem weird_mul_prime {n p : ℕ} (hw : Weird n) (hp : Nat.Prime p)
       exact ⟨T, Finset.mem_powerset.mpr hT_sub, hT_sum'⟩
     exact hw.2 this
 
+/-! ### Infinitely many weird numbers -/
+
+/-- Given any weird number, there exists a strictly larger weird number.
+    This is an immediate consequence of `weird_mul_prime` and the infinitude
+    of primes: pick any prime p > σ(n), which must be coprime to n since
+    p > σ(n) ≥ 2n > n, and then pn is weird. -/
+theorem weird_exists_gt (n : ℕ) (hw : Weird n) : ∃ m, n < m ∧ Weird m := by
+  set σn := n.divisors.sum id
+  obtain ⟨p, hp_ge, hp⟩ := Nat.exists_infinite_primes (σn + 1)
+  have hpσ : σn < p := by omega
+  have hn_pos := hw.1.1
+  have hσ_split : σn = n.properDivisors.sum id + n :=
+    Nat.sum_divisors_eq_sum_properDivisors_add_self
+  have hσn_ge : 2 * n ≤ σn := by linarith [hw.1.2]
+  have hpn : ¬p ∣ n := by
+    intro hpd
+    have : p ≤ n := Nat.le_of_dvd hn_pos hpd
+    linarith
+  refine ⟨p * n, ?_, weird_mul_prime hw hp hpn hpσ⟩
+  nlinarith [hp.two_le]
+
+/-- **There are infinitely many weird numbers.**
+
+    Starting from the smallest weird number 70 and repeatedly applying
+    `weird_exists_gt`, we obtain weird numbers exceeding any bound. -/
+theorem infinitely_many_weird : ∀ N : ℕ, ∃ n : ℕ, N < n ∧ Weird n := by
+  suffices h : ∀ N, ∃ n, N ≤ n ∧ Weird n from
+    fun N => let ⟨n, hn, hw⟩ := h (N + 1); ⟨n, by omega, hw⟩
+  intro N
+  induction N with
+  | zero => exact ⟨70, by omega, seventy_is_weird⟩
+  | succ N ih =>
+    obtain ⟨n, hn, hw⟩ := ih
+    by_cases h : N + 1 ≤ n
+    · exact ⟨n, h, hw⟩
+    · -- n = N, so use weird_exists_gt to get a bigger one
+      obtain ⟨m, hm, hwm⟩ := weird_exists_gt n hw
+      exact ⟨m, by omega, hwm⟩
+
 end WeirdNumbers
