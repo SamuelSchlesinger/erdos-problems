@@ -122,6 +122,9 @@ Citation keys match doc-comments in the Lean source.
   to Q2." Contribution at
   [erdosproblems.com](https://www.erdosproblems.com/327).
 
+- **[SK]** SharkyKesa. SAT solver computations of pair-free densities
+  (~0.705 for N ≤ 5000). Informal computational data.
+
 ---
 
 ## Problem #302: Unit Fraction Triples

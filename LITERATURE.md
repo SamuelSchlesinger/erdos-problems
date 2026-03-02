@@ -236,9 +236,12 @@ sets produce forbidden configurations for both problems.
 
 | Paper | Key Contribution |
 |-------|-----------------|
+| Sierpiński 1965 | Original definition of pseudoperfect numbers |
+| Zachariou-Zachariou 1972 | Classification and structural results for semiperfect numbers |
 | Benkoski-Erdős 1974 | Positive density; pn construction; primitive weird defined |
-| Friedman 1993 ([JNT 44(3)](https://doi.org/10.1006/jnth.1993.1057)) | Pseudoperfect ↔ unit-fraction sum of divisors (Egyptian fraction bridge) |
 | Kravitz 1976 | Large PWN construction via Mersenne primes |
+| Friedman 1993 ([JNT 44(3)](https://doi.org/10.1006/jnth.1993.1057)) | Pseudoperfect ↔ unit-fraction sum of divisors (Egyptian fraction bridge) |
+| Butske-Jaje-Mayernik 2000 | Equations ∑_{p|N} 1/p + 1/N = 1; pseudoperfect/perfectly weighted graphs |
 | Melfi 2015 ([ScienceDirect](https://www.sciencedirect.com/science/article/pii/S0022314X14002637)) | Infinite PWNs conditional on Cramér's conjecture |
 | Liddy-Riedl 2018 | Odd weird ⟹ ≥6 distinct prime factors |
 | Amato-Hasler-Melfi-Parton 2019 ([arXiv:1802.07178](https://arxiv.org/abs/1802.07178)) | PWNs with up to 16 prime factors; largest has 14712 digits |
