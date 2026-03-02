@@ -22,6 +22,7 @@ Citation keys match doc-comments in the Lean source.
 
 - **[ET13]** Elsholtz, C. & Tao, T. (2013). "Counting the number of
   solutions to the Erdős-Straus equation on unit fractions."
+  *J. Aust. Math. Soc.*, 94(1), 50–105.
   [arXiv:1107.1010](https://arxiv.org/abs/1107.1010).
   Solution count: N log²N ≪ Σ f(p) ≪ N log²N · log log N.
 
@@ -33,19 +34,25 @@ Citation keys match doc-comments in the Lean source.
   *Nieuw Archief voor Wiskunde*, 23(4), 237–244.
   [Survey](https://www.nieuwarchief.nl/serie5/pdf/naw5-2022-23-4-237.pdf).
 
-- **[Br24]** Bradford, A. (2024). "A one-dimensional reduction of the
-  Erdős-Straus conjecture."
+- **[Br24]** Bradford, K. (2024). "Elemental patterns from the Erdős
+  Straus conjecture."
   [arXiv:2403.16047](https://arxiv.org/abs/2403.16047).
 
-- **[Gh25]** Ghermoul, T. (2025). "On the Erdős-Straus conjecture via
-  multivariable polynomial families."
+- **[Gh25]** Ghermoul, B. (2025). "Exact polynomial families solving the
+  Erdős-Straus equation."
   [arXiv:2508.07383](https://arxiv.org/abs/2508.07383).
 
-- **[PW25]** Pomerance, C. & Weingartner, A. (2025). "On the Erdős-Straus
-  conjecture for m/n."
+- **[PW25]** Pomerance, C. & Weingartner, A. (2025). "Exceptions to the
+  Erdős–Straus–Schinzel conjecture."
   [arXiv:2511.16817](https://arxiv.org/abs/2511.16817).
 
-- **[Br26]** Bradford, A. (2026). "A proof of the Erdős-Straus conjecture."
+- **[MD25]** Mihnea, S. & Bogdan, D. C. (2025). "Further verification and
+  empirical evidence for the Erdős-Straus conjecture."
+  [arXiv:2509.00128](https://arxiv.org/abs/2509.00128).
+  Verified to 10^{18} using Salez-type modular equations.
+
+- **[Br26]** Bradford, K. (2026). "A solution to the Straus-Erdős
+  conjecture."
   [arXiv:2602.11774](https://arxiv.org/abs/2602.11774).
   **Status: CRITICAL GAP** — Schinzel barrier blocks the covering claim.
 
@@ -86,15 +93,18 @@ Citation keys match doc-comments in the Lean source.
 - **[LR18]** Liddy, J. & Riedl, E. (2018). "Odd weird numbers have at
   least 6 distinct prime factors." Preprint.
 
-- **[AHMP19]** Amato, G., Hasler, M., Melfi, G. & Parton, M. (2019).
-  "Primitive weird numbers having more than three distinct prime factors."
+- **[AHMP19]** Amato, G., Hasler, M. F., Melfi, G. & Parton, M. (2019).
+  "Primitive abundant and weird numbers with many prime factors."
+  *Journal of Number Theory*, 201, 436–459.
   [arXiv:1802.07178](https://arxiv.org/abs/1802.07178).
 
-- **[Fa22]** Fang, J.-H. (2022). "No odd weird number below 10^{21}."
+- **[Fa22]** Fang, W. (2022). "Searching on the boundary of abundance for
+  odd weird numbers."
   [arXiv:2207.12906](https://arxiv.org/abs/2207.12906).
+  No odd weird number below 10^{21}.
 
-- **[MS25]** McNew, N. & Setty, H. (2025). "Refined density bounds for
-  abundant numbers."
+- **[MS25]** McNew, N. & Setty, J. (2025). "On the densities of covering
+  numbers and abundant numbers."
   [arXiv:2507.23041](https://arxiv.org/abs/2507.23041).
 
 ---
@@ -105,8 +115,12 @@ Citation keys match doc-comments in the Lean source.
   Results in Combinatorial Number Theory*. L'Enseignement Mathématique,
   Université de Genève. Original problem statement.
 
-- **[vD]** van Doorn, K. "Upper bound f(N) ≤ (25/28+o(1))N." Contribution
+- **[vD]** van Doorn, W. "Upper bound f(N) ≤ (25/28+o(1))N." Contribution
   at [erdosproblems.com](https://www.erdosproblems.com/327).
+
+- **[Ad]** Adenwalla, S. "Positive answer to Q1 implies negative answer
+  to Q2." Contribution at
+  [erdosproblems.com](https://www.erdosproblems.com/327).
 
 ---
 
@@ -117,11 +131,13 @@ Citation keys match doc-comments in the Lean source.
 - **[Ca]** Cambie, S. "Lower bound f(N) ≥ (5/8+o(1))N." Contribution at
   [erdosproblems.com](https://www.erdosproblems.com/302).
 
-- **[vD]** van Doorn, K. "Upper bound f(N) ≤ (9/10+o(1))N." Contribution
+- **[vD]** van Doorn, W. "Upper bound f(N) ≤ (9/10+o(1))N." Contribution
   at [erdosproblems.com](https://www.erdosproblems.com/302).
 
-- **[BR91]** Brown, T. C. & Rödl, V. (1991). "A Ramsey type problem
-  concerning the Fibonacci sequence." Coloring version (#303).
+- **[BR91]** Brown, T. C. & Rödl, V. (1991). "Monochromatic solutions to
+  equations with unit fractions." *Bull. Aust. Math. Soc.*, 43(3),
+  387–392. Coloring version (#303): any finite coloring has
+  monochromatic 1/a = 1/b + 1/c.
 
 ---
 
@@ -142,5 +158,6 @@ Citation keys match doc-comments in the Lean source.
   unit fractions." [arXiv:2404.07113](https://arxiv.org/abs/2404.07113).
   |A| ≥ (1−1/e+ε)N suffices; 1−1/e is sharp.
 
-- **[vD]** van Doorn, K. "Upper bound f(N) ≤ (25/28+o(1))N." Same
-  construction works for both #301 and #327.
+- **[vD]** van Doorn, W. "Upper bound f(N) ≤ (25/28+o(1))N." Same
+  construction works for both #301 and #327. Contribution at
+  [erdosproblems.com](https://www.erdosproblems.com/301).

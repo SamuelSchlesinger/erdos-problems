@@ -21,7 +21,7 @@ execute on them in Lean.
 | Bradford 2024 ([arXiv:2403.16047](https://arxiv.org/abs/2403.16047)) | One-dimensional reduction: solutions ↔ divisors of x² satisfying modular equations |
 | Ghermoul 2025 ([arXiv:2508.07383](https://arxiv.org/abs/2508.07383)) | Four multivariable polynomial families; one covers all primes to 1.2×10^10 |
 | Pomerance-Weingartner 2025 ([arXiv:2511.16817](https://arxiv.org/abs/2511.16817)) | For general m/n conjecture: n_m ≥ exp(m^{1/3+o(1)}) — the 4/n case is special |
-| Verified to 10^18 ([arXiv:2509.00128](https://arxiv.org/abs/2509.00128)) | Computational push + empirical f(p) data |
+| Mihnea-Bogdan 2025 ([arXiv:2509.00128](https://arxiv.org/abs/2509.00128)) | Verified to 10^{18} + empirical f(p) data |
 | Bradford 2026 ([arXiv:2602.11774](https://arxiv.org/abs/2602.11774)) | **Claims full proof** (unverified preprint) via greedy + Type I/II |
 
 **Why the p ≡ 1 (mod 24) barrier is fundamental**: Schinzel's theorem *proves*
@@ -118,7 +118,7 @@ avoiding (a+b)|2ab force o(N)?) becomes the interesting one.
 | Erdős-Graham 1980 | Original problem statement |
 | Cambie (erdosproblems.com) | Lower bound f(N) ≥ (5/8+o(1))N: odds in [1,N/4] ∪ (N/2,N] |
 | van Doorn (erdosproblems.com) | Upper bound f(N) ≤ (9/10+o(1))N |
-| Brown-Rödl 1991 | Coloring version (#303): any finite coloring has monochromatic 1/a = 1/b + 1/c. **Formalized in Lean.** |
+| Brown-Rödl 1991 ([Bull. Aust. Math. Soc.](https://doi.org/10.1017/S0004972700029221)) | Coloring version (#303): any finite coloring has monochromatic 1/a = 1/b + 1/c. Statement formalized in [Google DeepMind formal-conjectures](https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/303.lean). |
 
 **Cambie's 5/8 construction**: Take odd integers ≤ N/4 (about N/8 elements) plus all
 integers in (N/2, N] (about N/2 elements). Total: ~5N/8.
@@ -206,14 +206,14 @@ sets produce forbidden configurations for both problems.
   even-length representations: clearing denominators gives ∏ b = a · Σ ∏_{j≠i} bⱼ;
   for k even, RHS = sum of even-many odds = even ≠ odd = LHS. For k odd, both
   sides are odd and no contradiction arises. **Corrects the earlier conjecture.**
-- **Cambie's 5/8 construction for #301**: Need to check if it's sum-free, not just
-  triple-free. The k=2 case is `upper_half_sum_free` + parity (already done for triples).
-  The k≥3 case: if a ≤ N/4 is odd and b₁,...,bₖ ∈ (N/2,N], then
-  Σ 1/bᵢ ≤ k/(N/2) = 2k/N, and 1/a ≥ 4/N, so need 2k/N ≥ 4/N, i.e., k ≥ 2.
-  For equality: all bᵢ = N/2, but N/2 is not in (N/2, N]. So Σ < 2k/N.
-  For 1/a = Σ 1/bᵢ with a ≤ N/4: 1/a ≥ 4/N > 2k/N when k < 2... wait, k ≥ 2 always.
-  Need sharper analysis. **Key question: does k ≥ 3 allow solutions?**
-  **Worth investigating — could lift Cambie to #301.**
+- **Cambie's 5/8 construction for #301**: ✓ **RESOLVED — DOES NOT LIFT** (Cambie.lean).
+  The k=2 cross-terms are blocked by magnitude (each 1/b < 2/N, sum < 4/N ≤ 1/a).
+  But k=3 allows violations: 1/15 = 1/36 + 1/45 + 1/60 sits in cambieSet(60).
+  General family: 1/(15m) = 1/(36m) + 1/(45m) + 1/(60m) for all odd m.
+  Both parity and magnitude barriers break for k=3: sum of 3 odd products is odd
+  (no parity contradiction), and 3 reciprocals from (N/2,N] can sum to ≥ 4/N.
+  **The 5/8 lower bound is specific to #302; #301 needs a different approach.**
+  `cambie_not_sum_free`, `cambie_not_sum_free_family`, `cambie_triple_free_but_not_sum_free`.
 - **Van Doorn's 25/28 bound for #301**: A dedicated construction (not via TripleFree
   inheritance) would require showing star neighborhoods {2a,3a,4a,6a,12a} produce
   forbidden sum-free configurations. Would improve the bound from 9/10 to 25/28.
@@ -420,12 +420,12 @@ their blueprint approach (dependency graphs, modular proof structure) is a good 
 | — | Odd numbers NOT sum-free (counterexample) | #301 | **DONE** ✓ |
 | — | Van Doorn's 25/28 upper bound (pair-free) | #327 | **DONE** ✓ |
 | — | 9/10 upper bound (sum-free via inheritance) | #301 | **DONE** ✓ |
+| — | Cambie set NOT sum-free (structural gap #301 vs #302) | #301 | **DONE** ✓ |
 
 ### Active Queue (ranked by impact × feasibility)
 
 | Priority | Theorem | Problem | Effort | Notes |
 |----------|---------|---------|--------|-------|
-| 1 | **Cambie's 5/8 for sum-free** | #301 | Medium | Key question: does k ≥ 3 allow solutions? Determines if #301 gap matches #302 |
 | 3 | **Erdős-Straus → triples connection** | #242 → #302 | Easy | 4/n = 1/x + 1/y + 1/z rearranges to unit fraction triple |
 | 4 | **Pure-parity optimality theorem** | #327, #302, #301 | Medium | Any avoidance set with |A| > N/2 must contain both parities |
 | 5 | **Even-length parity obstruction** | #301 | Medium | No odd set admits 1/a = Σ 1/bᵢ with |S| even; the correct partial result |
@@ -469,6 +469,9 @@ congruences cannot cover quadratic residue classes. The Erdős-Straus conjecture
 - #301 inherits 9/10 via SumFree→TripleFree; a dedicated 25/28 construction
   would require showing star neighborhoods produce forbidden sum-free configurations.
 - #302 has the tightest analysis (5/8 to 9/10 gap).
+- **NEW**: The Cambie 5/8 construction does NOT lift from #302 to #301
+  (`cambie_not_sum_free`). This proves the lower bound gap between #301 and #302
+  is genuine — improving #301 beyond N/2 requires a different construction.
 
 ### Deepening the Weird Numbers Theory
 
