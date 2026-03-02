@@ -18,3 +18,4 @@ import Erdos.WeirdNumbers.Structure
 import Erdos.WeirdNumbers.OddWeird
 import Erdos.WeirdNumbers.OddWeirdFactors
 import Erdos.WeirdNumbers.PrimitiveWeird
+import Erdos.WeirdNumbers.EgyptianBridge
