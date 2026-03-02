@@ -17,7 +17,7 @@ The p-adic valuation parity argument ensures:
 Combined: A.card + |D_S| + |D_T| ≤ N where D_S ⊆ [1,N/6], D_T ⊆ [1,N/20].
 This gives f₃₀₂(N) ≤ 9N/10 + o(N).
 
-Reference: van Doorn, "Two-colouring and density of triple-free sets"
+Reference: van Doorn, erdosproblems.com/302
 -/
 import Erdos.UnitFractionTriples.UpperBound
 

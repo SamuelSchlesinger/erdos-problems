@@ -20,7 +20,7 @@ divisors of perfect squares in specific residue classes.
 
 - Mordell, L. J. (1967). "Diophantine Equations." Academic Press.
 - Elsholtz, C. and Tao, T. (2013). "Counting the number of solutions to the
-  Erdős-Straus equation on unit fractions." JAMS.
+  Erdős-Straus equation on unit fractions." J. Aust. Math. Soc., 94(1), 50–105.
 -/
 import Erdos.ErdosStraus.Factorization
 
