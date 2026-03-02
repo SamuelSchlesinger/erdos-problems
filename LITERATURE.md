@@ -51,9 +51,9 @@ there is essentially no margin.
   **Status: NOT VIABLE without breakthroughs.**
 - **Elsholtz-Tao Type A/B classification**: restructures the solution space; might reveal
   new identities within p ≡ 1 (mod 24). **Moderate formalization effort.**
-- **Formal connection #242 → #302**: Every Erdős-Straus solution 4/n = 1/x + 1/y + 1/z
-  rearranges to 1/a = 1/y + 1/z (a unit fraction triple). Would show Erdős-Straus
-  solutions live in the #302 universe. **~100 lines, straightforward algebra.**
+- **Formal connection #242 → #302**: ✓ FORMALIZED in `ErdosStraus/TripleBridge.lean`.
+  Every Erdős-Straus solution 4/n = 1/x + 1/y + 1/z rearranges to 1/a = 1/y + 1/z
+  (a unit fraction triple) when (4x−n) | nx. Even case produces consecutive triples.
 
 ---
 
@@ -429,7 +429,7 @@ their blueprint approach (dependency graphs, modular proof structure) is a good 
 
 | Priority | Theorem | Problem | Effort | Notes |
 |----------|---------|---------|--------|-------|
-| 3 | **Erdős-Straus → triples connection** | #242 → #302 | Easy | 4/n = 1/x + 1/y + 1/z rearranges to unit fraction triple |
+| 3 | **Erdős-Straus → triples connection** | #242 → #302 | **DONE** ✓ | `consecutive_triple`, `erdos_straus_residual`, `erdos_straus_generates_triple`, `even_erdos_straus_bridge` |
 | 4 | **Pure-parity optimality theorem** | #327, #302, #301 | Medium | Any avoidance set with |A| > N/2 must contain both parities |
 | 5 | **Even-length parity obstruction** | #301 | Medium | No odd set admits 1/a = Σ 1/bᵢ with |S| even; the correct partial result |
 | 6 | **Odd weird ≥ 6 prime factors** | #470 | Hard | Liddy-Riedl full result; case analysis on 3–5 prime factors |
@@ -497,7 +497,7 @@ The weird numbers module is the most mature (#470), but several directions remai
 
 Several cross-problem connections are identified but not formalized:
 
-1. **#242 → #302**: Erdős-Straus solutions generate unit fraction triples (algebraic).
+1. **#242 → #302**: ✓ FORMALIZED in `ErdosStraus/TripleBridge.lean`. Consecutive triple family, residual identity, conditional bridge, even-case specialization.
 2. **Pure-parity theorem**: A ⊆ [1,N] with |A| > N/2 and A pair/triple/sum-free must
    contain both parities. Would explain why 1/2 is achievable by two different mechanisms.
 3. **Common abstraction**: All four problems have the form "avoid solutions to
