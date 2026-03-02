@@ -45,12 +45,15 @@ there is essentially no margin.
 
 - **Additional Salez-type modular identities**: could narrow from mod 24 to mod 840
   or mod 27720. Won't complete the proof but makes the remaining set sparser.
-  Each identity is `ring`-verifiable. **Formalizable: YES.**
-- **Bradford's one-dimensional reduction**: if the 2026 proof holds up, its core step
-  reduces to: for every prime p, some x in [p/4, p/2] has a divisor of x² satisfying
-  a modular equation. This is concrete and finitistic. **Worth monitoring.**
+  Each identity is `ring`-verifiable. **Formalizable: YES, but diminishing returns.**
+- **Bradford's one-dimensional reduction**: The 2026 proof has a CRITICAL GAP
+  (Schinzel barrier). The core divisor-of-x² step is not self-contained.
+  **Status: NOT VIABLE without breakthroughs.**
 - **Elsholtz-Tao Type A/B classification**: restructures the solution space; might reveal
   new identities within p ≡ 1 (mod 24). **Moderate formalization effort.**
+- **Formal connection #242 → #302**: Every Erdős-Straus solution 4/n = 1/x + 1/y + 1/z
+  rearranges to 1/a = 1/y + 1/z (a unit fraction triple). Would show Erdős-Straus
+  solutions live in the #302 universe. **~100 lines, straightforward algebra.**
 
 ---
 
@@ -87,11 +90,18 @@ avoiding (a+b)|2ab force o(N)?) becomes the interesting one.
 
 - **Van Doorn's 25/28 upper bound**: Use `pair_n_cn_iff` to verify all pairs within
   S_a = {2a,3a,4a,6a,12a}. Count disjoint copies. **High priority, formalizable.**
+  The VanDoorn.lean infrastructure from #302 (p-adic signatures, disjointness proofs)
+  would transfer directly. Same technique also gives 25/28 for #301.
 - **Upper half for pair-free**: Check if (N/2, N] is pair-free. Unlike #302, this is
   NOT automatic — need to check (a+b)|ab for a,b > N/2. Hypothesis: probably NOT
-  pair-free since (N/2+1, N) could have (a+b)|ab.
+  pair-free since (N/2+1, N) could have (a+b)|ab. Could use `pair_n_cn_iff` to check:
+  (n, cn) with n, cn > N/2 requires c = 1 and 2|n, so (n, n) pairs exist when n even.
+  **Quick investigation — if false, structurally distinguishes #327 from #302.**
 - **Mixed construction**: Odd numbers in [1, N/3] ∪ (N/2, N]. Gives density ~2/3,
   but need to verify cross-term pair-freeness. **Worth investigating.**
+- **Computational lower bound**: Use `pair_n_cn_iff` to enumerate ALL pair constraints
+  in [1, N] and greedily build pair-free sets. Compare density to 0.705 (SAT data).
+  Not a Lean formalization, but would clarify the conjectured density.
 
 ---
 
@@ -127,10 +137,29 @@ integers in (N/2, N] (about N/2 elements). Total: ~5N/8.
 - **Factor identity → triple classification**: Full bijection between divisors d ≤ a
   of a² and triples (a, a+d, a+a²/d). `triple_count_eq_divisor_count`. ✓
 
+### Ideas Tried (continued)
+
+- **Van Doorn's 9/10 upper bound**: ✓ **DONE** (VanDoorn.lean, 581 lines).
+  Two disjoint families: S-family (2a,3a,6a) with v₂,v₃ even, T-family (4e,5e,20e)
+  with 4|v₂, v₃,v₅ even. Disjointness via p-adic valuation signatures.
+- **Star neighborhoods**: ✓ **DONE** (StarNeighborhood.lean). 11N/12 and 17N/18 bounds
+  via two-missing-element technique.
+
 ### Ideas To Try
 
-- **Van Doorn's 9/10 upper bound**: Similar witness-set technique to the 25/28 bound.
-  **Moderate effort.**
+- **Tighten the 9/10 bound**: The S+T family argument leaves room for additional
+  families. Any triple (ca, da, cda/(c+d-1)a) with c,d coprime and (c+d-1)|cd
+  gives a new family. Find a U-family whose p-adic signature is disjoint from both
+  S and T. **Research-level but formalizable.**
+- **Lower bound beyond 5/8**: Cambie's construction combines odds ≤ N/4 with (N/2, N].
+  Could we push further? Adding even numbers with special structure (e.g., powers of 2)
+  to the set might preserve triple-freeness. Need to check: is there a triple (2^k, b, c)
+  with b, c odd? From (b-2^k)(c-2^k) = 2^{2k}, both factors must be powers of 2,
+  so b and c would be even — contradiction. **So powers of 2 can extend the Cambie set.**
+  Adds ~log₂(N/4) elements: negligible asymptotically, but structurally interesting.
+- **Graph coloring connection**: Brown-Rödl (1991) proved the Ramsey version (#303).
+  Formalizing the connection between Ramsey and density versions would clarify the
+  structural landscape. **Moderate effort.**
 
 ---
 
@@ -165,9 +194,31 @@ sets produce forbidden configurations for both problems.
 ### Ideas To Try
 
 - **Odd numbers are sum-free**: Generalize parity to arbitrary-length sums.
-  **Formalizable.**
-- **Cambie's 5/8 construction for #301**: Need to check if it's sum-free, not just triple-free.
-  The k≥3 case needs careful bounding. **Worth investigating.**
+  The key step: if all bᵢ are odd, then ∑ a·∏_{j≠i} bⱼ has the wrong parity
+  (each term is odd·odd^{k-1} = odd, sum of k odd terms has parity k mod 2).
+  For k even: sum is even, but ∏ bⱼ is odd → contradiction.
+  For k odd: sum is odd = ∏ bⱼ (odd), consistent — but then check 1/a = Σ 1/bᵢ
+  forces a < bᵢ for all i, and a | ∏ bⱼ / gcd(...), which constrains heavily.
+  **Formalizable, ~100 lines. Would complete the parity picture for #301.**
+- **Cambie's 5/8 construction for #301**: Need to check if it's sum-free, not just
+  triple-free. The k=2 case is `upper_half_sum_free` + parity (already done for triples).
+  The k≥3 case: if a ≤ N/4 is odd and b₁,...,bₖ ∈ (N/2,N], then
+  Σ 1/bᵢ ≤ k/(N/2) = 2k/N, and 1/a ≥ 4/N, so need 2k/N ≥ 4/N, i.e., k ≥ 2.
+  For equality: all bᵢ = N/2, but N/2 is not in (N/2, N]. So Σ < 2k/N.
+  For 1/a = Σ 1/bᵢ with a ≤ N/4: 1/a ≥ 4/N > 2k/N when k < 2... wait, k ≥ 2 always.
+  Need sharper analysis. **Key question: does k ≥ 3 allow solutions?**
+  **Worth investigating — could lift Cambie to #301.**
+- **Van Doorn's 25/28 bound for #301**: Same witness-set construction as #327.
+  The disjoint star neighborhoods force omissions from any sum-free set too.
+  A single formalization could cover both problems. **High priority, ~300 lines.**
+- **Liu-Sawhney threshold**: Their (1-1/e)N threshold for guaranteed unit-fraction
+  subsets is related but dual to #301. Formalizing the exact relationship would
+  clarify the gap. **Research-level, requires understanding their circle method argument.**
+- **Weird number connection**: The bridge `pseudoperfect_iff_unit_sum` shows that
+  the divisors of any weird number form a set where ∑_{d>1} 1/d > 1 but no
+  subset sums to 1. This is a "local" instance of the #301 phenomenon. Could we
+  extract structural properties of sum-free subsets of divisor sets?
+  **Novel direction, unclear feasibility.**
 
 ---
 
@@ -178,6 +229,7 @@ sets produce forbidden configurations for both problems.
 | Paper | Key Contribution |
 |-------|-----------------|
 | Benkoski-Erdős 1974 | Positive density; pn construction; primitive weird defined |
+| Friedman 1993 ([JNT 44(3)](https://doi.org/10.1006/jnth.1993.1057)) | Pseudoperfect ↔ unit-fraction sum of divisors (Egyptian fraction bridge) |
 | Kravitz 1976 | Large PWN construction via Mersenne primes |
 | Melfi 2015 ([ScienceDirect](https://www.sciencedirect.com/science/article/pii/S0022314X14002637)) | Infinite PWNs conditional on Cramér's conjecture |
 | Liddy-Riedl 2018 | Odd weird ⟹ ≥6 distinct prime factors |
@@ -209,19 +261,39 @@ rich divisor set making subset sums easy to find → pseudoperfection likely.
 - **Computational verification**: 70 is smallest weird, primitive weird via `native_decide`.
 - **Perfect ⟹ pseudoperfect**: Proved. Perfect numbers are not weird.
 
+### Ideas Tried (continued)
+
+- **"pn is weird" theorem**: ✓ **DONE** (`weird_mul_prime` in Structure.lean). Full
+  Benkoski-Erdős construction with σ multiplicativity and subset-sum decomposition.
+- **"Multiples of pseudoperfect are pseudoperfect"**: ✓ **DONE** (`pseudoperfect_mul`).
+- **Pseudoperfect ↔ Egyptian fraction of 1**: ✓ **DONE** (`pseudoperfect_iff_unit_sum`
+  + full abundancy chain in EgyptianBridge.lean).
+- **Odd weird ≥ 3 prime factors**: ✓ **DONE** (`odd_weird_three_prime_factors`).
+- **Primitive weird 2pq**: ✓ **DONE** (`two_pq_primitive_when_weird`).
+- **Infinitely many weird numbers**: ✓ **DONE** (`infinitely_many_weird`).
+
 ### Ideas To Try
 
-- **"pn is weird" theorem**: Formalize the Benkoski-Erdős construction. Requires
-  divisor decomposition for products with large primes and a subset-sum argument.
-  **High priority, the core structural result.**
-- **"Multiples of pseudoperfect are pseudoperfect"**: Clean, structural, directly
-  useful. Gives contrapositive: weird numbers have no pseudoperfect proper divisors.
-  **High priority, quick win.**
-- **Pseudoperfect ↔ Egyptian fraction of 1**: n is pseudoperfect iff 1 can be written
-  as sum of reciprocals from {n/d : d ∈ properDivisors(n)}. This bridges the WeirdNumbers
-  and UnitFractionSets modules. **Novel connection, formalizable.**
-- **Deficient/prime/prime-power are not weird**: Trivial (not abundant). Quick wins.
+- **Deficient/prime/prime-power are not weird**: Trivial (not abundant). ~5 lines each.
+  Would round out the "non-weird" characterizations. **Easy wins.**
 - **836 is weird / primitive weird**: Extend computational verification via `native_decide`.
+  Also 4030, 5830 (next weird numbers). **Easy, ~5 lines each.**
+- **Odd weird ≥ 6 prime factors (Liddy-Riedl full result)**: We proved ≥ 3. The gap
+  to 6 requires showing that odd abundant numbers with 3, 4, or 5 distinct prime
+  factors are always pseudoperfect. This is a serious case analysis:
+  - 3 primes: σ(p^a q^b r^c)/p^a q^b r^c grows with exponents, but greedy subset-sum
+    on the divisor lattice should succeed.
+  - 4–5 primes: similar but harder, need to track all 2^k-1 proper subsets.
+  **Moderate-hard. Would be a significant strengthening of our result.**
+- **Kravitz-style large primitive weird numbers**: Construct explicit primitive weird
+  numbers using Mersenne primes. If 2^p - 1 is prime, then 2^{p-1}(2^p - 1)q for
+  suitable q could be primitive weird. **Interesting but needs careful analysis.**
+- **Abundancy gap theorem**: For weird n, we know σ(n)/n > 2 (strictly).
+  Can we prove a lower bound on the gap? E.g., σ(n)/n ≥ 2 + 1/n or similar?
+  For 70: σ(70)/70 = 144/70 ≈ 2.057. **Research-level, unclear.**
+- **Weird number density**: Benkoski-Erdős proved positive density. Formalizing this
+  requires showing the set {n : Weird n} has positive lower density. The proof uses
+  pn construction + prime number theorem. **Hard (PNT dependency), but impactful.**
 
 ---
 
@@ -264,7 +336,7 @@ Every Erdős-Straus solution 4/n = 1/x + 1/y + 1/z can be rearranged:
 we get the unit fraction triple 1/a = 1/y + 1/z. **Formalizable connection
 between #242 and #302.**
 
-### Pseudoperfect Numbers = Egyptian Fractions of 1
+### Pseudoperfect Numbers = Egyptian Fractions of 1 ✓ FORMALIZED
 
 n pseudoperfect ⟺ ∃ S ⊆ properDivisors(n) with Σ s = n
 ⟺ ∃ S ⊆ {n/d : d | n, d < n} with Σ 1/s = 1.
@@ -272,6 +344,25 @@ n pseudoperfect ⟺ ∃ S ⊆ properDivisors(n) with Σ s = n
 So weird numbers are *exactly* the abundant n for which 1 has no Egyptian
 fraction representation using reciprocals of complementary divisors of n.
 This bridges #470 with the Egyptian fraction universe of #301.
+
+**Formalized as**: `pseudoperfect_iff_unit_sum`, `weird_no_unit_sum`,
+`pseudoperfect_divisors_not_sumFree`, plus the full abundancy chain.
+
+### Abundancy Index as a Unifying Lens ✓ FORMALIZED
+
+The identity ∑_{d|n} 1/d = σ(n)/n converts between the discrete world
+(divisor sums, abundancy) and the continuous world (unit-fraction sums).
+This gives bidirectional characterizations:
+- Abundant ↔ ∑ 1/d ≥ 2
+- Perfect ↔ ∑ 1/d = 2
+- Deficient ↔ ∑ 1/d < 2
+- Weird ⟹ ∑_{d>1} 1/d > 1 but no subset sums to 1
+
+**Potential new theorem**: "Intermediate value" — for any abundant n, there
+exists T ⊂ {divisors > 1} with ∑_{t∈T} 1/t ∈ (0, 1). This is trivially
+true (take any singleton {d} with d > 1), but the interesting question is
+whether we can get ∑ 1/t arbitrarily close to 1 from below. For weird numbers,
+we can't HIT 1, but can we get within ε? **Unclear, research-level.**
 
 ### Graph/Hypergraph Perspective
 
@@ -295,21 +386,114 @@ their blueprint approach (dependency graphs, modular proof structure) is a good 
 
 ## Priority Queue for Next Formalizations
 
-Based on impact, novelty, and feasibility:
+### Completed
 
-| Priority | Theorem | Problem | Effort | Status |
-|----------|---------|---------|--------|--------|
-| 1 | Cambie's 5/8 construction | #302 | Medium | **DONE** ✓ |
-| 2 | "pn is weird" (Benkoski-Erdős) | #470 | Medium | **STUB** (sorry) |
-| 3 | Odd numbers are triple-free | #302 | Easy | **DONE** ✓ |
-| 4 | Multiples of pseudoperfect are pseudoperfect | #470 | Easy-Medium | **DONE** ✓ |
-| 5 | Upper half is sum-free | #301 | Medium | **DONE** ✓ |
-| 6 | Van Doorn's 25/28 upper bound | #327, #301 | Hard | TODO |
-| 7 | Pseudoperfect ↔ Egyptian fraction of 1 | #470↔#301 | Medium | TODO |
-| 8 | Factor identity → triple classification | #302 | Medium | **DONE** ✓ |
+| # | Theorem | Problem | Status |
+|---|---------|---------|--------|
+| 1 | Cambie's 5/8 construction | #302 | **DONE** ✓ |
+| 2 | "pn is weird" (Benkoski-Erdős) | #470 | **DONE** ✓ |
+| 3 | Odd numbers are triple-free | #302 | **DONE** ✓ |
+| 4 | Multiples of pseudoperfect are pseudoperfect | #470 | **DONE** ✓ |
+| 5 | Upper half is sum-free | #301 | **DONE** ✓ |
+| 7 | Pseudoperfect ↔ Egyptian fraction of 1 | #470↔#301 | **DONE** ✓ |
+| 8 | Factor identity → triple classification | #302 | **DONE** ✓ |
+| — | Van Doorn's 9/10 upper bound | #302 | **DONE** ✓ |
+| — | Star neighborhood bounds (11/12, 17/18) | #302 | **DONE** ✓ |
+| — | Odd weird ≥ 3 prime factors | #470 | **DONE** ✓ |
+| — | Primitive weird 2pq | #470 | **DONE** ✓ |
+| — | Infinitely many weird numbers | #470 | **DONE** ✓ |
+| — | Abundancy chain (5 theorems) | #470 | **DONE** ✓ |
+
+### Active Queue (ranked by impact × feasibility)
+
+| Priority | Theorem | Problem | Effort | Notes |
+|----------|---------|---------|--------|-------|
+| 1 | **Van Doorn's 25/28 upper bound** | #327 + #301 | Hard | Same construction upgrades BOTH problems; infrastructure from VanDoorn.lean transfers |
+| 2 | **Odd numbers are sum-free** | #301 | Easy | Completes parity picture; multi-term parity argument |
+| 3 | **Cambie's 5/8 for sum-free** | #301 | Medium | Key question: does k ≥ 3 allow solutions? Determines if #301 gap matches #302 |
+| 4 | **Upper half is NOT pair-free** | #327 | Easy | Counterexample: (n, n) for even n. Structurally separates #327 from #302 |
+| 5 | **Erdős-Straus → triples connection** | #242 → #302 | Easy | 4/n = 1/x + 1/y + 1/z rearranges to unit fraction triple |
+| 6 | **Deficient/prime not weird** | #470 | Easy | Trivial non-abundance; rounds out characterizations |
+| 7 | **Pure-parity optimality theorem** | #327, #302, #301 | Medium | Any avoidance set with |A| > N/2 must contain both parities |
+| 8 | **Odd weird ≥ 6 prime factors** | #470 | Hard | Liddy-Riedl full result; case analysis on 3–5 prime factors |
+| 9 | **Tighter triple-free bound** | #302 | Research | Add U-family to S+T for sub-9/10 bound |
+| 10 | **Weird number density** | #470 | Very Hard | Benkoski-Erdős positive density; requires PNT |
+
+### Abundancy Chain (completed)
+
+Building on the Egyptian fraction bridge (`pseudoperfect_iff_unit_sum`), we proved:
+- `sum_reciprocal_divisors_eq`: ∑_{d|n} 1/d = σ(n)/n (the classical abundancy identity)
+- `perfect_canonical_unit_sum`: perfect ⟹ ∑_{d>1} 1/d = 1
+- `weird_reciprocal_overshoot`: weird ⟹ ∑_{d>1} 1/d > 1 (but no subset hits 1)
+- `abundant_iff_reciprocal_sum_ge_two`: abundant ↔ ∑ 1/d ≥ 2
+- `perfect_iff_reciprocal_sum_two`: perfect ↔ ∑ 1/d = 2
+
+These characterizations complete the unit-fraction perspective on weird/abundant/perfect.
 
 ### Bradford 2026 Investigation
 Bradford's arXiv:2602.11774 claims full proof of Erdős-Straus. **Verdict: CRITICAL GAP.**
 The algebraic identities are correct (3 formalized in Lean), but the covering system
 claim is unproven and likely false due to Schinzel's 1956 barrier: polynomial identity
 congruences cannot cover quadratic residue classes. The Erdős-Straus conjecture remains OPEN.
+
+---
+
+## Areas for Improvement
+
+### Strengthening Existing Bounds
+
+**Gap analysis** (best formalized bound vs. best known vs. conjectured):
+
+| Problem | Best Lower | Best Upper | Conjectured | Formalized Lower | Formalized Upper |
+|---------|-----------|-----------|-------------|-----------------|-----------------|
+| #327 | ≥ N/2 (odd) | ≤ 25N/28 (vD) | N/2 + o(N) | ✓ N/2 | ❌ None |
+| #302 | ≥ 5N/8 (Cambie) | ≤ 9N/10 (vD) | N/2 + o(N) | ✓ 5N/8 | ✓ 9N/10 |
+| #301 | ≥ N/2 (upper half) | ≤ 25N/28 (vD) | N/2 + o(N) | ✓ N/2 | ❌ None |
+
+**Largest gaps**:
+1. #327 has NO formalized upper bound at all. Van Doorn's 25/28 is the clear target.
+2. #301 has NO formalized upper bound. Same Van Doorn construction works.
+3. #302 has a 5/8 to 9/10 gap (formalized) vs. conjectured 1/2.
+
+### Deepening the Weird Numbers Theory
+
+The weird numbers module is the most mature (#470), but several directions remain:
+
+1. **Algebraic characterization of primitivity**: When is a weird number primitive?
+   We have `two_pq_primitive_when_weird` for the 2pq case. Can we characterize
+   primitive weird numbers in terms of their factorization structure?
+
+2. **The abundancy gap**: For weird n, σ(n)/n > 2 strictly (`weird_reciprocal_overshoot`).
+   What's the infimum of σ(n)/n over weird numbers? Known: 70 has σ(70)/70 ≈ 2.057.
+   Is there a weird number with abundancy arbitrarily close to 2?
+
+3. **Weird numbers and Egyptian fractions**: The bridge shows weird numbers are "Egyptian
+   fraction avoiding." Can we use the divisor-classification machinery (`triple_count_eq_divisor_count`)
+   to count how many near-miss subsets exist? This would quantify "how close" weird
+   numbers come to being pseudoperfect.
+
+### Connecting More Problems
+
+Several cross-problem connections are identified but not formalized:
+
+1. **#242 → #302**: Erdős-Straus solutions generate unit fraction triples (algebraic).
+2. **Pure-parity theorem**: A ⊆ [1,N] with |A| > N/2 and A pair/triple/sum-free must
+   contain both parities. Would explain why 1/2 is achievable by two different mechanisms.
+3. **Common abstraction**: All four problems have the form "avoid solutions to
+   unit-fraction equations." A unified framework (Egyptian fraction avoidance sets)
+   might yield shared lemmas.
+4. **Divisor-based avoidance**: The weird number bridge shows divisor sets of abundant
+   numbers are NOT sum-free. Can we characterize WHICH divisor sets are pair-free,
+   triple-free, or sum-free?
+
+### Infrastructure Improvements
+
+1. **Shared library**: Factor out common patterns (complement involution, reciprocal sum
+   identity, parity obstruction) into `Erdos/Common/` for reuse across problems.
+2. **P-adic signature bundles**: The VanDoorn.lean proof uses ad-hoc predicates for
+   valuation parity. A bundled `PadicSignature` type could streamline future family
+   constructions.
+3. **Divisor sum library**: `sum_reciprocal_divisors_eq` and the complement map are
+   general enough to live in a shared module. Other problems might need them.
+4. **Minor linter fixes**: Unused variables in Classification.lean, flexible `simp`
+   in VanDoorn.lean + Structure.lean. Cosmetic but improves Mathlib compatibility.
