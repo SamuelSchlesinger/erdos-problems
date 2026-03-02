@@ -455,6 +455,53 @@ congruences cannot cover quadratic residue classes. The Erdős-Straus conjecture
 
 ---
 
+## Novelty Assessment
+
+Results are classified as **Novel** (not known to appear in the literature),
+**Possibly novel** (elementary but we have not found a prior statement),
+or **Known** (formalization of a published result or folklore).
+
+### Novel
+
+| Result | Problem | File | Why novel |
+|--------|---------|------|-----------|
+| Cambie set is NOT sum-free | #301 | `UnitFractionSets/Cambie.lean` | Cambie proposed the 5/8 construction for #302; no prior work checks whether it works for #301. The counterexample 1/15 = 1/36 + 1/45 + 1/60 and the analysis of why both parity and magnitude barriers break for k=3 appear to be original. |
+| Cambie set fails for infinitely many N | #301 | `UnitFractionSets/Cambie.lean` | The scaled family 1/(15m) = 1/(36m) + 1/(45m) + 1/(60m) for all odd m extends the base counterexample to an infinite family. |
+| Structural gap: triple-free but not sum-free | #301 vs #302 | `UnitFractionSets/Cambie.lean` | The combination `cambie_triple_free_but_not_sum_free` is a clean witness that #301 ≠ #302 structurally. This is a concrete negative result separating two Erdős problems. |
+| Star neighborhood bounds (17/18, 11/12) | #302 | `UnitFractionTriples/StarNeighborhood.lean` | The 5-element star {2d,3d,4d,6d,12d} hitting-set argument is a different proof technique from van Doorn's S+T family approach. These intermediate bounds may not appear in the literature. |
+
+### Possibly Novel
+
+| Result | Problem | File | Notes |
+|--------|---------|------|-------|
+| Odd numbers are NOT sum-free | #301 | `UnitFractionSets/Parity.lean` | The identity 1/3 = 1/5 + 1/9 + 1/45 is trivially checkable, but the explicit observation that the parity obstruction is length-dependent (blocks even k, fails for odd k) may not have been stated. |
+| Upper half NOT pair-free | #327 | `UnitFractionPairs/UpperHalf.lean` | The (10m, 15m) family is an immediate consequence of known pair families, but the explicit conclusion that the upper-half strategy fails for #327 (distinguishing it from #302/#301) may not have been noted. |
+| 9/10 upper bound for sum-free sets | #301 | `UnitFractionSets/UpperBound.lean` | The inheritance SumFree→TripleFree→9/10 is trivial, but this specific bound for #301 may not appear in the literature (van Doorn's 25/28 is stated for #301, not 9/10). |
+
+### Known (Formalizations)
+
+| Result | Attribution | File |
+|--------|------------|------|
+| E-S even case, mod 3, mod 4 | Mordell (1967) | `ErdosStraus/EvenCase.lean` etc. |
+| Reduction to primes ≡ 1 (mod 24) | Mordell/Schinzel | `ErdosStraus/Main.lean` |
+| Cambie 5/8 construction (triple-free) | Cambie, erdosproblems.com | `UnitFractionTriples/Cambie.lean` |
+| Van Doorn 9/10 bound (triples) | van Doorn, erdosproblems.com | `UnitFractionTriples/VanDoorn.lean` |
+| Van Doorn 25/28 bound (pairs) | van Doorn, erdosproblems.com | `UnitFractionPairs/VanDoorn.lean` |
+| Benkoski-Erdős (pn weird) | Benkoski & Erdős (1974) | `WeirdNumbers/Structure.lean` |
+| Pseudoperfect ↔ unit fraction sum | Friedman (1993) | `WeirdNumbers/EgyptianBridge.lean` |
+| Factor identity (b−a)(c−a) = a² | Classical | `UnitFractionTriples/UpperHalf.lean` |
+| Odd weird ≥ 3 prime factors | Elementary (toward Liddy-Riedl) | `WeirdNumbers/OddWeirdFactors.lean` |
+| Infinitely many weird numbers | Benkoski & Erdős (1974) | `WeirdNumbers/Structure.lean` |
+| #242 → #302 bridge | Elementary algebra | `ErdosStraus/TripleBridge.lean` |
+| SumFree → TripleFree | Trivial | `UnitFractionSets/Connections.lean` |
+
+**Maintaining this table**: When a new theorem is proved, add it here and
+classify it. When a result previously marked "Novel" or "Possibly novel"
+is found in the literature, move it to "Known" and add the reference to
+REFERENCES.md.
+
+---
+
 ## Areas for Improvement
 
 ### Strengthening Existing Bounds

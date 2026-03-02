@@ -55,18 +55,34 @@ Every theorem must pass the quality gate: no `sorry`, clean `lake build`,
 doc-comments explaining the mathematics, and a proof structure a
 mathematician can follow.
 
+## Potentially Novel Results
+
+Most of this project formalizes known results from the literature. A few
+results may be new — see the
+[Novelty Assessment](LITERATURE.md#novelty-assessment) in LITERATURE.md
+for the full classification. Highlights:
+
+- **Cambie 5/8 construction does NOT lift to sum-free sets** (#301 vs #302):
+  the identity 1/15 = 1/36 + 1/45 + 1/60 sits inside the Cambie set,
+  proving a structural gap between triple-free and sum-free avoidance.
+- **Star neighborhood bounds** (17/18, 11/12 for #302): intermediate
+  density bounds via a hitting-set argument on {2d, 3d, 4d, 6d, 12d},
+  a different technique from van Doorn's S+T family approach.
+
 ## Documentation
 
 - [LITERATURE.md](LITERATURE.md) — living document tracking papers,
-  techniques tried and to-try, cross-cutting observations, and a
-  prioritized queue of next formalizations. This is where mathematical
-  ideas are evaluated for feasibility before any Lean code is written.
+  techniques tried and to-try, cross-cutting observations, novelty
+  assessment, and a prioritized queue of next formalizations. This is
+  where mathematical ideas are evaluated for feasibility before any Lean
+  code is written.
 - [REFERENCES.md](REFERENCES.md) — formal bibliography organized by
-  problem number. Citation keys (e.g., `[BE74]`, `[Fr93]`) match
-  doc-comments in the Lean source so readers can trace each theorem back
-  to its origin in the literature.
+  problem number. Citation keys (e.g., `[BE74]`, `[Fr93]`) are used for
+  traceability between the bibliography and the Lean source, where
+  author names appear in doc-comments.
 - [WORKFLOW.md](WORKFLOW.md) — the iterative problem-selection and proof
-  process, including proof standards and the quality gate.
+  process, including proof standards, the quality gate, and literature
+  maintenance procedures.
 
 ## Proof Standards
 
@@ -75,3 +91,12 @@ mathematician can follow.
 3. No custom axioms beyond Lean's kernel
 4. Mathlib-compatible naming and tactic style
 5. Reviewer-ready doc-comments on every theorem
+
+## AI Assistance
+
+This project is developed with the assistance of AI (Claude by Anthropic).
+Problem selection, proof strategy, and all mathematical reasoning are
+human-directed; Claude assists with Lean 4 formalization, tactic
+engineering, and code generation. Every theorem is verified by the Lean
+type-checker — the proofs are machine-checked regardless of how they were
+authored.
