@@ -27,6 +27,7 @@ with zero `sorry`.
 
 ```
 Erdos/
+  Common/                  -- Shared infrastructure (packing bounds, p-adic signatures)
   ErdosStraus/             -- #242: 4/n = 1/x + 1/y + 1/z
   UnitFractionTriples/     -- #302: 1/a = 1/b + 1/c avoidance
   UnitFractionPairs/       -- #327: (a+b) | ab avoidance

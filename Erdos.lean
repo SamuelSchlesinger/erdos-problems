@@ -21,6 +21,7 @@ import Erdos.UnitFractionSets.Connections
 import Erdos.UnitFractionSets.UpperHalf
 import Erdos.UnitFractionSets.Parity
 import Erdos.UnitFractionSets.UpperBound
+import Erdos.UnitFractionSets.Cambie
 import Erdos.WeirdNumbers.Statement
 import Erdos.WeirdNumbers.Structure
 import Erdos.WeirdNumbers.OddWeird

@@ -30,18 +30,14 @@ See WORKFLOW.md for the iterative problem-selection and proof process.
 
 ```
 Erdos/
-  ErdosStraus/           -- Problem 242: Erdős-Straus conjecture
-    Statement.lean       -- Conjecture statement
-    EvenCase.lean        -- Proof for even n
-    Mod4Eq3.lean         -- Proof for n ≡ 3 (mod 4)
-    Mod4Eq1.lean         -- Proof for n ≡ 1 (mod 4) subcases
-    Main.lean            -- Combined results
-  Common/                -- Shared lemmas (Egyptian fractions, etc.)
+  Common/                -- Shared infrastructure (packing bounds, p-adic signatures)
+  ErdosStraus/           -- #242: Erdős-Straus conjecture (4/n = 1/x + 1/y + 1/z)
+  UnitFractionTriples/   -- #302: 1/a = 1/b + 1/c avoidance (density bounds)
+  UnitFractionPairs/     -- #327: (a+b) | ab avoidance (master characterization)
+  UnitFractionSets/      -- #301: 1/a = Σ 1/bᵢ avoidance (bridge to #302)
+  WeirdNumbers/          -- #470: abundant but not pseudoperfect
 ```
 
-## Current Problem: #242 (Erdős-Straus)
-
-For every n > 2, there exist distinct positive integers x < y < z such that
-4/n = 1/x + 1/y + 1/z.
-
-Status: OPEN. We are attempting a novel proof.
+Each problem directory follows the same progression: `Statement.lean` formalizes
+definitions, subsequent files build up partial results, and cross-problem
+connections live in dedicated bridge files.
