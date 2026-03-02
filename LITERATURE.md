@@ -51,6 +51,13 @@ there is essentially no margin.
   **Status: NOT VIABLE without breakthroughs.**
 - **Elsholtz-Tao Type A/B classification**: restructures the solution space; might reveal
   new identities within p ≡ 1 (mod 24). **Moderate formalization effort.**
+- **Identity registry with coverage tracking**: Create a structure representing a modular
+  identity (modulus conditions, explicit formulas for (x(n),y(n),z(n)), validity theorem,
+  coverage class), plus a "coverage combiner" that mechanically proves "covered outside
+  these residue classes." Makes adding identities from literature or search cheap, and
+  gives a mechanically checked "remaining exceptional set" statement. Doesn't bypass
+  Schinzel, but makes last-mile modular work scalable.
+  **Formalizable: YES, engineering-heavy. LOW PRIORITY given #242 is wrapped up.**
 - **Formal connection #242 → #302**: ✓ FORMALIZED in `ErdosStraus/TripleBridge.lean`.
   Every Erdős-Straus solution 4/n = 1/x + 1/y + 1/z rearranges to 1/a = 1/y + 1/z
   (a unit fraction triple) when (4x−n) | nx. Even case produces consecutive triples.
@@ -106,6 +113,14 @@ avoiding (a+b)|2ab force o(N)?) becomes the interesting one.
 - **Computational lower bound**: Use `pair_n_cn_iff` to enumerate ALL pair constraints
   in [1, N] and greedily build pair-free sets. Compare density to 0.705 (SAT data).
   Not a Lean formalization, but would clarify the conjectured density.
+- **Pair gadget mining via `pair_n_cn_iff`**: The master characterization (n, cn) pair
+  ⟺ (c+1)|n is a perfect interface for systematic gadget search. Search over multiplier
+  sets G ⊆ {1,...,M}, put an edge between u,v whenever the pair condition always holds
+  between u·a and v·a (for appropriate parameter restrictions on a), and compute the
+  minimum vertex cover. Choose parameter conditions (valuation signatures) for disjoint
+  packing. Could rediscover Van Doorn's construction as one point in the space and
+  potentially find smaller-multiplier gadgets with better omission ratios.
+  **Formalizable: YES. Pair identities via `pair_n_cn_iff` are very short proofs.**
 
 ---
 
@@ -197,6 +212,48 @@ integers in (N/2, N] (about N/2 elements). Total: ~5N/8.
 - **Graph coloring connection**: Brown-Rödl (1991) proved the Ramsey version (#303).
   Formalizing the connection between Ramsey and density versions would clarify the
   structural landscape. **Moderate effort.**
+- **Systematic gadget mining**: The star neighborhood {2d,3d,4d,6d,12d} was found by hand.
+  A systematic search over multiplier sets G ⊆ {1,...,M} would find all triple identities
+  among elements of G, compute the hitting number τ(G) (minimum elements to remove to
+  destroy all triples), and identify configurations with better omission-per-parameter than
+  the star. The S+T barrier only blocks *parametric family* extensions; multi-element
+  *gadgets* that force ≥3 omissions from a 6+ element set could bypass it entirely.
+  Use z3 to enumerate candidate gadgets, then verify triple identities by `ring`.
+  Disjointness via valuation signatures (see Infrastructure: ValSignature library).
+  **This is the most credible path past 9/10 without deep number theory.**
+  **Formalizable: YES, high priority. Depends on signature abstraction infrastructure.**
+- **Supersaturation via divisor classification**: ✓ **INFRASTRUCTURE BUILT**
+  (Supersaturation.lean). The bijection `triple_count_eq_divisor_count` (triples containing
+  a ↔ divisors of a²) gives per-element triple counts. Core lemmas formalized:
+  - `triple_free_forces_exclusion`: a ∈ A, d | a², d < a ⟹ {a+d, a+a²/d} ⊄ A
+  - `exclusion_endpoints_pairwise_disjoint`: endpoint pairs from different divisors are disjoint
+  - `triple_free_consecutive_exclusion`: d=1 case: {a+1, a²+a} ⊄ A for a ∈ A, a ≥ 2
+  **Next step**: double-counting (sum exclusions over a ∈ A, bound multiplicity of endpoints,
+  extract a global density bound). **Formalizable: MEDIUM-HARD. Requires Finset.sum chains.**
+- **Non-uniform (variable-size) gadgets**: Instead of fixed-size gadgets like {2d,3d,6d}
+  (always 3 elements), use structures whose size grows with the parameter. The full
+  "divisor star" of d — all multiples c·d where c·d appears in some triple with d — has
+  variable size depending on τ(d²). If the hitting number scales favorably with gadget
+  size, this could give better exclusion ratios than fixed-size families. The challenge is
+  proving disjointness when gadget sizes vary (the ValSignature approach assumes fixed
+  multiplier sets). A hybrid approach: group parameters by τ(a²) value and use different
+  gadgets per group. The PackingBound framework would need generalization to handle
+  variable-size gadgets (each gadget d has its own size s_d and bound r_d).
+  **Formalizable: MEDIUM. Requires generalizing PackingBound to variable sizes.**
+- **Fourier-analytic methods**: The standard technique for density problems in additive
+  combinatorics. The equation 1/a = 1/b + 1/c is multiplicative (a(b+c) = bc), making
+  direct Fourier analysis on (ℤ/Nℤ, +) less natural. Two approaches:
+  (1) Multiplicative Fourier analysis on (ℤ/Nℤ)×, viewing the constraint as a
+  multiplicative convolution condition.
+  (2) Divisor parametrization: b = a+d, c = a+a²/d reduces to an additive constraint
+  on d, amenable to circle-method techniques.
+  The Bloom-Mehta formalization demonstrates that circle-method proofs CAN be formalized
+  in Lean ([b-mehta.github.io/unit-fractions](https://b-mehta.github.io/unit-fractions/)),
+  though at substantial engineering cost. For #302 specifically, the per-element exclusion
+  count τ(a²) connects to the Dirichlet divisor problem, where sharp bounds on
+  ∑_{n≤N} τ(n²) are known (asymptotic to c·N·log²N). This average-case divisor density
+  is the key input for a Fourier-flavored supersaturation bound.
+  **Formalizable: HARD. Research-level mathematics + heavy Lean engineering.**
 
 ---
 
@@ -252,6 +309,17 @@ sets produce forbidden configurations for both problems.
   forbidden sum-free configurations. Would improve the bound from 9/10 to 25/28.
   Note: SumFree does NOT imply PairFree, so the #327 bound cannot be inherited.
   **Would need to show {3a, 6a} or {4a, 12a} pairs produce sum-free violations.**
+- **Multiplier-fiber reduction** (novel attack surface): If a ∈ A and all RHS elements
+  are multiples of a, say bᵢ = a·kᵢ, then 1/a = Σ 1/(a·kᵢ) ⟺ 1 = Σ 1/kᵢ.
+  Define the "multiplier fiber" K_a := { k ≥ 2 : a·k ∈ A }. Then SumFree(A) implies:
+  for every a ∈ A, no finite subset of K_a has reciprocal sum 1. This reframes #301 as
+  a family of "Egyptian-1-avoiding" constraints on fibers. If a large SumFree set forces
+  some fiber K_a to have high density in [2, N/a], existing results on when dense sets
+  must contain Σ1/k = 1 subsets (Bloom, Liu-Sawhney) could yield new upper bounds.
+  Even partial results ("any A with property X forces a Σ1/k=1 inside some fiber")
+  would be clean intermediate lemmas. The *statement* of the fiber reduction is easy
+  to prove; the *density forcing* is the hard part.
+  **Formalizable: fiber reduction YES (easy). Density forcing HARD (research-level).**
 - **Liu-Sawhney threshold**: Their (1-1/e)N threshold for guaranteed unit-fraction
   subsets is related but dual to #301. Formalizing the exact relationship would
   clarify the gap. **Research-level, requires understanding their circle method argument.**
@@ -332,6 +400,21 @@ rich divisor set making subset sums easy to find → pseudoperfection likely.
     on the divisor lattice should succeed.
   - 4–5 primes: similar but harder, need to track all 2^k-1 proper subsets.
   **Moderate-hard. Would be a significant strengthening of our result.**
+- **Odd weird ≥ 4 prime factors** (incremental push): Extend the σ-bounding approach
+  from `odd_weird_three_prime_factors` to three-prime forms p^a·q^b·r^c. Show that
+  odd abundant numbers with exactly 3 distinct primes are always pseudoperfect via
+  σ multiplicativity + greedy subset-sum on the divisor lattice. Same proof flavor
+  as ≥3 (cascading σ inequalities, coprimality decomposition), scales linearly with
+  cases. Pushing from 3 to 4 (and potentially 5) toward the known ≥6 (Liddy-Riedl)
+  would be meaningful formalized progress.
+  **Formalizable: YES, medium effort. Mechanically similar to existing proof.**
+- **DivisorEgyptianFree families**: Define DivisorEgyptianFree(n) := no nonempty
+  T ⊆ divisors(n)\{1} has Σ 1/t = 1. Then DivisorEgyptianFree(n) ⟹ ¬Pseudoperfect(n)
+  by the existing bridge. If DivisorEgyptianFree holds for structured infinite families
+  (e.g., certain 2^k·p·q patterns with constraints), this produces new families of weird
+  numbers. Reuses the unit-fraction machinery rather than doing subset-sum directly.
+  For small divisor sets, `native_decide` on the finite check may suffice.
+  **Formalizable: YES. Bridges #470 and #301 infrastructure.**
 - **Kravitz-style large primitive weird numbers**: Construct explicit primitive weird
   numbers using Mersenne primes. If 2^p - 1 is prime, then 2^{p-1}(2^p - 1)q for
   suitable q could be primitive weird. **Interesting but needs careful analysis.**
@@ -457,17 +540,29 @@ their blueprint approach (dependency graphs, modular proof structure) is a good 
 | — | Van Doorn's 25/28 upper bound (pair-free) | #327 | **DONE** ✓ |
 | — | 9/10 upper bound (sum-free via inheritance) | #301 | **DONE** ✓ |
 | — | Cambie set NOT sum-free (structural gap #301 vs #302) | #301 | **DONE** ✓ |
+| — | Erdős-Straus → triples connection | #242 → #302 | **DONE** ✓ |
+| — | ValSignature abstraction library | Infra | **DONE** ✓ |
+| — | Packing/omission framework (PackingBound) | Infra | **DONE** ✓ |
+| — | Gadget mining script (z3) | #302, #327 | **DONE** ✓ |
+| — | Supersaturation core lemmas | #302 | **DONE** ✓ |
 
 ### Active Queue (ranked by impact × feasibility)
 
-| Priority | Theorem | Problem | Effort | Notes |
-|----------|---------|---------|--------|-------|
-| 3 | **Erdős-Straus → triples connection** | #242 → #302 | **DONE** ✓ | `consecutive_triple`, `erdos_straus_residual`, `erdos_straus_generates_triple`, `even_erdos_straus_bridge` |
+| Priority | Theorem / Task | Problem | Effort | Notes |
+|----------|---------------|---------|--------|-------|
+| **A** | **Supersaturation double-counting** | #302 | Hard | Steps B–D of the supersaturation program: sum exclusions over a ∈ A, bound endpoint multiplicity, extract global density bound. Uses `triple_free_forces_exclusion` + `exclusion_endpoints_pairwise_disjoint`. |
+| **B** | **Non-uniform gadgets** | #302 | Medium | Variable-size gadgets whose size scales with τ(a²). Requires generalizing PackingBound to variable sizes. Could bypass S+T barrier. |
+| **C** | **Pair gadget mining for #327** | #327 | Medium | Same approach using `pair_n_cn_iff` as the oracle. Could find better-than-25/28 bounds or confirm tightness. |
+| **D** | **Multiplier-fiber reduction for #301** | #301 | Easy (statement) / Hard (exploitation) | Prove the fiber reformulation. Even without density forcing, it's a clean new interface for #301 attacks. |
+| **E** | **Odd weird ≥ 4 prime factors** | #470 | Medium | Incremental push toward Liddy-Riedl (≥6). Same proof flavor as ≥3, scales linearly with cases. |
+| **F** | **DivisorEgyptianFree families** | #470 | Medium | New weird number construction technique via unit-fraction avoidance on divisor sets. Bridges #470 and #301 machinery. |
 | 4 | **Pure-parity optimality theorem** | #327, #302, #301 | Medium | Any avoidance set with |A| > N/2 must contain both parities |
 | 5 | **Even-length parity obstruction** | #301 | Medium | No odd set admits 1/a = Σ 1/bᵢ with |S| even; the correct partial result |
-| 6 | **Odd weird ≥ 6 prime factors** | #470 | Hard | Liddy-Riedl full result; case analysis on 3–5 prime factors |
-| 7 | **Tighter triple-free bound** | #302 | **BARRIER** | S+T is tight; no simple third family works (see barrier analysis) |
+| 6 | **Odd weird ≥ 6 prime factors** | #470 | Hard | Liddy-Riedl full result; case analysis on 3–5 prime factors. Item E is a stepping stone. |
+| 7 | **Fourier-analytic methods** | #302 | Very Hard | Multiplicative Fourier analysis or circle method via divisor parametrization. Research-level + heavy Lean engineering. |
 | 8 | **Weird number density** | #470 | Very Hard | Benkoski-Erdős positive density; requires PNT |
+
+**Recommended next step**: A (supersaturation double-counting) is the most promising path to improving the 9/10 bound for #302. Items B–F can run in parallel.
 
 ### Abundancy Chain (completed)
 
@@ -596,12 +691,43 @@ Several cross-problem connections are identified but not formalized:
 
 ### Infrastructure Improvements
 
-1. **Shared library**: Factor out common patterns (complement involution, reciprocal sum
+1. **Valuation-signature abstraction library** (`Common/ValSignature.lean`): Both VanDoorn
+   files repeat the same proof skeleton: define parameter predicates via padicValNat
+   congruences → prove valuation shifts under multiplication → prove signature injectivity
+   → disjointness. Abstract this into a reusable mini-library:
+   - A general `Signature : ℕ → (Fin t → ZMod k)` built from padicValNat p n mod k.
+   - Lemma: `Signature (c * n) = Signature n + Signature c` (componentwise).
+   - Generic "if signatures differ then sets are disjoint" lemma.
+   This turns trying a new family into: choose multipliers, choose a signature basis
+   (primes + moduli), prove a short separation lemma, get disjointness for free.
+   **HIGH PRIORITY — this is the enabler for gadget mining (#302, #327, #301).**
+
+2. **Packing/omission framework** (`Common/PackingBound.lean`): The same combinatorial
+   skeleton appears in StarNeighborhood.lean, both VanDoorn.lean files, and UpperBound.lean:
+   disjoint structures × forced omissions → global size upper bound. Factor into:
+   ```
+   theorem packing_upper_bound (F : ℕ → Finset ℕ) (D : Finset ℕ) (s r : ℕ)
+     (hsize : ∀ d ∈ D, (F d).card = s)
+     (hpwd : (↑D : Set ℕ).PairwiseDisjoint F)
+     (hfree : ∀ d ∈ D, (F d ∩ A).card ≤ s - r)
+     (hrange : ∀ d ∈ D, F d ⊆ Icc 1 N) :
+     A.card ≤ N - r * D.card
+   ```
+   Works for graphs (#327), 3-uniform hypergraphs (#302), and sum-free configs (#301).
+   Makes new bounds literally plug-and-play.
+   **HIGH PRIORITY — combined with (1), creates a "bound factory" loop.**
+
+3. **Shared library**: Factor out common patterns (complement involution, reciprocal sum
    identity, parity obstruction) into `Erdos/Common/` for reuse across problems.
-2. **P-adic signature bundles**: The VanDoorn.lean proof uses ad-hoc predicates for
-   valuation parity. A bundled `PadicSignature` type could streamline future family
-   constructions.
-3. **Divisor sum library**: `sum_reciprocal_divisors_eq` and the complement map are
+4. **P-adic signature bundles**: Subsumed by (1) above. The bundled `PadicSignature` type
+   is the core of the ValSignature library.
+5. **Divisor sum library**: `sum_reciprocal_divisors_eq` and the complement map are
    general enough to live in a shared module. Other problems might need them.
-4. **Minor linter fixes**: Unused variables in Classification.lean, flexible `simp`
+6. **Minor linter fixes**: Unused variables in Classification.lean, flexible `simp`
    in VanDoorn.lean + Structure.lean. Cosmetic but improves Mathlib compatibility.
+7. **Extremal functions as first-class objects**: Define `f302(N) := max |A| over
+   A ⊆ Icc 1 N, TripleFree A` (similarly f327, f301). Every new forcing gadget proof
+   then yields a theorem about fXXX, making results easier to compare and reuse.
+   Note: `Finset.sup` over all subsets requires decidability of the constraint, which
+   may be awkward; the current ∀-quantified style (`∀ A, TripleFree A → ...`) is
+   equivalent and more practical. **LOW PRIORITY — mostly cosmetic.**
