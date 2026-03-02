@@ -289,6 +289,18 @@ sets produce forbidden configurations for both problems.
   One-line proof: `van_doorn_upper_bound N A (sumFree_implies_tripleFree hA) hAN`.
   **First formalized upper bound for Problem 301.**
 
+- **Extended star gadget analysis**: ✓ **DONE** (ExtendedStar.lean). The extended star
+  E_d = {2d, 3d, 4d, 6d, 10d, 12d, 15d} has 7 elements with 4 triple violations
+  and 4 additional k=3 sum-free violations. Triple-free sets keep ≤ 5 elements
+  (e.g., {2d,3d,10d,12d,15d}), but sum-free sets keep ≤ 4. The 5-element
+  triple-free subset is NOT sum-free (1/(2d) = 1/(3d)+1/(10d)+1/(15d)), providing
+  a systematic gadget-level explanation for why #301 has tighter bounds than #302.
+  **Novel: first formal demonstration of the sum-free/triple-free gap at gadget level.**
+  `sum_identity_2_3_10_15`, `sum_identity_2_4_6_12`, `sum_identity_3_6_10_15`,
+  `sum_identity_4_10_12_15`, `extended_star_card_eq_seven`,
+  `sum_free_inter_extended_star_le_four`, `triple_free_extended_star_five`,
+  `sum_free_strictly_more_restrictive`.
+
 ### Ideas To Try
 
 - **Odd numbers are NOT sum-free**: ✓ **DONE** (Parity.lean). Counterexample:
@@ -383,6 +395,12 @@ rich divisor set making subset sums easy to find → pseudoperfection likely.
 - **Odd weird ≥ 3 prime factors**: ✓ **DONE** (`odd_weird_three_prime_factors`).
 - **Primitive weird 2pq**: ✓ **DONE** (`two_pq_primitive_when_weird`).
 - **Infinitely many weird numbers**: ✓ **DONE** (`infinitely_many_weird`).
+- **DivisorEgyptianFree characterization**: ✓ **DONE** (DivisorEgyptianFree.lean).
+  Defined `DivisorEgyptianFree(n)` := no nonempty T ⊆ divisors(n)\{1} with Σ 1/t = 1.
+  Master theorem: `weird_iff_abundant_egyptian_free` — weird ⟺ abundant ∧ DivisorEgyptianFree.
+  Also proved `prime_divisor_egyptian_free` (primes are trivially DEF) and
+  `perfect_not_divisor_egyptian_free` (perfect numbers are NOT DEF).
+  **Unifies #470 with the unit-fraction avoidance framework of #301/#302.**
 
 ### Ideas To Try
 
@@ -408,9 +426,9 @@ rich divisor set making subset sums easy to find → pseudoperfection likely.
   cases. Pushing from 3 to 4 (and potentially 5) toward the known ≥6 (Liddy-Riedl)
   would be meaningful formalized progress.
   **Formalizable: YES, medium effort. Mechanically similar to existing proof.**
-- **DivisorEgyptianFree families**: Define DivisorEgyptianFree(n) := no nonempty
-  T ⊆ divisors(n)\{1} has Σ 1/t = 1. Then DivisorEgyptianFree(n) ⟹ ¬Pseudoperfect(n)
-  by the existing bridge. If DivisorEgyptianFree holds for structured infinite families
+- **DivisorEgyptianFree families**: ✓ **DEFINITION DONE** (DivisorEgyptianFree.lean).
+  `DivisorEgyptianFree` defined and `weird_iff_abundant_egyptian_free` proved.
+  Next step: if DivisorEgyptianFree holds for structured infinite families
   (e.g., certain 2^k·p·q patterns with constraints), this produces new families of weird
   numbers. Reuses the unit-fraction machinery rather than doing subset-sum directly.
   For small divisor sets, `native_decide` on the finite check may suffice.

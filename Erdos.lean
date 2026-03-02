@@ -22,9 +22,11 @@ import Erdos.UnitFractionSets.UpperHalf
 import Erdos.UnitFractionSets.Parity
 import Erdos.UnitFractionSets.UpperBound
 import Erdos.UnitFractionSets.Cambie
+import Erdos.UnitFractionSets.ExtendedStar
 import Erdos.WeirdNumbers.Statement
 import Erdos.WeirdNumbers.Structure
 import Erdos.WeirdNumbers.OddWeird
 import Erdos.WeirdNumbers.OddWeirdFactors
 import Erdos.WeirdNumbers.PrimitiveWeird
 import Erdos.WeirdNumbers.EgyptianBridge
+import Erdos.WeirdNumbers.DivisorEgyptianFree
