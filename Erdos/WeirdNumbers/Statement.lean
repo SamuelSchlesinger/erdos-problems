@@ -86,4 +86,52 @@ theorem perfect_not_weird {n : ℕ} (hn : 0 < n)
   intro ⟨_, hnp⟩
   exact hnp (perfect_implies_pseudoperfect hn hperf)
 
+/-- A positive integer n is *deficient* if the sum of its proper divisors
+    is less than n, i.e., σ(n) < 2n. -/
+def Deficient (n : ℕ) : Prop :=
+  0 < n ∧ (n.properDivisors.sum id) < n
+
+/-- **Deficient numbers are not weird.**
+
+    A deficient number has proper divisors summing to less than n,
+    so it is not abundant. Since weird requires abundant, deficient
+    numbers cannot be weird. -/
+theorem deficient_not_weird {n : ℕ} (hdef : Deficient n) : ¬Weird n := by
+  obtain ⟨_, hlt⟩ := hdef
+  intro ⟨⟨_, hab⟩, _⟩
+  exact absurd (lt_of_le_of_lt hab hlt) (lt_irrefl _)
+
+/-- **Primes are not weird.**
+
+    A prime p has properDivisors = {1}, so the sum of proper divisors
+    is 1 < p. Hence p is deficient (far from abundant) and therefore
+    not weird.
+
+    This is a basic sanity check: the weird number phenomenon requires
+    a rich divisor structure that primes completely lack. -/
+theorem prime_not_weird {p : ℕ} (hp : Nat.Prime p) : ¬Weird p := by
+  apply deficient_not_weird
+  refine ⟨hp.pos, ?_⟩
+  have h1 : p.properDivisors.sum id = 1 :=
+    Nat.sum_properDivisors_eq_one_iff_prime.mpr hp
+  have h2 := hp.one_lt
+  omega
+
+/-- **1 is not weird.**
+
+    The number 1 has no proper divisors (properDivisors 1 = ∅), so the
+    sum is 0 < 1 = n. It is deficient (and not even abundant). -/
+theorem one_not_weird : ¬Weird 1 := by
+  apply deficient_not_weird
+  constructor
+  · omega
+  · show (1 : ℕ).properDivisors.sum id < 1
+    native_decide
+
+/-- **836 is the second-smallest weird number.** -/
+theorem weird_836 : Weird 836 := by native_decide
+
+/-- **836 is a primitive weird number.** -/
+theorem primitive_weird_836 : PrimitiveWeird 836 := by native_decide
+
 end WeirdNumbers

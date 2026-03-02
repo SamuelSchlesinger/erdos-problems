@@ -92,11 +92,11 @@ avoiding (a+b)|2ab force o(N)?) becomes the interesting one.
   S_a = {2a,3a,4a,6a,12a}. Count disjoint copies. **High priority, formalizable.**
   The VanDoorn.lean infrastructure from #302 (p-adic signatures, disjointness proofs)
   would transfer directly. Same technique also gives 25/28 for #301.
-- **Upper half for pair-free**: Check if (N/2, N] is pair-free. Unlike #302, this is
-  NOT automatic — need to check (a+b)|ab for a,b > N/2. Hypothesis: probably NOT
-  pair-free since (N/2+1, N) could have (a+b)|ab. Could use `pair_n_cn_iff` to check:
-  (n, cn) with n, cn > N/2 requires c = 1 and 2|n, so (n, n) pairs exist when n even.
-  **Quick investigation — if false, structurally distinguishes #327 from #302.**
+- **Upper half is NOT pair-free**: ✓ **DONE** (UpperHalf.lean). The pair (10m, 15m)
+  satisfies 1/(10m) + 1/(15m) = 1/(6m) and lies in (N/2, N] for N = 15m.
+  Proved for all m ≥ 1, giving infinitely many N where the upper half fails.
+  This structurally distinguishes #327 from #302 and #301, where the upper half
+  is always triple-free/sum-free. **The magnitude obstruction fails for #327.**
 - **Mixed construction**: Odd numbers in [1, N/3] ∪ (N/2, N]. Gives density ~2/3,
   but need to verify cross-term pair-freeness. **Worth investigating.**
 - **Computational lower bound**: Use `pair_n_cn_iff` to enumerate ALL pair constraints
@@ -193,13 +193,11 @@ sets produce forbidden configurations for both problems.
 
 ### Ideas To Try
 
-- **Odd numbers are sum-free**: Generalize parity to arbitrary-length sums.
-  The key step: if all bᵢ are odd, then ∑ a·∏_{j≠i} bⱼ has the wrong parity
-  (each term is odd·odd^{k-1} = odd, sum of k odd terms has parity k mod 2).
-  For k even: sum is even, but ∏ bⱼ is odd → contradiction.
-  For k odd: sum is odd = ∏ bⱼ (odd), consistent — but then check 1/a = Σ 1/bᵢ
-  forces a < bᵢ for all i, and a | ∏ bⱼ / gcd(...), which constrains heavily.
-  **Formalizable, ~100 lines. Would complete the parity picture for #301.**
+- **Odd numbers are NOT sum-free**: ✓ **DONE** (Parity.lean). Counterexample:
+  1/3 = 1/5 + 1/9 + 1/45 (all odd, k=3). The parity obstruction only blocks
+  even-length representations: clearing denominators gives ∏ b = a · Σ ∏_{j≠i} bⱼ;
+  for k even, RHS = sum of even-many odds = even ≠ odd = LHS. For k odd, both
+  sides are odd and no contradiction arises. **Corrects the earlier conjecture.**
 - **Cambie's 5/8 construction for #301**: Need to check if it's sum-free, not just
   triple-free. The k=2 case is `upper_half_sum_free` + parity (already done for triples).
   The k≥3 case: if a ≤ N/4 is odd and b₁,...,bₖ ∈ (N/2,N], then
@@ -274,10 +272,13 @@ rich divisor set making subset sums easy to find → pseudoperfection likely.
 
 ### Ideas To Try
 
-- **Deficient/prime/prime-power are not weird**: Trivial (not abundant). ~5 lines each.
-  Would round out the "non-weird" characterizations. **Easy wins.**
-- **836 is weird / primitive weird**: Extend computational verification via `native_decide`.
-  Also 4030, 5830 (next weird numbers). **Easy, ~5 lines each.**
+- **Deficient/prime not weird**: ✓ **DONE** (Statement.lean). Deficient numbers are
+  not abundant hence not weird. Primes have properDivisors = {1}, sum = 1 < p.
+  Uses Mathlib's `Nat.sum_properDivisors_eq_one_iff_prime`.
+- **836 is weird / primitive weird**: ✓ **DONE** (Statement.lean). Second-smallest
+  weird number, verified via `native_decide`.
+- **4030, 5830 (next weird numbers)**: Extend computational verification.
+  **Easy, ~5 lines each.**
 - **Odd weird ≥ 6 prime factors (Liddy-Riedl full result)**: We proved ≥ 3. The gap
   to 6 requires showing that odd abundant numbers with 3, 4, or 5 distinct prime
   factors are always pseudoperfect. This is a serious case analysis:
@@ -403,21 +404,23 @@ their blueprint approach (dependency graphs, modular proof structure) is a good 
 | — | Primitive weird 2pq | #470 | **DONE** ✓ |
 | — | Infinitely many weird numbers | #470 | **DONE** ✓ |
 | — | Abundancy chain (5 theorems) | #470 | **DONE** ✓ |
+| — | Upper half NOT pair-free | #327 | **DONE** ✓ |
+| — | Deficient/prime not weird | #470 | **DONE** ✓ |
+| — | 836 is primitive weird | #470 | **DONE** ✓ |
+| — | Odd numbers NOT sum-free (counterexample) | #301 | **DONE** ✓ |
 
 ### Active Queue (ranked by impact × feasibility)
 
 | Priority | Theorem | Problem | Effort | Notes |
 |----------|---------|---------|--------|-------|
 | 1 | **Van Doorn's 25/28 upper bound** | #327 + #301 | Hard | Same construction upgrades BOTH problems; infrastructure from VanDoorn.lean transfers |
-| 2 | **Odd numbers are sum-free** | #301 | Easy | Completes parity picture; multi-term parity argument |
-| 3 | **Cambie's 5/8 for sum-free** | #301 | Medium | Key question: does k ≥ 3 allow solutions? Determines if #301 gap matches #302 |
-| 4 | **Upper half is NOT pair-free** | #327 | Easy | Counterexample: (n, n) for even n. Structurally separates #327 from #302 |
-| 5 | **Erdős-Straus → triples connection** | #242 → #302 | Easy | 4/n = 1/x + 1/y + 1/z rearranges to unit fraction triple |
-| 6 | **Deficient/prime not weird** | #470 | Easy | Trivial non-abundance; rounds out characterizations |
-| 7 | **Pure-parity optimality theorem** | #327, #302, #301 | Medium | Any avoidance set with |A| > N/2 must contain both parities |
-| 8 | **Odd weird ≥ 6 prime factors** | #470 | Hard | Liddy-Riedl full result; case analysis on 3–5 prime factors |
-| 9 | **Tighter triple-free bound** | #302 | Research | Add U-family to S+T for sub-9/10 bound |
-| 10 | **Weird number density** | #470 | Very Hard | Benkoski-Erdős positive density; requires PNT |
+| 2 | **Cambie's 5/8 for sum-free** | #301 | Medium | Key question: does k ≥ 3 allow solutions? Determines if #301 gap matches #302 |
+| 3 | **Erdős-Straus → triples connection** | #242 → #302 | Easy | 4/n = 1/x + 1/y + 1/z rearranges to unit fraction triple |
+| 4 | **Pure-parity optimality theorem** | #327, #302, #301 | Medium | Any avoidance set with |A| > N/2 must contain both parities |
+| 5 | **Even-length parity obstruction** | #301 | Medium | No odd set admits 1/a = Σ 1/bᵢ with |S| even; the correct partial result |
+| 6 | **Odd weird ≥ 6 prime factors** | #470 | Hard | Liddy-Riedl full result; case analysis on 3–5 prime factors |
+| 7 | **Tighter triple-free bound** | #302 | Research | Add U-family to S+T for sub-9/10 bound |
+| 8 | **Weird number density** | #470 | Very Hard | Benkoski-Erdős positive density; requires PNT |
 
 ### Abundancy Chain (completed)
 
