@@ -110,4 +110,74 @@ theorem triple_count_eq_divisor_count (a : ℕ) (ha : 0 < a) :
     rw [hdiv_eq]
     ext <;> simp <;> omega
 
+/-- **Every unit fraction triple has an even element.**
+
+    For any triple 1/a = 1/b + 1/c with a < b and a < c (positive naturals),
+    at least one of a, b, c is even.
+
+    *Proof*: If a and b are both odd, then b + c has the same parity as c.
+    If c is odd: a*(b+c) = odd*even = even, but b*c = odd*odd = odd.
+    If c is even: a*(b+c) = odd*odd = odd, but b*c = odd*even = even.
+    Either way, a*(b+c) ≠ b*c, contradicting the triple equation.
+
+    This explains why every triple family {c·k, d·k, e·k} must have at
+    least one even multiplier — no family can be coprime to 6 in all
+    components. This is a structural barrier to extending the S+T family
+    approach for tightening the 9/10 upper bound. -/
+theorem triple_has_even_element {a b c : ℕ} (_ha : 0 < a) (_hb : 0 < b) (_hc : 0 < c)
+    (_hab : a < b) (_hac : a < c)
+    (htrip : a * (b + c) = b * c) :
+    Even a ∨ Even b ∨ Even c := by
+  by_contra h
+  push_neg at h
+  obtain ⟨ha_odd, hb_odd, hc_odd⟩ := h
+  rw [Nat.not_even_iff_odd] at ha_odd hb_odd hc_odd
+  -- b + c is even (odd + odd), so a*(b+c) is even.
+  -- But b*c is odd (odd*odd). Since a*(b+c) = b*c, even = odd: contradiction.
+  have hprod_even : Even (a * (b + c)) := (hb_odd.add_odd hc_odd).mul_left a
+  have hprod_odd : Odd (b * c) := hb_odd.mul hc_odd
+  rw [htrip] at hprod_even
+  obtain ⟨p, hp⟩ := hprod_even
+  obtain ⟨q, hq⟩ := hprod_odd
+  omega
+
+/-- **If the smallest element of a triple is odd, both larger elements are even.**
+
+    For any triple 1/a = 1/b + 1/c with a < b and a < c, if a is odd then
+    both b and c are even.
+
+    *Proof*: From the factor identity (b-a)(c-a) = a², if a is odd then a²
+    is odd, so both (b-a) and (c-a) must be odd (an even factor would make
+    the product even). Then b = a + (b-a) = odd + odd = even, and similarly
+    for c. -/
+theorem triple_odd_smallest_forces_even {a b c : ℕ} (ha : 0 < a) (hab : a < b) (hac : a < c)
+    (htrip : a * (b + c) = b * c) (ha_odd : ¬Even a) :
+    Even b ∧ Even c := by
+  rw [Nat.not_even_iff_odd] at ha_odd
+  have hfact := triple_factor_identity ha hab hac htrip
+  -- a² is odd
+  have ha2_odd : Odd (a ^ 2) := by rw [sq]; exact ha_odd.mul ha_odd
+  -- Helper: if one factor of (b-a)*(c-a) is even, the product is even,
+  -- contradicting a² being odd.
+  have no_even_ba : ¬Even (b - a) := by
+    intro ⟨m, hm⟩
+    obtain ⟨q, hq⟩ := ha2_odd
+    have h1 := hfact; rw [hm, hq] at h1
+    -- h1 : (m + m) * (c - a) = 2 * q + 1
+    rw [add_mul] at h1
+    -- h1 : m * (c-a) + m * (c-a) = 2 * q + 1, i.e., 2t = 2q+1
+    omega
+  have no_even_ca : ¬Even (c - a) := by
+    intro ⟨m, hm⟩
+    obtain ⟨q, hq⟩ := ha2_odd
+    have h1 := hfact; rw [hm, hq] at h1
+    -- h1 : (b - a) * (m + m) = 2 * q + 1
+    rw [mul_add] at h1
+    -- h1 : (b-a)*m + (b-a)*m = 2 * q + 1, i.e., 2t = 2q+1
+    omega
+  -- Both b-a and c-a are odd, so b and c are even (odd + odd = even).
+  rw [Nat.not_even_iff_odd] at no_even_ba no_even_ca
+  exact ⟨by rw [show b = a + (b - a) from by omega]; exact ha_odd.add_odd no_even_ba,
+         by rw [show c = a + (c - a) from by omega]; exact ha_odd.add_odd no_even_ca⟩
+
 end UnitFractionTriples

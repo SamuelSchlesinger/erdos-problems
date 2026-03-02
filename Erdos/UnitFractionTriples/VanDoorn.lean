@@ -86,14 +86,14 @@ private lemma v2_five : padicValNat 2 5 = 0 :=
 private lemma v2_six : padicValNat 2 6 = 1 := by
   have : padicValNat 2 (2 * 3) = padicValNat 2 2 + padicValNat 2 3 :=
     padicValNat.mul (by decide) (by decide)
-  simp [v2_three] at this
+  simp only [v2_two, v2_three, add_zero] at this
   exact this
 
 /-- v₂(20) = 2 -/
 private lemma v2_twenty : padicValNat 2 20 = 2 := by
   have : padicValNat 2 (4 * 5) = padicValNat 2 4 + padicValNat 2 5 :=
     padicValNat.mul (by decide) (by decide)
-  simp [v2_four, v2_five] at this
+  simp only [v2_four, v2_five, add_zero] at this
   exact this
 
 /-- v₃(2) = 0 -/
@@ -577,5 +577,35 @@ theorem van_doorn_upper_bound (N : ℕ) (A : Finset ℕ)
   have hIcc : (Finset.Icc 1 N).card = N := by simp
   -- Combine with omega
   omega
+
+/-! ### Section 9: Additional triple identities for barrier analysis
+
+A systematic search for S-disjoint triple families found the following candidates.
+All satisfy (d-c)(e-c) = c² and are verifiable by `ring` via `triple_iff_div`.
+None can serve as a third family to improve the 9/10 bound (see LITERATURE.md). -/
+
+/-- The triple (20k, 36k, 45k) is a unit fraction triple for all k ≥ 1:
+    1/(20k) = 1/(36k) + 1/(45k), equivalently 20·(36+45) = 20·81 = 1620 = 36·45. -/
+theorem triple_20k_36k_45k (k : ℕ) (hk : 0 < k) :
+    IsUnitFractionTriple (20 * k) (36 * k) (45 * k) := by
+  refine ⟨by omega, by omega, by omega, ?_⟩
+  rw [triple_iff_div (by omega) (by omega) (by omega)]
+  ring
+
+/-- The triple (28k, 44k, 77k) is a unit fraction triple for all k ≥ 1:
+    1/(28k) = 1/(44k) + 1/(77k), equivalently 28·(44+77) = 28·121 = 3388 = 44·77. -/
+theorem triple_28k_44k_77k (k : ℕ) (hk : 0 < k) :
+    IsUnitFractionTriple (28 * k) (44 * k) (77 * k) := by
+  refine ⟨by omega, by omega, by omega, ?_⟩
+  rw [triple_iff_div (by omega) (by omega) (by omega)]
+  ring
+
+/-- The triple (12k, 15k, 60k) is a unit fraction triple for all k ≥ 1:
+    1/(12k) = 1/(15k) + 1/(60k), equivalently 12·(15+60) = 12·75 = 900 = 15·60. -/
+theorem triple_12k_15k_60k (k : ℕ) (hk : 0 < k) :
+    IsUnitFractionTriple (12 * k) (15 * k) (60 * k) := by
+  refine ⟨by omega, by omega, by omega, ?_⟩
+  rw [triple_iff_div (by omega) (by omega) (by omega)]
+  ring
 
 end UnitFractionTriples

@@ -54,7 +54,10 @@ After proving a new result, maintain the project's documentation:
 
 Before marking any theorem as "done":
 - [ ] No `sorry` anywhere in the file or its dependencies
-- [ ] `lake build` succeeds with no warnings
+- [ ] `lake build` succeeds with no errors
+- [ ] **Linter clean** — no warnings from `lake build` in modified files.
+  Common fixes: `simp` → `simp only [...]`, unused variables → prefix with `_`,
+  `native_decide` → only for small finite computations (and acknowledge the warning).
 - [ ] Doc-comments explain the mathematical content
 - [ ] A human can follow the proof structure
 - [ ] Sources are cited in doc-comments and REFERENCES.md

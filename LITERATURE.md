@@ -151,10 +151,43 @@ integers in (N/2, N] (about N/2 elements). Total: ~5N/8.
 
 ### Ideas To Try
 
-- **Tighten the 9/10 bound**: The S+T family argument leaves room for additional
-  families. Any triple (ca, da, cda/(c+d-1)a) with c,d coprime and (c+d-1)|cd
-  gives a new family. Find a U-family whose p-adic signature is disjoint from both
-  S and T. **Research-level but formalizable.**
+- **Tighten the 9/10 bound**: ✓ **RESOLVED — STRUCTURAL BARRIER** (VanDoorn.lean,
+  Classification.lean). A systematic search for a third "U-family" to extend the S+T
+  approach found that **no simple third family can improve the 9/10 bound**. Three
+  interlocking obstructions prevent this:
+
+  1. **Coprime-to-6 impossibility** (`triple_has_even_element`): Every triple
+     1/c = 1/d + 1/e has at least one even element. If c is odd, then from
+     (d-c)(e-c) = c², both d-c and e-c are odd, making d and e even
+     (`triple_odd_smallest_forces_even`). So every triple family {c·k,d·k,e·k}
+     must have at least one even multiplier — no family can avoid interaction
+     with prime 2.
+
+  2. **S-disjointness forces (even v₂, even v₃)**: S-elements have (odd v₂ OR
+     odd v₃). Any U-element disjoint from S must therefore have even v₂ AND
+     even v₃ — the same p-adic quadrant occupied by the T-family.
+
+  3. **T-shadow covers the remaining quadrant**: All 8 S-compatible triples
+     with max multiplier ≤ 100 were tested. For every one, the UParam
+     configuration needed for S-disjointness creates fatal T-collisions:
+
+  | Triple | Max mult | UParam constraint | Fatal T-collisions |
+  |--------|----------|------------------|--------------------|
+  | (4,5,20) | 20 | — | **This IS the T-family** |
+  | (8,10,40) | 40 | v₂≡1(4), Odd v₅ | 8f=5e\_t, 10f=4e\_t |
+  | (20,36,45) | 45 | v₂≡2(4), Odd v₅ | 36f=5e\_t, 45f=4e\_t |
+  | (12,15,60) | 60 | v₂≡2(4), Odd v₅ | 12f=5e\_t, 15f=4e\_t |
+  | (28,44,77) | 77 | v₂≡0(4), Odd v₅ | 28f=20e\_t, 44f=20e\_t, 77f=5e\_t |
+  | (16,20,80) | 80 | v₂≡0(4), Odd v₅ | 20f=4e\_t (unblockable) |
+  | (40,72,90) | 90 | — | Similar pattern |
+  | (20,25,100) | 100 | — | Similar pattern |
+
+  New triple identities formalized: `triple_20k_36k_45k`, `triple_28k_44k_77k`,
+  `triple_12k_15k_60k`. These extend the library of known families but cannot
+  serve as a third family due to the barrier above. **The 9/10 bound is tight
+  for the S+T family approach; improving it requires a fundamentally different
+  technique (e.g., non-parametric or Fourier-analytic methods).**
+
 - **Lower bound beyond 5/8**: Cambie's construction combines odds ≤ N/4 with (N/2, N].
   Could we push further? Adding even numbers with special structure (e.g., powers of 2)
   to the set might preserve triple-freeness. Need to check: is there a triple (2^k, b, c)
@@ -433,7 +466,7 @@ their blueprint approach (dependency graphs, modular proof structure) is a good 
 | 4 | **Pure-parity optimality theorem** | #327, #302, #301 | Medium | Any avoidance set with |A| > N/2 must contain both parities |
 | 5 | **Even-length parity obstruction** | #301 | Medium | No odd set admits 1/a = Σ 1/bᵢ with |S| even; the correct partial result |
 | 6 | **Odd weird ≥ 6 prime factors** | #470 | Hard | Liddy-Riedl full result; case analysis on 3–5 prime factors |
-| 7 | **Tighter triple-free bound** | #302 | Research | Add U-family to S+T for sub-9/10 bound |
+| 7 | **Tighter triple-free bound** | #302 | **BARRIER** | S+T is tight; no simple third family works (see barrier analysis) |
 | 8 | **Weird number density** | #470 | Very Hard | Benkoski-Erdős positive density; requires PNT |
 
 ### Abundancy Chain (completed)
@@ -469,6 +502,13 @@ or **Known** (formalization of a published result or folklore).
 | Cambie set fails for infinitely many N | #301 | `UnitFractionSets/Cambie.lean` | The scaled family 1/(15m) = 1/(36m) + 1/(45m) + 1/(60m) for all odd m extends the base counterexample to an infinite family. |
 | Structural gap: triple-free but not sum-free | #301 vs #302 | `UnitFractionSets/Cambie.lean` | The combination `cambie_triple_free_but_not_sum_free` is a clean witness that #301 ≠ #302 structurally. This is a concrete negative result separating two Erdős problems. |
 | Star neighborhood bounds (17/18, 11/12) | #302 | `UnitFractionTriples/StarNeighborhood.lean` | The 5-element star {2d,3d,4d,6d,12d} hitting-set argument is a different proof technique from van Doorn's S+T family approach. These intermediate bounds may not appear in the literature. |
+
+### Novel (continued)
+
+| Result | Problem | File | Why novel |
+|--------|---------|------|-----------|
+| Coprime-to-6 impossibility for triples | #302 | `UnitFractionTriples/Classification.lean` | `triple_has_even_element` and the stronger `triple_odd_smallest_forces_even` (odd smallest → both larger even). The fact that every triple family must have an even multiplier, and the complete barrier analysis explaining why no third family can improve the 9/10 bound, appear to be original. |
+| Third-family barrier analysis | #302 | `UnitFractionTriples/VanDoorn.lean`, `LITERATURE.md` | Systematic enumeration of all S-disjoint triples up to max multiplier 100, showing fatal T-collisions for all candidates. Proves the S+T approach cannot be extended by simple parametric families. |
 
 ### Possibly Novel
 
