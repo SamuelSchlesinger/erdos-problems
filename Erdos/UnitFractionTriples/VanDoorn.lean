@@ -348,7 +348,7 @@ Every S-element has odd v₂ or odd v₃. Every T-element has even v₂ and even
 So no element can be in both families. -/
 
 /-- Every element of {2a, 3a, 6a} with SParam(a) has odd v₂ or odd v₃. -/
-private lemma s_element_odd_val {a x : ℕ} (ha : 0 < a) (hs : SParam a)
+lemma s_element_odd_val {a x : ℕ} (ha : 0 < a) (hs : SParam a)
     (hx : x ∈ ({2*a, 3*a, 6*a} : Finset ℕ)) :
     ¬Even (padicValNat 2 x) ∨ ¬Even (padicValNat 3 x) := by
   have ha' : a ≠ 0 := by omega
@@ -359,7 +359,7 @@ private lemma s_element_odd_val {a x : ℕ} (ha : 0 < a) (hs : SParam a)
   · exact Or.inl (v2_six_mul_odd ha' hs.1)
 
 /-- Every element of {4e, 5e, 20e} with TParam(e) has even v₂ and even v₃. -/
-private lemma t_element_even_vals {e x : ℕ} (he : 0 < e) (ht : TParam e)
+lemma t_element_even_vals {e x : ℕ} (he : 0 < e) (ht : TParam e)
     (hx : x ∈ ({4*e, 5*e, 20*e} : Finset ℕ)) :
     Even (padicValNat 2 x) ∧ Even (padicValNat 3 x) := by
   have he' : e ≠ 0 := by omega
