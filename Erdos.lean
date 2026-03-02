@@ -4,6 +4,7 @@ import Erdos.UnitFractionPairs.Classification
 import Erdos.UnitFractionPairs.Density
 import Erdos.UnitFractionPairs.UpperBound
 import Erdos.UnitFractionPairs.UpperHalf
+import Erdos.UnitFractionPairs.VanDoorn
 import Erdos.UnitFractionTriples.Statement
 import Erdos.UnitFractionTriples.UpperHalf
 import Erdos.UnitFractionTriples.Cambie
@@ -15,6 +16,7 @@ import Erdos.UnitFractionSets.Statement
 import Erdos.UnitFractionSets.Connections
 import Erdos.UnitFractionSets.UpperHalf
 import Erdos.UnitFractionSets.Parity
+import Erdos.UnitFractionSets.UpperBound
 import Erdos.WeirdNumbers.Statement
 import Erdos.WeirdNumbers.Structure
 import Erdos.WeirdNumbers.OddWeird

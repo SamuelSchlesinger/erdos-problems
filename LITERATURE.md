@@ -86,12 +86,16 @@ avoiding (a+b)|2ab force o(N)?) becomes the interesting one.
 - **Master constraint `pair_n_cn_iff`**: (n, cn) pair ⟺ (c+1) | n. Very powerful.
 - **Forbidden pair families**: (3m,6m), (4m,12m), (10m,15m) all proved.
 
+### Ideas Tried (continued)
+
+- **Van Doorn's 25/28 upper bound**: ✓ **DONE** (VanDoorn.lean). Two-family approach:
+  S-family {3a,6a} and T-family {4a,12a} parameterized by VDParam (3|v₂(a), Even v₃(a)).
+  Disjointness via (v₂ mod 3, v₃ mod 2) signatures: all four multipliers {3,6,4,12}
+  have distinct signatures (0,1), (1,1), (2,0), (2,1). Density 3/7 gives 25N/28.
+  **Matches the best known upper bound for #327.**
+
 ### Ideas To Try
 
-- **Van Doorn's 25/28 upper bound**: Use `pair_n_cn_iff` to verify all pairs within
-  S_a = {2a,3a,4a,6a,12a}. Count disjoint copies. **High priority, formalizable.**
-  The VanDoorn.lean infrastructure from #302 (p-adic signatures, disjointness proofs)
-  would transfer directly. Same technique also gives 25/28 for #301.
 - **Upper half is NOT pair-free**: ✓ **DONE** (UpperHalf.lean). The pair (10m, 15m)
   satisfies 1/(10m) + 1/(15m) = 1/(6m) and lies in (N/2, N] for N = 15m.
   Proved for all m ≥ 1, giving infinitely many N where the upper half fails.
@@ -190,6 +194,10 @@ sets produce forbidden configurations for both problems.
 - **Upper half is sum-free**: `upper_half_sum_free`. Proof splits by |S|: k=1 forces
   a=b (contradiction), k≥2 gives Σ1/b ≥ 2/N > 1/a (since a > N/2). Clean
   `Finset.sum_le_sum` proof without needing upper-half-triple-free. ✓
+- **9/10 upper bound via inheritance**: ✓ **DONE** (UpperBound.lean). Since SumFree→TripleFree,
+  van Doorn's 9/10 bound for triple-free sets transfers directly to sum-free sets.
+  One-line proof: `van_doorn_upper_bound N A (sumFree_implies_tripleFree hA) hAN`.
+  **First formalized upper bound for Problem 301.**
 
 ### Ideas To Try
 
@@ -206,9 +214,11 @@ sets produce forbidden configurations for both problems.
   For 1/a = Σ 1/bᵢ with a ≤ N/4: 1/a ≥ 4/N > 2k/N when k < 2... wait, k ≥ 2 always.
   Need sharper analysis. **Key question: does k ≥ 3 allow solutions?**
   **Worth investigating — could lift Cambie to #301.**
-- **Van Doorn's 25/28 bound for #301**: Same witness-set construction as #327.
-  The disjoint star neighborhoods force omissions from any sum-free set too.
-  A single formalization could cover both problems. **High priority, ~300 lines.**
+- **Van Doorn's 25/28 bound for #301**: A dedicated construction (not via TripleFree
+  inheritance) would require showing star neighborhoods {2a,3a,4a,6a,12a} produce
+  forbidden sum-free configurations. Would improve the bound from 9/10 to 25/28.
+  Note: SumFree does NOT imply PairFree, so the #327 bound cannot be inherited.
+  **Would need to show {3a, 6a} or {4a, 12a} pairs produce sum-free violations.**
 - **Liu-Sawhney threshold**: Their (1-1/e)N threshold for guaranteed unit-fraction
   subsets is related but dual to #301. Formalizing the exact relationship would
   clarify the gap. **Research-level, requires understanding their circle method argument.**
@@ -408,13 +418,14 @@ their blueprint approach (dependency graphs, modular proof structure) is a good 
 | — | Deficient/prime not weird | #470 | **DONE** ✓ |
 | — | 836 is primitive weird | #470 | **DONE** ✓ |
 | — | Odd numbers NOT sum-free (counterexample) | #301 | **DONE** ✓ |
+| — | Van Doorn's 25/28 upper bound (pair-free) | #327 | **DONE** ✓ |
+| — | 9/10 upper bound (sum-free via inheritance) | #301 | **DONE** ✓ |
 
 ### Active Queue (ranked by impact × feasibility)
 
 | Priority | Theorem | Problem | Effort | Notes |
 |----------|---------|---------|--------|-------|
-| 1 | **Van Doorn's 25/28 upper bound** | #327 + #301 | Hard | Same construction upgrades BOTH problems; infrastructure from VanDoorn.lean transfers |
-| 2 | **Cambie's 5/8 for sum-free** | #301 | Medium | Key question: does k ≥ 3 allow solutions? Determines if #301 gap matches #302 |
+| 1 | **Cambie's 5/8 for sum-free** | #301 | Medium | Key question: does k ≥ 3 allow solutions? Determines if #301 gap matches #302 |
 | 3 | **Erdős-Straus → triples connection** | #242 → #302 | Easy | 4/n = 1/x + 1/y + 1/z rearranges to unit fraction triple |
 | 4 | **Pure-parity optimality theorem** | #327, #302, #301 | Medium | Any avoidance set with |A| > N/2 must contain both parities |
 | 5 | **Even-length parity obstruction** | #301 | Medium | No odd set admits 1/a = Σ 1/bᵢ with |S| even; the correct partial result |
@@ -449,14 +460,15 @@ congruences cannot cover quadratic residue classes. The Erdős-Straus conjecture
 
 | Problem | Best Lower | Best Upper | Conjectured | Formalized Lower | Formalized Upper |
 |---------|-----------|-----------|-------------|-----------------|-----------------|
-| #327 | ≥ N/2 (odd) | ≤ 25N/28 (vD) | N/2 + o(N) | ✓ N/2 | ❌ None |
+| #327 | ≥ N/2 (odd) | ≤ 25N/28 (vD) | N/2 + o(N) | ✓ N/2 | ✓ 25N/28 |
 | #302 | ≥ 5N/8 (Cambie) | ≤ 9N/10 (vD) | N/2 + o(N) | ✓ 5N/8 | ✓ 9N/10 |
-| #301 | ≥ N/2 (upper half) | ≤ 25N/28 (vD) | N/2 + o(N) | ✓ N/2 | ❌ None |
+| #301 | ≥ N/2 (upper half) | ≤ 25N/28 (vD) | N/2 + o(N) | ✓ N/2 | ✓ 9N/10 |
 
-**Largest gaps**:
-1. #327 has NO formalized upper bound at all. Van Doorn's 25/28 is the clear target.
-2. #301 has NO formalized upper bound. Same Van Doorn construction works.
-3. #302 has a 5/8 to 9/10 gap (formalized) vs. conjectured 1/2.
+**Status**: All three problems now have formalized upper bounds.
+- #327 matches the best known bound (25/28) via two-family VDParam construction.
+- #301 inherits 9/10 via SumFree→TripleFree; a dedicated 25/28 construction
+  would require showing star neighborhoods produce forbidden sum-free configurations.
+- #302 has the tightest analysis (5/8 to 9/10 gap).
 
 ### Deepening the Weird Numbers Theory
 
