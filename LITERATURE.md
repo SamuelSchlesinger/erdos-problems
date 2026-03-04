@@ -222,14 +222,19 @@ integers in (N/2, N] (about N/2 elements). Total: ~5N/8.
   Disjointness via valuation signatures (see Infrastructure: ValSignature library).
   **This is the most credible path past 9/10 without deep number theory.**
   **Formalizable: YES, high priority. Depends on signature abstraction infrastructure.**
-- **Supersaturation via divisor classification**: ✓ **INFRASTRUCTURE BUILT**
-  (Supersaturation.lean). The bijection `triple_count_eq_divisor_count` (triples containing
-  a ↔ divisors of a²) gives per-element triple counts. Core lemmas formalized:
-  - `triple_free_forces_exclusion`: a ∈ A, d | a², d < a ⟹ {a+d, a+a²/d} ⊄ A
-  - `exclusion_endpoints_pairwise_disjoint`: endpoint pairs from different divisors are disjoint
-  - `triple_free_consecutive_exclusion`: d=1 case: {a+1, a²+a} ⊄ A for a ∈ A, a ≥ 2
-  **Next step**: double-counting (sum exclusions over a ∈ A, bound multiplicity of endpoints,
-  extract a global density bound). **Formalizable: MEDIUM-HARD. Requires Finset.sum chains.**
+- **Supersaturation via divisor classification**: ✓ **d=1 PIPELINE COMPLETE**
+  (Supersaturation.lean). The full d=1 program is done end-to-end:
+  - Per-element exclusion (`triple_free_forces_exclusion`)
+  - Endpoint separation (`exclusion_endpoints_pairwise_disjoint`)
+  - Consecutive exclusion d=1 (`triple_free_consecutive_exclusion`)
+  - Multiplicity characterization (`endpoint_dvd_sq_iff`)
+  - Injectivity of exclusion map (`sq_add_strict_mono`)
+  - Consecutive forcing (`triple_free_consecutive_forces_complement`)
+  - **End-to-end counting bound** (`triple_free_consecutive_pair_bound`): |P| + |A| ≤ N
+  The d=1 bound gives |A| ≤ N − O(√N), weaker than VanDoorn 9/10 but a complete
+  proof-of-concept for the paradigm. The **full** program (all d | a² + average τ(n²))
+  requires analytic number theory beyond current Mathlib (Dirichlet series, mean-value
+  estimates of multiplicative functions). **Remaining work: VERY HARD (research-level).**
 - **Non-uniform (variable-size) gadgets**: Instead of fixed-size gadgets like {2d,3d,6d}
   (always 3 elements), use structures whose size grows with the parameter. The full
   "divisor star" of d — all multiples c·d where c·d appears in some triple with d — has
@@ -562,25 +567,28 @@ their blueprint approach (dependency graphs, modular proof structure) is a good 
 | — | ValSignature abstraction library | Infra | **DONE** ✓ |
 | — | Packing/omission framework (PackingBound) | Infra | **DONE** ✓ |
 | — | Gadget mining script (z3) | #302, #327 | **DONE** ✓ |
-| — | Supersaturation core lemmas | #302 | **DONE** ✓ |
+| — | Supersaturation d=1 pipeline (full end-to-end) | #302 | **DONE** ✓ |
+| — | Extended star gadget analysis (#301 ≠ #302) | #301 | **DONE** ✓ |
+| — | Third-family barrier (S+T approach is tight) | #302 | **DONE** ✓ |
+| — | DivisorEgyptianFree bridge (#470 ↔ #301) | #470 | **DONE** ✓ |
+| — | Multiplier-fiber reduction (#301 fiber reformulation + #470 bridge) | #301 | **DONE** ✓ |
+| — | Parity optimality (odd uniquely optimal for #302/#327; neither for #301) | #327, #302, #301 | **DONE** ✓ |
 
 ### Active Queue (ranked by impact × feasibility)
 
 | Priority | Theorem / Task | Problem | Effort | Notes |
 |----------|---------------|---------|--------|-------|
-| **A** | **Supersaturation double-counting** | #302 | Hard | Steps B–D of the supersaturation program: sum exclusions over a ∈ A, bound endpoint multiplicity, extract global density bound. Uses `triple_free_forces_exclusion` + `exclusion_endpoints_pairwise_disjoint`. |
+| **A** | **Odd weird ≥ 4 prime factors** | #470 | Medium | Incremental push toward Liddy-Riedl (≥6). Same proof flavor as ≥3 (σ multiplicativity + coprimality decomposition), scales linearly with cases. |
 | **B** | **Non-uniform gadgets** | #302 | Medium | Variable-size gadgets whose size scales with τ(a²). Requires generalizing PackingBound to variable sizes. Could bypass S+T barrier. |
-| **C** | **Pair gadget mining for #327** | #327 | Medium | Same approach using `pair_n_cn_iff` as the oracle. Could find better-than-25/28 bounds or confirm tightness. |
-| **D** | **Multiplier-fiber reduction for #301** | #301 | Easy (statement) / Hard (exploitation) | Prove the fiber reformulation. Even without density forcing, it's a clean new interface for #301 attacks. |
-| **E** | **Odd weird ≥ 4 prime factors** | #470 | Medium | Incremental push toward Liddy-Riedl (≥6). Same proof flavor as ≥3, scales linearly with cases. |
-| **F** | **DivisorEgyptianFree families** | #470 | Medium | New weird number construction technique via unit-fraction avoidance on divisor sets. Bridges #470 and #301 machinery. |
-| 4 | **Pure-parity optimality theorem** | #327, #302, #301 | Medium | Any avoidance set with |A| > N/2 must contain both parities |
-| 5 | **Even-length parity obstruction** | #301 | Medium | No odd set admits 1/a = Σ 1/bᵢ with |S| even; the correct partial result |
-| 6 | **Odd weird ≥ 6 prime factors** | #470 | Hard | Liddy-Riedl full result; case analysis on 3–5 prime factors. Item E is a stepping stone. |
-| 7 | **Fourier-analytic methods** | #302 | Very Hard | Multiplicative Fourier analysis or circle method via divisor parametrization. Research-level + heavy Lean engineering. |
-| 8 | **Weird number density** | #470 | Very Hard | Benkoski-Erdős positive density; requires PNT |
+| **C** | **Pair gadget mining for #327** | #327 | Medium | Systematic search using `pair_n_cn_iff` as oracle. Could find better-than-25/28 bounds or confirm tightness. |
+| **D** | **DivisorEgyptianFree families** | #470 | Medium | New weird number construction technique via unit-fraction avoidance on divisor sets. Bridges #470 and #301 machinery. |
+| **E** | **Even-length parity obstruction** | #301 | Medium | No odd set admits 1/a = Σ 1/bᵢ with |S| even; the correct partial result. |
+| **F** | **Odd weird ≥ 6 prime factors** | #470 | Hard | Liddy-Riedl full result; case analysis on 3–5 prime factors. Item A is a stepping stone. |
+| **G** | **Full supersaturation (all divisors)** | #302 | Very Hard | Extend d=1 pipeline to all d | a² using average order of τ(n²) ∼ c·log²n. Requires Mathlib extensions for Dirichlet series / mean-value estimates. Research-level analytic NT. |
+| **H** | **Fourier-analytic methods** | #302 | Very Hard | Multiplicative Fourier analysis or circle method via divisor parametrization. Research-level + heavy Lean engineering. |
+| **I** | **Weird number density** | #470 | Very Hard | Benkoski-Erdős positive density; requires PNT. |
 
-**Recommended next step**: A (supersaturation double-counting) is the most promising path to improving the 9/10 bound for #302. Items B–F can run in parallel.
+**Recommended next steps**: A (odd weird ≥4 primes, incremental push) and B (non-uniform gadgets) are the best balance of impact and feasibility. Items C–D are medium-effort explorations that could open new directions.
 
 ### Abundancy Chain (completed)
 
@@ -698,8 +706,7 @@ The weird numbers module is the most mature (#470), but several directions remai
 Several cross-problem connections are identified but not formalized:
 
 1. **#242 → #302**: ✓ FORMALIZED in `ErdosStraus/TripleBridge.lean`. Consecutive triple family, residual identity, conditional bridge, even-case specialization.
-2. **Pure-parity theorem**: A ⊆ [1,N] with |A| > N/2 and A pair/triple/sum-free must
-   contain both parities. Would explain why 1/2 is achievable by two different mechanisms.
+2. **Pure-parity theorem**: ✓ FORMALIZED in `Common/ParityOptimality.lean`. Odd uniquely optimal for #302/#327; neither parity works for #301. Even scaling lemma + filter bridge.
 3. **Common abstraction**: All four problems have the form "avoid solutions to
    unit-fraction equations." A unified framework (Egyptian fraction avoidance sets)
    might yield shared lemmas.

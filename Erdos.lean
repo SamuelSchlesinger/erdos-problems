@@ -1,4 +1,5 @@
 import Erdos.Common.PackingBound
+import Erdos.Common.ParityOptimality
 import Erdos.Common.ValSignature
 import Erdos.ErdosStraus.Main
 import Erdos.UnitFractionPairs.Statement
@@ -23,10 +24,12 @@ import Erdos.UnitFractionSets.Parity
 import Erdos.UnitFractionSets.UpperBound
 import Erdos.UnitFractionSets.Cambie
 import Erdos.UnitFractionSets.ExtendedStar
+import Erdos.UnitFractionSets.MultiplierFiber
 import Erdos.WeirdNumbers.Statement
 import Erdos.WeirdNumbers.Structure
 import Erdos.WeirdNumbers.OddWeird
 import Erdos.WeirdNumbers.OddWeirdFactors
+import Erdos.WeirdNumbers.OddWeirdFourFactors
 import Erdos.WeirdNumbers.PrimitiveWeird
 import Erdos.WeirdNumbers.EgyptianBridge
 import Erdos.WeirdNumbers.DivisorEgyptianFree
