@@ -3,6 +3,7 @@ import Erdos.Common.ParityOptimality
 import Erdos.Common.ValSignature
 import Erdos.ErdosMoser.Statement
 import Erdos.ErdosMoser.KnownCases
+import Erdos.ErdosMoser.Modular
 import Erdos.ErdosStraus.Main
 import Erdos.UnitFractionPairs.Statement
 import Erdos.UnitFractionPairs.Classification

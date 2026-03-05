@@ -9,7 +9,7 @@ structural theorems, density bounds, and cross-problem connections.
 | # | Problem | Key Results |
 |---|---------|-------------|
 | [242](https://www.erdosproblems.com/242) | Erdős-Straus conjecture | All cases except primes p ≡ 1 (mod 24) |
-| [Erdős-Moser](https://en.wikipedia.org/wiki/Erdos-Moser_equation) | Power-sum Diophantine equation | `k=1` uniqueness, no solutions for `k=2,3`, bounded certificate (`m≤150`,`k≤25`) |
+| [Erdős-Moser](https://en.wikipedia.org/wiki/Erdos-Moser_equation) | Power-sum Diophantine equation | `k=1` uniqueness, no solutions for `k=2..7`, modular obstructions (`m ≡ 0/3 mod 4`; odd `k` gives `m ≡ 0 mod 3` and `m ≡ 0/3 mod 12`), bounded certificate (`m≤150`,`k≤25`) |
 | [302](https://www.erdosproblems.com/302) | Unit fraction triples | Cambie 5/8 lower bound, van Doorn 9/10 upper bound |
 | [327](https://www.erdosproblems.com/327) | Unit fraction pairs | Master characterization `pair_n_cn_iff` |
 | [301](https://www.erdosproblems.com/301) | Unit fraction sum-free sets | Upper half construction, bridge to #302 |
