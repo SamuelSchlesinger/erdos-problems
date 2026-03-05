@@ -85,6 +85,11 @@ theorem already provides the exact forbidden-pair characterization needed.
 the conjecture f(N) = (1/2+o(1))N would be *false*, and the second question (does
 avoiding (a+b)|2ab force o(N)?) becomes the interesting one.
 
+**Triage update (2026-03-05):** no published upper bound better than `25/28`
+was found in our latest scan (including erdosproblems + recent arXiv pointers).
+So #327 currently looks like an *optimization* program on top of the existing
+van Doorn framework, not a theorem-import opportunity.
+
 ### Ideas Tried
 
 - **Odd numbers are pair-free**: Proved, gives f(N) ≥ ⌈N/2⌉. Parity obstruction:
@@ -346,7 +351,8 @@ integers in (N/2, N] (about N/2 elements). Total: ~5N/8.
 | van Doorn (erdosproblems.com) | Upper bound f(N) ≤ (25/28+o(1))N (same as #327!) |
 | Bloom 2021 ([arXiv:2112.03726](https://arxiv.org/abs/2112.03726)) | Any set of positive upper density contains finite subset with reciprocals summing to 1 |
 | Bloom-Mehta (Lean formalization) | [b-mehta.github.io/unit-fractions](https://b-mehta.github.io/unit-fractions/) — formalized Hardy-Littlewood circle method |
-| Liu-Sawhney 2024 ([arXiv:2404.07113](https://arxiv.org/abs/2404.07113)) | |A| ≥ (1-1/e+ε)N suffices for subset with reciprocals summing to 1; 1-1/e is sharp |
+| Liu-Sawhney 2024/2026 ([arXiv:2404.07113](https://arxiv.org/abs/2404.07113)) | Quantitative threshold: \|A\| ≥ (1-1/e+ε)N forces a reciprocal-sum-1 subset; constant 1-1/e is sharp |
+| Conlon-Fox-Pham-Sudakov-Tran 2025 ([arXiv:2311.01416](https://arxiv.org/abs/2311.01416)) | Asymptotic for #300 (largest Egyptian-1-avoiding subset of [1,N] is (1-1/e+o(1))N), giving a structural template for reciprocal-sum forcing |
 
 **Bloom's theorem** (any set of positive upper density contains a finite subset
 with Σ 1/n = 1) is the *dual* of Problem #301. Problem #301 asks how dense a set
@@ -406,20 +412,35 @@ sets produce forbidden configurations for both problems.
   forbidden sum-free configurations. Would improve the bound from 9/10 to 25/28.
   Note: SumFree does NOT imply PairFree, so the #327 bound cannot be inherited.
   **Would need to show {3a, 6a} or {4a, 12a} pairs produce sum-free violations.**
-- **Multiplier-fiber reduction** (novel attack surface): If a ∈ A and all RHS elements
-  are multiples of a, say bᵢ = a·kᵢ, then 1/a = Σ 1/(a·kᵢ) ⟺ 1 = Σ 1/kᵢ.
-  Define the "multiplier fiber" K_a := { k ≥ 2 : a·k ∈ A }. Then SumFree(A) implies:
-  for every a ∈ A, no finite subset of K_a has reciprocal sum 1. This reframes #301 as
-  a family of "Egyptian-1-avoiding" constraints on fibers. If a large SumFree set forces
-  some fiber K_a to have high density in [2, N/a], existing results on when dense sets
-  must contain Σ1/k = 1 subsets (Bloom, Liu-Sawhney) could yield new upper bounds.
-  Even partial results ("any A with property X forces a Σ1/k=1 inside some fiber")
-  would be clean intermediate lemmas. The *statement* of the fiber reduction is easy
-  to prove; the *density forcing* is the hard part.
-  **Formalizable: fiber reduction YES (easy). Density forcing HARD (research-level).**
-- **Liu-Sawhney threshold**: Their (1-1/e)N threshold for guaranteed unit-fraction
-  subsets is related but dual to #301. Formalizing the exact relationship would
-  clarify the gap. **Research-level, requires understanding their circle method argument.**
+- **Multiplier-fiber reduction**: ✓ **DONE** (`MultiplierFiber.lean`).
+  The core reduction is now formalized via `sum_free_fiber_egyptian_free`:
+  for each `a ∈ A`, the fiber `K_a = {k ≥ 2 : a*k ∈ A}` is `EgyptianOneFree`.
+  This isolates the remaining bottleneck to *quantitative forcing on fibers*.
+- **Fiber diagnostics pipeline (bounded witness optimization)**: ✓ **DONE (experimental)**.
+  `scripts/gadget_mine.py --sumfree-fibers` now builds bounded witness hypergraphs
+  (`1/a = Σ 1/b`, RHS size ≤ `k`), solves max-set instances (z3 when available),
+  and reports per-fiber reciprocal-mass diagnostics (`|K_a|`, best subset sum ≤ 1,
+  exact witness detection, and optional stronger audit with larger RHS bound).
+  It now also supports an automatic **cut-loop** (`--cut-loop`): optimize, audit,
+  add violating witness, and re-optimize.
+  Empirically (N up to 36), unrestricted runs are often dominated by long `a=1`
+  witnesses, while `1 ∉ A` runs still produce near-threshold fibers (especially
+  around `a=2`) with no exact Σ1/k = 1 witness under stronger audit (`rhs ≤ 12`).
+  A quick sweep (`N = 30,32,34,36,38,40`, `rhs ≤ 8`, audit `rhs ≤ 12`) yields
+  bounded-model densities around `0.75 ± 0.03` and repeatedly identifies the
+  tightest audited fibers at small multipliers (`a = 2,4,5`) with tiny positive
+  gaps to 1 (e.g. `1/3740`, `1/6840`, `1/120`, `1/20`).
+  **Use:** hypothesis generation for fiber-density forcing lemmas, not proof.
+- **Fiber-density forcing via Bloom/Liu-Sawhney thresholds**: Use quantitative
+  reciprocal-sum-1 forcing to show that sufficiently dense fibers `K_a` cannot
+  occur in a SumFree set. This is the clearest currently-known route from the
+  fiber reduction to stronger #301 upper bounds.
+  **Triage: HIGH impact, HARD (research-level).**
+- **Import #300 asymptotic technology (Conlon-Fox-Pham-Sudakov-Tran)**:
+  adapt the `(1-1/e+o(1))N` Egyptian-1-avoiding machinery as a template for
+  structural decompositions of fibers. The transfer to #301 is nontrivial because
+  #301 includes an in-set target condition (`a ∈ A`).
+  **Triage: MEDIUM impact, VERY HARD.**
 - **Weird number connection**: The bridge `pseudoperfect_iff_unit_sum` shows that
   the divisors of any weird number form a set where ∑_{d>1} 1/d > 1 but no
   subset sums to 1. This is a "local" instance of the #301 phenomenon. Could we
@@ -661,14 +682,15 @@ their blueprint approach (dependency graphs, modular proof structure) is a good 
 |----------|---------------|---------|--------|-------|
 | **A** | **Odd weird ≥ 4 prime factors** | #470 | Medium | Incremental push toward Liddy-Riedl (≥6). Same proof flavor as ≥3 (σ multiplicativity + coprimality decomposition), scales linearly with cases. |
 | **B** | **Non-uniform gadgets** | #302 | Medium | Variable-size gadgets whose size scales with τ(a²). Requires generalizing PackingBound to variable sizes. Could bypass S+T barrier. |
-| **C** | **Pair gadget mining for #327** | #327 | Medium | **PARTIAL:** triangle gadget now has global packing bound (`pair_free_triangle_family_bound`), and new barrier theorems (`vd_triangle_t_not_disjoint`, `vd_triangle_s_not_disjoint`, `vd_triangle_t_overlap_card_lb`, `vd_triangle_t_overlap_card_lb_strong`, `vd_triangle_t_overlap_card_ge_two`, `vd_triangle_t_overlap_card_ge_three`, `vd_triangle_t_overlap_subset_channels`, `vd_triangle_t_overlap_card_le_strong`, `vd_triangle_t_overlap_card_eq_strong`, `vd_triangle_t_net_bound`, `vd_triangle_s_overlap_card_lb`, `vd_triangle_s_overlap_card_pos`, `vd_triangle_s_overlap_card_ge_two`) show full-family disjoint merge with van Doorn S/T is impossible and quantify unavoidable overlap with both T and S (including exact T-overlap formula). We now also have overlap-aware merge inequalities (`vd_triangle_t_overlap_penalty_bound`, `vd_triangle_s_overlap_penalty_bound`). Remaining: sharpen overlap-aware counting and/or trimmed domains to approach/improve 25/28. |
-| **D** | **DivisorEgyptianFree families** | #470 | Medium | New weird number construction technique via unit-fraction avoidance on divisor sets. Bridges #470 and #301 machinery. |
+| **C** | **Fiber-density forcing for #301** | #301 | Hard | Build on `sum_free_fiber_egyptian_free` and apply quantitative reciprocal-sum-1 thresholds (Bloom/Liu-Sawhney) to force contradictions from dense fibers. Most direct route to improve the 9/10 inherited bound. |
+| **D** | **Pair gadget mining for #327** | #327 | Medium | **PARTIAL:** triangle gadget now has global packing bound (`pair_free_triangle_family_bound`), and new barrier theorems (`vd_triangle_t_not_disjoint`, `vd_triangle_s_not_disjoint`, `vd_triangle_t_overlap_card_lb`, `vd_triangle_t_overlap_card_lb_strong`, `vd_triangle_t_overlap_card_ge_two`, `vd_triangle_t_overlap_card_ge_three`, `vd_triangle_t_overlap_subset_channels`, `vd_triangle_t_overlap_card_le_strong`, `vd_triangle_t_overlap_card_eq_strong`, `vd_triangle_t_net_bound`, `vd_triangle_s_overlap_card_lb`, `vd_triangle_s_overlap_card_pos`, `vd_triangle_s_overlap_card_ge_two`) show full-family disjoint merge with van Doorn S/T is impossible and quantify unavoidable overlap with both T and S (including exact T-overlap formula). We now also have overlap-aware merge inequalities (`vd_triangle_t_overlap_penalty_bound`, `vd_triangle_s_overlap_penalty_bound`). Triage update: no known published upper bound better than 25/28; likely wins are finite-`N` improvements, refined lower bounds, or overlap-aware constants. |
+| **E** | **DivisorEgyptianFree families** | #470 | Medium | New weird number construction technique via unit-fraction avoidance on divisor sets. Bridges #470 and #301 machinery. |
 | **F** | **Odd weird ≥ 6 prime factors** | #470 | Hard | Liddy-Riedl full result; case analysis on 3–5 prime factors. Item A is a stepping stone. |
 | **G** | **Full supersaturation (all divisors)** | #302 | Very Hard | Extend d=1 pipeline to all d | a² using average order of τ(n²) ∼ c·log²n. Requires Mathlib extensions for Dirichlet series / mean-value estimates. Research-level analytic NT. |
 | **H** | **Fourier-analytic methods** | #302 | Very Hard | Multiplicative Fourier analysis or circle method via divisor parametrization. Research-level + heavy Lean engineering. |
 | **I** | **Weird number density** | #470 | Very Hard | Benkoski-Erdős positive density; requires PNT. |
 
-**Recommended next steps**: A (odd weird ≥4 primes, incremental push) and B (non-uniform gadgets) are the best balance of impact and feasibility. Items C–D are medium-effort explorations that could open new directions.
+**Recommended next steps**: A (odd weird ≥4 primes) and C (fiber-density forcing for #301) are the highest-impact options now. B and D remain practical medium-effort explorations.
 
 ### Abundancy Chain (completed)
 
@@ -757,6 +779,7 @@ REFERENCES.md.
 
 **Status**: All three problems now have formalized upper bounds.
 - #327 matches the best known bound (25/28) via two-family VDParam construction.
+- As of **2026-03-05**, we have no vetted literature improvement beyond #327's 25/28 upper bound.
 - #301 inherits 9/10 via SumFree→TripleFree; a dedicated 25/28 construction
   would require showing star neighborhoods produce forbidden sum-free configurations.
 - #302 has the tightest analysis (5/8 to 9/10 gap).

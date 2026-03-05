@@ -101,6 +101,39 @@ theorem sum_free_fiber_egyptian_free {A : Finset ℕ} {a : ℕ}
   -- Contradiction with SumFree
   exact hA a haA S hSsub hSne hSsum
 
+/-! ## Concrete small-fiber obstruction: {2,3,6} -/
+
+/-- The basic Egyptian identity in scaled form:
+    `1/a = 1/(2a) + 1/(3a) + 1/(6a)` for `a > 0`. -/
+theorem sum_identity_1_2_3_6 (a : ℕ) (ha : 0 < a) :
+    (1 / (a : ℕ) : ℚ) = 1 / (2 * a : ℕ) + 1 / (3 * a : ℕ) + 1 / (6 * a : ℕ) := by
+  have ha' : (a : ℚ) ≠ 0 := Nat.cast_ne_zero.mpr (by omega)
+  field_simp
+  push_cast
+  ring_nf
+
+/-- A sum-free set cannot contain `a, 2a, 3a, 6a` simultaneously (`a > 0`), since
+    `1/a = 1/(2a) + 1/(3a) + 1/(6a)`. -/
+theorem not_sum_free_contains_a_2a_3a_6a {A : Finset ℕ} (hA : SumFree A) {a : ℕ}
+    (ha : 0 < a) (haA : a ∈ A) (h2A : 2 * a ∈ A) (h3A : 3 * a ∈ A) (h6A : 6 * a ∈ A) :
+    False := by
+  have hS : ({2 * a, 3 * a, 6 * a} : Finset ℕ) ⊆ A.erase a := by
+    intro x hx
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hx
+    rw [Finset.mem_erase]
+    rcases hx with rfl | rfl | rfl <;> exact ⟨by omega, ‹_›⟩
+  have hSne : ({2 * a, 3 * a, 6 * a} : Finset ℕ).Nonempty := ⟨2 * a, by simp⟩
+  have h2_not : (2 * a : ℕ) ∉ ({3 * a, 6 * a} : Finset ℕ) := by simp; omega
+  have h3_not : (3 * a : ℕ) ∉ ({6 * a} : Finset ℕ) := by simp; omega
+  have hsum : (1 / (a : ℕ) : ℚ) =
+      ∑ b ∈ ({2 * a, 3 * a, 6 * a} : Finset ℕ), (1 / b : ℚ) := by
+    rw [show ({2 * a, 3 * a, 6 * a} : Finset ℕ) =
+        insert (2 * a) (insert (3 * a) {6 * a}) from rfl]
+    rw [Finset.sum_insert h2_not, Finset.sum_insert h3_not, Finset.sum_singleton]
+    push_cast
+    simpa [add_assoc, add_comm, add_left_comm] using (sum_identity_1_2_3_6 a ha)
+  exact hA a haA _ hS hSne hsum
+
 /-! ## Bridge to #470 (DivisorEgyptianFree) -/
 
 /-- **DivisorEgyptianFree ↔ EgyptianOneFree on divisors.**
