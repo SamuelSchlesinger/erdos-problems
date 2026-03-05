@@ -100,6 +100,80 @@ avoiding (a+b)|2ab force o(N)?) becomes the interesting one.
   Disjointness via (v₂ mod 3, v₃ mod 2) signatures: all four multipliers {3,6,4,12}
   have distinct signatures (0,1), (1,1), (2,0), (2,1). Density 3/7 gives 25N/28.
   **Matches the best known upper bound for #327.**
+- **Pair gadget mining update (2026-03-04)**: Expanded `scripts/gadget_mine.py`
+  to search overlapping family combinations (`--max-families`, `--connected-only`).
+  Best local pattern found for pairs is a triangle gadget on multipliers {1,r,s}
+  with edges (1,r), (1,s), (r,s), forcing τ/|G| = 2/3 (e.g. {1,2,3}).
+  Formalized the missing edge criterion in Lean:
+  `pair_2n_3n_iff` and the derived constraints
+  `pair_free_double_triple_not_div5`, `triangle_pairs_of_dvd60`,
+  `pair_free_triangle_inter_card_le_one`, `pair_free_triangle_omits_at_least_two`,
+  `triangles_disjoint_coprime6`, `pair_free_triangle_family_bound`,
+  plus overlap-barrier theorems `vd_triangle_t_not_disjoint`
+  and `vd_triangle_s_not_disjoint`, and quantitative overlap lower bounds
+  `vd_triangle_t_overlap_card_lb`, `vd_triangle_t_overlap_card_lb_strong`,
+  `vd_triangle_t_overlap_card_ge_two`, `vd_triangle_t_overlap_card_ge_three`,
+  `vd_triangle_t_overlap_subset_channels`,
+  `vd_triangle_t_overlap_card_le_strong`,
+  `vd_triangle_t_overlap_card_eq_strong`,
+  `vd_triangle_t_net_bound`,
+  `vd_triangle_s_overlap_card_lb`, `vd_triangle_s_overlap_card_pos`,
+  `vd_triangle_s_overlap_card_ge_two`, `vd_triangle_s_overlap_card_ge_three`,
+  `vd_triangle_s_overlap_subset_channel`,
+  `vd_triangle_s_overlap_card_le_strong`,
+  `vd_triangle_s_overlap_card_eq_strong`,
+  `vd_triangle_s_full_overlap_subset_channel`,
+  `vd_triangle_s_full_overlap_card_le_strong`,
+  `vd_triangle_s_full_overlap_card_lb`,
+  `vd_triangle_s_full_overlap_card_eq_strong`, and overlap-aware mixed inequalities
+  `vd_triangle_t_overlap_penalty_bound`,
+  `vd_triangle_s_full_overlap_penalty_bound`,
+  `vd_triangle_s_overlap_penalty_bound`
+  (`UnitFractionPairs/Density.lean`, `UnitFractionPairs/VanDoorn.lean`).
+  This now yields a first global packing inequality from triangles:
+  `A.card + 2 * |{d ≤ N/180 : gcd(d,6)=1}| ≤ N`.
+  It also proves overlap is not just nonempty: for
+  `D△ = {d ≤ N/180 : gcd(d,6)=1}`, the overlap with the full T-union satisfies
+  `|U△ ∩ U_T| ≥ |D△|` (one shared `60d` per parameter).
+  A stronger bound is now formalized:
+  `|U△ ∩ U_T| ≥ |{d ≤ N/180 : gcd(d,6)=1}| + |{d ≤ N/540 : gcd(d,6)=1}|`,
+  using an additional overlap channel `180d = 4*(45d)` on the `N/540` band.
+  This is now tight: overlap was classified exactly via two channels and we proved
+  the exact formula
+  `|U△ ∩ U_T| = |{d ≤ N/180 : gcd(d,6)=1}| + |{d ≤ N/540 : gcd(d,6)=1}|`.
+  In particular, for all `N ≥ 540`, this forces at least two overlaps:
+  `|U△ ∩ U_T| ≥ 2`, and for `N ≥ 900`, `|U△ ∩ U_T| ≥ 3`.
+  Dually, on the low band `D_low = {d ≤ N/240 : gcd(d,6)=1}`, overlap with
+  the full S-union satisfies `|U_low ∩ U_S| ≥ |D_low|` (one shared `120d` per parameter),
+  hence `|U_low ∩ U_S| ≥ 1` for `N ≥ 240`, `|U_low ∩ U_S| ≥ 2` for `N ≥ 1200`,
+  and `|U_low ∩ U_S| ≥ 3` for `N ≥ 1680`.
+  This is now tight on the low band as well:
+  `|U_low ∩ U_S| = |{d ≤ N/240 : gcd(d,6)=1}|`.
+  We now pushed this to the full triangle range too:
+  if `U△ = ⋃_{d≤N/180, gcd(d,6)=1} {60d,120d,180d}`, then
+  `|U△ ∩ U_S| = |{d ≤ N/240 : gcd(d,6)=1}|`.
+  We also now have overlap-aware combined counting inequalities:
+  `A.card + 2|D△| + |D_T| ≤ N + |U△ ∩ U_T|`,
+  `A.card + 2|D△| + |D_S| ≤ N + |U△ ∩ U_S|`,
+  `A.card + 2|D_low| + |D_S| ≤ N + |U_low ∩ U_S|`,
+  which makes the overlap penalty explicit when trying to merge triangle and
+  van Doorn families without disjointness assumptions.
+  Substituting the exact T-overlap formula yields a cleaned net theorem:
+  `A.card + |D_T| + (|D△| - |D540|) ≤ N` (`vd_triangle_t_net_bound`).
+  Substituting the exact S-overlap formula yields:
+  `A.card + |D_S| + |D_low| ≤ N` (`vd_triangle_s_net_bound`).
+  Substituting the full-range S-overlap formula yields:
+  `A.card + |D_S| + (2|D△| - |D_low|) ≤ N`
+  (`vd_triangle_s_full_net_bound`).
+  Quantitative finite-`N` corollaries are now formalized:
+  `A.card + |D_S| + 1 ≤ N` for `N ≥ 240`,
+  `A.card + |D_S| + 2 ≤ N` for `N ≥ 1200`,
+  `A.card + |D_S| + 3 ≤ N` for `N ≥ 1680`
+  (`vd_triangle_s_net_bound_ge_one`, `_ge_two`, `_ge_three`).
+  **Status:** local-to-global step complete for one family, and we now have a
+  structural barrier: the full triangle family is provably not cross-disjoint
+  from full van Doorn S/T families, so a direct three-family disjoint packing
+  upgrade is impossible. Remaining: overlap-aware counting or trimmed domains.
 
 ### Ideas To Try
 
@@ -313,6 +387,12 @@ sets produce forbidden configurations for both problems.
   even-length representations: clearing denominators gives ∏ b = a · Σ ∏_{j≠i} bⱼ;
   for k even, RHS = sum of even-many odds = even ≠ odd = LHS. For k odd, both
   sides are odd and no contradiction arises. **Corrects the earlier conjecture.**
+- **Even-length parity obstruction (odd sets)**: ✓ **DONE** (Parity.lean).
+  Formalized the general obstruction: if all elements are odd and
+  `1/a = ∑_{b∈S} 1/b`, then `S.card` must be odd. Equivalently, even-cardinality
+  witnesses are impossible (`odd_even_card_no_unit_sum`,
+  `odd_set_even_card_obstruction`), with the direct parity-forcing corollary
+  `odd_set_witness_card_odd`.
 - **Cambie's 5/8 construction for #301**: ✓ **RESOLVED — DOES NOT LIFT** (Cambie.lean).
   The k=2 cross-terms are blocked by magnitude (each 1/b < 2/N, sum < 4/N ≤ 1/a).
   But k=3 allows violations: 1/15 = 1/36 + 1/45 + 1/60 sits in cambieSet(60).
@@ -560,6 +640,7 @@ their blueprint approach (dependency graphs, modular proof structure) is a good 
 | — | Deficient/prime not weird | #470 | **DONE** ✓ |
 | — | 836 is primitive weird | #470 | **DONE** ✓ |
 | — | Odd numbers NOT sum-free (counterexample) | #301 | **DONE** ✓ |
+| — | Even-length parity obstruction on odd sets | #301 | **DONE** ✓ |
 | — | Van Doorn's 25/28 upper bound (pair-free) | #327 | **DONE** ✓ |
 | — | 9/10 upper bound (sum-free via inheritance) | #301 | **DONE** ✓ |
 | — | Cambie set NOT sum-free (structural gap #301 vs #302) | #301 | **DONE** ✓ |
@@ -580,9 +661,8 @@ their blueprint approach (dependency graphs, modular proof structure) is a good 
 |----------|---------------|---------|--------|-------|
 | **A** | **Odd weird ≥ 4 prime factors** | #470 | Medium | Incremental push toward Liddy-Riedl (≥6). Same proof flavor as ≥3 (σ multiplicativity + coprimality decomposition), scales linearly with cases. |
 | **B** | **Non-uniform gadgets** | #302 | Medium | Variable-size gadgets whose size scales with τ(a²). Requires generalizing PackingBound to variable sizes. Could bypass S+T barrier. |
-| **C** | **Pair gadget mining for #327** | #327 | Medium | Systematic search using `pair_n_cn_iff` as oracle. Could find better-than-25/28 bounds or confirm tightness. |
+| **C** | **Pair gadget mining for #327** | #327 | Medium | **PARTIAL:** triangle gadget now has global packing bound (`pair_free_triangle_family_bound`), and new barrier theorems (`vd_triangle_t_not_disjoint`, `vd_triangle_s_not_disjoint`, `vd_triangle_t_overlap_card_lb`, `vd_triangle_t_overlap_card_lb_strong`, `vd_triangle_t_overlap_card_ge_two`, `vd_triangle_t_overlap_card_ge_three`, `vd_triangle_t_overlap_subset_channels`, `vd_triangle_t_overlap_card_le_strong`, `vd_triangle_t_overlap_card_eq_strong`, `vd_triangle_t_net_bound`, `vd_triangle_s_overlap_card_lb`, `vd_triangle_s_overlap_card_pos`, `vd_triangle_s_overlap_card_ge_two`) show full-family disjoint merge with van Doorn S/T is impossible and quantify unavoidable overlap with both T and S (including exact T-overlap formula). We now also have overlap-aware merge inequalities (`vd_triangle_t_overlap_penalty_bound`, `vd_triangle_s_overlap_penalty_bound`). Remaining: sharpen overlap-aware counting and/or trimmed domains to approach/improve 25/28. |
 | **D** | **DivisorEgyptianFree families** | #470 | Medium | New weird number construction technique via unit-fraction avoidance on divisor sets. Bridges #470 and #301 machinery. |
-| **E** | **Even-length parity obstruction** | #301 | Medium | No odd set admits 1/a = Σ 1/bᵢ with |S| even; the correct partial result. |
 | **F** | **Odd weird ≥ 6 prime factors** | #470 | Hard | Liddy-Riedl full result; case analysis on 3–5 prime factors. Item A is a stepping stone. |
 | **G** | **Full supersaturation (all divisors)** | #302 | Very Hard | Extend d=1 pipeline to all d | a² using average order of τ(n²) ∼ c·log²n. Requires Mathlib extensions for Dirichlet series / mean-value estimates. Research-level analytic NT. |
 | **H** | **Fourier-analytic methods** | #302 | Very Hard | Multiplicative Fourier analysis or circle method via divisor parametrization. Research-level + heavy Lean engineering. |

@@ -9,6 +9,7 @@ Usage:
   python3 scripts/gadget_mine.py --triples --max 60
   python3 scripts/gadget_mine.py --pairs --max 30
   python3 scripts/gadget_mine.py --triples --max 100 --top 20
+  python3 scripts/gadget_mine.py --triples --max 120 --max-families 4 --connected-only
 """
 
 import argparse
@@ -18,7 +19,7 @@ from math import gcd
 
 # Try z3, fall back to brute force
 try:
-    from z3 import Int, Optimize, Sum, If, sat
+    from z3 import Int, Optimize, Sum, sat
     HAS_Z3 = True
 except ImportError:
     HAS_Z3 = False
@@ -150,7 +151,57 @@ def gadget_from_triple(triple):
     return g, (a // g, b // g, c // g)
 
 
-def search_triple_gadgets(M, top_n=10):
+def families_are_disjoint(families):
+    """Return True if no element appears in two different families."""
+    seen = set()
+    for fam in families:
+        s = set(fam)
+        if seen & s:
+            return False
+        seen |= s
+    return True
+
+
+def families_overlap_connected(families):
+    """Return True if family-overlap graph is connected.
+
+    Vertices are family hyperedges; edges join families with nonempty intersection.
+    """
+    if len(families) <= 1:
+        return True
+    fam_sets = [set(f) for f in families]
+    stack = [0]
+    seen = {0}
+    while stack:
+        i = stack.pop()
+        for j in range(len(fam_sets)):
+            if j in seen:
+                continue
+            if fam_sets[i] & fam_sets[j]:
+                seen.add(j)
+                stack.append(j)
+    return len(seen) == len(fam_sets)
+
+
+def enumerate_gadgets(mult_list, max_families, disjoint_only=False, connected_only=False):
+    """Enumerate gadget candidates by combining base families."""
+    gadgets = []
+    upper = min(max_families, len(mult_list))
+    for r in range(2, upper + 1):
+        for fams in combinations(mult_list, r):
+            if disjoint_only and not families_are_disjoint(fams):
+                continue
+            if connected_only and not families_overlap_connected(fams):
+                continue
+            union_elts = set().union(*(set(f) for f in fams))
+            tau = hitting_number(union_elts, fams)
+            ratio = tau / len(union_elts)
+            gadgets.append((union_elts, list(fams), tau, ratio, fams))
+    gadgets.sort(key=lambda x: (-x[3], -x[2], len(x[0])))
+    return gadgets
+
+
+def search_triple_gadgets(M, top_n=10, max_families=3, disjoint_only=False, connected_only=False):
     """Search for high-τ/|G| gadget configurations from triples."""
     triples = find_triples(M)
     print(f"Found {len(triples)} triples with max element ≤ {M}")
@@ -173,61 +224,33 @@ def search_triple_gadgets(M, top_n=10):
     # τ = 1 always for a single triple (just pick any element)
     # Interest: unions of triples sharing elements
 
-    # Build a universe of all multipliers appearing in any triple
-    all_multipliers = set()
-    for mults in multiplier_triples:
-        all_multipliers.update(mults)
-
     print("=== Individual Triple Families ===")
     print(f"{'Multipliers':<25} {'|G|':>4} {'τ':>3} {'τ/|G|':>8} {'#params':>8}")
     print("-" * 55)
 
-    families = []
     for mults, params in sorted(multiplier_triples.items()):
         elements = set(mults)
-        hyperedges = [mults]
         tau = 1  # single triple always has τ=1
         ratio = tau / len(elements)
-        families.append((mults, elements, tau, ratio, len(params)))
         print(f"{str(mults):<25} {len(elements):>4} {tau:>3} {ratio:>8.4f} {len(params):>8}")
 
     print()
-    print("=== Multi-Triple Gadgets (unions of triple families sharing no parameter) ===")
+    print("=== Multi-Triple Gadgets ===")
+    mode_parts = [f"up to {max_families} families"]
+    if disjoint_only:
+        mode_parts.append("disjoint only")
+    if connected_only:
+        mode_parts.append("overlap-connected only")
+    print("Mode:", ", ".join(mode_parts))
     print()
 
-    # Find unions of 2-3 triple families with disjoint multiplier sets
     mult_list = sorted(multiplier_triples.keys())
-    gadgets = []
-
-    for i, m1 in enumerate(mult_list):
-        s1 = set(m1)
-        for j, m2 in enumerate(mult_list):
-            if j <= i:
-                continue
-            s2 = set(m2)
-            if s1 & s2:
-                continue  # overlapping multipliers
-            union_elts = s1 | s2
-            hyperedges = [m1, m2]
-            tau = hitting_number(union_elts, hyperedges)
-            ratio = tau / len(union_elts)
-            gadgets.append((union_elts, hyperedges, tau, ratio, (m1, m2)))
-
-            # Try adding a third family
-            for k, m3 in enumerate(mult_list):
-                if k <= j:
-                    continue
-                s3 = set(m3)
-                if (s1 | s2) & s3:
-                    continue
-                union3 = s1 | s2 | s3
-                hyp3 = [m1, m2, m3]
-                tau3 = hitting_number(union3, hyp3)
-                ratio3 = tau3 / len(union3)
-                gadgets.append((union3, hyp3, tau3, ratio3, (m1, m2, m3)))
-
-    # Sort by ratio descending
-    gadgets.sort(key=lambda x: -x[3])
+    gadgets = enumerate_gadgets(
+        mult_list,
+        max_families=max_families,
+        disjoint_only=disjoint_only,
+        connected_only=connected_only,
+    )
 
     print(f"{'Gadget elements':<40} {'|G|':>4} {'τ':>3} {'τ/|G|':>8} {'Families'}")
     print("-" * 85)
@@ -276,7 +299,7 @@ def search_triple_gadgets(M, top_n=10):
             break
 
 
-def search_pair_gadgets(M, top_n=10):
+def search_pair_gadgets(M, top_n=10, max_families=3, disjoint_only=False, connected_only=False):
     """Search for pair gadgets."""
     pairs = find_pairs(M)
     print(f"Found {len(pairs)} pairs with max element ≤ {M}")
@@ -303,26 +326,21 @@ def search_pair_gadgets(M, top_n=10):
 
     # Multi-pair gadgets
     mult_list = sorted(multiplier_pairs.keys())
-    gadgets = []
-
-    for i, m1 in enumerate(mult_list):
-        s1 = set(m1)
-        for j, m2 in enumerate(mult_list):
-            if j <= i:
-                continue
-            s2 = set(m2)
-            if s1 & s2:
-                continue
-            union_elts = s1 | s2
-            hyperedges = [m1, m2]
-            tau = hitting_number(union_elts, hyperedges)
-            ratio = tau / len(union_elts)
-            gadgets.append((union_elts, hyperedges, tau, ratio, (m1, m2)))
-
-    gadgets.sort(key=lambda x: -x[3])
+    gadgets = enumerate_gadgets(
+        mult_list,
+        max_families=max_families,
+        disjoint_only=disjoint_only,
+        connected_only=connected_only,
+    )
 
     print()
     print("=== Multi-Pair Gadgets ===")
+    mode_parts = [f"up to {max_families} families"]
+    if disjoint_only:
+        mode_parts.append("disjoint only")
+    if connected_only:
+        mode_parts.append("overlap-connected only")
+    print("Mode:", ", ".join(mode_parts))
     print(f"{'Gadget elements':<35} {'|G|':>4} {'τ':>3} {'τ/|G|':>8} {'Families'}")
     print("-" * 75)
     seen = set()
@@ -346,6 +364,12 @@ def main():
     parser.add_argument("--pairs", action="store_true", help="Search for pair gadgets")
     parser.add_argument("--max", type=int, default=30, help="Maximum element value M")
     parser.add_argument("--top", type=int, default=10, help="Number of top results to show")
+    parser.add_argument("--max-families", type=int, default=3,
+                        help="Maximum number of base families to combine")
+    parser.add_argument("--disjoint-only", action="store_true",
+                        help="Only combine families with disjoint multipliers")
+    parser.add_argument("--connected-only", action="store_true",
+                        help="Require overlap-connected family combinations")
 
     args = parser.parse_args()
 
@@ -357,12 +381,24 @@ def main():
     print()
 
     if args.triples:
-        search_triple_gadgets(args.max, args.top)
+        search_triple_gadgets(
+            args.max,
+            args.top,
+            max_families=args.max_families,
+            disjoint_only=args.disjoint_only,
+            connected_only=args.connected_only,
+        )
 
     if args.pairs:
         if args.triples:
             print("\n" + "=" * 80 + "\n")
-        search_pair_gadgets(args.max, args.top)
+        search_pair_gadgets(
+            args.max,
+            args.top,
+            max_families=args.max_families,
+            disjoint_only=args.disjoint_only,
+            connected_only=args.connected_only,
+        )
 
 
 if __name__ == "__main__":

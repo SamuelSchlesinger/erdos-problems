@@ -38,7 +38,7 @@ theorem coprime_mul_sum {s t : ℕ} (h : Nat.Coprime s t) :
 
     Proof: (a+b) ∣ ab means d(s+t) ∣ d²st, so (s+t) ∣ d·s·t.
     Since gcd(s·t, s+t) = 1, we get (s+t) ∣ d. -/
-theorem sum_dvd_gcd_of_pair {a b : ℕ} (ha : 0 < a) (hb : 0 < b)
+theorem sum_dvd_gcd_of_pair {a b : ℕ} (ha : 0 < a) (_hb : 0 < b)
     (hpair : IsUnitFractionPair a b) :
     (a / Nat.gcd a b + b / Nat.gcd a b) ∣ Nat.gcd a b := by
   set d := Nat.gcd a b with hd_def
