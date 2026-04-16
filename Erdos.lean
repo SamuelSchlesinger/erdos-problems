@@ -5,6 +5,10 @@ import Erdos.ErdosMoser.Statement
 import Erdos.ErdosMoser.KnownCases
 import Erdos.ErdosMoser.Modular
 import Erdos.ErdosStraus.Main
+import Erdos.AlmostSidonSets.Statement
+import Erdos.AlmostSidonSets.Structure
+import Erdos.AlmostSidonSets.Construction
+import Erdos.AlmostSidonSets.ExplicitSeeds
 import Erdos.UnitFractionPairs.Statement
 import Erdos.UnitFractionPairs.Classification
 import Erdos.UnitFractionPairs.Density
