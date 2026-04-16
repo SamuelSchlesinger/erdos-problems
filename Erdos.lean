@@ -5,6 +5,8 @@ import Erdos.ErdosMoser.Statement
 import Erdos.ErdosMoser.KnownCases
 import Erdos.ErdosMoser.Modular
 import Erdos.ErdosStraus.Main
+import Erdos.GreedyEgyptian.Statement
+import Erdos.GreedyEgyptian.Elementary
 import Erdos.MersenneDivisorSums.Statement
 import Erdos.MersenneDivisorSums.Elementary
 import Erdos.PrimeGapHarmonic.Statement
