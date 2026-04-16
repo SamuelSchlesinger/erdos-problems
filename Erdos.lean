@@ -15,6 +15,8 @@ import Erdos.PropertyBBounds.Statement
 import Erdos.PropertyBBounds.Elementary
 import Erdos.ChvatalConjecture.Statement
 import Erdos.ChvatalConjecture.Elementary
+import Erdos.IntervalDivisibility.Statement
+import Erdos.IntervalDivisibility.Elementary
 import Erdos.MersenneDivisorSums.Statement
 import Erdos.MersenneDivisorSums.Elementary
 import Erdos.PrimeGapHarmonic.Statement

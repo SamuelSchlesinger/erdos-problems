@@ -13,6 +13,7 @@ structural theorems, density bounds, and cross-problem connections.
 | [282](https://www.erdosproblems.com/282) | Greedy Egyptian fractions with restricted denominators | Statement formalized; unique minimal greedy choice, monotone remainder bounds, one-step termination for every unit fraction `1/n` with `n ∈ A`, and in particular termination of every odd unit fraction on the odd numbers |
 | [472](https://www.erdosproblems.com/472) | Ulam's prime recurrence | Statement formalized via arbitrarily long valid finite prefixes; admissible-value and uniqueness infrastructure; the seed `[3,5]` is verified to generate the prefix `[3,5,7,11,13,17]` |
 | [701](https://www.erdosproblems.com/701) | Chvátal's conjecture for down-closed families | Statement formalized on finite set families over `Fin (n+1)`; down-closedness, stars, and the extremal-star formulation packaged; the full Boolean lattice case is proved, using Mathlib's half-space bound for intersecting families to show every principal star is extremal |
+| [710](https://www.erdosproblems.com/710) | Short intervals with prescribed divisibility | Statement formalized via distinct witnesses `a_k` in `(n,n+f(n))` with `k ∣ a_k`; an explicit configuration proves the elementary quadratic upper bound `f(n) ≤ n²` for every `n ≥ 2`, together with the base case `f(1) ≤ 2` |
 | [802](https://www.erdosproblems.com/802) | Independent sets in `K_r`-free graphs | Statement formalized on `Fin n`; average-degree packaging added; exact `r = 2` base case formalized: every `K_2`-free graph is empty, so its independence number is `n` |
 | [152](https://www.erdosproblems.com/152) | Isolated sums of Sidon sets | Value-truncation stability; fast-growth sequences have infinitely many isolated sums; explicit finite obstruction family with empty lower-isolated region |
 | [156](https://www.erdosproblems.com/156) | Small maximal Sidon sets | Finite statement formalized; maximal extensions exist in every interval; every positive strong-gap prefix extends to a maximal set (in particular `{1,4,…,4^m}`); maximality forces elementary obstruction cover; direct cubic lower bounds `N ≤ |A| + |A|^2 + |A|^3` and `N ≤ 3|A|^3`; packaged existence with the coarse `N^{1/3}` lower bound |
@@ -50,6 +51,7 @@ Erdos/
   AlmostSidonSets/         -- #864: almost-Sidon sets with one exceptional sum
   ConsecutivePowerful/     -- #364: consecutive powerful triples
   GreedyEgyptian/          -- #282: restricted greedy Egyptian fractions
+  IntervalDivisibility/    -- #710: short intervals with prescribed divisibility
   MaximalSidonSets/        -- #156: small maximal Sidon subsets of {1, ..., N}
   MersenneDivisorSums/     -- #893: divisor sums over 2^k - 1
   PlanePairColorings/      -- #474: colorings of plane pairs on uncountable sets
