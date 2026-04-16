@@ -25,6 +25,7 @@ structural theorems, density bounds, and cross-problem connections.
 | [470](https://www.erdosproblems.com/470) | Weird numbers | Benkoski-Erdős, infinitude, Egyptian fraction bridge |
 | [474](https://www.erdosproblems.com/474) | Pair-colorings of the plane on uncountable sets | Statement formalized; monotonicity under enlarging the ambient set, one-color case, and color-merging reduction from `l` colors to any smaller positive `k` |
 | [893](https://www.erdosproblems.com/893) | Divisors of Mersenne numbers | Statement formalized; positivity of each divisor-count term, exact successor recurrence, monotonicity of partial sums, and the lower bound `f(n) ≥ n` |
+| [901](https://www.erdosproblems.com/901) | Minimal non-Property-B `n`-uniform hypergraphs | Statement formalized via finite set families; Property B packaged as a two-coloring witness; the classical middle-layer construction on `2n-1` vertices is formalized and yields the elementary upper bound `m(n) ≤ choose(2n - 1, n)` for every `n ≥ 1` |
 | [950](https://www.erdosproblems.com/950) | Reciprocal sums over prime gaps | Statement formalized; nonnegativity, exact vanishing for `n = 0, 1, 2`, and the first positive lower bound coming from the prime `2` |
 
 ## Building
@@ -52,6 +53,7 @@ Erdos/
   PlanePairColorings/      -- #474: colorings of plane pairs on uncountable sets
   PrimaryPseudoperfect/    -- #313: sum of prime reciprocals equals 1 - 1/m
   PrimeGapHarmonic/        -- #950: reciprocal sums over prime gaps
+  PropertyBBounds/         -- #901: minimal non-Property-B n-uniform hypergraphs
   SidonSumsets/            -- #152: isolated sums in Sidon sumsets
   UlamPrimeRecurrence/     -- #472: Ulam's prime recurrence on prime seeds
   UnitFractionTriples/     -- #302: 1/a = 1/b + 1/c avoidance
