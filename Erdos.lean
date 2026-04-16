@@ -28,6 +28,8 @@ import Erdos.DistinctDistances.Statement
 import Erdos.DistinctDistances.Elementary
 import Erdos.PlanePairColorings.Statement
 import Erdos.PlanePairColorings.Elementary
+import Erdos.DisjointEqualUnions.Statement
+import Erdos.DisjointEqualUnions.Elementary
 import Erdos.ConsecutivePowerful.Statement
 import Erdos.ConsecutivePowerful.Modular
 import Erdos.ConsecutivePowerful.Search

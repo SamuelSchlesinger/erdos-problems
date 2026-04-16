@@ -27,6 +27,7 @@ structural theorems, density bounds, and cross-problem connections.
 | [301](https://www.erdosproblems.com/301) | Unit fraction sum-free sets | Upper half construction, bridge to #302, multiplier-fiber reduction, pseudoperfect/divisor obstruction bridge to #470 |
 | [470](https://www.erdosproblems.com/470) | Weird numbers | Benkoski-Erdős, infinitude, Egyptian fraction bridge |
 | [474](https://www.erdosproblems.com/474) | Pair-colorings of the plane on uncountable sets | Statement formalized; monotonicity under enlarging the ambient set, one-color case, and color-merging reduction from `l` colors to any smaller positive `k` |
+| [643](https://www.erdosproblems.com/643) | Hypergraphs with no disjoint equal-unions | Statement formalized on finite `t`-uniform hypergraphs over `Fin n`; the standard star-family obstruction is formalized, proving that for `n > 0` and `t > 0` the threshold must strictly exceed `choose(n - 1, t - 1)` |
 | [893](https://www.erdosproblems.com/893) | Divisors of Mersenne numbers | Statement formalized; positivity of each divisor-count term, exact successor recurrence, monotonicity of partial sums, and the lower bound `f(n) ≥ n` |
 | [901](https://www.erdosproblems.com/901) | Minimal non-Property-B `n`-uniform hypergraphs | Statement formalized via finite set families; Property B packaged as a two-coloring witness; the classical middle-layer construction on `2n-1` vertices is formalized and yields the elementary upper bound `m(n) ≤ choose(2n - 1, n)` for every `n ≥ 1` |
 | [950](https://www.erdosproblems.com/950) | Reciprocal sums over prime gaps | Statement formalized; nonnegativity, exact vanishing for `n = 0, 1, 2`, and the first positive lower bound coming from the prime `2` |
@@ -47,6 +48,7 @@ Erdos/
   ChvatalConjecture/       -- #701: intersecting subfamilies of down-closed set families
   CliqueFreeIndependence/  -- #802: independent sets in clique-free graphs
   DistinctDistances/       -- #89: distinct distances determined by finite planar sets
+  DisjointEqualUnions/     -- #643: t-uniform hypergraphs with no disjoint equal-unions
   ErdosMoser/              -- Erdos-Moser equation: sum_{i=1}^{m-1} i^k = m^k
   ErdosStraus/             -- #242: 4/n = 1/x + 1/y + 1/z
   AlmostSidonSets/         -- #864: almost-Sidon sets with one exceptional sum
