@@ -5,6 +5,8 @@ import Erdos.ErdosMoser.Statement
 import Erdos.ErdosMoser.KnownCases
 import Erdos.ErdosMoser.Modular
 import Erdos.ErdosStraus.Main
+import Erdos.PlanePairColorings.Statement
+import Erdos.PlanePairColorings.Elementary
 import Erdos.AlmostSidonSets.Statement
 import Erdos.AlmostSidonSets.Structure
 import Erdos.AlmostSidonSets.Construction
