@@ -16,6 +16,8 @@ import Erdos.PropertyBBounds.Statement
 import Erdos.PropertyBBounds.Elementary
 import Erdos.ChvatalConjecture.Statement
 import Erdos.ChvatalConjecture.Elementary
+import Erdos.InverseGoldbach.Statement
+import Erdos.InverseGoldbach.Elementary
 import Erdos.IntervalDivisibility.Statement
 import Erdos.IntervalDivisibility.Elementary
 import Erdos.SunflowerLemma.Statement
