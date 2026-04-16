@@ -103,7 +103,8 @@ theorem weird_mul_prime {n p : ℕ} (hw : Weird n) (hp : Nat.Prime p)
   have hσp : p.divisors.sum id = 1 + p := by
     rw [hp.divisors, show ({1, p} : Finset ℕ) = insert 1 {p} from rfl]
     rw [Finset.sum_insert (show (1 : ℕ) ∉ ({p} : Finset ℕ) by
-      simp; exact (hp.one_lt.ne' |>.symm))]
+      simp only [Finset.mem_singleton]
+      exact hp.one_lt.ne'.symm)]
     simp
   -- σ(pn) = σ(p) · σ(n) = (1+p) · σ(n) (multiplicativity for coprime)
   have hσpn : (p * n).divisors.sum id = (1 + p) * σn := by
