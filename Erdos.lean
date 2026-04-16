@@ -5,6 +5,8 @@ import Erdos.ErdosMoser.Statement
 import Erdos.ErdosMoser.KnownCases
 import Erdos.ErdosMoser.Modular
 import Erdos.ErdosStraus.Main
+import Erdos.PrimeGapHarmonic.Statement
+import Erdos.PrimeGapHarmonic.Elementary
 import Erdos.DistinctDistances.Statement
 import Erdos.DistinctDistances.Elementary
 import Erdos.PlanePairColorings.Statement
