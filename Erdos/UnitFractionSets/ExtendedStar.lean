@@ -336,6 +336,8 @@ The subset {2d, 3d, 10d, 12d, 15d} avoids all 4 triple violations:
   - {6,10,15}: 6d is missing
 -/
 
+set_option maxHeartbeats 400000 in
+-- Lean 4.27 needs a larger heartbeat budget for this finite 5^3 case split.
 /-- **Triple-free 5-element witness.** The set {2d, 3d, 10d, 12d, 15d} is
     triple-free (it avoids all 4 triple violations in the extended star).
     This demonstrates that triple-free sets can keep 5 of the 7 elements.

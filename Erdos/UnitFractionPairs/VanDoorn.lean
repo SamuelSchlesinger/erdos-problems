@@ -1830,6 +1830,165 @@ theorem vd_triangle_t_net_bound (N : ℕ) (A : Finset ℕ)
       _ ≤ N + D540.card := hmain
   exact Nat.le_of_add_le_add_right hmain'
 
+/-! ### Section 8b: Large-scale triangle barrier -/
+
+/-- Count of numbers `< 6q` coprime to `6`. -/
+private theorem count_coprime6_six_mul (q : ℕ) :
+    Nat.count (Nat.Coprime 6) (6 * q) = 2 * q := by
+  induction q with
+  | zero => simp
+  | succ q ih =>
+      rw [Nat.mul_succ, Nat.count_add, ih]
+      have hsame :
+          Nat.count (fun k => Nat.Coprime 6 (6 * q + k)) 6 =
+            Nat.count (Nat.Coprime 6) 6 := by
+        refine le_antisymm ?_ ?_
+        · apply Nat.count_mono_left
+          intro k hk hkprop
+          have hper : Nat.Coprime 6 (6 * q + k) = Nat.Coprime 6 k := by
+            rw [Nat.mul_comm, Nat.add_comm]
+            exact (((Nat.periodic_coprime 6).nat_mul q) k)
+          rw [hper] at hkprop
+          exact hkprop
+        · apply Nat.count_mono_left
+          intro k hk hkprop
+          have hper : Nat.Coprime 6 (6 * q + k) = Nat.Coprime 6 k := by
+            rw [Nat.mul_comm, Nat.add_comm]
+            exact (((Nat.periodic_coprime 6).nat_mul q) k)
+          rw [hper]
+          exact hkprop
+      have hcount6 : Nat.count (Nat.Coprime 6) 6 = 2 := by
+        decide
+      rw [hsame]
+      rw [hcount6]
+      omega
+
+/-- Exact count of integers in `{1, ..., 6q}` coprime to `6`. -/
+private theorem coprime6_card_Icc_eq_two_mul (q : ℕ) :
+    ((Finset.Icc 1 (6 * q)).filter (Nat.Coprime · 6)).card = 2 * q := by
+  have hcard : ((Finset.Icc 1 (6 * q)).filter (Nat.Coprime · 6)).card =
+      Nat.count (Nat.Coprime 6) (6 * q + 1) := by
+    have hset : ((Finset.Icc 1 (6 * q)).filter (Nat.Coprime · 6)) =
+        ((Finset.range (6 * q + 1)).filter (Nat.Coprime 6)) := by
+      ext x
+      constructor
+      · intro hx
+        simp only [Finset.mem_filter, Finset.mem_Icc, Finset.mem_range] at hx ⊢
+        exact ⟨by omega, by simpa [Nat.coprime_comm] using hx.2⟩
+      · intro hx
+        simp only [Finset.mem_filter, Finset.mem_Icc, Finset.mem_range] at hx ⊢
+        have hxpos : 1 ≤ x := by
+          have hxne : x ≠ 0 := by
+            intro hx0
+            subst hx0
+            simpa using hx.2
+          omega
+        exact ⟨⟨hxpos, by omega⟩, by simpa [Nat.coprime_comm] using hx.2⟩
+    rw [hset, Nat.count_eq_card_filter_range]
+  rw [hcard]
+  rw [Nat.count_succ]
+  have hnot : ¬Nat.Coprime 6 (6 * q) := by
+    have h6 : 6 ∣ 6 * q := ⟨q, by ring⟩
+    exact Nat.not_coprime_of_dvd_of_dvd (by decide : 1 < 6) (dvd_rfl) h6
+  simpa [hnot] using count_coprime6_six_mul q
+
+/-- Lower bound for the count of numbers in `{1, ..., m}` coprime to `6`. -/
+private theorem coprime6_card_Icc_lower (m : ℕ) :
+    2 * (m / 6) ≤ ((Finset.Icc 1 m).filter (Nat.Coprime · 6)).card := by
+  have hsub : (Finset.Icc 1 (6 * (m / 6))).filter (Nat.Coprime · 6) ⊆
+      (Finset.Icc 1 m).filter (Nat.Coprime · 6) := by
+    intro x hx
+    simp only [Finset.mem_filter, Finset.mem_Icc] at hx ⊢
+    exact ⟨⟨hx.1.1, le_trans hx.1.2 (Nat.mul_div_le m 6)⟩, hx.2⟩
+  calc
+    2 * (m / 6) = ((Finset.Icc 1 (6 * (m / 6))).filter (Nat.Coprime · 6)).card := by
+      symm
+      exact coprime6_card_Icc_eq_two_mul (m / 6)
+    _ ≤ ((Finset.Icc 1 m).filter (Nat.Coprime · 6)).card := Finset.card_le_card hsub
+
+/-- Upper bound for the count of numbers in `{1, ..., m}` coprime to `6`. -/
+private theorem coprime6_card_Icc_upper (m : ℕ) :
+    ((Finset.Icc 1 m).filter (Nat.Coprime · 6)).card ≤ 2 * (m / 6) + 2 := by
+  have h := Nat.Ico_filter_coprime_le (a := 6) 1 m (by decide : (6 : ℕ) ≠ 0)
+  have hIcc : ((Finset.Icc 1 m).filter (Nat.Coprime · 6)) =
+      ((Finset.Ico 1 (m + 1)).filter (Nat.Coprime · 6)) := by
+    ext x
+    simp [Finset.mem_Icc, Finset.mem_Ico]
+  have h' : ((Finset.Icc 1 m).filter (Nat.Coprime · 6)).card ≤ Nat.totient 6 * (m / 6 + 1) := by
+    rw [hIcc]
+    simpa [Nat.coprime_comm, add_comm] using h
+  have htot : Nat.totient 6 = 2 := by
+    decide
+  rw [htot] at h'
+  nlinarith
+
+/-- Arithmetic inequality used to show triangle parameters are eventually
+    dominated by the two overlap channels. -/
+private theorem triangle_overlap_arith (N : ℕ) (hN : 18720 ≤ N) :
+    2 * (N / 1080) + 2 ≤ 2 * (N / 1440) + 2 * (N / 3240) := by
+  omega
+
+/-- **Large-scale triangle barrier.**
+
+    For `N ≥ 18720`, the exact overlaps of the full triangle family with the full
+    van Doorn `S`- and `T`-families already account for at least the entire
+    two-per-gadget omission gain of the triangle family.
+
+    Concretely, if
+    `D△ = {d ≤ N/180 : gcd(d,6)=1}`,
+    `U△ = ⋃_{d∈D△} {60d,120d,180d}`,
+    `U_S = ⋃_{a≤N/6, VDParam a} {3a,6a}`,
+    `U_T = ⋃_{a≤N/12, VDParam a} {4a,12a}`,
+    then
+
+    `2*|D△| ≤ |U△ ∩ U_S| + |U△ ∩ U_T|`.
+
+    So at these scales, the full triangle family cannot yield a positive net
+    improvement over the full van Doorn packing by simple overlap-aware union
+    counting alone. -/
+theorem vd_triangle_full_overlap_absorbs_deficit (N : ℕ) (hN : 18720 ≤ N) :
+    2 * ((Finset.Icc 1 (N / 180)).filter (Nat.Coprime · 6)).card ≤
+      ((((Finset.Icc 1 (N / 180)).filter (Nat.Coprime · 6)).biUnion
+          (fun d => ({60 * d, 120 * d, 180 * d} : Finset ℕ)))
+        ∩
+        (((Finset.Icc 1 (N / 6)).filter VDParam).biUnion
+          (fun a => ({3 * a, 6 * a} : Finset ℕ)))).card
+      +
+      ((((Finset.Icc 1 (N / 180)).filter (Nat.Coprime · 6)).biUnion
+          (fun d => ({60 * d, 120 * d, 180 * d} : Finset ℕ)))
+        ∩
+        (((Finset.Icc 1 (N / 12)).filter VDParam).biUnion
+          (fun a => ({4 * a, 12 * a} : Finset ℕ)))).card := by
+  have htri_le :
+      ((Finset.Icc 1 (N / 180)).filter (Nat.Coprime · 6)).card ≤
+        ((Finset.Icc 1 (N / 240)).filter (Nat.Coprime · 6)).card +
+          ((Finset.Icc 1 (N / 540)).filter (Nat.Coprime · 6)).card := by
+    have htri :
+        ((Finset.Icc 1 (N / 180)).filter (Nat.Coprime · 6)).card ≤
+          2 * ((N / 180) / 6) + 2 :=
+      coprime6_card_Icc_upper (N / 180)
+    have hlow :
+        2 * ((N / 240) / 6) ≤
+          ((Finset.Icc 1 (N / 240)).filter (Nat.Coprime · 6)).card :=
+      coprime6_card_Icc_lower (N / 240)
+    have h540 :
+        2 * ((N / 540) / 6) ≤
+          ((Finset.Icc 1 (N / 540)).filter (Nat.Coprime · 6)).card :=
+      coprime6_card_Icc_lower (N / 540)
+    have harith :
+        2 * ((N / 180) / 6) + 2 ≤ 2 * ((N / 240) / 6) + 2 * ((N / 540) / 6) := by
+      simpa [Nat.div_div_eq_div_mul] using triangle_overlap_arith N hN
+    have hsum :
+        2 * ((N / 240) / 6) + 2 * ((N / 540) / 6) ≤
+          ((Finset.Icc 1 (N / 240)).filter (Nat.Coprime · 6)).card +
+            ((Finset.Icc 1 (N / 540)).filter (Nat.Coprime · 6)).card := by
+      omega
+    exact le_trans htri (le_trans harith hsum)
+  have hs := vd_triangle_s_full_overlap_card_eq_strong N
+  have ht := vd_triangle_t_overlap_card_eq_strong N
+  rw [hs, ht]
+  omega
+
 /-! ### Section 8: Capstone counting theorem -/
 
 /-- **Van Doorn's structural bound for pair-free sets.**

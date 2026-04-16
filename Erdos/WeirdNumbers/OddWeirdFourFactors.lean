@@ -10,6 +10,7 @@ Therefore any odd weird number must have at least 4 distinct prime factors.
 This strengthens `odd_weird_three_prime_factors` toward Liddy-Riedl's ≥6.
 -/
 import Erdos.WeirdNumbers.OddWeirdFactors
+import Erdos.WeirdNumbers.Structure
 
 namespace WeirdNumbers
 
@@ -291,5 +292,404 @@ private theorem not_abundant_of_sigma_lt {n : ℕ}
   have hsplit : n.divisors.sum id = n.properDivisors.sum id + n :=
     Nat.sum_divisors_eq_sum_properDivisors_add_self
   linarith
+
+/-- Repackage a concrete value of `n.divisors.sum id` as a value of
+    `n.properDivisors.sum id`. -/
+private theorem properDivisors_sum_eq_sub {n σ : ℕ} (hσ : n.divisors.sum id = σ) :
+    n.properDivisors.sum id = σ - n := by
+  have hsplit : n.divisors.sum id = n.properDivisors.sum id + n :=
+    Nat.sum_divisors_eq_sum_properDivisors_add_self
+  omega
+
+/-! ### Exceptional non-abundant families -/
+
+/-- If `a ≤ 2`, then `3^a * 5^b * 11^c` is not abundant. -/
+private theorem three_five_eleven_a_le_two_not_abundant (a b c : ℕ) (ha : a ≤ 2) :
+    ¬Abundant (3 ^ a * 5 ^ b * 11 ^ c) := by
+  have hlt : (3 ^ a * 5 ^ b * 11 ^ c).divisors.sum id < 2 * (3 ^ a * 5 ^ b * 11 ^ c) := by
+    have hp3 : Nat.Prime 3 := by decide
+    have hp5 : Nat.Prime 5 := by decide
+    have hp11 : Nat.Prime 11 := by decide
+    rw [sigma_three_primes_mul hp3 hp5 hp11 (by omega) (by omega) (by omega)]
+    set σ3 := (3 ^ a).divisors.sum id
+    set σ5 := (5 ^ b).divisors.sum id
+    set σ11 := (11 ^ c).divisors.sum id
+    have hσ3n : 9 * σ3 ≤ 13 * 3 ^ a := by
+      dsimp [σ3]
+      rw [Nat.sum_divisors_prime_pow hp3]
+      interval_cases a <;> norm_num
+    have hb5n : 4 * σ5 < 5 * 5 ^ b := by
+      simpa [σ5] using sigma_bound_ge5 hp5 (le_refl 5) b
+    have hc11n : 10 * σ11 < 11 * 11 ^ c := by
+      simpa [σ11] using sigma_bound_ge11 hp11 (le_refl 11) c
+    have hσ3 : (9 : ℚ) * σ3 ≤ 13 * 3 ^ a := by
+      exact_mod_cast hσ3n
+    have hb5 : (4 : ℚ) * σ5 < 5 * 5 ^ b := by
+      exact_mod_cast hb5n
+    have hc11 : (10 : ℚ) * σ11 < 11 * 11 ^ c := by
+      exact_mod_cast hc11n
+    have h3a : (0 : ℚ) < 3 ^ a := by positivity
+    have h5b : (0 : ℚ) < 5 ^ b := by positivity
+    have h11c : (0 : ℚ) < 11 ^ c := by positivity
+    exact_mod_cast (show (σ3 : ℚ) * σ5 * σ11 < 2 * (3 ^ a * 5 ^ b * 11 ^ c) by
+      nlinarith)
+  exact not_abundant_of_sigma_lt hlt
+
+/-- If `b = 1`, then `3^a * 5 * 11^c` is not abundant. -/
+private theorem three_five_eleven_b_one_not_abundant (a c : ℕ) :
+    ¬Abundant (3 ^ a * 5 ^ 1 * 11 ^ c) := by
+  apply not_abundant_of_sigma_lt
+  have hp3 : Nat.Prime 3 := by decide
+  have hp11 : Nat.Prime 11 := by decide
+  rw [sigma_three_primes_mul hp3 (by decide) hp11 (by omega) (by omega) (by omega)]
+  have hσ5 : (5 ^ (1 : ℕ)).divisors.sum id = 6 := by
+    rw [Nat.sum_divisors_prime_pow (by decide : Nat.Prime 5)]
+    norm_num
+  rw [hσ5]
+  set σ3 := (3 ^ a).divisors.sum id
+  set σ11 := (11 ^ c).divisors.sum id
+  have ha3n : 2 * σ3 < 3 * 3 ^ a := by
+    simpa [σ3] using sigma_bound_ge3 hp3 (le_refl 3) a
+  have hc11n : 10 * σ11 < 11 * 11 ^ c := by
+    simpa [σ11] using sigma_bound_ge11 hp11 (le_refl 11) c
+  have ha3 : (2 : ℚ) * σ3 < 3 * 3 ^ a := by
+    exact_mod_cast ha3n
+  have hc11 : (10 : ℚ) * σ11 < 11 * 11 ^ c := by
+    exact_mod_cast hc11n
+  have h3a : (0 : ℚ) < 3 ^ a := by positivity
+  have h11c : (0 : ℚ) < 11 ^ c := by positivity
+  exact_mod_cast (show (σ3 : ℚ) * 6 * σ11 < 2 * (3 ^ a * 5 ^ 1 * 11 ^ c) by
+    nlinarith)
+
+/-- If `a = 1`, then `3 * 5^b * 7^c` is not abundant. -/
+private theorem three_five_seven_a_one_not_abundant (b c : ℕ) :
+    ¬Abundant (3 ^ 1 * 5 ^ b * 7 ^ c) := by
+  apply not_abundant_of_sigma_lt
+  have hp5 : Nat.Prime 5 := by decide
+  have hp7 : Nat.Prime 7 := by decide
+  rw [sigma_three_primes_mul (by decide) hp5 hp7 (by omega) (by omega) (by omega)]
+  have hσ3 : (3 ^ (1 : ℕ)).divisors.sum id = 4 := by
+    rw [Nat.sum_divisors_prime_pow (by decide : Nat.Prime 3)]
+    norm_num
+  rw [hσ3]
+  set σ5 := (5 ^ b).divisors.sum id
+  set σ7 := (7 ^ c).divisors.sum id
+  have hb5 := sigma_bound_ge5 hp5 (le_refl 5) b
+  have hc7 := sigma_bound_ge7 hp7 (le_refl 7) c
+  have hσ5_pos : 0 < σ5 := Finset.sum_pos (fun x hx => Nat.pos_of_mem_divisors hx)
+    ⟨1, Nat.one_mem_divisors.mpr (by positivity)⟩
+  have h5b_pos : 0 < 5 ^ b := by positivity
+  have h7c_pos : 0 < 7 ^ c := by positivity
+  have h1 : σ5 * (6 * σ7) < σ5 * (7 * 7 ^ c) :=
+    mul_lt_mul_of_pos_left hc7 hσ5_pos
+  have h2 : (4 * σ5) * (7 * 7 ^ c) < (5 * 5 ^ b) * (7 * 7 ^ c) :=
+    mul_lt_mul_of_pos_right hb5 (by positivity)
+  nlinarith
+
+/-- `3^2 * 5 * 7 = 315` is not abundant. -/
+private theorem three_five_seven_two_one_one_not_abundant :
+    ¬Abundant (3 ^ 2 * 5 ^ 1 * 7 ^ 1) := by
+  apply not_abundant_of_sigma_lt
+  have hp3 : Nat.Prime 3 := by decide
+  have hp5 : Nat.Prime 5 := by decide
+  have hp7 : Nat.Prime 7 := by decide
+  rw [sigma_three_primes_mul hp3 hp5 hp7 (by omega) (by omega) (by omega)]
+  rw [Nat.sum_divisors_prime_pow hp3, Nat.sum_divisors_prime_pow hp5,
+    Nat.sum_divisors_prime_pow hp7]
+  norm_num
+
+/-- If `a ≤ 2`, then `3^a * 5^b * 13^c` is not abundant. -/
+private theorem three_five_thirteen_a_le_two_not_abundant (a b c : ℕ) (ha : a ≤ 2) :
+    ¬Abundant (3 ^ a * 5 ^ b * 13 ^ c) := by
+  have hlt : (3 ^ a * 5 ^ b * 13 ^ c).divisors.sum id < 2 * (3 ^ a * 5 ^ b * 13 ^ c) := by
+    have hp3 : Nat.Prime 3 := by decide
+    have hp5 : Nat.Prime 5 := by decide
+    have hp13 : Nat.Prime 13 := by decide
+    rw [sigma_three_primes_mul hp3 hp5 hp13 (by omega) (by omega) (by omega)]
+    set σ3 := (3 ^ a).divisors.sum id
+    set σ5 := (5 ^ b).divisors.sum id
+    set σ13 := (13 ^ c).divisors.sum id
+    have hσ3n : 9 * σ3 ≤ 13 * 3 ^ a := by
+      dsimp [σ3]
+      rw [Nat.sum_divisors_prime_pow hp3]
+      interval_cases a <;> norm_num
+    have hb5n : 4 * σ5 < 5 * 5 ^ b := by
+      simpa [σ5] using sigma_bound_ge5 hp5 (le_refl 5) b
+    have hc13n : 12 * σ13 < 13 * 13 ^ c := by
+      simpa [σ13] using sigma_bound_ge13 hp13 (le_refl 13) c
+    have hσ3 : (9 : ℚ) * σ3 ≤ 13 * 3 ^ a := by
+      exact_mod_cast hσ3n
+    have hb5 : (4 : ℚ) * σ5 < 5 * 5 ^ b := by
+      exact_mod_cast hb5n
+    have hc13 : (12 : ℚ) * σ13 < 13 * 13 ^ c := by
+      exact_mod_cast hc13n
+    have h3a : (0 : ℚ) < 3 ^ a := by positivity
+    have h5b : (0 : ℚ) < 5 ^ b := by positivity
+    have h13c : (0 : ℚ) < 13 ^ c := by positivity
+    exact_mod_cast (show (σ3 : ℚ) * σ5 * σ13 < 2 * (3 ^ a * 5 ^ b * 13 ^ c) by
+      nlinarith)
+  exact not_abundant_of_sigma_lt hlt
+
+/-- If `a = 3` and `b ≤ 2`, then `3^3 * 5^b * 13^c` is not abundant. -/
+private theorem three_five_thirteen_three_b_le_two_not_abundant (b c : ℕ) (hb : b ≤ 2) :
+    ¬Abundant (3 ^ 3 * 5 ^ b * 13 ^ c) := by
+  apply not_abundant_of_sigma_lt
+  have hp5 : Nat.Prime 5 := by decide
+  have hp13 : Nat.Prime 13 := by decide
+  rw [sigma_three_primes_mul (by decide) hp5 hp13 (by omega) (by omega) (by omega)]
+  have hσ3 : (3 ^ (3 : ℕ)).divisors.sum id = 40 := by
+    rw [Nat.sum_divisors_prime_pow (by decide : Nat.Prime 3)]
+    norm_num
+  rw [hσ3]
+  set σ5 := (5 ^ b).divisors.sum id
+  set σ13 := (13 ^ c).divisors.sum id
+  have hσ5n : 25 * σ5 ≤ 31 * 5 ^ b := by
+    dsimp [σ5]
+    rw [Nat.sum_divisors_prime_pow hp5]
+    interval_cases b <;> norm_num
+  have hc13n : 12 * σ13 < 13 * 13 ^ c := by
+    simpa [σ13] using sigma_bound_ge13 hp13 (le_refl 13) c
+  have hσ5 : (25 : ℚ) * σ5 ≤ 31 * 5 ^ b := by
+    exact_mod_cast hσ5n
+  have hc13 : (12 : ℚ) * σ13 < 13 * 13 ^ c := by
+    exact_mod_cast hc13n
+  have h5b : (0 : ℚ) < 5 ^ b := by positivity
+  have h13c : (0 : ℚ) < 13 ^ c := by positivity
+  exact_mod_cast (show (40 : ℚ) * σ5 * σ13 < 2 * (3 ^ 3 * 5 ^ b * 13 ^ c) by
+    nlinarith)
+
+/-- If `a = 3` and `c = 1`, then `3^3 * 5^b * 13` is not abundant. -/
+private theorem three_five_thirteen_three_c_one_not_abundant (b : ℕ) :
+    ¬Abundant (3 ^ 3 * 5 ^ b * 13 ^ 1) := by
+  apply not_abundant_of_sigma_lt
+  have hp5 : Nat.Prime 5 := by decide
+  rw [sigma_three_primes_mul (by decide) hp5 (by decide) (by omega) (by omega) (by omega)]
+  have hσ3 : (3 ^ (3 : ℕ)).divisors.sum id = 40 := by
+    rw [Nat.sum_divisors_prime_pow (by decide : Nat.Prime 3)]
+    norm_num
+  have hσ13 : (13 ^ (1 : ℕ)).divisors.sum id = 14 := by
+    rw [Nat.sum_divisors_prime_pow (by decide : Nat.Prime 13)]
+    norm_num
+  rw [hσ3, hσ13]
+  set σ5 := (5 ^ b).divisors.sum id
+  have hb5n : 4 * σ5 < 5 * 5 ^ b := by
+    simpa [σ5] using sigma_bound_ge5 (by decide : Nat.Prime 5) (le_refl 5) b
+  have hb5 : (4 : ℚ) * σ5 < 5 * 5 ^ b := by
+    exact_mod_cast hb5n
+  have h5b : (0 : ℚ) < 5 ^ b := by positivity
+  exact_mod_cast (show (40 : ℚ) * σ5 * 14 < 2 * (3 ^ 3 * 5 ^ b * 13 ^ 1) by
+    nlinarith)
+
+/-- If `b = 1`, then `3^a * 5 * 13^c` is not abundant. -/
+private theorem three_five_thirteen_b_one_not_abundant (a c : ℕ) :
+    ¬Abundant (3 ^ a * 5 ^ 1 * 13 ^ c) := by
+  apply not_abundant_of_sigma_lt
+  have hp3 : Nat.Prime 3 := by decide
+  have hp13 : Nat.Prime 13 := by decide
+  rw [sigma_three_primes_mul hp3 (by decide) hp13 (by omega) (by omega) (by omega)]
+  have hσ5 : (5 ^ (1 : ℕ)).divisors.sum id = 6 := by
+    rw [Nat.sum_divisors_prime_pow (by decide : Nat.Prime 5)]
+    norm_num
+  rw [hσ5]
+  set σ3 := (3 ^ a).divisors.sum id
+  set σ13 := (13 ^ c).divisors.sum id
+  have ha3n : 2 * σ3 < 3 * 3 ^ a := by
+    simpa [σ3] using sigma_bound_ge3 hp3 (le_refl 3) a
+  have hc13n : 12 * σ13 < 13 * 13 ^ c := by
+    simpa [σ13] using sigma_bound_ge13 hp13 (le_refl 13) c
+  have ha3 : (2 : ℚ) * σ3 < 3 * 3 ^ a := by
+    exact_mod_cast ha3n
+  have hc13 : (12 : ℚ) * σ13 < 13 * 13 ^ c := by
+    exact_mod_cast hc13n
+  have h3a : (0 : ℚ) < 3 ^ a := by positivity
+  have h13c : (0 : ℚ) < 13 ^ c := by positivity
+  exact_mod_cast (show (σ3 : ℚ) * 6 * σ13 < 2 * (3 ^ a * 5 ^ 1 * 13 ^ c) by
+    nlinarith)
+
+/-- `3^4 * 5^2 * 13` is not abundant. -/
+private theorem three_five_thirteen_four_two_one_not_abundant :
+    ¬Abundant (3 ^ 4 * 5 ^ 2 * 13 ^ 1) := by
+  apply not_abundant_of_sigma_lt
+  have hp3 : Nat.Prime 3 := by decide
+  have hp5 : Nat.Prime 5 := by decide
+  have hp13 : Nat.Prime 13 := by decide
+  rw [sigma_three_primes_mul hp3 hp5 hp13 (by omega) (by omega) (by omega)]
+  rw [Nat.sum_divisors_prime_pow hp3, Nat.sum_divisors_prime_pow hp5,
+    Nat.sum_divisors_prime_pow hp13]
+  norm_num
+
+/-! ### Exceptional pseudoperfect base numbers -/
+
+set_option linter.style.nativeDecide false in
+private theorem pp_945 : Pseudoperfect 945 := by native_decide
+
+set_option linter.style.nativeDecide false in
+private theorem pp_1575 : Pseudoperfect 1575 := by native_decide
+
+set_option linter.style.nativeDecide false in
+private theorem pp_2205 : Pseudoperfect 2205 := by native_decide
+
+set_option linter.style.nativeDecide false in
+private theorem pp_7425 : Pseudoperfect 7425 := by native_decide
+
+set_option linter.style.nativeDecide false in
+private theorem pp_78975 : Pseudoperfect 78975 := by native_decide
+
+set_option linter.style.nativeDecide false in
+private theorem pp_131625 : Pseudoperfect 131625 := by native_decide
+
+set_option linter.style.nativeDecide false in
+private theorem pp_342225 : Pseudoperfect 342225 := by native_decide
+
+set_option linter.style.nativeDecide false in
+private theorem pp_570375 : Pseudoperfect 570375 := by native_decide
+
+/-! ### Exceptional abundant forms are pseudoperfect -/
+
+/-- Any abundant number of the form `3^a * 5^b * 7^c` is pseudoperfect. -/
+private theorem three_five_seven_pseudoperfect_of_abundant (a b c : ℕ)
+    (ha : 1 ≤ a) (hb : 1 ≤ b) (hc : 1 ≤ c)
+    (hab : Abundant (3 ^ a * 5 ^ b * 7 ^ c)) :
+    Pseudoperfect (3 ^ a * 5 ^ b * 7 ^ c) := by
+  by_cases ha3 : 3 ≤ a
+  · have hdecomp :
+        3 ^ a * 5 ^ b * 7 ^ c =
+          (3 ^ (a - 3) * 5 ^ (b - 1) * 7 ^ (c - 1)) * 945 := by
+      have ha' : a = (a - 3) + 3 := (Nat.sub_add_cancel ha3).symm
+      have hb' : b = (b - 1) + 1 := (Nat.sub_add_cancel hb).symm
+      have hc' : c = (c - 1) + 1 := (Nat.sub_add_cancel hc).symm
+      rw [ha', hb', hc', pow_add, pow_add, pow_add]
+      norm_num
+      ring
+    have hm : 0 < 3 ^ (a - 3) * 5 ^ (b - 1) * 7 ^ (c - 1) := by positivity
+    simpa [hdecomp] using (pseudoperfect_mul hm pp_945)
+  · have ha2 : a ≤ 2 := by omega
+    have ha_eq2_or_eq1 : a = 1 ∨ a = 2 := by omega
+    rcases ha_eq2_or_eq1 with rfl | rfl
+    · exact (three_five_seven_a_one_not_abundant b c hab).elim
+    · by_cases hb2 : 2 ≤ b
+      · have hdecomp :
+            3 ^ 2 * 5 ^ b * 7 ^ c =
+              (5 ^ (b - 2) * 7 ^ (c - 1)) * 1575 := by
+          have hb' : b = (b - 2) + 2 := (Nat.sub_add_cancel hb2).symm
+          have hc' : c = (c - 1) + 1 := (Nat.sub_add_cancel hc).symm
+          rw [hb', hc', pow_add, pow_add]
+          norm_num
+          ring
+        have hm : 0 < 5 ^ (b - 2) * 7 ^ (c - 1) := by positivity
+        simpa [hdecomp] using (pseudoperfect_mul hm pp_1575)
+      · have hb_eq1 : b = 1 := by omega
+        by_cases hc2 : 2 ≤ c
+        · have hdecomp :
+              3 ^ 2 * 5 ^ 1 * 7 ^ c =
+                7 ^ (c - 2) * 2205 := by
+            have hc' : c = (c - 2) + 2 := (Nat.sub_add_cancel hc2).symm
+            rw [hc', pow_add]
+            norm_num
+            ring
+          have hm : 0 < 7 ^ (c - 2) := by positivity
+          simpa [hb_eq1, hdecomp] using (pseudoperfect_mul hm pp_2205)
+        · have hc_eq1 : c = 1 := by omega
+          exact (three_five_seven_two_one_one_not_abundant <|
+            by simpa [hb_eq1, hc_eq1] using hab).elim
+
+/-- Any abundant number of the form `3^a * 5^b * 11^c` is pseudoperfect. -/
+private theorem three_five_eleven_pseudoperfect_of_abundant (a b c : ℕ)
+    (ha : 1 ≤ a) (hb : 1 ≤ b) (hc : 1 ≤ c)
+    (hab : Abundant (3 ^ a * 5 ^ b * 11 ^ c)) :
+    Pseudoperfect (3 ^ a * 5 ^ b * 11 ^ c) := by
+  by_cases ha3 : 3 ≤ a
+  · by_cases hb2 : 2 ≤ b
+    · have hdecomp :
+          3 ^ a * 5 ^ b * 11 ^ c =
+            (3 ^ (a - 3) * 5 ^ (b - 2) * 11 ^ (c - 1)) * 7425 := by
+        have ha' : a = (a - 3) + 3 := (Nat.sub_add_cancel ha3).symm
+        have hb' : b = (b - 2) + 2 := (Nat.sub_add_cancel hb2).symm
+        have hc' : c = (c - 1) + 1 := (Nat.sub_add_cancel hc).symm
+        rw [ha', hb', hc', pow_add, pow_add, pow_add]
+        norm_num
+        ring
+      have hm : 0 < 3 ^ (a - 3) * 5 ^ (b - 2) * 11 ^ (c - 1) := by positivity
+      simpa [hdecomp] using (pseudoperfect_mul hm pp_7425)
+    · have hb_eq1 : b = 1 := by omega
+      exact (three_five_eleven_b_one_not_abundant a c <|
+        by simpa [hb_eq1] using hab).elim
+  · have ha2 : a ≤ 2 := by omega
+    exact (three_five_eleven_a_le_two_not_abundant a b c ha2 hab).elim
+
+/-- Any abundant number of the form `3^a * 5^b * 13^c` is pseudoperfect. -/
+private theorem three_five_thirteen_pseudoperfect_of_abundant (a b c : ℕ)
+    (ha : 1 ≤ a) (hb : 1 ≤ b) (hc : 1 ≤ c)
+    (hab : Abundant (3 ^ a * 5 ^ b * 13 ^ c)) :
+    Pseudoperfect (3 ^ a * 5 ^ b * 13 ^ c) := by
+  by_cases ha5 : 5 ≤ a
+  · by_cases hb2 : 2 ≤ b
+    · have hdecomp :
+          3 ^ a * 5 ^ b * 13 ^ c =
+            (3 ^ (a - 5) * 5 ^ (b - 2) * 13 ^ (c - 1)) * 78975 := by
+        have ha' : a = (a - 5) + 5 := (Nat.sub_add_cancel ha5).symm
+        have hb' : b = (b - 2) + 2 := (Nat.sub_add_cancel hb2).symm
+        have hc' : c = (c - 1) + 1 := (Nat.sub_add_cancel hc).symm
+        rw [ha', hb', hc', pow_add, pow_add, pow_add]
+        norm_num
+        ring
+      have hm : 0 < 3 ^ (a - 5) * 5 ^ (b - 2) * 13 ^ (c - 1) := by positivity
+      simpa [hdecomp] using (pseudoperfect_mul hm pp_78975)
+    · have hb_eq1 : b = 1 := by omega
+      exact (three_five_thirteen_b_one_not_abundant a c <|
+        by simpa [hb_eq1] using hab).elim
+  · by_cases ha4 : 4 ≤ a
+    · have ha_eq4 : a = 4 := by omega
+      by_cases hb3 : 3 ≤ b
+      · have hdecomp :
+            3 ^ 4 * 5 ^ b * 13 ^ c =
+              (5 ^ (b - 3) * 13 ^ (c - 1)) * 131625 := by
+          have hb' : b = (b - 3) + 3 := (Nat.sub_add_cancel hb3).symm
+          have hc' : c = (c - 1) + 1 := (Nat.sub_add_cancel hc).symm
+          rw [hb', hc', pow_add, pow_add]
+          norm_num
+          ring
+        have hm : 0 < 5 ^ (b - 3) * 13 ^ (c - 1) := by positivity
+        simpa [ha_eq4, hdecomp] using (pseudoperfect_mul hm pp_131625)
+      · by_cases hb2 : 2 ≤ b
+        · have hb_eq2 : b = 2 := by omega
+          by_cases hc2 : 2 ≤ c
+          · have hdecomp :
+                3 ^ 4 * 5 ^ 2 * 13 ^ c =
+                  13 ^ (c - 2) * 342225 := by
+              have hc' : c = (c - 2) + 2 := (Nat.sub_add_cancel hc2).symm
+              rw [hc', pow_add]
+              norm_num
+              ring
+            have hm : 0 < 13 ^ (c - 2) := by positivity
+            simpa [ha_eq4, hb_eq2, hdecomp] using (pseudoperfect_mul hm pp_342225)
+          · have hc_eq1 : c = 1 := by omega
+            exact (three_five_thirteen_four_two_one_not_abundant <|
+              by simpa [ha_eq4, hb_eq2, hc_eq1] using hab).elim
+        · have hb_eq1 : b = 1 := by omega
+          exact (three_five_thirteen_b_one_not_abundant a c <|
+            by simpa [hb_eq1] using hab).elim
+    · by_cases ha3 : 3 ≤ a
+      · have ha_eq3 : a = 3 := by omega
+        by_cases hb3 : 3 ≤ b
+        · by_cases hc2 : 2 ≤ c
+          · have hdecomp :
+                3 ^ 3 * 5 ^ b * 13 ^ c =
+                  (5 ^ (b - 3) * 13 ^ (c - 2)) * 570375 := by
+              have hb' : b = (b - 3) + 3 := (Nat.sub_add_cancel hb3).symm
+              have hc' : c = (c - 2) + 2 := (Nat.sub_add_cancel hc2).symm
+              rw [hb', hc', pow_add, pow_add]
+              norm_num
+              ring
+            have hm : 0 < 5 ^ (b - 3) * 13 ^ (c - 2) := by positivity
+            simpa [ha_eq3, hdecomp] using (pseudoperfect_mul hm pp_570375)
+          · have hc_eq1 : c = 1 := by omega
+            exact (three_five_thirteen_three_c_one_not_abundant b <|
+              by simpa [ha_eq3, hc_eq1] using hab).elim
+        · have hb2 : b ≤ 2 := by omega
+          exact (three_five_thirteen_three_b_le_two_not_abundant b c hb2 <|
+            by simpa [ha_eq3] using hab).elim
+      · have ha2 : a ≤ 2 := by omega
+        exact (three_five_thirteen_a_le_two_not_abundant a b c ha2 hab).elim
 
 end WeirdNumbers

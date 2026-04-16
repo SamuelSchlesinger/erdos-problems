@@ -64,6 +64,176 @@ there is essentially no margin.
 
 ---
 
+## Problem #152: Isolated Sums of Sidon Sets
+
+### Papers & Techniques
+
+| Paper | Key Contribution |
+|-------|-----------------|
+| Erdős-Sárközy-Sós 1994 | Finite Sidon-set problem: isolated elements of `A + A` must grow with `|A|` |
+
+The finite theorem is naturally about *cardinality truncations* of Sidon sets.
+For the infinite problem, value truncation is a cleaner interface: if an
+isolated sum lies strictly below the value cutoff, then later elements cannot
+create neighboring sums there.
+
+### Ideas Tried
+
+- **Value-truncation stability**: ✓ **DONE** (`SidonSumsets/Stability.lean`).
+  For any `A ⊆ ℕ` and `N ≤ M`, every isolated sum `s < N` of
+  `(A ∩ [0,N]) + (A ∩ [0,N])` remains isolated in
+  `(A ∩ [0,M]) + (A ∩ [0,M])` and in the full sumset `A + A`.
+- **Strategy packaging**: ✓ **DONE** (`infiniteConjecture_of_lowerIsolated_strategy`).
+  Any proof that every infinite Sidon set has arbitrarily large lower-isolated
+  witnesses along value truncations immediately yields the infinite conjecture.
+- **Fast-growth subclass theorem**: ✓ **DONE** (`SidonSumsets/FastGrowth.lean`).
+  If `u` satisfies `2u_n + 1 < u_{n+1}` and `u_0 > 0`, then each doubled term
+  `2u_n` is isolated in the sumset of `range u`, already below the next value
+  cutoff `u_{n+1}`. Hence `range u` is Sidon and has infinitely many isolated
+  sums. This proves the infinite conjectural conclusion for a concrete infinite
+  class.
+- **Finite obstruction family**: ✓ **DONE** (`SidonSumsets/Obstructions.lean`).
+  The naive finite strengthening is false. For each `m`, the explicit finite
+  Sidon set `{0, 1} ∪ {obstructionSeq m + obstructionSeq i | i ≤ m}` has no
+  lower-isolated sums below the cutoff `2 * obstructionSeq m`.
+
+### Ideas To Try
+
+- **Lower-half finite bound**: prove that for Sidon `A ⊆ [0,N]`, the number of
+  isolated sums `s < N` in `A + A` tends to infinity with `N`. This is stronger
+  than the already-solved finite problem because the witnesses are stable under
+  extending the set. **Formalizable: YES, high priority.**
+- **Retarget the ESS94 argument**: revisit the finite proof and force the
+  isolated sums it produces into the stable lower region rather than allowing
+  them anywhere in `A + A`. **Moderate formalization effort.**
+- **Extremal search**: computationally search for Sidon sets in `[0,N]` that
+  minimize lower-isolated sums. This could distinguish a true obstruction from
+  an artifact of standard constructions like Mian-Chowla. **Good search task.**
+
+---
+
+## Problem #156: Small Maximal Sidon Sets
+
+### Papers & Techniques
+
+| Paper | Key Contribution |
+|-------|-----------------|
+| Erdős-Sárközy-Sós 1994 | Original finite maximal-Sidon question |
+| Ruzsa 1998 | Maximal Sidon subset of `{1, ..., N}` with size `≪ (N log N)^{1/3}` |
+
+Problem #156 is closely related to #152, but the finite maximality question has
+its own natural language: rather than asking for isolated sums, one asks for a
+small Sidon set whose complement is completely blocked from further Sidon
+extension. The basic obstruction mechanism is elementary: if `x` cannot be
+adjoined, then inserting `x` would create either a midpoint collision
+`a + b = 2x` or a sum-difference collision `x + c = a + b`.
+
+### Ideas Tried
+
+- **Finite statement formalization**: ✓ **DONE** (`MaximalSidonSets/Statement.lean`).
+  We formalized finite Sidon subsets of `{1, ..., N}`, maximality in the
+  interval, and a cubic-form statement of the conjecture
+  `|A|^3 ≤ C N`.
+- **Maximal extension existence**: ✓ **DONE** (`MaximalSidonSets/Existence.lean`).
+  Every Sidon subset of `{1, ..., N}` extends to a maximal Sidon subset of the
+  same interval. In particular, maximal Sidon sets exist for every `N`.
+- **Explicit geometric seed**: ✓ **DONE** (`MaximalSidonSets/ExplicitSeeds.lean`).
+  The finite progression `{1, 4, 4², ..., 4^m}` is Sidon and, whenever
+  `4^m ≤ N`, extends to a maximal Sidon subset of `{1, ..., N}`. This gives a
+  concrete family of maximal sets with a certified sparse core.
+- **Generic strong-gap seed extension**: ✓ **DONE** (`MaximalSidonSets/ExplicitSeeds.lean`).
+  More generally, every finite prefix of a positive strong-gap sequence extends
+  to a maximal Sidon subset of any interval containing its last term. This
+  exposes a clean structural bridge from the fast-growth machinery developed for
+  problem #152 to the maximal-extension setting of #156.
+- **Elementary obstruction framework**: ✓ **DONE** (`MaximalSidonSets/Statement.lean`).
+  We introduced midpoint and sum-difference candidate families, together with
+  the obstruction-cover hypothesis that every outside point of `{1, ..., N}` is
+  captured by one of these elementary candidates.
+- **Maximality ⇒ obstruction cover**: ✓ **DONE** (`MaximalSidonSets/Maximality.lean`).
+  Expanding the failure of Sidon after inserting an outside point `x` and
+  splitting on where `x` appears in the equal-sum witness shows that every
+  genuinely maximal Sidon set satisfies the elementary obstruction-cover
+  hypothesis.
+- **Easy cubic lower bound**: ✓ **DONE** (`MaximalSidonSets/ElementaryBound.lean`).
+  Under the obstruction-cover hypothesis, we proved
+  `N ≤ |A| + |A|^2 + |A|^3`, the standard coarse counting inequality behind
+  the lower bound `|A| ≫ N^{1/3}` for maximal Sidon sets.
+- **Direct maximal-set bound**: ✓ **DONE** (`MaximalSidonSets/Maximality.lean`).
+  Combining maximality ⇒ obstruction cover with the counting lemma yields the
+  direct bounds `N ≤ |A| + |A|^2 + |A|^3`, and for `N ≥ 1` also
+  `N ≤ 3|A|^3`, for every maximal Sidon subset `A ⊆ {1, ..., N}`.
+- **Packaged finite existence theorem**: ✓ **DONE** (`MaximalSidonSets/Maximality.lean`).
+  For every `N ≥ 1`, there exists a maximal Sidon subset `A ⊆ {1, ..., N}`
+  with `N ≤ 3|A|^3`. This bundles the extension-existence theorem with the
+  direct cubic lower bound into a single finite result.
+
+### Ideas To Try
+
+- **Sharpen the counting**: replace the crude `|A|^2 + |A|^3` bound by a more
+  faithful count of actual obstructions, with the goal of recovering the exact
+  easy lower bound from the folklore argument.
+- **Import Ruzsa's construction**: formalize the `≪ (N log N)^{1/3}` upper
+  bound or a simplified precursor construction.
+
+---
+
+## Problem #864: Almost-Sidon Sets with One Exceptional Sum
+
+### Papers & Techniques
+
+| Paper | Key Contribution |
+|-------|-----------------|
+| Erdős-Freud 1991 | Lower-bound construction by doubling a Sidon set `B ⊆ [1, N/3]` with its reflection `N - B` |
+| Erdős 1992 | Problem statement source cited on erdosproblems.com |
+
+This problem asks for the largest `A ⊆ {1, ..., N}` for which there is at most
+one integer admitting more than one sorted representation `n = a + b` with
+`a ≤ b` and `a, b ∈ A`. The natural lower-bound mechanism is to start from a
+genuine Sidon set in the lower third and reflect it across `N`; all cross
+pairs then sum to the central value `N`, while the lower-third and upper-third
+bands remain separated enough to block any other repeated sum.
+
+### Ideas Tried
+
+- **Finite statement formalization**: ✓ **DONE** (`AlmostSidonSets/Statement.lean`).
+  We formalized the interval model `{1, ..., N}`, the predicate saying a value
+  has two distinct sorted two-term representations, the finite almost-Sidon
+  condition, and the asymptotic upper-bound conjecture
+  `|A| ≤ ((2 / sqrt 3) + o(1)) N^{1/2}`.
+- **Midpoint structural split**: ✓ **DONE** (`AlmostSidonSets/Structure.lean`).
+  If every repeated sum of `A` is forced to equal `n`, then the lower half
+  `A ∩ [1, ⌊n/2⌋]` and the upper half `A ∩ [⌊n/2⌋+1, ∞)` are both Sidon, and
+  they partition `A`. This is the right first reduction for future upper-bound
+  arguments.
+- **Reflected-Sidon construction**: ✓ **DONE** (`AlmostSidonSets/Construction.lean`).
+  If `B ⊆ {1, ..., ⌊N/3⌋}` is Sidon, then
+  `A = B ∪ {N - b : b ∈ B}` is almost Sidon in `{1, ..., N}`.
+  The formal proof isolates the geometric separation between the lower-third
+  base and the reflected copy, proves the two pieces are disjoint and have the
+  same cardinality, and then shows that every repeated sorted two-sum in `A`
+  is forced to be the central value `N`. Hence `|A| = 2|B|`.
+- **Explicit geometric seed family**: ✓ **DONE** (`AlmostSidonSets/ExplicitSeeds.lean`).
+  Specializing the construction to the Sidon seed `{1, 4, 4², ..., 4^m}`
+  gives explicit almost-Sidon subsets of `{1, ..., N}` of size exactly
+  `2(m + 1)` whenever `4^m ≤ ⌊N/3⌋`.
+
+### Ideas To Try
+
+- **Import explicit Sidon families**: combine `doubledFinset_almostSidonInInterval`
+  with any formalized family of large finite Sidon sets to get concrete lower
+  bounds for problem #864 immediately.
+- **Asymptotic packaging from optimal Sidon bounds**: formalize the standard
+  implication "Sidon sets of size `(1+o(1)) sqrt M` in `[1,M]` imply almost-Sidon
+  sets of size `(1+o(1)) (2 / sqrt 3) sqrt N` in `[1,N]`" by taking
+  `M = ⌊N/3⌋`.
+- **Upper-bound side**: look for an elementary counting argument that exploits
+  the existence of at most one repeated sum more efficiently than the raw
+  Sidon-set bound. The lower-bound construction is now in place, so the next
+  real mathematical work is on the converse direction.
+
+---
+
 ## Problem #327: Unit Fraction Pairs ((a+b) | ab)
 
 ### Papers & Techniques
@@ -175,6 +345,13 @@ van Doorn framework, not a theorem-import opportunity.
   `A.card + |D_S| + 2 ≤ N` for `N ≥ 1200`,
   `A.card + |D_S| + 3 ≤ N` for `N ≥ 1680`
   (`vd_triangle_s_net_bound_ge_one`, `_ge_two`, `_ge_three`).
+  **New large-scale barrier**: `vd_triangle_full_overlap_absorbs_deficit`
+  shows that for `N ≥ 18720`, the exact overlaps of the full triangle union
+  with the full S- and T-unions already satisfy
+  `2|D△| ≤ |U△ ∩ U_S| + |U△ ∩ U_T|`.
+  So, beyond that scale, the full triangle family cannot yield a positive net
+  gain over van Doorn's two-family packing by simple overlap-aware union
+  counting alone.
   **Status:** local-to-global step complete for one family, and we now have a
   structural barrier: the full triangle family is provably not cross-disjoint
   from full van Doorn S/T families, so a direct three-family disjoint packing
@@ -341,6 +518,103 @@ integers in (N/2, N] (about N/2 elements). Total: ~5N/8.
 
 ---
 
+## Problem #313: Primary Pseudoperfect Numbers
+
+### Papers & Techniques
+
+| Paper | Key Contribution |
+|-------|-----------------|
+| Erdős-Graham 1980 | Original problem statement |
+| Butske-Jaje-Mayernik 2000 | Studies `∑_{p|N} 1/p + 1/N = 1`, primary pseudoperfect numbers, and related graph-theoretic formulations |
+
+Primary pseudoperfect numbers are a natural bridge problem for this repository:
+their defining equation uses reciprocals of distinct primes, but after adjoining
+`1/m` it becomes an Egyptian-fraction representation of `1`, so the
+`pseudoperfect_iff_unit_sum` bridge from the weird-number side becomes directly
+relevant.
+
+### Ideas Tried
+
+- **Statement formalization**: ✓ **DONE** (`PrimaryPseudoperfect/Statement.lean`).
+  We formalized the prime-reciprocal witness predicate and the infinite
+  conjecture.
+- **Bridge to pseudoperfect numbers**: ✓ **DONE** (`PrimaryPseudoperfect/Connections.lean`).
+  For every witness with `m > 2`, adjoining `m` itself turns the defining
+  equation into a divisor-set Egyptian-fraction representation of `1`, so
+  `m` is pseudoperfect. Consequently primary pseudoperfect numbers are never
+  weird.
+- **Successor-prime extension**: ✓ **DONE** (`PrimaryPseudoperfect/Examples.lean`).
+  If `m` is primary pseudoperfect and `m + 1` is prime, then `m * (m + 1)` is
+  primary pseudoperfect. This recovers the classical chain `2 → 6 → 42 → 1806`.
+- **Concrete examples**: ✓ **DONE** (`PrimaryPseudoperfect/Examples.lean`).
+  Formalized examples `2`, `6`, `42`, and `1806`.
+
+### Ideas To Try
+
+- **Import more known examples**: `47058`, `2214502422`, and beyond from the
+  current known list. This is straightforward and gives a larger verified testbed.
+- **Squarefree reformulation**: show our witness-based definition is equivalent
+  to the standard squarefree divisor equation
+  `∑_{p|m} 1/p + 1/m = 1`.
+- **Graph-theoretic bridge**: connect the prime-reciprocal equation to the
+  "perfectly weighted graph" viewpoint from Butske-Jaje-Mayernik.
+- **Successor-prime chain diagnostics**: characterize when the elementary
+  extension step can continue and where it must fail.
+
+---
+
+## Problem #364: Consecutive Powerful Triples
+
+### Papers & Techniques
+
+| Paper | Key Contribution |
+|-------|-----------------|
+| Erdős 1976 / Erdős-Graham 1980 | Original problem statement: are there any triples of consecutive positive integers all of which are powerful? |
+| Mollin-Walsh 1986 | Records the problem in the context of consecutive powerful numbers; consecutive pairs exist infinitely often via Pell-type constructions |
+| Chan 2025 | Excludes certain cube-centered triples where the two neighbors have shape `p^3 x^2` |
+| She 2025 | Excludes cube-centered triples where the two neighbors have shape `p^2 x^3` |
+
+As of **2026-04-16**, the Erdős Problems site still lists #364 as **open** and
+marks it **verifiable**: finite certificates can rule out initial ranges, but
+no general proof is known.
+
+### Ideas Tried
+
+- **Statement formalization**: ✓ **DONE** (`ConsecutivePowerful/Statement.lean`).
+  We formalized the predicate `Powerful`, the triple-start predicate
+  `ConsecutivePowerfulTriple`, and the existential conjecture.
+- **First modular obstruction**: ✓ **DONE** (`ConsecutivePowerful/Modular.lean`).
+  A number congruent to `2 mod 4` cannot be powerful, so there are no four
+  consecutive powerful numbers and any triple start satisfies `n ≡ 3 (mod 4)`.
+- **Second modular obstruction**: ✓ **DONE** (`ConsecutivePowerful/Modular.lean`).
+  In a hypothetical triple, the unique multiple of `3` is automatically a
+  multiple of `9`, forcing `n ≡ 0, 7, 8 (mod 9)`.
+- **Combined CRT barrier**: ✓ **DONE** (`ConsecutivePowerful/Modular.lean`).
+  Combining the mod-`4` and mod-`9` constraints yields the clean necessary
+  condition `n ≡ 7, 27, 35 (mod 36)`.
+- **Residue-class certified search**: ✓ **DONE** (`ConsecutivePowerful/Search.lean`).
+  We characterized `Powerful` via finite factorization support, made it
+  decidable, and then machine-checked that there is no triple start below
+  `1000000`. The search only needs to inspect the three admissible residue
+  classes modulo `36`, so the computation reflects the modular theorem rather
+  than brute-forcing every start.
+
+### Ideas To Try
+
+- **Push local obstructions beyond `2` and `3`**: derive stronger admissible
+  residue classes modulo `2^a 3^b` or mixed moduli that interact with the
+  squarefull condition more sharply than the current `mod 36` barrier.
+- **Import the cube-centered literature**: formalize Chan's and She's 2025
+  exclusions as the first genuinely nonlinear partial results.
+- **Square/cube decomposition route**: every powerful number is of the form
+  `a^2 b^3`. A formal decomposition theorem could turn the triple question into
+  a Diophantine system on neighboring square-cube products.
+- **Finite certified search**: package a `native_decide` or verified external
+  certificate for small ranges as infrastructure toward the site's
+  finite-verification framing.
+
+---
+
 ## Problem #301: Unit Fraction Sum-Free Sets (1/a = Σ 1/bᵢ)
 
 ### Papers & Techniques
@@ -415,6 +689,11 @@ sets produce forbidden configurations for both problems.
 - **Multiplier-fiber reduction**: ✓ **DONE** (`MultiplierFiber.lean`).
   The core reduction is now formalized via `sum_free_fiber_egyptian_free`:
   for each `a ∈ A`, the fiber `K_a = {k ≥ 2 : a*k ∈ A}` is `EgyptianOneFree`.
+  The bridge is now packaged in both directions: if a fiber contains all
+  nontrivial divisors of `n`, then sum-freeness forces `DivisorEgyptianFree n`
+  (`sum_free_fiber_divisor_egyptian_free`); contrapositively, every
+  pseudoperfect divisor set obstructs sum-freeness of the ambient fiber
+  (`not_sum_free_of_pseudoperfect_fiber_cover`).
   This isolates the remaining bottleneck to *quantitative forcing on fibers*.
 - **Fiber diagnostics pipeline (bounded witness optimization)**: ✓ **DONE (experimental)**.
   `scripts/gadget_mine.py --sumfree-fibers` now builds bounded witness hypergraphs
@@ -737,6 +1016,9 @@ or **Known** (formalization of a published result or folklore).
 
 | Result | Problem | File | Notes |
 |--------|---------|------|-------|
+| Value-truncation stability for lower isolated sums | #152 | `SidonSumsets/Stability.lean` | Elementary observation: below a value cutoff, sumset membership is already determined by the truncated set. We have not found this exact infinite-strategy packaging in the literature. |
+| Strong-gap sequences have infinitely many isolated sums | #152 | `SidonSumsets/FastGrowth.lean` | The criterion `2u_n + 1 < u_{n+1}` is elementary, but we have not found this exact theorem or its formulation as a stable lower-isolated witness class in the literature. |
+| Finite Sidon obstruction family with empty lower-isolated region | #152 | `SidonSumsets/Obstructions.lean` | The construction is elementary, but we have not found this explicit infinite family showing the naive finite value-truncation strengthening fails. |
 | Odd numbers are NOT sum-free | #301 | `UnitFractionSets/Parity.lean` | The identity 1/3 = 1/5 + 1/9 + 1/45 is trivially checkable, but the explicit observation that the parity obstruction is length-dependent (blocks even k, fails for odd k) may not have been stated. |
 | Upper half NOT pair-free | #327 | `UnitFractionPairs/UpperHalf.lean` | The (10m, 15m) family is an immediate consequence of known pair families, but the explicit conclusion that the upper-half strategy fails for #327 (distinguishing it from #302/#301) may not have been noted. |
 | 9/10 upper bound for sum-free sets | #301 | `UnitFractionSets/UpperBound.lean` | The inheritance SumFree→TripleFree→9/10 is trivial, but this specific bound for #301 may not appear in the literature (van Doorn's 25/28 is stated for #301, not 9/10). |

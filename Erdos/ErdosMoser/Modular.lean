@@ -1,5 +1,5 @@
 import Erdos.ErdosMoser.Statement
-import Erdos.ErdosMoser.KnownCases
+import Erdos.ErdosMoser.EvenEight
 
 /-!
 # Erdos-Moser Equation: Modular Obstructions
@@ -2122,6 +2122,32 @@ theorem solution_split_classical_or_even_ge_eight {m k : ℕ}
   by_cases hclass : m = 3 ∧ k = 1
   · exact Or.inl hclass
   · exact Or.inr (nontrivial_solution_even_ge_eight hsol hclass)
+
+/-- Stronger reduction: every non-classical solution lies in the even `k ≥ 10` branch. -/
+theorem nontrivial_solution_even_ge_ten {m k : ℕ}
+    (hsol : IsSolution m k) (hnon : ¬ (m = 3 ∧ k = 1)) :
+    Even k ∧ 10 ≤ k := by
+  have hkpos : 0 < k := hsol.2.1
+  have hknotodd : ¬Odd k := by
+    intro hkodd
+    exact hnon (odd_solution_unique hsol hkodd)
+  have hkeven : Even k := Nat.not_odd_iff_even.mp hknotodd
+  have hkge10 : 10 ≤ k := by
+    by_cases hk8 : k ≤ 8
+    · exact (hnon (no_solution_k_le_eight hkpos hk8 hsol)).elim
+    · rcases hkeven with ⟨t, rfl⟩
+      have hgt8 : 8 < 2 * t := by
+        omega
+      omega
+  exact ⟨hkeven, hkge10⟩
+
+/-- Stronger split: every solution is either classical or in the even `k ≥ 10` branch. -/
+theorem solution_split_classical_or_even_ge_ten {m k : ℕ}
+    (hsol : IsSolution m k) :
+    (m = 3 ∧ k = 1) ∨ (Even k ∧ 10 ≤ k) := by
+  by_cases hclass : m = 3 ∧ k = 1
+  · exact Or.inl hclass
+  · exact Or.inr (nontrivial_solution_even_ge_ten hsol hclass)
 
 /-- Combining the mod-4 and odd-mod-3 obstructions:
 for odd exponents, `m` can only be `0` or `3` modulo `12`. -/

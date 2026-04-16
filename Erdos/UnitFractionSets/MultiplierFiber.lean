@@ -30,6 +30,14 @@ open Finset
 def EgyptianOneFree (K : Finset ℕ) : Prop :=
   ¬∃ T ⊆ K, T.Nonempty ∧ ∑ k ∈ T, (1 / (k : ℚ)) = 1
 
+/-- A subset of an Egyptian-one-free set is still Egyptian-one-free. -/
+theorem EgyptianOneFree.mono {K L : Finset ℕ} (hL : EgyptianOneFree L)
+    (hKL : K ⊆ L) : EgyptianOneFree K := by
+  intro hK
+  apply hL
+  rcases hK with ⟨T, hTK, hTne, hTsum⟩
+  exact ⟨T, hTK.trans hKL, hTne, hTsum⟩
+
 /-- The **multiplier fiber** of `a` in `A`: the set of multipliers `b/a`
     for elements `b ∈ A \ {a}` that are divisible by `a`.
 
@@ -159,5 +167,46 @@ theorem divisor_egyptian_free_iff_egyptian_one_free {n : ℕ} (_hn : 0 < n) :
     apply heof
     refine ⟨T, fun x hx => mem_erase.mpr ⟨fun h1x => h1 (h1x ▸ hx), hTdiv hx⟩,
             hTne, hTsum⟩
+
+/-- **Sum-free fibers force divisor-Egyptian-freeness.**
+
+    If `A` is sum-free, `a ∈ A`, and the multiplier fiber at `a` contains every
+    nontrivial divisor of `n`, then `n` must be `DivisorEgyptianFree`.
+
+    This packages the #301 → #470 implication implicit in the previous two
+    bridge theorems: a sum-free fiber is Egyptian-one-free, so any divisor set
+    sitting inside that fiber inherits the same avoidance property. -/
+theorem sum_free_fiber_divisor_egyptian_free {A : Finset ℕ} {a n : ℕ}
+    (hA : SumFree A) (haA : a ∈ A) (ha : 0 < a) (hn : 0 < n)
+    (hcover : n.divisors.erase 1 ⊆ MultiplierFiber A a) :
+    WeirdNumbers.DivisorEgyptianFree n := by
+  have hfiber : EgyptianOneFree (MultiplierFiber A a) :=
+    sum_free_fiber_egyptian_free hA haA ha
+  have hdivs : EgyptianOneFree (n.divisors.erase 1) :=
+    EgyptianOneFree.mono hfiber hcover
+  exact (divisor_egyptian_free_iff_egyptian_one_free hn).2 hdivs
+
+/-- **Pseudoperfect divisor sets obstruct sum-free fibers.**
+
+    If `n` is pseudoperfect and every nontrivial divisor of `n` appears in the
+    multiplier fiber at `a`, then the ambient set cannot be sum-free.
+
+    This is a direct #470 → #301 obstruction principle: pseudoperfect numbers
+    already carry a unit-fraction sum equal to `1`, so any fiber containing
+    their nontrivial divisors immediately violates the fiber constraint from
+    `sum_free_fiber_egyptian_free`. -/
+theorem not_sum_free_of_pseudoperfect_fiber_cover {A : Finset ℕ} {a n : ℕ}
+    (haA : a ∈ A) (ha : 0 < a) (hn : 0 < n) (hp : WeirdNumbers.Pseudoperfect n)
+    (hcover : n.divisors.erase 1 ⊆ MultiplierFiber A a) :
+    ¬SumFree A := by
+  intro hA
+  have hfiber : EgyptianOneFree (MultiplierFiber A a) :=
+    sum_free_fiber_egyptian_free hA haA ha
+  obtain ⟨T, hTsub, h1, hTne, hTsum⟩ := (WeirdNumbers.pseudoperfect_iff_unit_sum hn).mp hp
+  apply hfiber
+  refine ⟨T, ?_, hTne, hTsum⟩
+  intro t ht
+  apply hcover
+  exact mem_erase.mpr ⟨fun ht1 => h1 (ht1 ▸ ht), hTsub ht⟩
 
 end UnitFractionSets

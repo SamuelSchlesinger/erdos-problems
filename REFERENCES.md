@@ -58,6 +58,40 @@ Citation keys match doc-comments in the Lean source.
 
 ---
 
+## Problem #152: Isolated Sums of Sidon Sets
+
+- **[ESS94]** Erdős, P., Sárközy, A. & Sós, V. T. (1994). "On sum sets of
+  Sidon sets, I." *Journal of Number Theory*, 47(3), 329–347.
+  Finite problem on isolated elements of `A + A` for Sidon sets.
+
+---
+
+## Problem #156: Small Maximal Sidon Sets
+
+- **[ESS94]** Erdős, P., Sárközy, A. & Sós, V. T. (1994). "On sum sets of
+  Sidon sets, I." *Journal of Number Theory*, 47(3), 329–347.
+  Source of the finite maximal-Sidon question.
+
+- **[Ru98b]** Ruzsa, I. Z. (1998). "A small maximal Sidon set."
+  *Ramanujan Journal*, 2, 55–58.
+  Constructs a maximal Sidon subset of `{1, ..., N}` of size
+  `≪ (N log N)^{1/3}`.
+
+---
+
+## Problem #864: Almost-Sidon Sets with One Exceptional Sum
+
+- **[ErFr91]** Erdős, P. & Freud, R. (1991). "On sums of a Sidon-sequence."
+  *Journal of Number Theory*, 38(2), 196–205.
+  Gives the reflected-Sidon lower-bound construction
+  `|A| ≥ (1+o(1)) (2 / sqrt 3) N^{1/2}` for the quasi-Sidon problem.
+
+- **[Er92c]** Erdős, P. (1992). "Some of my favourite problems in various
+  branches of combinatorics." *Le Matematiche*, 47, 231–240.
+  Listed by erdosproblems.com as an original source for the problem statement.
+
+---
+
 ## Problem #470: Weird Numbers
 
 - **[BE74]** Benkoski, S. J. & Erdős, P. (1974). "On weird and
@@ -141,6 +175,37 @@ Citation keys match doc-comments in the Lean source.
   equations with unit fractions." *Bull. Aust. Math. Soc.*, 43(3),
   387–392. Coloring version (#303): any finite coloring has
   monochromatic 1/a = 1/b + 1/c.
+
+---
+
+## Problem #313: Primary Pseudoperfect Numbers
+
+- **[EG80]** Erdős & Graham (1980). See above. Original problem statement.
+
+- **[BJM00]** Butske, W., Jaje, L. M. & Mayernik, D. R. (2000). See
+  Problem #470 references above. Studies the equation
+  `∑_{p|N} 1/p + 1/N = 1` and primary pseudoperfect numbers.
+
+---
+
+## Problem #364: Consecutive Powerful Triples
+
+- **[Er76d]** Erdős, P. (1976). "Consecutive integers." *Eureka*, 38, 3–8.
+  Source of the question about consecutive powerful triples.
+
+- **[EG80]** Erdős & Graham (1980). See Problem #327 references above.
+  Problem statement appears on p. 68.
+
+- **[MoWa86]** Mollin, R. A. & Walsh, P. G. (1986). "On powerful numbers."
+  *International Journal of Mathematics and Mathematical Sciences*, 9(4),
+  801–806. Discusses consecutive powerful pairs and records the triple question.
+
+- **[Ch25]** Chan, T. H. (2025). "A note on three consecutive powerful
+  numbers." *Integers*, 25, A7. Rules out certain cube-centered triples.
+
+- **[She25]** She, J. (2025). "Nonexistence of consecutive powerful triplets
+  around cubes with prime-square factors."
+  [arXiv:2507.16828](https://arxiv.org/abs/2507.16828).
 
 ---
 
