@@ -7,6 +7,8 @@ import Erdos.ErdosMoser.Modular
 import Erdos.ErdosStraus.Main
 import Erdos.GreedyEgyptian.Statement
 import Erdos.GreedyEgyptian.Elementary
+import Erdos.CliqueFreeIndependence.Statement
+import Erdos.CliqueFreeIndependence.Elementary
 import Erdos.UlamPrimeRecurrence.Statement
 import Erdos.UlamPrimeRecurrence.Elementary
 import Erdos.MersenneDivisorSums.Statement

@@ -12,6 +12,7 @@ structural theorems, density bounds, and cross-problem connections.
 | [242](https://www.erdosproblems.com/242) | Erdős-Straus conjecture | All cases except primes p ≡ 1 (mod 24) |
 | [282](https://www.erdosproblems.com/282) | Greedy Egyptian fractions with restricted denominators | Statement formalized; unique minimal greedy choice, monotone remainder bounds, one-step termination for every unit fraction `1/n` with `n ∈ A`, and in particular termination of every odd unit fraction on the odd numbers |
 | [472](https://www.erdosproblems.com/472) | Ulam's prime recurrence | Statement formalized via arbitrarily long valid finite prefixes; admissible-value and uniqueness infrastructure; the seed `[3,5]` is verified to generate the prefix `[3,5,7,11,13,17]` |
+| [802](https://www.erdosproblems.com/802) | Independent sets in `K_r`-free graphs | Statement formalized on `Fin n`; average-degree packaging added; exact `r = 2` base case formalized: every `K_2`-free graph is empty, so its independence number is `n` |
 | [152](https://www.erdosproblems.com/152) | Isolated sums of Sidon sets | Value-truncation stability; fast-growth sequences have infinitely many isolated sums; explicit finite obstruction family with empty lower-isolated region |
 | [156](https://www.erdosproblems.com/156) | Small maximal Sidon sets | Finite statement formalized; maximal extensions exist in every interval; every positive strong-gap prefix extends to a maximal set (in particular `{1,4,…,4^m}`); maximality forces elementary obstruction cover; direct cubic lower bounds `N ≤ |A| + |A|^2 + |A|^3` and `N ≤ 3|A|^3`; packaged existence with the coarse `N^{1/3}` lower bound |
 | [864](https://www.erdosproblems.com/864) | Almost-Sidon sets with one exceptional sum | Statement formalized; structural midpoint split into two genuine Sidon halves; Erdős-Freud reflected-Sidon construction formalized; if `B ⊆ {1,…,⌊N/3⌋}` is Sidon then `B ∪ {N-b : b∈B}` is almost Sidon in `{1,…,N}` with cardinality `2|B|`, and every repeated two-sum is forced to be `N`; explicit `4^i` seed family packaged as size-`2(m+1)` examples |
@@ -39,6 +40,7 @@ Requires Lean 4.27.0 and Mathlib. The project is maintained without `sorry`.
 ```
 Erdos/
   Common/                  -- Shared infrastructure (packing bounds, p-adic signatures)
+  CliqueFreeIndependence/  -- #802: independent sets in clique-free graphs
   DistinctDistances/       -- #89: distinct distances determined by finite planar sets
   ErdosMoser/              -- Erdos-Moser equation: sum_{i=1}^{m-1} i^k = m^k
   ErdosStraus/             -- #242: 4/n = 1/x + 1/y + 1/z
