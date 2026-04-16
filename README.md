@@ -15,6 +15,7 @@ structural theorems, density bounds, and cross-problem connections.
 | [701](https://www.erdosproblems.com/701) | Chvátal's conjecture for down-closed families | Statement formalized on finite set families over `Fin (n+1)`; down-closedness, stars, and the extremal-star formulation packaged; the full Boolean lattice case is proved, using Mathlib's half-space bound for intersecting families to show every principal star is extremal |
 | [710](https://www.erdosproblems.com/710) | Short intervals with prescribed divisibility | Statement formalized via distinct witnesses `a_k` in `(n,n+f(n))` with `k ∣ a_k`; an explicit configuration proves the elementary quadratic upper bound `f(n) ≤ n²` for every `n ≥ 2`, together with the base case `f(1) ≤ 2` |
 | [802](https://www.erdosproblems.com/802) | Independent sets in `K_r`-free graphs | Statement formalized on `Fin n`; average-degree packaging added; exact `r = 2` base case formalized: every `K_2`-free graph is empty, so its independence number is `n` |
+| [20](https://www.erdosproblems.com/20) | Sunflower lemma thresholds | Statement formalized via finite set families over `ℕ`; sunflower subfamilies and the extremal threshold `f(n,k)` packaged; the exact one-uniform base case is proved: `f(1,k)=k` for every `k ≥ 1` |
 | [152](https://www.erdosproblems.com/152) | Isolated sums of Sidon sets | Value-truncation stability; fast-growth sequences have infinitely many isolated sums; explicit finite obstruction family with empty lower-isolated region |
 | [156](https://www.erdosproblems.com/156) | Small maximal Sidon sets | Finite statement formalized; maximal extensions exist in every interval; every positive strong-gap prefix extends to a maximal set (in particular `{1,4,…,4^m}`); maximality forces elementary obstruction cover; direct cubic lower bounds `N ≤ |A| + |A|^2 + |A|^3` and `N ≤ 3|A|^3`; packaged existence with the coarse `N^{1/3}` lower bound |
 | [864](https://www.erdosproblems.com/864) | Almost-Sidon sets with one exceptional sum | Statement formalized; structural midpoint split into two genuine Sidon halves; Erdős-Freud reflected-Sidon construction formalized; if `B ⊆ {1,…,⌊N/3⌋}` is Sidon then `B ∪ {N-b : b∈B}` is almost Sidon in `{1,…,N}` with cardinality `2|B|`, and every repeated two-sum is forced to be `N`; explicit `4^i` seed family packaged as size-`2(m+1)` examples |
@@ -59,6 +60,7 @@ Erdos/
   PrimeGapHarmonic/        -- #950: reciprocal sums over prime gaps
   PropertyBBounds/         -- #901: minimal non-Property-B n-uniform hypergraphs
   SidonSumsets/            -- #152: isolated sums in Sidon sumsets
+  SunflowerLemma/          -- #20: thresholds forcing k-sunflowers in n-uniform families
   UlamPrimeRecurrence/     -- #472: Ulam's prime recurrence on prime seeds
   UnitFractionTriples/     -- #302: 1/a = 1/b + 1/c avoidance
   UnitFractionPairs/       -- #327: (a+b) | ab avoidance
