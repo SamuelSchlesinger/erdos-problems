@@ -623,6 +623,8 @@ no general proof is known.
 |-------|-----------------|
 | Erdős-Graham 1980 | Original problem statement |
 | van Doorn (erdosproblems.com) | Upper bound f(N) ≤ (25/28+o(1))N (same as #327!) |
+| This project | Extended-star packing inequality with asymptotic shape f(N) ≤ (149/168+o(1))N |
+| This project | Larger same-signature packing inequality with asymptotic shape f(N) ≤ (145/168+o(1))N |
 | Bloom 2021 ([arXiv:2112.03726](https://arxiv.org/abs/2112.03726)) | Any set of positive upper density contains finite subset with reciprocals summing to 1 |
 | Bloom-Mehta (Lean formalization) | [b-mehta.github.io/unit-fractions](https://b-mehta.github.io/unit-fractions/) — formalized Hardy-Littlewood circle method |
 | Liu-Sawhney 2024/2026 ([arXiv:2404.07113](https://arxiv.org/abs/2404.07113)) | Quantitative threshold: \|A\| ≥ (1-1/e+ε)N forces a reciprocal-sum-1 subset; constant 1-1/e is sharp |
@@ -634,7 +636,9 @@ can be while avoiding 1/a = Σ 1/bᵢ (target must be in the set). The gap betwe
 these — where the target must be in the set — is the content of #301.
 
 **Van Doorn's 25/28 bound works for both #301 and #327.** The disjoint witness
-sets produce forbidden configurations for both problems.
+sets produce forbidden configurations for both problems. For #301, the stronger
+sum-free obstruction from the extended star gives a new formal packing
+improvement beyond this published bound.
 
 ### Ideas Tried
 
@@ -646,7 +650,70 @@ sets produce forbidden configurations for both problems.
 - **9/10 upper bound via inheritance**: ✓ **DONE** (UpperBound.lean). Since SumFree→TripleFree,
   van Doorn's 9/10 bound for triple-free sets transfers directly to sum-free sets.
   One-line proof: `van_doorn_upper_bound N A (sumFree_implies_tripleFree hA) hAN`.
-  **First formalized upper bound for Problem 301.**
+  This was the first formalized upper bound for Problem 301 and is now superseded
+  by the dedicated `25/28` gadget bound below.
+- **Van Doorn's 25/28 bound for #301**: ✓ **DONE** (`UpperBound.lean`).
+  The five-point gadget `{2a,3a,4a,6a,12a}` is indexed by the same `VDParam`
+  predicate used for #327. For `a≤N/12`, sum-free sets keep at most three of
+  the five elements: if `3a` is present, the two triples `{2a,3a,6a}` and
+  `{3a,4a,12a}` force one omission from each disjoint pair `{2a,6a}` and
+  `{4a,12a}`; if `3a` is absent, the length-three identity
+  `1/(2a)=1/(4a)+1/(6a)+1/(12a)` forces another omission from the remaining
+  four. For `N/12<a≤N/6`, the truncated gadget `{2a,3a,4a,6a}` still forces one
+  omission via `{2a,3a,6a}`. The p-adic signature `(v₂ mod 3, v₃ mod 2)` makes
+  the full and truncated gadget families disjoint, giving
+  `A.card + 2|D_full| + |D_short| ≤ N`, i.e. the known `25/28+o(1)` upper bound.
+
+- **Extended-star 149/168 packing improvement for #301**: ✓ **DONE** (`UpperBound.lean`).
+  Use `ExtParam(a) := 3∣v₂(a) ∧ Even(v₃(a)) ∧ Even(v₅(a))`, the densest
+  signature class separating the multipliers `{2,3,4,6,10,12,15}`. The full
+  star contributes 3 omissions on `a≤N/15`; the truncations through `12a`, `10a`,
+  and `6a` contribute 2, 1, and 1 omissions on the adjacent bands. The formal
+  theorem `sum_free_extended_star_149_168_bound` proves
+  `A.card + 3|D15| + 2|D12| + |D10| + |D6| ≤ N`. With the standard density
+  calculation for `ExtParam` (`5/14`), these bands contribute `19/168` forced
+  omissions, giving the asymptotic shape `f(N)≤(149/168+o(1))N`.
+
+- **Larger same-signature 145/168 packing improvement for #301**: ✓ **DONE**
+  (`UpperBound.lean`). The multiplier gadget
+  `{2,3,4,5,6,10,12,15,20,30,60}` uses the same `ExtParam` p-adic signature.
+  A finite Lean-checked obstruction certificate over the 11 multipliers proves
+  prefix omissions `1,1,2,3,4,4,5` at cutoffs `6,10,12,15,20,30,60`. The
+  theorem `sum_free_large_same_signature_145_168_bound` packages this as a
+  seven-band disjoint packing inequality. With `ExtParam` density `5/14`, the
+  bands contribute `23/168` forced omissions, giving asymptotic shape
+  `f(N)≤(145/168+o(1))N`.
+
+- **Weighted overlapping forbidden-edge packing**: ◐ **STARTED**
+  (`Common/WeightedPacking.lean`, `UnitFractionSets/WeightedPacking.lean`,
+  `scripts/weighted_sumfree_lp.py`). Instead of requiring disjoint multiplier
+  gadgets, assign nonnegative rational weights to forbidden identities
+  `1/a=Σ1/b` so that each integer has total load at most 1. The Lean theorem
+  `weighted_sum_free_certificate_bound` proves the denominator-cleared verifier
+  statement `C|A| + Σwᵢ ≤ CN` for every sum-free `A⊆[1,N]`. The current
+  dependency-free checker/generator finds finite certificates such as
+  `|A∩[1,120]|≤100` and `|A∩[1,180]|≤153` using RHS size at most 4. These are
+  finite-window certificates. We now also have the parametric bridge
+  `weighted_scaled_sum_free_family_bound`: any finite multiplier-template
+  weighted certificate whose scaled copies lie in pairwise-disjoint parameter
+  gadgets gives a global bound
+  `C|A| + |D|Σwᵢ ≤ CN`. The remaining research step is to mine certificates
+  whose parameter families are dense enough, or overlap-aware enough, to beat
+  the current `145/168` disjoint-gadget bound.
+
+- **Dense same-signature 163/195 candidate for #301**: ◐ **STARTED**
+  (`UnitFractionSets/DenseTemplate.lean`, `scripts/weighted_sumfree_lp.py`).
+  Exact multiplier-template search now
+  rediscovers the formalized `{2:3,3:2,5:2}` grid and finds a stronger
+  `{2:4,3:3,5:2}` p-adic signature grid with 23 multipliers
+  `{2,3,4,5,6,8,9,10,12,15,18,20,24,30,36,40,45,60,72,90,120,180,360}`.
+  The finite prefix hitting numbers force asymptotic omission density
+  `32/195`, i.e. candidate upper shape `f(N)≤(163/195+o(1))N`. The script
+  also compresses the raw 2,980 identity pool to a 219-witness prefix-hitting
+  certificate. Lean now has the 23-multiplier grid, the `{2:4,3:3,5:2}`
+  parameter class, p-adic signature separation, dense gadget infrastructure,
+  and the generic scaled-identity obstruction lemma. Next step: add the
+  219-witness prefix certificate and prove the finite hitting theorem.
 
 - **Extended star gadget analysis**: ✓ **DONE** (ExtendedStar.lean). The extended star
   E_d = {2d, 3d, 4d, 6d, 10d, 12d, 15d} has 7 elements with 4 triple violations
@@ -681,11 +748,6 @@ sets produce forbidden configurations for both problems.
   (no parity contradiction), and 3 reciprocals from (N/2,N] can sum to ≥ 4/N.
   **The 5/8 lower bound is specific to #302; #301 needs a different approach.**
   `cambie_not_sum_free`, `cambie_not_sum_free_family`, `cambie_triple_free_but_not_sum_free`.
-- **Van Doorn's 25/28 bound for #301**: A dedicated construction (not via TripleFree
-  inheritance) would require showing star neighborhoods {2a,3a,4a,6a,12a} produce
-  forbidden sum-free configurations. Would improve the bound from 9/10 to 25/28.
-  Note: SumFree does NOT imply PairFree, so the #327 bound cannot be inherited.
-  **Would need to show {3a, 6a} or {4a, 12a} pairs produce sum-free violations.**
 - **Multiplier-fiber reduction**: ✓ **DONE** (`MultiplierFiber.lean`).
   The core reduction is now formalized via `sum_free_fiber_egyptian_free`:
   for each `a ∈ A`, the fiber `K_a = {k ≥ 2 : a*k ∈ A}` is `EgyptianOneFree`.
@@ -830,6 +892,52 @@ rich divisor set making subset sums easy to find → pseudoperfection likely.
 
 ---
 
+## Problem #893: Divisors of Mersenne Numbers
+
+### Papers & Techniques
+
+| Paper | Key Contribution |
+|-------|-----------------|
+| Erdős-Graham 1980 (problem reference) | The doubling-ratio question for `f(n) = ∑_{k≤n} τ(2^k − 1)` |
+
+The problem asks whether `f(2n)/f(n)` tends to a limit. Any growth bound on
+`f(n)` informs the asymptotics of the ratio; a matching upper and lower bound
+of the same order would settle the conjecture via `f` being regularly varying.
+
+### Ideas Tried
+
+- **Basic structure of partial sums**: ✓ **DONE** (`MersenneDivisorSums/Elementary.lean`).
+  Positivity of each term, successor recurrence, monotonicity, and the coarse
+  bound `f(n) ≥ n`.
+- **Divisor-injection lower bound**: ✓ **DONE**
+  (`MersenneDivisorSums/DivisibilityLowerBound.lean`). The classical divisibility
+  `d ∣ k ⇒ (2^d − 1) ∣ (2^k − 1)` together with strict monotonicity of
+  `d ↦ 2^d − 1` embeds `k.divisors` injectively into `(2^k − 1).divisors`, so
+  `τ(k) ≤ τ(2^k − 1)` for every `k ≥ 1`. Summing gives the structural improvement
+  `f(n) ≥ ∑_{k=1}^{n} τ(k)`, which by Dirichlet's divisor theorem is
+  `= n log n + (2γ − 1) n + O(√n)`: an `n log n`-order lower bound replacing the
+  trivial `f(n) ≥ n`. The elementary numeric consequence `f(n) ≥ 2n − 1` for
+  `n ≥ 1` is also packaged (`two_n_sub_one_le_mersenneDivisorSum`).
+
+### Ideas To Try
+
+- **Explicit `n H_n` lower bound**: combine the divisor-injection bound with the
+  Dirichlet hyperbola identity `∑_{k≤n} τ(k) = ∑_{d≤n} ⌊n/d⌋`. Gives an
+  unconditional `f(n) ≥ n H_n − n`-style lower bound in closed form, ready to
+  feed into the doubling-ratio question.
+- **Upper bound via τ(m) ≤ m^{o(1)}**: use Wigert's bound to show `f(n)` grows
+  at most like `n · 2^n · n^{o(1)}` trivially, but more usefully `f(2n)/f(n)` is
+  bounded by a constant if the elementary `n log n` lower bound can be matched
+  asymptotically by a log-power upper bound.
+- **Cyclotomic refinement**: `2^k − 1 = ∏_{d ∣ k} Φ_d(2)`. This identity gives
+  sharper divisor structure than the coarse injection and may yield
+  `τ(2^k − 1) ≥ ∏_{d ∣ k} τ(Φ_d(2))`, a multiplicative strengthening.
+- **Doubling-ratio boundedness**: even without convergence, prove `f(2n)/f(n)`
+  is bounded above and below by absolute constants. This is weaker than
+  convergence but already structurally meaningful for #893.
+
+---
+
 ## Cross-Cutting Observations
 
 ### The 1/2 Barrier
@@ -943,31 +1051,38 @@ their blueprint approach (dependency graphs, modular proof structure) is a good 
 | — | Even-length parity obstruction on odd sets | #301 | **DONE** ✓ |
 | — | Van Doorn's 25/28 upper bound (pair-free) | #327 | **DONE** ✓ |
 | — | 9/10 upper bound (sum-free via inheritance) | #301 | **DONE** ✓ |
+| — | Van Doorn's 25/28 upper bound (sum-free) | #301 | **DONE** ✓ |
+| — | Extended-star 149/168 packing improvement (sum-free) | #301 | **DONE** ✓ |
+| — | Larger same-signature 145/168 packing improvement (sum-free) | #301 | **DONE** ✓ |
 | — | Cambie set NOT sum-free (structural gap #301 vs #302) | #301 | **DONE** ✓ |
 | — | Erdős-Straus → triples connection | #242 → #302 | **DONE** ✓ |
 | — | ValSignature abstraction library | Infra | **DONE** ✓ |
 | — | Packing/omission framework (PackingBound) | Infra | **DONE** ✓ |
 | — | Gadget mining script (z3) | #302, #327 | **DONE** ✓ |
+| — | Weighted overlapping sum-free certificate verifier/search | #301 | **STARTED** ◐ |
+| — | Parametric weighted template bridge for sum-free certificates | #301 | **DONE** ✓ |
 | — | Supersaturation d=1 pipeline (full end-to-end) | #302 | **DONE** ✓ |
 | — | Extended star gadget analysis (#301 ≠ #302) | #301 | **DONE** ✓ |
 | — | Third-family barrier (S+T approach is tight) | #302 | **DONE** ✓ |
 | — | DivisorEgyptianFree bridge (#470 ↔ #301) | #470 | **DONE** ✓ |
 | — | Multiplier-fiber reduction (#301 fiber reformulation + #470 bridge) | #301 | **DONE** ✓ |
 | — | Parity optimality (odd uniquely optimal for #302/#327; neither for #301) | #327, #302, #301 | **DONE** ✓ |
+| — | Divisor-injection lower bound `f(n) ≥ ∑ τ(k)` and `f(n) ≥ 2n − 1` | #893 | **DONE** ✓ |
 
 ### Active Queue (ranked by impact × feasibility)
 
 | Priority | Theorem / Task | Problem | Effort | Notes |
 |----------|---------------|---------|--------|-------|
 | **A** | **Odd weird ≥ 4 prime factors** | #470 | Medium | Incremental push toward Liddy-Riedl (≥6). Same proof flavor as ≥3 (σ multiplicativity + coprimality decomposition), scales linearly with cases. |
-| **B** | **Non-uniform gadgets** | #302 | Medium | Variable-size gadgets whose size scales with τ(a²). Requires generalizing PackingBound to variable sizes. Could bypass S+T barrier. |
-| **C** | **Fiber-density forcing for #301** | #301 | Hard | Build on `sum_free_fiber_egyptian_free` and apply quantitative reciprocal-sum-1 thresholds (Bloom/Liu-Sawhney) to force contradictions from dense fibers. Most direct route to improve the 9/10 inherited bound. |
-| **D** | **Pair gadget mining for #327** | #327 | Medium | **PARTIAL:** triangle gadget now has global packing bound (`pair_free_triangle_family_bound`), and new barrier theorems (`vd_triangle_t_not_disjoint`, `vd_triangle_s_not_disjoint`, `vd_triangle_t_overlap_card_lb`, `vd_triangle_t_overlap_card_lb_strong`, `vd_triangle_t_overlap_card_ge_two`, `vd_triangle_t_overlap_card_ge_three`, `vd_triangle_t_overlap_subset_channels`, `vd_triangle_t_overlap_card_le_strong`, `vd_triangle_t_overlap_card_eq_strong`, `vd_triangle_t_net_bound`, `vd_triangle_s_overlap_card_lb`, `vd_triangle_s_overlap_card_pos`, `vd_triangle_s_overlap_card_ge_two`) show full-family disjoint merge with van Doorn S/T is impossible and quantify unavoidable overlap with both T and S (including exact T-overlap formula). We now also have overlap-aware merge inequalities (`vd_triangle_t_overlap_penalty_bound`, `vd_triangle_s_overlap_penalty_bound`). Triage update: no known published upper bound better than 25/28; likely wins are finite-`N` improvements, refined lower bounds, or overlap-aware constants. |
-| **E** | **DivisorEgyptianFree families** | #470 | Medium | New weird number construction technique via unit-fraction avoidance on divisor sets. Bridges #470 and #301 machinery. |
-| **F** | **Odd weird ≥ 6 prime factors** | #470 | Hard | Liddy-Riedl full result; case analysis on 3–5 prime factors. Item A is a stepping stone. |
-| **G** | **Full supersaturation (all divisors)** | #302 | Very Hard | Extend d=1 pipeline to all d | a² using average order of τ(n²) ∼ c·log²n. Requires Mathlib extensions for Dirichlet series / mean-value estimates. Research-level analytic NT. |
-| **H** | **Fourier-analytic methods** | #302 | Very Hard | Multiplicative Fourier analysis or circle method via divisor parametrization. Research-level + heavy Lean engineering. |
-| **I** | **Weird number density** | #470 | Very Hard | Benkoski-Erdős positive density; requires PNT. |
+| **B** | **Formalize dense-template 163/195 candidate** | #301 | Medium | Use the `{2:4,3:3,5:2}` signature grid and the 219-witness compressed prefix certificate from `scripts/weighted_sumfree_lp.py`. This should be the next concrete bound improvement after `145/168`. |
+| **C** | **Non-uniform gadgets** | #302 | Medium | Variable-size gadgets whose size scales with τ(a²). Requires generalizing PackingBound to variable sizes. Could bypass S+T barrier. |
+| **D** | **Fiber-density forcing for #301** | #301 | Hard | Build on `sum_free_fiber_egyptian_free` and apply quantitative reciprocal-sum-1 thresholds (Bloom/Liu-Sawhney) to force contradictions from dense fibers. Most direct route from constant-factor gadget improvements toward the conjectured 1/2. |
+| **E** | **Pair gadget mining for #327** | #327 | Medium | **PARTIAL:** triangle gadget now has global packing bound (`pair_free_triangle_family_bound`), and new barrier theorems (`vd_triangle_t_not_disjoint`, `vd_triangle_s_not_disjoint`, `vd_triangle_t_overlap_card_lb`, `vd_triangle_t_overlap_card_lb_strong`, `vd_triangle_t_overlap_card_ge_two`, `vd_triangle_t_overlap_card_ge_three`, `vd_triangle_t_overlap_subset_channels`, `vd_triangle_t_overlap_card_le_strong`, `vd_triangle_t_overlap_card_eq_strong`, `vd_triangle_t_net_bound`, `vd_triangle_s_overlap_card_lb`, `vd_triangle_s_overlap_card_pos`, `vd_triangle_s_overlap_card_ge_two`) show full-family disjoint merge with van Doorn S/T is impossible and quantify unavoidable overlap with both T and S (including exact T-overlap formula). We now also have overlap-aware merge inequalities (`vd_triangle_t_overlap_penalty_bound`, `vd_triangle_s_overlap_penalty_bound`). Triage update: no known published upper bound better than 25/28; likely wins are finite-`N` improvements, refined lower bounds, or overlap-aware constants. |
+| **F** | **DivisorEgyptianFree families** | #470 | Medium | New weird number construction technique via unit-fraction avoidance on divisor sets. Bridges #470 and #301 machinery. |
+| **G** | **Odd weird ≥ 6 prime factors** | #470 | Hard | Liddy-Riedl full result; case analysis on 3–5 prime factors. Item A is a stepping stone. |
+| **H** | **Full supersaturation (all divisors)** | #302 | Very Hard | Extend d=1 pipeline to all d | a² using average order of τ(n²) ∼ c·log²n. Requires Mathlib extensions for Dirichlet series / mean-value estimates. Research-level analytic NT. |
+| **I** | **Fourier-analytic methods** | #302 | Very Hard | Multiplicative Fourier analysis or circle method via divisor parametrization. Research-level + heavy Lean engineering. |
+| **J** | **Weird number density** | #470 | Very Hard | Benkoski-Erdős positive density; requires PNT. |
 
 **Recommended next steps**: A (odd weird ≥4 primes) and C (fiber-density forcing for #301) are the highest-impact options now. B and D remain practical medium-effort explorations.
 
@@ -1032,6 +1147,9 @@ or **Known** (formalization of a published result or folklore).
 | Cambie 5/8 construction (triple-free) | Cambie, erdosproblems.com | `UnitFractionTriples/Cambie.lean` |
 | Van Doorn 9/10 bound (triples) | van Doorn, erdosproblems.com | `UnitFractionTriples/VanDoorn.lean` |
 | Van Doorn 25/28 bound (pairs) | van Doorn, erdosproblems.com | `UnitFractionPairs/VanDoorn.lean` |
+| Van Doorn 25/28 bound (sum-free sets) | van Doorn, erdosproblems.com | `UnitFractionSets/UpperBound.lean` |
+| Extended-star 149/168 packing improvement (sum-free sets) | This project | `UnitFractionSets/UpperBound.lean` |
+| Larger same-signature 145/168 packing improvement (sum-free sets) | This project | `UnitFractionSets/UpperBound.lean` |
 | Benkoski-Erdős (pn weird) | Benkoski & Erdős (1974) | `WeirdNumbers/Structure.lean` |
 | Pseudoperfect ↔ unit fraction sum | Friedman (1993) | `WeirdNumbers/EgyptianBridge.lean` |
 | Factor identity (b−a)(c−a) = a² | Classical | `UnitFractionTriples/UpperHalf.lean` |
@@ -1057,13 +1175,13 @@ REFERENCES.md.
 |---------|-----------|-----------|-------------|-----------------|-----------------|
 | #327 | ≥ N/2 (odd) | ≤ 25N/28 (vD) | N/2 + o(N) | ✓ N/2 | ✓ 25N/28 |
 | #302 | ≥ 5N/8 (Cambie) | ≤ 9N/10 (vD) | N/2 + o(N) | ✓ 5N/8 | ✓ 9N/10 |
-| #301 | ≥ N/2 (upper half) | ≤ 25N/28 (vD) | N/2 + o(N) | ✓ N/2 | ✓ 9N/10 |
+| #301 | ≥ N/2 (upper half) | ≤ 145N/168 (same-signature packing) | N/2 + o(N) | ✓ N/2 | ✓ 145N/168 packing inequality |
 
 **Status**: All three problems now have formalized upper bounds.
 - #327 matches the best known bound (25/28) via two-family VDParam construction.
 - As of **2026-03-05**, we have no vetted literature improvement beyond #327's 25/28 upper bound.
-- #301 inherits 9/10 via SumFree→TripleFree; a dedicated 25/28 construction
-  would require showing star neighborhoods produce forbidden sum-free configurations.
+- #301 now improves the recorded 25/28 bound by a formal same-signature packing
+  inequality whose asymptotic shape is 145/168.
 - #302 has the tightest analysis (5/8 to 9/10 gap).
 - **NEW**: The Cambie 5/8 construction does NOT lift from #302 to #301
   (`cambie_not_sum_free`). This proves the lower bound gap between #301 and #302

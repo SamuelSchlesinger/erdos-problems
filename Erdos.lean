@@ -1,6 +1,7 @@
 import Erdos.Common.PackingBound
 import Erdos.Common.ParityOptimality
 import Erdos.Common.ValSignature
+import Erdos.Common.WeightedPacking
 import Erdos.ErdosMoser.Statement
 import Erdos.ErdosMoser.KnownCases
 import Erdos.ErdosMoser.EvenEight
@@ -73,6 +74,8 @@ import Erdos.UnitFractionSets.Connections
 import Erdos.UnitFractionSets.UpperHalf
 import Erdos.UnitFractionSets.Parity
 import Erdos.UnitFractionSets.UpperBound
+import Erdos.UnitFractionSets.WeightedPacking
+import Erdos.UnitFractionSets.DenseTemplate
 import Erdos.UnitFractionSets.Cambie
 import Erdos.UnitFractionSets.ExtendedStar
 import Erdos.UnitFractionSets.MultiplierFiber
