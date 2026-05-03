@@ -45,6 +45,9 @@ private theorem denseMul_injective : Function.Injective denseMul := by
 private theorem denseMul_pos (i : Fin 23) : 0 < denseMul i := by
   fin_cases i <;> decide
 
+private theorem denseMul_dvd_threeSixty (i : Fin 23) : denseMul i ∣ 360 := by
+  fin_cases i <;> decide
+
 private theorem denseMul_mul_injective {a : ℕ} (ha : 0 < a) :
     Function.Injective fun i : Fin 23 => denseMul i * a := by
   intro i j h
@@ -232,6 +235,285 @@ private theorem dense_identity_edge_forbidden {A : Finset ℕ} (hA : SumFree A) 
     (hEA target (Finset.mem_insert_self _ _)) ?_ htarget_not_R hRnonempty hid
   intro i hi
   exact hEA i (Finset.mem_insert_of_mem hi)
+
+/-- Cast a denominator-cleared identity with common denominator `360` to the
+corresponding rational reciprocal identity. -/
+private theorem dense_reciprocal_identity_of_clear {target : Fin 23} {Ridx : Finset (Fin 23)}
+    (hclear : 360 / denseMul target = ∑ i ∈ Ridx, 360 / denseMul i) :
+    (1 / (denseMul target : ℚ)) = ∑ i ∈ Ridx, (1 / (denseMul i : ℚ)) := by
+  have hdiv_cast : ∀ i : Fin 23,
+      ((360 / denseMul i : ℕ) : ℚ) = (360 : ℚ) / (denseMul i : ℚ) := by
+    intro i
+    have hmQ : (denseMul i : ℚ) ≠ 0 :=
+      Nat.cast_ne_zero.mpr (Nat.ne_of_gt (denseMul_pos i))
+    have hmul_nat : denseMul i * (360 / denseMul i) = 360 :=
+      Nat.mul_div_cancel' (denseMul_dvd_threeSixty i)
+    have hmul_q : (denseMul i : ℚ) * ((360 / denseMul i : ℕ) : ℚ) = (360 : ℚ) := by
+      exact_mod_cast hmul_nat
+    rw [eq_div_iff hmQ]
+    simpa [mul_comm] using hmul_q
+  have htarget :
+      ((360 / denseMul target : ℕ) : ℚ) = (360 : ℚ) / (denseMul target : ℚ) :=
+    hdiv_cast target
+  have hrhs : ((∑ i ∈ Ridx, 360 / denseMul i : ℕ) : ℚ) =
+      ∑ i ∈ Ridx, (360 : ℚ) / (denseMul i : ℚ) := by
+    rw [Nat.cast_sum]
+    exact Finset.sum_congr rfl fun i _ => hdiv_cast i
+  have hq : ((360 / denseMul target : ℕ) : ℚ) =
+      ((∑ i ∈ Ridx, 360 / denseMul i : ℕ) : ℚ) := by
+    exact_mod_cast hclear
+  rw [htarget, hrhs] at hq
+  have h360 : (360 : ℚ) ≠ 0 := by norm_num
+  have htQ : (denseMul target : ℚ) ≠ 0 :=
+    Nat.cast_ne_zero.mpr (Nat.ne_of_gt (denseMul_pos target))
+  calc
+    (1 / (denseMul target : ℕ) : ℚ) =
+        ((360 : ℚ) / (denseMul target : ℚ)) / 360 := by
+      field_simp [h360, htQ]
+    _ = (∑ i ∈ Ridx, (360 : ℚ) / (denseMul i : ℚ)) / 360 := by rw [hq]
+    _ = ∑ i ∈ Ridx, ((360 : ℚ) / (denseMul i : ℚ)) / 360 := by
+      rw [Finset.sum_div]
+    _ = ∑ i ∈ Ridx, (1 / denseMul i : ℚ) := by
+      apply Finset.sum_congr rfl
+      intro i _
+      have hiQ : (denseMul i : ℚ) ≠ 0 :=
+        Nat.cast_ne_zero.mpr (Nat.ne_of_gt (denseMul_pos i))
+      field_simp [h360, hiQ]
+
+/-- The compressed 219-witness edge certificate found by `scripts/weighted_sumfree_lp.py`. -/
+private def denseWitnessTarget (i : Fin 219) : Fin 23 :=
+  ![⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩,
+    ⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩,
+    ⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩,
+    ⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩,
+    ⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩, ⟨1, by decide⟩, ⟨1, by decide⟩,
+    ⟨1, by decide⟩, ⟨1, by decide⟩, ⟨1, by decide⟩, ⟨1, by decide⟩, ⟨1, by decide⟩, ⟨1, by decide⟩,
+    ⟨1, by decide⟩, ⟨1, by decide⟩, ⟨1, by decide⟩, ⟨1, by decide⟩, ⟨1, by decide⟩, ⟨1, by decide⟩,
+    ⟨1, by decide⟩, ⟨1, by decide⟩, ⟨1, by decide⟩, ⟨1, by decide⟩, ⟨1, by decide⟩, ⟨1, by decide⟩,
+    ⟨1, by decide⟩, ⟨2, by decide⟩, ⟨2, by decide⟩, ⟨2, by decide⟩, ⟨2, by decide⟩, ⟨2, by decide⟩,
+    ⟨2, by decide⟩, ⟨2, by decide⟩, ⟨2, by decide⟩, ⟨2, by decide⟩, ⟨2, by decide⟩, ⟨2, by decide⟩,
+    ⟨2, by decide⟩, ⟨2, by decide⟩, ⟨2, by decide⟩, ⟨2, by decide⟩, ⟨2, by decide⟩, ⟨2, by decide⟩,
+    ⟨2, by decide⟩, ⟨2, by decide⟩, ⟨2, by decide⟩, ⟨2, by decide⟩, ⟨2, by decide⟩, ⟨2, by decide⟩,
+    ⟨2, by decide⟩, ⟨2, by decide⟩, ⟨2, by decide⟩, ⟨2, by decide⟩, ⟨2, by decide⟩, ⟨2, by decide⟩,
+    ⟨2, by decide⟩, ⟨2, by decide⟩, ⟨2, by decide⟩, ⟨2, by decide⟩, ⟨2, by decide⟩, ⟨3, by decide⟩,
+    ⟨3, by decide⟩, ⟨3, by decide⟩, ⟨3, by decide⟩, ⟨3, by decide⟩, ⟨3, by decide⟩, ⟨3, by decide⟩,
+    ⟨3, by decide⟩, ⟨3, by decide⟩, ⟨3, by decide⟩, ⟨3, by decide⟩, ⟨3, by decide⟩, ⟨3, by decide⟩,
+    ⟨3, by decide⟩, ⟨3, by decide⟩, ⟨3, by decide⟩, ⟨3, by decide⟩, ⟨3, by decide⟩, ⟨3, by decide⟩,
+    ⟨3, by decide⟩, ⟨3, by decide⟩, ⟨3, by decide⟩, ⟨3, by decide⟩, ⟨3, by decide⟩, ⟨4, by decide⟩,
+    ⟨4, by decide⟩, ⟨4, by decide⟩, ⟨4, by decide⟩, ⟨4, by decide⟩, ⟨4, by decide⟩, ⟨4, by decide⟩,
+    ⟨4, by decide⟩, ⟨4, by decide⟩, ⟨4, by decide⟩, ⟨4, by decide⟩, ⟨4, by decide⟩, ⟨4, by decide⟩,
+    ⟨4, by decide⟩, ⟨5, by decide⟩, ⟨5, by decide⟩, ⟨5, by decide⟩, ⟨5, by decide⟩, ⟨5, by decide⟩,
+    ⟨5, by decide⟩, ⟨5, by decide⟩, ⟨5, by decide⟩, ⟨5, by decide⟩, ⟨5, by decide⟩, ⟨5, by decide⟩,
+    ⟨5, by decide⟩, ⟨5, by decide⟩, ⟨5, by decide⟩, ⟨5, by decide⟩, ⟨5, by decide⟩, ⟨5, by decide⟩,
+    ⟨5, by decide⟩, ⟨5, by decide⟩, ⟨5, by decide⟩, ⟨5, by decide⟩, ⟨5, by decide⟩, ⟨5, by decide⟩,
+    ⟨5, by decide⟩, ⟨6, by decide⟩, ⟨6, by decide⟩, ⟨6, by decide⟩, ⟨6, by decide⟩, ⟨6, by decide⟩,
+    ⟨6, by decide⟩, ⟨6, by decide⟩, ⟨6, by decide⟩, ⟨6, by decide⟩, ⟨6, by decide⟩, ⟨7, by decide⟩,
+    ⟨7, by decide⟩, ⟨7, by decide⟩, ⟨7, by decide⟩, ⟨7, by decide⟩, ⟨7, by decide⟩, ⟨7, by decide⟩,
+    ⟨7, by decide⟩, ⟨7, by decide⟩, ⟨7, by decide⟩, ⟨7, by decide⟩, ⟨7, by decide⟩, ⟨8, by decide⟩,
+    ⟨8, by decide⟩, ⟨8, by decide⟩, ⟨8, by decide⟩, ⟨8, by decide⟩, ⟨8, by decide⟩, ⟨8, by decide⟩,
+    ⟨8, by decide⟩, ⟨9, by decide⟩, ⟨9, by decide⟩, ⟨9, by decide⟩, ⟨9, by decide⟩, ⟨9, by decide⟩,
+    ⟨9, by decide⟩, ⟨9, by decide⟩, ⟨9, by decide⟩, ⟨10, by decide⟩, ⟨10, by decide⟩, ⟨10, by
+    decide⟩, ⟨10, by decide⟩, ⟨10, by decide⟩, ⟨10, by decide⟩, ⟨10, by decide⟩, ⟨11, by decide⟩,
+    ⟨11, by decide⟩, ⟨11, by decide⟩, ⟨11, by decide⟩, ⟨11, by decide⟩, ⟨11, by decide⟩, ⟨12, by
+    decide⟩, ⟨12, by decide⟩, ⟨12, by decide⟩, ⟨12, by decide⟩, ⟨12, by decide⟩, ⟨12, by decide⟩,
+    ⟨12, by decide⟩, ⟨13, by decide⟩, ⟨13, by decide⟩, ⟨13, by decide⟩, ⟨13, by decide⟩, ⟨14, by
+    decide⟩, ⟨14, by decide⟩, ⟨14, by decide⟩, ⟨15, by decide⟩, ⟨15, by decide⟩, ⟨15, by decide⟩,
+    ⟨15, by decide⟩, ⟨16, by decide⟩, ⟨16, by decide⟩, ⟨17, by decide⟩, ⟨17, by decide⟩, ⟨18, by
+    decide⟩] i
+
+private def denseWitnessRhs (i : Fin 219) : Finset (Fin 23) :=
+  ![({⟨1, by decide⟩, ⟨4, by decide⟩} : Finset (Fin 23)), ({⟨1, by decide⟩, ⟨5, by decide⟩, ⟨12, by
+    decide⟩} : Finset (Fin 23)), ({⟨1, by decide⟩, ⟨5, by decide⟩, ⟨14, by decide⟩, ⟨18, by decide⟩}
+    : Finset (Fin 23)), ({⟨1, by decide⟩, ⟨5, by decide⟩, ⟨16, by decide⟩, ⟨18, by decide⟩, ⟨21, by
+    decide⟩} : Finset (Fin 23)), ({⟨1, by decide⟩, ⟨5, by decide⟩, ⟨16, by decide⟩, ⟨19, by decide⟩,
+    ⟨20, by decide⟩} : Finset (Fin 23)), ({⟨1, by decide⟩, ⟨6, by decide⟩, ⟨10, by decide⟩} : Finset
+    (Fin 23)), ({⟨1, by decide⟩, ⟨6, by decide⟩, ⟨12, by decide⟩, ⟨18, by decide⟩} : Finset (Fin
+    23)), ({⟨1, by decide⟩, ⟨6, by decide⟩, ⟨13, by decide⟩, ⟨16, by decide⟩} : Finset (Fin 23)),
+    ({⟨1, by decide⟩, ⟨6, by decide⟩, ⟨13, by decide⟩, ⟨18, by decide⟩, ⟨20, by decide⟩} : Finset
+    (Fin 23)), ({⟨1, by decide⟩, ⟨7, by decide⟩, ⟨9, by decide⟩} : Finset (Fin 23)), ({⟨1, by
+    decide⟩, ⟨7, by decide⟩, ⟨10, by decide⟩, ⟨19, by decide⟩} : Finset (Fin 23)), ({⟨1, by decide⟩,
+    ⟨7, by decide⟩, ⟨11, by decide⟩, ⟨17, by decide⟩} : Finset (Fin 23)), ({⟨1, by decide⟩, ⟨7, by
+    decide⟩, ⟨12, by decide⟩, ⟨15, by decide⟩} : Finset (Fin 23)), ({⟨1, by decide⟩, ⟨9, by decide⟩,
+    ⟨10, by decide⟩, ⟨15, by decide⟩, ⟨18, by decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨1, by
+    decide⟩, ⟨10, by decide⟩, ⟨11, by decide⟩, ⟨15, by decide⟩, ⟨16, by decide⟩, ⟨18, by decide⟩} :
+    Finset (Fin 23)), ({⟨3, by decide⟩, ⟨4, by decide⟩, ⟨5, by decide⟩, ⟨20, by decide⟩} : Finset
+    (Fin 23)), ({⟨3, by decide⟩, ⟨4, by decide⟩, ⟨6, by decide⟩, ⟨16, by decide⟩} : Finset (Fin
+    23)), ({⟨3, by decide⟩, ⟨4, by decide⟩, ⟨8, by decide⟩, ⟨11, by decide⟩} : Finset (Fin 23)),
+    ({⟨3, by decide⟩, ⟨4, by decide⟩, ⟨10, by decide⟩, ⟨11, by decide⟩, ⟨14, by decide⟩} : Finset
+    (Fin 23)), ({⟨3, by decide⟩, ⟨5, by decide⟩, ⟨6, by decide⟩, ⟨12, by decide⟩, ⟨16, by decide⟩} :
+    Finset (Fin 23)), ({⟨3, by decide⟩, ⟨5, by decide⟩, ⟨6, by decide⟩, ⟨12, by decide⟩, ⟨17, by
+    decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨3, by decide⟩, ⟨5, by decide⟩, ⟨6, by decide⟩,
+    ⟨14, by decide⟩, ⟨15, by decide⟩, ⟨19, by decide⟩} : Finset (Fin 23)), ({⟨3, by decide⟩, ⟨5, by
+    decide⟩, ⟨8, by decide⟩, ⟨9, by decide⟩, ⟨15, by decide⟩} : Finset (Fin 23)), ({⟨3, by decide⟩,
+    ⟨5, by decide⟩, ⟨9, by decide⟩, ⟨10, by decide⟩, ⟨14, by decide⟩, ⟨15, by decide⟩} : Finset (Fin
+    23)), ({⟨3, by decide⟩, ⟨6, by decide⟩, ⟨8, by decide⟩, ⟨10, by decide⟩, ⟨11, by decide⟩} :
+    Finset (Fin 23)), ({⟨3, by decide⟩, ⟨6, by decide⟩, ⟨8, by decide⟩, ⟨11, by decide⟩, ⟨12, by
+    decide⟩, ⟨18, by decide⟩} : Finset (Fin 23)), ({⟨4, by decide⟩, ⟨5, by decide⟩, ⟨6, by decide⟩,
+    ⟨11, by decide⟩, ⟨15, by decide⟩, ⟨16, by decide⟩} : Finset (Fin 23)), ({⟨5, by decide⟩, ⟨6, by
+    decide⟩, ⟨7, by decide⟩, ⟨9, by decide⟩, ⟨10, by decide⟩, ⟨12, by decide⟩} : Finset (Fin 23)),
+    ({⟨2, by decide⟩, ⟨8, by decide⟩} : Finset (Fin 23)), ({⟨2, by decide⟩, ⟨9, by decide⟩, ⟨17, by
+    decide⟩} : Finset (Fin 23)), ({⟨2, by decide⟩, ⟨9, by decide⟩, ⟨19, by decide⟩, ⟨21, by decide⟩}
+    : Finset (Fin 23)), ({⟨2, by decide⟩, ⟨10, by decide⟩, ⟨14, by decide⟩} : Finset (Fin 23)),
+    ({⟨2, by decide⟩, ⟨10, by decide⟩, ⟨16, by decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨2,
+    by decide⟩, ⟨10, by decide⟩, ⟨17, by decide⟩, ⟨19, by decide⟩} : Finset (Fin 23)), ({⟨2, by
+    decide⟩, ⟨11, by decide⟩, ⟨13, by decide⟩} : Finset (Fin 23)), ({⟨2, by decide⟩, ⟨11, by
+    decide⟩, ⟨14, by decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨2, by decide⟩, ⟨11, by
+    decide⟩, ⟨15, by decide⟩, ⟨20, by decide⟩} : Finset (Fin 23)), ({⟨2, by decide⟩, ⟨11, by
+    decide⟩, ⟨16, by decide⟩, ⟨19, by decide⟩} : Finset (Fin 23)), ({⟨2, by decide⟩, ⟨13, by
+    decide⟩, ⟨14, by decide⟩, ⟨16, by decide⟩} : Finset (Fin 23)), ({⟨3, by decide⟩, ⟨5, by decide⟩,
+    ⟨20, by decide⟩} : Finset (Fin 23)), ({⟨3, by decide⟩, ⟨6, by decide⟩, ⟨16, by decide⟩} : Finset
+    (Fin 23)), ({⟨3, by decide⟩, ⟨7, by decide⟩, ⟨13, by decide⟩} : Finset (Fin 23)), ({⟨3, by
+    decide⟩, ⟨8, by decide⟩, ⟨11, by decide⟩} : Finset (Fin 23)), ({⟨3, by decide⟩, ⟨8, by decide⟩,
+    ⟨12, by decide⟩, ⟨20, by decide⟩} : Finset (Fin 23)), ({⟨3, by decide⟩, ⟨8, by decide⟩, ⟨13, by
+    decide⟩, ⟨17, by decide⟩} : Finset (Fin 23)), ({⟨5, by decide⟩, ⟨6, by decide⟩, ⟨10, by decide⟩,
+    ⟨12, by decide⟩} : Finset (Fin 23)), ({⟨5, by decide⟩, ⟨6, by decide⟩, ⟨11, by decide⟩, ⟨15, by
+    decide⟩, ⟨16, by decide⟩} : Finset (Fin 23)), ({⟨5, by decide⟩, ⟨7, by decide⟩, ⟨10, by decide⟩,
+    ⟨16, by decide⟩, ⟨17, by decide⟩, ⟨18, by decide⟩} : Finset (Fin 23)), ({⟨6, by decide⟩, ⟨7, by
+    decide⟩, ⟨9, by decide⟩, ⟨10, by decide⟩} : Finset (Fin 23)), ({⟨3, by decide⟩, ⟨11, by decide⟩}
+    : Finset (Fin 23)), ({⟨3, by decide⟩, ⟨12, by decide⟩, ⟨20, by decide⟩} : Finset (Fin 23)),
+    ({⟨3, by decide⟩, ⟨13, by decide⟩, ⟨17, by decide⟩} : Finset (Fin 23)), ({⟨3, by decide⟩, ⟨13,
+    by decide⟩, ⟨19, by decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨3, by decide⟩, ⟨14, by
+    decide⟩, ⟨16, by decide⟩} : Finset (Fin 23)), ({⟨3, by decide⟩, ⟨14, by decide⟩, ⟨17, by
+    decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨3, by decide⟩, ⟨14, by decide⟩, ⟨18, by
+    decide⟩, ⟨20, by decide⟩} : Finset (Fin 23)), ({⟨3, by decide⟩, ⟨16, by decide⟩, ⟨17, by
+    decide⟩, ⟨19, by decide⟩} : Finset (Fin 23)), ({⟨4, by decide⟩, ⟨8, by decide⟩} : Finset (Fin
+    23)), ({⟨4, by decide⟩, ⟨9, by decide⟩, ⟨17, by decide⟩} : Finset (Fin 23)), ({⟨4, by decide⟩,
+    ⟨9, by decide⟩, ⟨19, by decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨4, by decide⟩, ⟨10, by
+    decide⟩, ⟨14, by decide⟩} : Finset (Fin 23)), ({⟨4, by decide⟩, ⟨10, by decide⟩, ⟨16, by
+    decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨4, by decide⟩, ⟨10, by decide⟩, ⟨17, by
+    decide⟩, ⟨19, by decide⟩} : Finset (Fin 23)), ({⟨4, by decide⟩, ⟨11, by decide⟩, ⟨13, by
+    decide⟩} : Finset (Fin 23)), ({⟨4, by decide⟩, ⟨11, by decide⟩, ⟨14, by decide⟩, ⟨21, by
+    decide⟩} : Finset (Fin 23)), ({⟨4, by decide⟩, ⟨11, by decide⟩, ⟨15, by decide⟩, ⟨20, by
+    decide⟩} : Finset (Fin 23)), ({⟨4, by decide⟩, ⟨11, by decide⟩, ⟨16, by decide⟩, ⟨19, by
+    decide⟩} : Finset (Fin 23)), ({⟨4, by decide⟩, ⟨13, by decide⟩, ⟨14, by decide⟩, ⟨16, by
+    decide⟩} : Finset (Fin 23)), ({⟨6, by decide⟩, ⟨7, by decide⟩, ⟨15, by decide⟩, ⟨18, by decide⟩}
+    : Finset (Fin 23)), ({⟨6, by decide⟩, ⟨7, by decide⟩, ⟨16, by decide⟩, ⟨17, by decide⟩} : Finset
+    (Fin 23)), ({⟨6, by decide⟩, ⟨8, by decide⟩, ⟨10, by decide⟩} : Finset (Fin 23)), ({⟨6, by
+    decide⟩, ⟨8, by decide⟩, ⟨12, by decide⟩, ⟨18, by decide⟩} : Finset (Fin 23)), ({⟨6, by decide⟩,
+    ⟨8, by decide⟩, ⟨13, by decide⟩, ⟨16, by decide⟩} : Finset (Fin 23)), ({⟨6, by decide⟩, ⟨9, by
+    decide⟩, ⟨10, by decide⟩, ⟨17, by decide⟩} : Finset (Fin 23)), ({⟨6, by decide⟩, ⟨9, by decide⟩,
+    ⟨11, by decide⟩, ⟨16, by decide⟩} : Finset (Fin 23)), ({⟨6, by decide⟩, ⟨9, by decide⟩, ⟨13, by
+    decide⟩, ⟨15, by decide⟩, ⟨18, by decide⟩} : Finset (Fin 23)), ({⟨6, by decide⟩, ⟨11, by
+    decide⟩, ⟨12, by decide⟩, ⟨15, by decide⟩, ⟨16, by decide⟩} : Finset (Fin 23)), ({⟨7, by
+    decide⟩, ⟨8, by decide⟩, ⟨9, by decide⟩} : Finset (Fin 23)), ({⟨7, by decide⟩, ⟨8, by decide⟩,
+    ⟨12, by decide⟩, ⟨15, by decide⟩} : Finset (Fin 23)), ({⟨7, by decide⟩, ⟨9, by decide⟩, ⟨10, by
+    decide⟩, ⟨14, by decide⟩} : Finset (Fin 23)), ({⟨7, by decide⟩, ⟨10, by decide⟩, ⟨12, by
+    decide⟩, ⟨14, by decide⟩, ⟨15, by decide⟩} : Finset (Fin 23)), ({⟨8, by decide⟩, ⟨9, by decide⟩,
+    ⟨10, by decide⟩, ⟨15, by decide⟩, ⟨18, by decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨8, by
+    decide⟩, ⟨10, by decide⟩, ⟨11, by decide⟩, ⟨15, by decide⟩, ⟨16, by decide⟩, ⟨18, by decide⟩} :
+    Finset (Fin 23)), ({⟨4, by decide⟩, ⟨13, by decide⟩} : Finset (Fin 23)), ({⟨4, by decide⟩, ⟨14,
+    by decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨4, by decide⟩, ⟨15, by decide⟩, ⟨20, by
+    decide⟩} : Finset (Fin 23)), ({⟨4, by decide⟩, ⟨16, by decide⟩, ⟨19, by decide⟩} : Finset (Fin
+    23)), ({⟨5, by decide⟩, ⟨9, by decide⟩, ⟨20, by decide⟩} : Finset (Fin 23)), ({⟨5, by decide⟩,
+    ⟨10, by decide⟩, ⟨18, by decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨5, by decide⟩, ⟨10, by
+    decide⟩, ⟨19, by decide⟩, ⟨20, by decide⟩} : Finset (Fin 23)), ({⟨5, by decide⟩, ⟨11, by
+    decide⟩, ⟨15, by decide⟩} : Finset (Fin 23)), ({⟨5, by decide⟩, ⟨12, by decide⟩, ⟨13, by
+    decide⟩} : Finset (Fin 23)), ({⟨5, by decide⟩, ⟨12, by decide⟩, ⟨14, by decide⟩, ⟨21, by
+    decide⟩} : Finset (Fin 23)), ({⟨5, by decide⟩, ⟨12, by decide⟩, ⟨16, by decide⟩, ⟨19, by
+    decide⟩} : Finset (Fin 23)), ({⟨5, by decide⟩, ⟨13, by decide⟩, ⟨14, by decide⟩, ⟨18, by
+    decide⟩} : Finset (Fin 23)), ({⟨5, by decide⟩, ⟨14, by decide⟩, ⟨15, by decide⟩, ⟨16, by
+    decide⟩} : Finset (Fin 23)), ({⟨6, by decide⟩, ⟨8, by decide⟩, ⟨21, by decide⟩} : Finset (Fin
+    23)), ({⟨6, by decide⟩, ⟨9, by decide⟩, ⟨16, by decide⟩} : Finset (Fin 23)), ({⟨6, by decide⟩,
+    ⟨10, by decide⟩, ⟨13, by decide⟩} : Finset (Fin 23)), ({⟨6, by decide⟩, ⟨10, by decide⟩, ⟨15, by
+    decide⟩, ⟨20, by decide⟩} : Finset (Fin 23)), ({⟨6, by decide⟩, ⟨10, by decide⟩, ⟨16, by
+    decide⟩, ⟨19, by decide⟩} : Finset (Fin 23)), ({⟨6, by decide⟩, ⟨11, by decide⟩, ⟨15, by
+    decide⟩, ⟨18, by decide⟩} : Finset (Fin 23)), ({⟨6, by decide⟩, ⟨12, by decide⟩, ⟨15, by
+    decide⟩, ⟨16, by decide⟩} : Finset (Fin 23)), ({⟨8, by decide⟩, ⟨9, by decide⟩, ⟨11, by decide⟩}
+    : Finset (Fin 23)), ({⟨8, by decide⟩, ⟨10, by decide⟩, ⟨15, by decide⟩, ⟨16, by decide⟩, ⟨18, by
+    decide⟩} : Finset (Fin 23)), ({⟨8, by decide⟩, ⟨11, by decide⟩, ⟨12, by decide⟩, ⟨15, by
+    decide⟩} : Finset (Fin 23)), ({⟨9, by decide⟩, ⟨10, by decide⟩, ⟨11, by decide⟩, ⟨14, by
+    decide⟩} : Finset (Fin 23)), ({⟨5, by decide⟩, ⟨12, by decide⟩} : Finset (Fin 23)), ({⟨5, by
+    decide⟩, ⟨13, by decide⟩, ⟨20, by decide⟩} : Finset (Fin 23)), ({⟨5, by decide⟩, ⟨15, by
+    decide⟩, ⟨17, by decide⟩} : Finset (Fin 23)), ({⟨5, by decide⟩, ⟨16, by decide⟩, ⟨18, by
+    decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨5, by decide⟩, ⟨16, by decide⟩, ⟨19, by
+    decide⟩, ⟨20, by decide⟩} : Finset (Fin 23)), ({⟨6, by decide⟩, ⟨10, by decide⟩} : Finset (Fin
+    23)), ({⟨6, by decide⟩, ⟨12, by decide⟩, ⟨18, by decide⟩} : Finset (Fin 23)), ({⟨6, by decide⟩,
+    ⟨13, by decide⟩, ⟨16, by decide⟩} : Finset (Fin 23)), ({⟨6, by decide⟩, ⟨13, by decide⟩, ⟨18, by
+    decide⟩, ⟨20, by decide⟩} : Finset (Fin 23)), ({⟨7, by decide⟩, ⟨9, by decide⟩} : Finset (Fin
+    23)), ({⟨7, by decide⟩, ⟨10, by decide⟩, ⟨19, by decide⟩} : Finset (Fin 23)), ({⟨7, by decide⟩,
+    ⟨11, by decide⟩, ⟨17, by decide⟩} : Finset (Fin 23)), ({⟨7, by decide⟩, ⟨12, by decide⟩, ⟨15, by
+    decide⟩} : Finset (Fin 23)), ({⟨10, by decide⟩, ⟨11, by decide⟩, ⟨15, by decide⟩, ⟨16, by
+    decide⟩, ⟨18, by decide⟩} : Finset (Fin 23)), ({⟨6, by decide⟩, ⟨18, by decide⟩} : Finset (Fin
+    23)), ({⟨6, by decide⟩, ⟨20, by decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨7, by decide⟩,
+    ⟨15, by decide⟩} : Finset (Fin 23)), ({⟨7, by decide⟩, ⟨17, by decide⟩, ⟨20, by decide⟩} :
+    Finset (Fin 23)), ({⟨7, by decide⟩, ⟨18, by decide⟩, ⟨19, by decide⟩} : Finset (Fin 23)), ({⟨8,
+    by decide⟩, ⟨12, by decide⟩} : Finset (Fin 23)), ({⟨8, by decide⟩, ⟨13, by decide⟩, ⟨20, by
+    decide⟩} : Finset (Fin 23)), ({⟨8, by decide⟩, ⟨14, by decide⟩, ⟨18, by decide⟩} : Finset (Fin
+    23)), ({⟨8, by decide⟩, ⟨15, by decide⟩, ⟨17, by decide⟩} : Finset (Fin 23)), ({⟨8, by decide⟩,
+    ⟨16, by decide⟩, ⟨18, by decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨8, by decide⟩, ⟨16, by
+    decide⟩, ⟨19, by decide⟩, ⟨20, by decide⟩} : Finset (Fin 23)), ({⟨9, by decide⟩, ⟨11, by
+    decide⟩, ⟨20, by decide⟩} : Finset (Fin 23)), ({⟨9, by decide⟩, ⟨12, by decide⟩, ⟨17, by
+    decide⟩} : Finset (Fin 23)), ({⟨9, by decide⟩, ⟨13, by decide⟩, ⟨15, by decide⟩} : Finset (Fin
+    23)), ({⟨9, by decide⟩, ⟨13, by decide⟩, ⟨18, by decide⟩, ⟨19, by decide⟩} : Finset (Fin 23)),
+    ({⟨9, by decide⟩, ⟨14, by decide⟩, ⟨16, by decide⟩, ⟨20, by decide⟩} : Finset (Fin 23)), ({⟨9,
+    by decide⟩, ⟨14, by decide⟩, ⟨17, by decide⟩, ⟨18, by decide⟩} : Finset (Fin 23)), ({⟨9, by
+    decide⟩, ⟨15, by decide⟩, ⟨16, by decide⟩, ⟨19, by decide⟩} : Finset (Fin 23)), ({⟨10, by
+    decide⟩, ⟨12, by decide⟩, ⟨14, by decide⟩} : Finset (Fin 23)), ({⟨10, by decide⟩, ⟨12, by
+    decide⟩, ⟨16, by decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨10, by decide⟩, ⟨12, by
+    decide⟩, ⟨17, by decide⟩, ⟨19, by decide⟩} : Finset (Fin 23)), ({⟨10, by decide⟩, ⟨13, by
+    decide⟩, ⟨15, by decide⟩, ⟨19, by decide⟩} : Finset (Fin 23)), ({⟨11, by decide⟩, ⟨12, by
+    decide⟩, ⟨13, by decide⟩} : Finset (Fin 23)), ({⟨11, by decide⟩, ⟨13, by decide⟩, ⟨14, by
+    decide⟩, ⟨18, by decide⟩} : Finset (Fin 23)), ({⟨7, by decide⟩, ⟨19, by decide⟩} : Finset (Fin
+    23)), ({⟨8, by decide⟩, ⟨14, by decide⟩} : Finset (Fin 23)), ({⟨8, by decide⟩, ⟨16, by decide⟩,
+    ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨9, by decide⟩, ⟨13, by decide⟩, ⟨19, by decide⟩} :
+    Finset (Fin 23)), ({⟨9, by decide⟩, ⟨14, by decide⟩, ⟨17, by decide⟩} : Finset (Fin 23)), ({⟨9,
+    by decide⟩, ⟨15, by decide⟩, ⟨19, by decide⟩, ⟨20, by decide⟩} : Finset (Fin 23)), ({⟨11, by
+    decide⟩, ⟨13, by decide⟩, ⟨14, by decide⟩} : Finset (Fin 23)), ({⟨11, by decide⟩, ⟨14, by
+    decide⟩, ⟨15, by decide⟩, ⟨20, by decide⟩} : Finset (Fin 23)), ({⟨11, by decide⟩, ⟨15, by
+    decide⟩, ⟨16, by decide⟩, ⟨18, by decide⟩} : Finset (Fin 23)), ({⟨12, by decide⟩, ⟨13, by
+    decide⟩, ⟨16, by decide⟩, ⟨18, by decide⟩} : Finset (Fin 23)), ({⟨8, by decide⟩, ⟨17, by
+    decide⟩} : Finset (Fin 23)), ({⟨8, by decide⟩, ⟨19, by decide⟩, ⟨21, by decide⟩} : Finset (Fin
+    23)), ({⟨9, by decide⟩, ⟨13, by decide⟩} : Finset (Fin 23)), ({⟨9, by decide⟩, ⟨14, by decide⟩,
+    ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨9, by decide⟩, ⟨15, by decide⟩, ⟨20, by decide⟩} :
+    Finset (Fin 23)), ({⟨10, by decide⟩, ⟨13, by decide⟩, ⟨19, by decide⟩} : Finset (Fin 23)),
+    ({⟨10, by decide⟩, ⟨14, by decide⟩, ⟨17, by decide⟩} : Finset (Fin 23)), ({⟨10, by decide⟩, ⟨15,
+    by decide⟩, ⟨18, by decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨10, by decide⟩, ⟨15, by
+    decide⟩, ⟨19, by decide⟩, ⟨20, by decide⟩} : Finset (Fin 23)), ({⟨12, by decide⟩, ⟨13, by
+    decide⟩, ⟨15, by decide⟩} : Finset (Fin 23)), ({⟨12, by decide⟩, ⟨15, by decide⟩, ⟨16, by
+    decide⟩, ⟨19, by decide⟩} : Finset (Fin 23)), ({⟨13, by decide⟩, ⟨14, by decide⟩, ⟨16, by
+    decide⟩, ⟨17, by decide⟩} : Finset (Fin 23)), ({⟨9, by decide⟩, ⟨17, by decide⟩} : Finset (Fin
+    23)), ({⟨10, by decide⟩, ⟨14, by decide⟩} : Finset (Fin 23)), ({⟨10, by decide⟩, ⟨16, by
+    decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨10, by decide⟩, ⟨17, by decide⟩, ⟨19, by
+    decide⟩} : Finset (Fin 23)), ({⟨11, by decide⟩, ⟨13, by decide⟩} : Finset (Fin 23)), ({⟨11, by
+    decide⟩, ⟨15, by decide⟩, ⟨20, by decide⟩} : Finset (Fin 23)), ({⟨11, by decide⟩, ⟨16, by
+    decide⟩, ⟨19, by decide⟩} : Finset (Fin 23)), ({⟨13, by decide⟩, ⟨14, by decide⟩, ⟨16, by
+    decide⟩} : Finset (Fin 23)), ({⟨10, by decide⟩, ⟨19, by decide⟩} : Finset (Fin 23)), ({⟨11, by
+    decide⟩, ⟨17, by decide⟩} : Finset (Fin 23)), ({⟨11, by decide⟩, ⟨19, by decide⟩, ⟨21, by
+    decide⟩} : Finset (Fin 23)), ({⟨12, by decide⟩, ⟨15, by decide⟩} : Finset (Fin 23)), ({⟨12, by
+    decide⟩, ⟨18, by decide⟩, ⟨19, by decide⟩} : Finset (Fin 23)), ({⟨14, by decide⟩, ⟨15, by
+    decide⟩, ⟨18, by decide⟩} : Finset (Fin 23)), ({⟨14, by decide⟩, ⟨16, by decide⟩, ⟨17, by
+    decide⟩} : Finset (Fin 23)), ({⟨15, by decide⟩, ⟨16, by decide⟩, ⟨18, by decide⟩, ⟨21, by
+    decide⟩} : Finset (Fin 23)), ({⟨11, by decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨12, by
+    decide⟩, ⟨18, by decide⟩} : Finset (Fin 23)), ({⟨12, by decide⟩, ⟨20, by decide⟩, ⟨21, by
+    decide⟩} : Finset (Fin 23)), ({⟨13, by decide⟩, ⟨16, by decide⟩} : Finset (Fin 23)), ({⟨13, by
+    decide⟩, ⟨17, by decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨15, by decide⟩, ⟨16, by
+    decide⟩, ⟨20, by decide⟩} : Finset (Fin 23)), ({⟨15, by decide⟩, ⟨17, by decide⟩, ⟨18, by
+    decide⟩} : Finset (Fin 23)), ({⟨12, by decide⟩, ⟨20, by decide⟩} : Finset (Fin 23)), ({⟨13, by
+    decide⟩, ⟨17, by decide⟩} : Finset (Fin 23)), ({⟨14, by decide⟩, ⟨16, by decide⟩} : Finset (Fin
+    23)), ({⟨14, by decide⟩, ⟨17, by decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨14, by
+    decide⟩, ⟨18, by decide⟩, ⟨20, by decide⟩} : Finset (Fin 23)), ({⟨16, by decide⟩, ⟨17, by
+    decide⟩, ⟨19, by decide⟩} : Finset (Fin 23)), ({⟨13, by decide⟩, ⟨20, by decide⟩} : Finset (Fin
+    23)), ({⟨14, by decide⟩, ⟨18, by decide⟩} : Finset (Fin 23)), ({⟨14, by decide⟩, ⟨20, by
+    decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨15, by decide⟩, ⟨17, by decide⟩} : Finset (Fin
+    23)), ({⟨15, by decide⟩, ⟨19, by decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨16, by
+    decide⟩, ⟨18, by decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨16, by decide⟩, ⟨19, by
+    decide⟩, ⟨20, by decide⟩} : Finset (Fin 23)), ({⟨14, by decide⟩, ⟨21, by decide⟩} : Finset (Fin
+    23)), ({⟨15, by decide⟩, ⟨20, by decide⟩} : Finset (Fin 23)), ({⟨16, by decide⟩, ⟨19, by
+    decide⟩} : Finset (Fin 23)), ({⟨18, by decide⟩, ⟨19, by decide⟩, ⟨20, by decide⟩} : Finset (Fin
+    23)), ({⟨15, by decide⟩, ⟨22, by decide⟩} : Finset (Fin 23)), ({⟨16, by decide⟩, ⟨21, by
+    decide⟩} : Finset (Fin 23)), ({⟨17, by decide⟩, ⟨19, by decide⟩} : Finset (Fin 23)), ({⟨16, by
+    decide⟩, ⟨22, by decide⟩} : Finset (Fin 23)), ({⟨17, by decide⟩, ⟨20, by decide⟩} : Finset (Fin
+    23)), ({⟨18, by decide⟩, ⟨19, by decide⟩} : Finset (Fin 23)), ({⟨19, by decide⟩, ⟨20, by
+    decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨17, by decide⟩, ⟨21, by decide⟩} : Finset (Fin
+    23)), ({⟨18, by decide⟩, ⟨20, by decide⟩} : Finset (Fin 23)), ({⟨18, by decide⟩, ⟨22, by
+    decide⟩} : Finset (Fin 23)), ({⟨19, by decide⟩, ⟨21, by decide⟩} : Finset (Fin 23)), ({⟨20, by
+    decide⟩, ⟨21, by decide⟩} : Finset (Fin 23))] i
+
+private def denseWitnessEdge (i : Fin 219) : Finset (Fin 23) :=
+  insert (denseWitnessTarget i) (denseWitnessRhs i)
+
+private def denseBadEdges : Finset (Finset (Fin 23)) :=
+  (Finset.univ : Finset (Fin 219)).image denseWitnessEdge
 
 private def denseCutoff (i : Fin 19) : ℕ :=
   ![360, 180, 120, 90, 72, 60, 45, 40, 36, 30, 24, 20, 18, 15, 12, 10, 9, 8,

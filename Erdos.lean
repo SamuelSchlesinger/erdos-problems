@@ -76,6 +76,7 @@ import Erdos.UnitFractionSets.UpperHalf
 import Erdos.UnitFractionSets.Parity
 import Erdos.UnitFractionSets.UpperBound
 import Erdos.UnitFractionSets.WeightedPacking
+import Erdos.UnitFractionSets.TemplateSchema
 import Erdos.UnitFractionSets.DenseTemplate
 import Erdos.UnitFractionSets.Cambie
 import Erdos.UnitFractionSets.ExtendedStar
