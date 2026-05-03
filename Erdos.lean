@@ -27,6 +27,7 @@ import Erdos.TotientValueRatio.Statement
 import Erdos.TotientValueRatio.Elementary
 import Erdos.MersenneDivisorSums.Statement
 import Erdos.MersenneDivisorSums.Elementary
+import Erdos.MersenneDivisorSums.DivisibilityLowerBound
 import Erdos.PrimeGapHarmonic.Statement
 import Erdos.PrimeGapHarmonic.Elementary
 import Erdos.DistinctDistances.Statement
