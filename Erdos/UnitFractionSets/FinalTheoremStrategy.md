@@ -35,7 +35,11 @@ bound, so the whole problem is to force this omission density.
 - [x] Move the `163/195` candidate into a new Lean file, separate from
   `UpperBound.lean`.
 - [x] Prove the required p-adic signature separation for the 23 multipliers.
-- [ ] Prove the finite prefix hitting certificate over `Fin 23`.
+- [x] Prove a generic replay theorem for finite branch certificates.
+- [x] Generate and independently verify a compressed branch certificate for the
+  219-witness dense template.
+- [ ] Import the generated branch certificate into Lean and prove the finite
+  prefix hitting theorem over `Fin 23`.
 - [ ] Package the resulting finite theorem as a disjoint-gadget packing bound.
 - [ ] Record the asymptotic calculation yielding `163/195 + o(1)`.
 
@@ -56,6 +60,7 @@ finite multiplier identities
 - [x] Prove a generic scaled-identity obstruction theorem for arbitrary template
   data.
 - [x] Prove a generic prefix-hitting-to-gadget-cardinality theorem.
+- [x] Prove a generic branch-certificate-to-prefix-hitting theorem.
 - [ ] Prove a generic p-adic signature disjointness theorem from valuation
   residues.
 - [ ] Prove or isolate the asymptotic density lemma for classes
@@ -138,8 +143,18 @@ python3 scripts/weighted_sumfree_lp.py \
   --emit-template /tmp/dense_163_195_template.json
 ```
 
-6. [ ] First prove the finite prefix theorem. Only then build the disjoint-gadget
-   global theorem.
+6. [x] Prove the generic branch-certificate replay theorem in
+   `TemplateSchema.lean`.
+7. [x] Verify the compressed dense branch certificate:
+
+```bash
+python3 scripts/weighted_sumfree_lp.py \
+  --branch-cert-from-template /tmp/dense_163_195_template_compressed.json \
+  --verify-branch-certificate /tmp/dense_branch_certificate_compressed.json
+```
+
+8. [ ] Import the generated branch certificate into Lean, prove the finite prefix
+   theorem, then build the disjoint-gadget global theorem.
 
 ## Coordination Notes
 

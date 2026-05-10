@@ -560,6 +560,178 @@ def print_template_report(report: dict) -> None:
             )
 
 
+def _template_edge_masks_from_report(report: dict, use_compressed: bool) -> tuple[list[int], list[dict[int, Witness]]]:
+    multipliers = [int(x) for x in report["multipliers"]]
+    index = {m: i for i, m in enumerate(multipliers)}
+    witness_key = "compressed_witnesses" if use_compressed else "witnesses"
+    row_edges: list[dict[int, Witness]] = []
+    all_by_mask: dict[int, Witness] = {}
+    for item in report[witness_key]:
+        w = Witness(int(item["target"]), tuple(int(x) for x in item["rhs"]))
+        mask = 0
+        for x in w.edge:
+            mask |= 1 << index[x]
+        all_by_mask.setdefault(mask, w)
+    for row in report["rows"]:
+        n = int(row["prefix_size"])
+        prefix_mask = (1 << n) - 1
+        active = {
+            mask: w
+            for mask, w in all_by_mask.items()
+            if mask & prefix_mask == mask
+        }
+        row_edges.append(active)
+    return multipliers, row_edges
+
+
+def build_branch_certificate_for_row(
+    n: int,
+    keep: int,
+    edge_masks: tuple[int, ...],
+    max_nodes: int = 0,
+) -> dict:
+    """Build a finite branch certificate for one prefix hitting statement.
+
+    The certificate proves that every subset of `{0, ..., n-1}` of size
+    `keep + 1` contains one of the listed edge masks.  It branches over the next
+    vertex, and a branch closes as soon as the partial subset already contains
+    an edge.
+    """
+    nodes: list[dict] = []
+    ordered_edges = tuple(sorted(edge_masks, key=lambda e: (e.bit_count(), e)))
+
+    def first_edge(mask: int) -> int:
+        for edge in ordered_edges:
+            if edge & mask == edge:
+                return edge
+        return 0
+
+    def add(node: dict) -> int:
+        if max_nodes and len(nodes) >= max_nodes:
+            raise RuntimeError(f"branch certificate exceeded {max_nodes} nodes")
+        nodes.append(node)
+        return len(nodes) - 1
+
+    def go(fuel: int, pos: int, need: int, mask: int) -> int:
+        edge = first_edge(mask)
+        if edge:
+            return add({"kind": "edge", "edge": edge})
+        if need == 0:
+            raise RuntimeError(f"uncovered subset reached: mask={mask}")
+        if fuel < need:
+            return add({"kind": "short"})
+        skip = go(fuel - 1, pos + 1, need, mask)
+        take = go(fuel - 1, pos + 1, need - 1, mask | (1 << pos))
+        return add({"kind": "branch", "skip": skip, "take": take})
+
+    root = go(n, 0, keep + 1, 0)
+    return {"n": n, "keep": keep, "root": root, "nodes": nodes}
+
+
+def verify_branch_certificate_for_row(cert: dict, edge_masks: tuple[int, ...]) -> tuple[bool, str]:
+    nodes = cert["nodes"]
+    seen: set[tuple[int, int, int, int]] = set()
+
+    def go(node_id: int, fuel: int, pos: int, need: int, mask: int) -> tuple[bool, str]:
+        key = (node_id, fuel, need, mask)
+        if key in seen:
+            return True, "ok"
+        seen.add(key)
+        if node_id < 0 or node_id >= len(nodes):
+            return False, f"bad node id {node_id}"
+        node = nodes[node_id]
+        kind = node.get("kind")
+        if kind == "edge":
+            edge = int(node["edge"])
+            if edge not in edge_masks:
+                return False, f"unknown edge mask {edge}"
+            if edge & mask != edge:
+                return False, f"edge leaf not contained: edge={edge}, mask={mask}"
+            return True, "ok"
+        if kind == "short":
+            if fuel < need:
+                return True, "ok"
+            return False, f"short leaf with fuel={fuel}, need={need}"
+        if kind == "branch":
+            if need == 0:
+                return False, f"branch after complete uncovered mask={mask}"
+            if fuel < need:
+                return False, f"branch where short leaf would suffice: fuel={fuel}, need={need}"
+            ok, msg = go(int(node["skip"]), fuel - 1, pos + 1, need, mask)
+            if not ok:
+                return ok, msg
+            return go(int(node["take"]), fuel - 1, pos + 1, need - 1, mask | (1 << pos))
+        return False, f"unknown node kind {kind!r}"
+
+    return go(int(cert["root"]), int(cert["n"]), 0, int(cert["keep"]) + 1, 0)
+
+
+def build_template_branch_certificate(
+    report: dict,
+    use_compressed: bool = True,
+    max_nodes_per_row: int = 0,
+) -> dict:
+    multipliers, row_edges = _template_edge_masks_from_report(report, use_compressed)
+    rows = []
+    for row, active in zip(report["rows"], row_edges, strict=True):
+        n = int(row["prefix_size"])
+        keep = int(row["keep"])
+        if keep + 1 > n:
+            continue
+        cert = build_branch_certificate_for_row(
+            n,
+            keep,
+            tuple(active),
+            max_nodes=max_nodes_per_row,
+        )
+        ok, msg = verify_branch_certificate_for_row(cert, tuple(active))
+        if not ok:
+            raise RuntimeError(f"internal branch certificate verification failed: {msg}")
+        rows.append(
+            {
+                "cutoff": int(row["cutoff"]),
+                "prefix_size": n,
+                "keep": keep,
+                "edge_count": len(active),
+                "node_count": len(cert["nodes"]),
+                "certificate": cert,
+            }
+        )
+    return {
+        "problem": 301,
+        "kind": "template_prefix_branch_certificate",
+        "moduli": report["moduli"],
+        "multipliers": multipliers,
+        "source": "compressed_witnesses" if use_compressed else "witnesses",
+        "witness_count": len(report["compressed_witnesses"] if use_compressed else report["witnesses"]),
+        "rows": rows,
+    }
+
+
+def verify_template_branch_certificate(cert: dict, report: dict) -> tuple[bool, str]:
+    _, row_edges = _template_edge_masks_from_report(report, cert.get("source") == "compressed_witnesses")
+    by_cutoff = {int(row["cutoff"]): tuple(active) for row, active in zip(report["rows"], row_edges, strict=True)}
+    for row_cert in cert["rows"]:
+        cutoff = int(row_cert["cutoff"])
+        if cutoff not in by_cutoff:
+            return False, f"unknown cutoff {cutoff}"
+        ok, msg = verify_branch_certificate_for_row(row_cert["certificate"], by_cutoff[cutoff])
+        if not ok:
+            return False, f"cutoff {cutoff}: {msg}"
+    return True, "ok"
+
+
+def summarize_template_branch_certificate(cert: dict) -> None:
+    print(f"branch certificate source: {cert['source']}")
+    print(f"witnesses: {cert['witness_count']}")
+    print("prefix branch rows:")
+    for row in cert["rows"]:
+        print(
+            f"  c={row['cutoff']:>4} size={row['prefix_size']:>2} "
+            f"keep={row['keep']:>2} edges={row['edge_count']:>3} nodes={row['node_count']:>7}"
+        )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--max", type=int, default=120, help="finite interval [1,N]")
@@ -577,7 +749,32 @@ def main() -> None:
     parser.add_argument("--template-max-states", type=int, default=0)
     parser.add_argument("--template-compress", action="store_true")
     parser.add_argument("--emit-template", type=Path)
+    parser.add_argument("--branch-cert-from-template", type=Path)
+    parser.add_argument("--emit-branch-certificate", type=Path)
+    parser.add_argument("--verify-branch-certificate", type=Path)
+    parser.add_argument("--branch-certificate-use-all-witnesses", action="store_true")
+    parser.add_argument("--branch-certificate-max-nodes-per-row", type=int, default=0)
     args = parser.parse_args()
+
+    if args.branch_cert_from_template:
+        report = json.loads(args.branch_cert_from_template.read_text(encoding="utf-8"))
+        if args.verify_branch_certificate:
+            cert = json.loads(args.verify_branch_certificate.read_text(encoding="utf-8"))
+            ok, msg = verify_template_branch_certificate(cert, report)
+            print(f"branch certificate: {'PASS' if ok else 'FAIL'} ({msg})")
+            if ok:
+                summarize_template_branch_certificate(cert)
+            raise SystemExit(0 if ok else 1)
+        cert = build_template_branch_certificate(
+            report,
+            use_compressed=not args.branch_certificate_use_all_witnesses,
+            max_nodes_per_row=args.branch_certificate_max_nodes_per_row,
+        )
+        summarize_template_branch_certificate(cert)
+        if args.emit_branch_certificate:
+            args.emit_branch_certificate.write_text(json.dumps(cert, indent=2, sort_keys=True), encoding="utf-8")
+            print(f"wrote branch certificate: {args.emit_branch_certificate}")
+        raise SystemExit(0)
 
     if args.template_moduli:
         report = template_report(

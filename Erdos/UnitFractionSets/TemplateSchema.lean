@@ -58,6 +58,264 @@ theorem hypergraph_hitting_image_inter_card_le {V β : Type*} [DecidableEq β]
   obtain ⟨E, hE, hES⟩ := hHit S (Finset.filter_subset _ _) hgt
   exact hForbidden E hE fun v hv => (Finset.mem_filter.mp (hES hv)).2
 
+/-- A finite set contains one of the listed hyperedges. -/
+def ContainsHyperedge {V : Type*} (badEdges : Finset (Finset V)) (S : Finset V) : Prop :=
+  ∃ E ∈ badEdges, E ⊆ S
+
+private theorem containsHyperedge_mono {V : Type*} {badEdges : Finset (Finset V)}
+    {S T : Finset V} (hST : S ⊆ T) :
+    ContainsHyperedge badEdges S → ContainsHyperedge badEdges T := by
+  rintro ⟨E, hE, hES⟩
+  exact ⟨E, hE, hES.trans hST⟩
+
+/-- Executable branch search for finite prefix hitting.
+
+`finiteBranchSearch edgePresent xs need chosen = false` means that every way of
+adding exactly `need` vertices from `xs` to `chosen` is forced to contain an
+edge, provided `edgePresent` is a sound executable detector for listed edges.
+
+This is intentionally generic.  Concrete files may implement `edgePresent`
+using bit masks or generated tables, while this theorem supplies the proof
+interface from branch certificates to the usual prefix-hitting statement. -/
+def finiteBranchSearch {V : Type*} [DecidableEq V] (edgePresent : Finset V → Bool) :
+    List V → ℕ → Finset V → Bool
+  | [], need, chosen => if edgePresent chosen then false else decide (need = 0)
+  | x :: xs, need, chosen =>
+      if edgePresent chosen then false
+      else if need = 0 then true
+      else if xs.length + 1 < need then false
+      else finiteBranchSearch edgePresent xs need chosen ||
+        finiteBranchSearch edgePresent xs (need - 1) (insert x chosen)
+
+theorem finiteBranchSearch_complete {V : Type*} [DecidableEq V]
+    {badEdges : Finset (Finset V)} {edgePresent : Finset V → Bool}
+    (hedgePresent :
+      ∀ S : Finset V, edgePresent S = true → ContainsHyperedge badEdges S)
+    {xs : List V} {need : ℕ} {chosen extra : Finset V}
+    (hsearch : finiteBranchSearch edgePresent xs need chosen = false)
+    (hextra : extra ⊆ xs.toFinset)
+    (hdisj : Disjoint chosen extra)
+    (hcard : extra.card = need) :
+    ContainsHyperedge badEdges (chosen ∪ extra) := by
+  induction xs generalizing need chosen extra with
+  | nil =>
+      by_cases hedge : edgePresent chosen = true
+      · exact containsHyperedge_mono Finset.subset_union_left
+          (hedgePresent chosen hedge)
+      · have hcard_zero : extra.card = 0 := by
+          have hle : extra.card ≤ ([].toFinset : Finset V).card := Finset.card_le_card hextra
+          simpa using hle
+        have hextra_empty : extra = ∅ := Finset.card_eq_zero.mp hcard_zero
+        have hneed : need = 0 := by omega
+        subst extra
+        simp [finiteBranchSearch, hedge, hneed] at hsearch
+  | cons x xs ih =>
+      by_cases hedge : edgePresent chosen = true
+      · exact containsHyperedge_mono Finset.subset_union_left
+          (hedgePresent chosen hedge)
+      · by_cases hneed0 : need = 0
+        · have hextra_empty : extra = ∅ := by
+            apply Finset.card_eq_zero.mp
+            omega
+          subst extra
+          exfalso
+          simp [finiteBranchSearch, hedge, hneed0] at hsearch
+        · have hlen_not : ¬ xs.length + 1 < need := by
+            intro hlt
+            have hcard_le : extra.card ≤ (x :: xs).toFinset.card :=
+              Finset.card_le_card hextra
+            have hto : (x :: xs).toFinset.card ≤ xs.length + 1 := by
+              simpa [Nat.add_comm] using List.toFinset_card_le (x :: xs)
+            omega
+          have hboth :
+              finiteBranchSearch edgePresent xs need chosen = false ∧
+                finiteBranchSearch edgePresent xs (need - 1) (insert x chosen) = false := by
+            have hor :
+                (finiteBranchSearch edgePresent xs need chosen ||
+                  finiteBranchSearch edgePresent xs (need - 1) (insert x chosen)) = false := by
+              simpa [finiteBranchSearch, hedge, hneed0, hlen_not] using hsearch
+            simpa using
+              (Bool.or_eq_false_eq_eq_false_and_eq_false
+                (finiteBranchSearch edgePresent xs need chosen)
+                (finiteBranchSearch edgePresent xs (need - 1) (insert x chosen))).mp hor
+          have hleft : finiteBranchSearch edgePresent xs need chosen = false := hboth.1
+          have hright : finiteBranchSearch edgePresent xs (need - 1) (insert x chosen) = false :=
+            hboth.2
+          by_cases hxextra : x ∈ extra
+          · let extra' := extra.erase x
+            have hsub : extra' ⊆ xs.toFinset := by
+              intro y hy
+              have hyextra : y ∈ extra := (Finset.mem_erase.mp hy).2
+              have hyall := hextra hyextra
+              simp only [List.toFinset_cons, Finset.mem_insert] at hyall
+              rcases hyall with hyx | hyxs
+              · have hyne : y ≠ x := (Finset.mem_erase.mp hy).1
+                exact (hyne hyx).elim
+              · exact hyxs
+            have hdisj' : Disjoint (insert x chosen) extra' := by
+              rw [Finset.disjoint_left]
+              intro y hyins hyextra'
+              have hyextra : y ∈ extra := (Finset.mem_erase.mp hyextra').2
+              simp only [Finset.mem_insert] at hyins
+              rcases hyins with rfl | hychosen
+              · exact (Finset.mem_erase.mp hyextra').1 rfl
+              · exact (Finset.disjoint_left.mp hdisj hychosen) hyextra
+            have hcard' : extra'.card = need - 1 := by
+              rw [Finset.card_erase_of_mem hxextra]
+              omega
+            have hp' := ih hright hsub hdisj' hcard'
+            have hunion : insert x chosen ∪ extra' = chosen ∪ extra := by
+              ext y
+              by_cases hyx : y = x
+              · subst y
+                simp [hxextra]
+              · simp [extra', hyx, Finset.mem_erase]
+            simpa [hunion] using hp'
+          · have hsub : extra ⊆ xs.toFinset := by
+              intro y hy
+              have hyall := hextra hy
+              simp only [List.toFinset_cons, Finset.mem_insert] at hyall
+              rcases hyall with hyx | hyxs
+              · subst y
+                exact (hxextra hy).elim
+              · exact hyxs
+            exact ih hleft hsub hdisj hcard
+
+theorem prefix_hitting_of_branch_search {V : Type*} [DecidableEq V]
+    {badEdges : Finset (Finset V)} {edgePresent : Finset V → Bool}
+    (hedgePresent :
+      ∀ S : Finset V, edgePresent S = true → ContainsHyperedge badEdges S)
+    {P : Finset V} {xs : List V} {keep : ℕ}
+    (hxs : xs.toFinset = P)
+    (hsearch : finiteBranchSearch edgePresent xs (keep + 1) ∅ = false) :
+    ∀ S : Finset V, S ⊆ P → keep < S.card → ContainsHyperedge badEdges S := by
+  intro S hS hcard
+  obtain ⟨T, hTS, hTcard⟩ :=
+    Finset.exists_subset_card_eq (s := S) (n := keep + 1) (Nat.succ_le_iff.mpr hcard)
+  have hTlist : T ⊆ xs.toFinset := by
+    rw [hxs]
+    exact hTS.trans hS
+  have hhit := finiteBranchSearch_complete hedgePresent
+    (xs := xs) (need := keep + 1) (chosen := ∅) (extra := T)
+    hsearch hTlist (by simp) hTcard
+  exact containsHyperedge_mono (by simpa using hTS) hhit
+
+/-- A replayable branch certificate for finite prefix hitting.
+
+At an `edge E` leaf, the currently chosen vertices already contain the forbidden
+edge `E`.  A `short` leaf says that fewer than `need` vertices remain, so no
+completion of the required size exists.  A `branch` node skips or takes the next
+available vertex. -/
+inductive BranchCert (V : Type*) where
+  | edge (E : Finset V)
+  | short
+  | branch (skip take : BranchCert V)
+
+namespace BranchCert
+
+variable {V : Type*} [DecidableEq V]
+
+/-- Executable checker for a replayable branch certificate. -/
+def check (badEdges : Finset (Finset V)) :
+    BranchCert V → List V → ℕ → Finset V → Bool
+  | edge E, _xs, _need, chosen => decide (E ∈ badEdges ∧ E ⊆ chosen)
+  | short, xs, need, _chosen => decide (xs.length < need)
+  | branch _ _, [], _need, _chosen => false
+  | branch skip take, x :: xs, need, chosen =>
+      if need = 0 then false
+      else check badEdges skip xs need chosen &&
+        check badEdges take xs (need - 1) (insert x chosen)
+
+theorem check_complete {badEdges : Finset (Finset V)} :
+    ∀ {cert : BranchCert V} {xs : List V} {need : ℕ} {chosen extra : Finset V},
+      cert.check badEdges xs need chosen = true →
+      extra ⊆ xs.toFinset →
+      Disjoint chosen extra →
+      extra.card = need →
+      ContainsHyperedge badEdges (chosen ∪ extra)
+  | edge E, _xs, _need, chosen, _extra, hcheck, _hextra, _hdisj, _hcard => by
+      have h : E ∈ badEdges ∧ E ⊆ chosen := of_decide_eq_true hcheck
+      exact containsHyperedge_mono Finset.subset_union_left ⟨E, h.1, h.2⟩
+  | short, xs, need, _chosen, extra, hcheck, hextra, _hdisj, hcard => by
+      have hshort : xs.length < need := of_decide_eq_true hcheck
+      have hcard_le : extra.card ≤ xs.toFinset.card := Finset.card_le_card hextra
+      have hto : xs.toFinset.card ≤ xs.length := List.toFinset_card_le xs
+      omega
+  | branch skip take, [], _need, _chosen, _extra, hcheck, _hextra, _hdisj, _hcard => by
+      simp [check] at hcheck
+  | branch skip take, x :: xs, need, chosen, extra, hcheck, hextra, hdisj, hcard => by
+      by_cases hneed0 : need = 0
+      · simp [check, hneed0] at hcheck
+      · have hboth :
+            skip.check badEdges xs need chosen = true ∧
+              take.check badEdges xs (need - 1) (insert x chosen) = true := by
+          have hand :
+              (skip.check badEdges xs need chosen &&
+                take.check badEdges xs (need - 1) (insert x chosen)) = true := by
+            simpa [check, hneed0] using hcheck
+          simpa using
+            (Bool.and_eq_true_eq_eq_true_and_eq_true
+              (skip.check badEdges xs need chosen)
+              (take.check badEdges xs (need - 1) (insert x chosen))).mp hand
+        by_cases hxextra : x ∈ extra
+        · let extra' := extra.erase x
+          have hsub : extra' ⊆ xs.toFinset := by
+            intro y hy
+            have hyextra : y ∈ extra := (Finset.mem_erase.mp hy).2
+            have hyall := hextra hyextra
+            simp only [List.toFinset_cons, Finset.mem_insert] at hyall
+            rcases hyall with hyx | hyxs
+            · have hyne : y ≠ x := (Finset.mem_erase.mp hy).1
+              exact (hyne hyx).elim
+            · exact hyxs
+          have hdisj' : Disjoint (insert x chosen) extra' := by
+            rw [Finset.disjoint_left]
+            intro y hyins hyextra'
+            have hyextra : y ∈ extra := (Finset.mem_erase.mp hyextra').2
+            simp only [Finset.mem_insert] at hyins
+            rcases hyins with rfl | hychosen
+            · exact (Finset.mem_erase.mp hyextra').1 rfl
+            · exact (Finset.disjoint_left.mp hdisj hychosen) hyextra
+          have hcard' : extra'.card = need - 1 := by
+            rw [Finset.card_erase_of_mem hxextra]
+            omega
+          have hp' := check_complete hboth.2 hsub hdisj' hcard'
+          have hunion : insert x chosen ∪ extra' = chosen ∪ extra := by
+            ext y
+            by_cases hyx : y = x
+            · subst y
+              simp [hxextra]
+            · simp [extra', hyx, Finset.mem_erase]
+          simpa [hunion] using hp'
+        · have hsub : extra ⊆ xs.toFinset := by
+            intro y hy
+            have hyall := hextra hy
+            simp only [List.toFinset_cons, Finset.mem_insert] at hyall
+            rcases hyall with hyx | hyxs
+            · subst y
+              exact (hxextra hy).elim
+            · exact hyxs
+          exact check_complete hboth.1 hsub hdisj hcard
+
+end BranchCert
+
+theorem prefix_hitting_of_branch_certificate {V : Type*} [DecidableEq V]
+    {badEdges : Finset (Finset V)} {cert : BranchCert V}
+    {P : Finset V} {xs : List V} {keep : ℕ}
+    (hxs : xs.toFinset = P)
+    (hcheck : cert.check badEdges xs (keep + 1) ∅ = true) :
+    ∀ S : Finset V, S ⊆ P → keep < S.card → ContainsHyperedge badEdges S := by
+  intro S hS hcard
+  obtain ⟨T, hTS, hTcard⟩ :=
+    Finset.exists_subset_card_eq (s := S) (n := keep + 1) (Nat.succ_le_iff.mpr hcard)
+  have hTlist : T ⊆ xs.toFinset := by
+    rw [hxs]
+    exact hTS.trans hS
+  have hhit := BranchCert.check_complete
+    (cert := cert) (xs := xs) (need := keep + 1) (chosen := ∅) (extra := T)
+    hcheck hTlist (by simp) hTcard
+  exact containsHyperedge_mono (by simpa using hTS) hhit
+
 /-- A reciprocal identity edge over a multiplier map. The edge says that the
 reciprocal of `target` is the sum of reciprocals over the nonempty right-hand
 side `rhs`. -/

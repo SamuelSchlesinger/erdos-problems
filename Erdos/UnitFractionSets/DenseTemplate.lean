@@ -18,6 +18,7 @@ This has density `4/13`, and its residue signature separates the 23 multipliers
 used by the searched certificate.
 -/
 import Erdos.UnitFractionSets.Statement
+import Erdos.UnitFractionSets.TemplateSchema
 import Erdos.Common.PackingBound
 import Erdos.Common.ValSignature
 
@@ -515,6 +516,25 @@ private def denseWitnessEdge (i : Fin 219) : Finset (Fin 23) :=
 private def denseBadEdges : Finset (Finset (Fin 23)) :=
   (Finset.univ : Finset (Fin 219)).image denseWitnessEdge
 
+private def denseEdgePresent (S : Finset (Fin 23)) : Bool :=
+  (List.finRange 219).any fun i => decide (denseWitnessEdge i ⊆ S)
+
+private theorem denseEdgePresent_sound (S : Finset (Fin 23)) :
+    denseEdgePresent S = true → ContainsHyperedge denseBadEdges S := by
+  intro h
+  rw [denseEdgePresent, List.any_eq_true] at h
+  rcases h with ⟨i, _hi, hsub⟩
+  exact ⟨denseWitnessEdge i, Finset.mem_image.mpr ⟨i, Finset.mem_univ i, rfl⟩,
+    of_decide_eq_true hsub⟩
+
+private def densePrefixList (c : ℕ) : List (Fin 23) :=
+  (List.finRange 23).filter fun i => decide (denseMul i ≤ c)
+
+private theorem densePrefixList_toFinset (c : ℕ) :
+    (densePrefixList c).toFinset = densePrefix c := by
+  ext i
+  simp [densePrefixList, densePrefix, decide_eq_true_eq]
+
 private def denseCutoff (i : Fin 19) : ℕ :=
   ![360, 180, 120, 90, 72, 60, 45, 40, 36, 30, 24, 20, 18, 15, 12, 10, 9, 8,
     6] i
@@ -534,6 +554,35 @@ private theorem denseCutoff_le_threeSixty (i : Fin 19) : denseCutoff i ≤ 360 :
 
 private theorem denseKeep_le_size (i : Fin 19) : denseKeep i ≤ denseSize i := by
   fin_cases i <;> decide
+
+private theorem densePrefix_hitting_of_branch_certificate (i : Fin 19)
+    {cert : BranchCert (Fin 23)}
+    (hcheck :
+      cert.check denseBadEdges (densePrefixList (denseCutoff i)) (denseKeep i + 1) ∅ = true) :
+    ∀ S : Finset (Fin 23), S ⊆ densePrefix (denseCutoff i) → denseKeep i < S.card →
+      ContainsHyperedge denseBadEdges S :=
+  prefix_hitting_of_branch_certificate
+    (badEdges := denseBadEdges) (cert := cert)
+    (P := densePrefix (denseCutoff i)) (xs := densePrefixList (denseCutoff i))
+    (keep := denseKeep i) (densePrefixList_toFinset (denseCutoff i)) hcheck
+
+private theorem denseGadget_inter_card_le_of_branch_certificate {A : Finset ℕ} {a : ℕ}
+    (ha : 0 < a) (i : Fin 19)
+    {cert : BranchCert (Fin 23)}
+    (hcheck :
+      cert.check denseBadEdges (densePrefixList (denseCutoff i)) (denseKeep i + 1) ∅ = true)
+    (hForbidden :
+      ∀ E ∈ denseBadEdges, (∀ j ∈ E, denseMul j * a ∈ A) → False) :
+    (denseGadget (denseCutoff i) a ∩ A).card ≤ denseKeep i := by
+  rw [denseGadget]
+  refine hypergraph_hitting_image_inter_card_le
+    (P := densePrefix (denseCutoff i)) (A := A)
+    (f := fun j : Fin 23 => denseMul j * a)
+    (badEdges := denseBadEdges) (keep := denseKeep i)
+    (hf := denseMul_mul_injective ha) ?_ ?_
+  · intro E hE hEA
+    exact hForbidden E hE hEA
+  · exact densePrefix_hitting_of_branch_certificate i hcheck
 
 /-- Arithmetic density factor for the dense signature class:
 `8/15 * 9/13 * 5/6 = 4/13`. -/
