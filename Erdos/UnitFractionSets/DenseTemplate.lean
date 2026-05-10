@@ -566,6 +566,21 @@ private theorem densePrefix_hitting_of_branch_certificate (i : Fin 19)
     (P := densePrefix (denseCutoff i)) (xs := densePrefixList (denseCutoff i))
     (keep := denseKeep i) (densePrefixList_toFinset (denseCutoff i)) hcheck
 
+private theorem densePrefix_hitting_of_cover_certificate (i : Fin 19)
+    {cert : CoverLowerCert (Fin 23)}
+    (hcheck :
+      cert.check (denseBadEdges.filter fun E => decide (E ⊆ densePrefix (denseCutoff i)))
+        (denseSize i - denseKeep i) = true) :
+    ∀ S : Finset (Fin 23), S ⊆ densePrefix (denseCutoff i) → denseKeep i < S.card →
+      ContainsHyperedge denseBadEdges S := by
+  refine prefix_hitting_of_cover_lower_certificate
+    (badEdges := denseBadEdges) (cert := cert)
+    (P := densePrefix (denseCutoff i)) (keep := denseKeep i)
+    (lower := denseSize i - denseKeep i) ?_ hcheck
+  rw [densePrefix_card_eq_size]
+  have hle := denseKeep_le_size i
+  omega
+
 private theorem denseGadget_inter_card_le_of_branch_certificate {A : Finset ℕ} {a : ℕ}
     (ha : 0 < a) (i : Fin 19)
     {cert : BranchCert (Fin 23)}
@@ -583,6 +598,25 @@ private theorem denseGadget_inter_card_le_of_branch_certificate {A : Finset ℕ}
   · intro E hE hEA
     exact hForbidden E hE hEA
   · exact densePrefix_hitting_of_branch_certificate i hcheck
+
+private theorem denseGadget_inter_card_le_of_cover_certificate {A : Finset ℕ} {a : ℕ}
+    (ha : 0 < a) (i : Fin 19)
+    {cert : CoverLowerCert (Fin 23)}
+    (hcheck :
+      cert.check (denseBadEdges.filter fun E => decide (E ⊆ densePrefix (denseCutoff i)))
+        (denseSize i - denseKeep i) = true)
+    (hForbidden :
+      ∀ E ∈ denseBadEdges, (∀ j ∈ E, denseMul j * a ∈ A) → False) :
+    (denseGadget (denseCutoff i) a ∩ A).card ≤ denseKeep i := by
+  rw [denseGadget]
+  refine hypergraph_hitting_image_inter_card_le
+    (P := densePrefix (denseCutoff i)) (A := A)
+    (f := fun j : Fin 23 => denseMul j * a)
+    (badEdges := denseBadEdges) (keep := denseKeep i)
+    (hf := denseMul_mul_injective ha) ?_ ?_
+  · intro E hE hEA
+    exact hForbidden E hE hEA
+  · exact densePrefix_hitting_of_cover_certificate i hcheck
 
 /-- Arithmetic density factor for the dense signature class:
 `8/15 * 9/13 * 5/6 = 4/13`. -/

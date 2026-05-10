@@ -732,6 +732,188 @@ def summarize_template_branch_certificate(cert: dict) -> None:
         )
 
 
+def _greedy_disjoint_edges(edges: tuple[int, ...]) -> list[int]:
+    used = 0
+    chosen: list[int] = []
+    for edge in sorted(edges, key=lambda e: (e.bit_count(), e)):
+        if edge & used == 0:
+            used |= edge
+            chosen.append(edge)
+    return chosen
+
+
+def build_cover_lower_certificate_for_row(
+    edge_masks: tuple[int, ...],
+    lower: int,
+) -> dict:
+    """Build a compact certificate that every vertex cover has size at least lower."""
+    memo: dict[tuple[tuple[int, ...], int], int] = {}
+    nodes: list[dict] = []
+
+    def canonical(edges: tuple[int, ...]) -> tuple[int, ...]:
+        return tuple(sorted(set(edges), key=lambda e: (e.bit_count(), e)))
+
+    def add(node: dict) -> int:
+        nodes.append(node)
+        return len(nodes) - 1
+
+    def go(edges: tuple[int, ...], k: int) -> int:
+        edges = canonical(edges)
+        key = (edges, k)
+        if key in memo:
+            return memo[key]
+        disjoint = _greedy_disjoint_edges(edges)
+        if k <= 0 or len(disjoint) >= k:
+            node_id = add({"kind": "disjoint", "edges": disjoint[: max(k, 0)]})
+            memo[key] = node_id
+            return node_id
+
+        degrees: dict[int, int] = {}
+        min_size = min(edge.bit_count() for edge in edges)
+        candidates = [edge for edge in edges if edge.bit_count() == min_size]
+        for edge in edges:
+            for bit in _mask_bits(edge):
+                degrees[bit] = degrees.get(bit, 0) + 1
+        branch_edge = max(
+            candidates,
+            key=lambda edge: sum(degrees.get(bit, 0) for bit in _mask_bits(edge)),
+        )
+        children = []
+        for bit in sorted(_mask_bits(branch_edge), key=lambda b: degrees.get(b, 0), reverse=True):
+            child_edges = tuple(edge for edge in edges if edge & bit == 0)
+            children.append({"vertex": bit.bit_length() - 1, "node": go(child_edges, k - 1)})
+        node_id = add({"kind": "branch", "edge": branch_edge, "children": children})
+        memo[key] = node_id
+        return node_id
+
+    root = go(edge_masks, lower)
+    return {"lower": lower, "root": root, "nodes": nodes}
+
+
+def verify_cover_lower_certificate_for_row(
+    cert: dict,
+    edge_masks: tuple[int, ...],
+) -> tuple[bool, str]:
+    nodes = cert["nodes"]
+    edge_set = set(edge_masks)
+
+    def canonical(edges: tuple[int, ...]) -> tuple[int, ...]:
+        return tuple(sorted(set(edges), key=lambda e: (e.bit_count(), e)))
+
+    def pairwise_disjoint(edges: list[int]) -> bool:
+        used = 0
+        for edge in edges:
+            if edge == 0 or edge & used:
+                return False
+            used |= edge
+        return True
+
+    seen: set[tuple[int, tuple[int, ...], int]] = set()
+
+    def go(node_id: int, edges: tuple[int, ...], k: int) -> tuple[bool, str]:
+        edges = canonical(edges)
+        key = (node_id, edges, k)
+        if key in seen:
+            return True, "ok"
+        seen.add(key)
+        if k <= 0:
+            return True, "ok"
+        if node_id < 0 or node_id >= len(nodes):
+            return False, f"bad node id {node_id}"
+        node = nodes[node_id]
+        kind = node.get("kind")
+        if kind == "disjoint":
+            witnesses = [int(edge) for edge in node["edges"]]
+            if len(witnesses) < k:
+                return False, f"disjoint leaf has {len(witnesses)} edges but needs {k}"
+            if any(edge not in edges or edge not in edge_set for edge in witnesses):
+                return False, "disjoint leaf contains unknown edge"
+            if not pairwise_disjoint(witnesses):
+                return False, "disjoint leaf edges are not pairwise disjoint"
+            return True, "ok"
+        if kind == "branch":
+            edge = int(node["edge"])
+            if edge not in edges or edge not in edge_set or edge == 0:
+                return False, f"bad branch edge {edge}"
+            by_vertex = {int(child["vertex"]): int(child["node"]) for child in node["children"]}
+            for bit in _mask_bits(edge):
+                vertex = bit.bit_length() - 1
+                if vertex not in by_vertex:
+                    return False, f"missing child for vertex {vertex}"
+                child_edges = tuple(active for active in edges if active & bit == 0)
+                ok, msg = go(by_vertex[vertex], child_edges, k - 1)
+                if not ok:
+                    return ok, msg
+            for vertex in by_vertex:
+                if not (edge & (1 << vertex)):
+                    return False, f"extraneous child vertex {vertex}"
+            return True, "ok"
+        return False, f"unknown node kind {kind!r}"
+
+    return go(int(cert["root"]), edge_masks, int(cert["lower"]))
+
+
+def build_template_cover_lower_certificate(
+    report: dict,
+    use_compressed: bool = True,
+) -> dict:
+    multipliers, row_edges = _template_edge_masks_from_report(report, use_compressed)
+    rows = []
+    for row, active in zip(report["rows"], row_edges, strict=True):
+        lower = int(row["deficit"])
+        if lower == 0:
+            continue
+        cert = build_cover_lower_certificate_for_row(tuple(active), lower)
+        ok, msg = verify_cover_lower_certificate_for_row(cert, tuple(active))
+        if not ok:
+            raise RuntimeError(f"internal cover certificate verification failed: {msg}")
+        rows.append(
+            {
+                "cutoff": int(row["cutoff"]),
+                "prefix_size": int(row["prefix_size"]),
+                "keep": int(row["keep"]),
+                "lower": lower,
+                "edge_count": len(active),
+                "node_count": len(cert["nodes"]),
+                "certificate": cert,
+            }
+        )
+    return {
+        "problem": 301,
+        "kind": "template_cover_lower_certificate",
+        "moduli": report["moduli"],
+        "multipliers": multipliers,
+        "source": "compressed_witnesses" if use_compressed else "witnesses",
+        "witness_count": len(report["compressed_witnesses"] if use_compressed else report["witnesses"]),
+        "rows": rows,
+    }
+
+
+def verify_template_cover_lower_certificate(cert: dict, report: dict) -> tuple[bool, str]:
+    _, row_edges = _template_edge_masks_from_report(report, cert.get("source") == "compressed_witnesses")
+    by_cutoff = {int(row["cutoff"]): tuple(active) for row, active in zip(report["rows"], row_edges, strict=True)}
+    for row_cert in cert["rows"]:
+        cutoff = int(row_cert["cutoff"])
+        if cutoff not in by_cutoff:
+            return False, f"unknown cutoff {cutoff}"
+        ok, msg = verify_cover_lower_certificate_for_row(row_cert["certificate"], by_cutoff[cutoff])
+        if not ok:
+            return False, f"cutoff {cutoff}: {msg}"
+    return True, "ok"
+
+
+def summarize_template_cover_lower_certificate(cert: dict) -> None:
+    print(f"cover certificate source: {cert['source']}")
+    print(f"witnesses: {cert['witness_count']}")
+    print("prefix cover rows:")
+    for row in cert["rows"]:
+        print(
+            f"  c={row['cutoff']:>4} size={row['prefix_size']:>2} "
+            f"keep={row['keep']:>2} lower={row['lower']:>2} "
+            f"edges={row['edge_count']:>3} nodes={row['node_count']:>6}"
+        )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--max", type=int, default=120, help="finite interval [1,N]")
@@ -754,7 +936,30 @@ def main() -> None:
     parser.add_argument("--verify-branch-certificate", type=Path)
     parser.add_argument("--branch-certificate-use-all-witnesses", action="store_true")
     parser.add_argument("--branch-certificate-max-nodes-per-row", type=int, default=0)
+    parser.add_argument("--cover-cert-from-template", type=Path)
+    parser.add_argument("--emit-cover-certificate", type=Path)
+    parser.add_argument("--verify-cover-certificate", type=Path)
+    parser.add_argument("--cover-certificate-use-all-witnesses", action="store_true")
     args = parser.parse_args()
+
+    if args.cover_cert_from_template:
+        report = json.loads(args.cover_cert_from_template.read_text(encoding="utf-8"))
+        if args.verify_cover_certificate:
+            cert = json.loads(args.verify_cover_certificate.read_text(encoding="utf-8"))
+            ok, msg = verify_template_cover_lower_certificate(cert, report)
+            print(f"cover certificate: {'PASS' if ok else 'FAIL'} ({msg})")
+            if ok:
+                summarize_template_cover_lower_certificate(cert)
+            raise SystemExit(0 if ok else 1)
+        cert = build_template_cover_lower_certificate(
+            report,
+            use_compressed=not args.cover_certificate_use_all_witnesses,
+        )
+        summarize_template_cover_lower_certificate(cert)
+        if args.emit_cover_certificate:
+            args.emit_cover_certificate.write_text(json.dumps(cert, indent=2, sort_keys=True), encoding="utf-8")
+            print(f"wrote cover certificate: {args.emit_cover_certificate}")
+        raise SystemExit(0)
 
     if args.branch_cert_from_template:
         report = json.loads(args.branch_cert_from_template.read_text(encoding="utf-8"))

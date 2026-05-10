@@ -38,7 +38,9 @@ bound, so the whole problem is to force this omission density.
 - [x] Prove a generic replay theorem for finite branch certificates.
 - [x] Generate and independently verify a compressed branch certificate for the
   219-witness dense template.
-- [ ] Import the generated branch certificate into Lean and prove the finite
+- [x] Add a smaller vertex-cover lower-bound certificate route and verify the
+  compressed dense certificate with `27,578` nodes in the largest row.
+- [ ] Emit/import the generated cover certificate into Lean and prove the finite
   prefix hitting theorem over `Fin 23`.
 - [ ] Package the resulting finite theorem as a disjoint-gadget packing bound.
 - [ ] Record the asymptotic calculation yielding `163/195 + o(1)`.
@@ -61,6 +63,8 @@ finite multiplier identities
   data.
 - [x] Prove a generic prefix-hitting-to-gadget-cardinality theorem.
 - [x] Prove a generic branch-certificate-to-prefix-hitting theorem.
+- [x] Prove a generic cover-lower-certificate-to-prefix-hitting theorem, with a
+  compact DAG adapter for generated data.
 - [ ] Prove a generic p-adic signature disjointness theorem from valuation
   residues.
 - [ ] Prove or isolate the asymptotic density lemma for classes
@@ -153,7 +157,15 @@ python3 scripts/weighted_sumfree_lp.py \
   --verify-branch-certificate /tmp/dense_branch_certificate_compressed.json
 ```
 
-8. [ ] Import the generated branch certificate into Lean, prove the finite prefix
+8. [x] Add the smaller cover-certificate generator/checker:
+
+```bash
+python3 scripts/weighted_sumfree_lp.py \
+  --cover-cert-from-template /tmp/dense_163_195_template_compressed.json \
+  --verify-cover-certificate /tmp/dense_cover_certificate_compressed.json
+```
+
+9. [ ] Emit the cover certificate as Lean DAG data, prove the finite prefix
    theorem, then build the disjoint-gadget global theorem.
 
 ## Coordination Notes

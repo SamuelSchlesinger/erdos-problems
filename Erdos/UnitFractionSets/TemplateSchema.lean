@@ -316,6 +316,176 @@ theorem prefix_hitting_of_branch_certificate {V : Type*} [DecidableEq V]
     hcheck hTlist (by simp) hTcard
   exact containsHyperedge_mono (by simpa using hTS) hhit
 
+/-- A finite set of vertices hits every listed edge. -/
+def IsVertexCover {V : Type*} [DecidableEq V] (edges : Finset (Finset V)) (C : Finset V) :
+    Prop :=
+  ∀ E ∈ edges, (E ∩ C).Nonempty
+
+private theorem card_le_of_pairwise_disjoint_hits {V : Type*} [DecidableEq V]
+    {edges : List (Finset V)} {C : Finset V}
+    (hpair : edges.Pairwise Disjoint)
+    (hhit : ∀ E ∈ edges, (E ∩ C).Nonempty) :
+    edges.length ≤ C.card := by
+  induction edges generalizing C with
+  | nil =>
+      simp
+  | cons E edges ih =>
+      cases hpair with
+      | cons hdisj hpair_tail =>
+          obtain ⟨x, hx⟩ := hhit E (by simp)
+          have hxE : x ∈ E := (Finset.mem_inter.mp hx).1
+          have hxC : x ∈ C := (Finset.mem_inter.mp hx).2
+          have hhit_tail : ∀ F ∈ edges, (F ∩ C.erase x).Nonempty := by
+            intro F hF
+            obtain ⟨y, hy⟩ := hhit F (by simp [hF])
+            have hyF : y ∈ F := (Finset.mem_inter.mp hy).1
+            have hyC : y ∈ C := (Finset.mem_inter.mp hy).2
+            have hyne : y ≠ x := by
+              intro hEq
+              subst y
+              exact (Finset.disjoint_left.mp (hdisj F hF) hxE) hyF
+            exact ⟨y, Finset.mem_inter.mpr ⟨hyF, Finset.mem_erase.mpr ⟨hyne, hyC⟩⟩⟩
+          have htail := ih hpair_tail hhit_tail
+          have hcard_erase : (C.erase x).card + 1 = C.card :=
+            Finset.card_erase_add_one hxC
+          simp only [List.length_cons]
+          omega
+
+/-- A compact certificate that every vertex cover has size at least a target.
+
+A `disjoint` leaf closes the branch by listing pairwise-disjoint remaining edges.
+A `branch` node names one remaining edge. Since a cover must contain a vertex of
+that edge, every listed child proves the residual lower bound after selecting
+one possible vertex. -/
+inductive CoverLowerCert (V : Type*) where
+  | disjoint (edges : List (Finset V))
+  | branch (edge : Finset V) (children : List (V × CoverLowerCert V))
+
+namespace CoverLowerCert
+
+variable {V : Type*} [DecidableEq V]
+
+/-- Compact DAG node used by generated certificates.  A finite amount of fuel
+unfolds node references into an ordinary tree certificate. -/
+inductive DagNode (V : Type*) where
+  | disjoint (edges : List (Finset V))
+  | branch (edge : Finset V) (children : List (V × ℕ))
+
+/-- Unfold a compact DAG certificate into the replayable tree certificate.
+
+The fuel parameter is a simple acyclicity guard for generated node tables.  The
+checker for the resulting tree remains the trusted interface. -/
+def ofDag (node : ℕ → DagNode V) : ℕ → ℕ → CoverLowerCert V
+  | 0, _ => disjoint []
+  | fuel + 1, root =>
+      match node root with
+      | DagNode.disjoint edges => disjoint edges
+      | DagNode.branch edge children =>
+          branch edge (children.map fun child => (child.1, ofDag node fuel child.2))
+
+/-- Executable checker for vertex-cover lower-bound certificates. -/
+def check (edges : Finset (Finset V)) : CoverLowerCert V → ℕ → Bool
+  | _cert, 0 => true
+  | disjoint witnesses, k + 1 =>
+      decide (k + 1 ≤ witnesses.length) &&
+        witnesses.all (fun E => decide (E ∈ edges ∧ E.Nonempty)) &&
+        decide (witnesses.Pairwise Disjoint)
+  | branch edge children, k + 1 =>
+      decide (edge ∈ edges ∧ edge.Nonempty ∧
+          edge ⊆ (children.map Prod.fst).toFinset) &&
+        children.all
+          (fun child =>
+            decide (child.1 ∈ edge) &&
+              check (edges.filter fun E => decide (child.1 ∉ E)) child.2 k)
+
+theorem check_complete {edges : Finset (Finset V)} :
+    ∀ {cert : CoverLowerCert V} {k : ℕ} {C : Finset V},
+      cert.check edges k = true → IsVertexCover edges C → k ≤ C.card
+  | _cert, 0, _C, _hcheck, _hcover => by simp
+  | disjoint witnesses, k + 1, C, hcheck, hcover => by
+      have hparts :
+          (k + 1 ≤ witnesses.length) ∧
+            (∀ E ∈ witnesses, E ∈ edges ∧ E.Nonempty) ∧
+            witnesses.Pairwise Disjoint := by
+        rw [check, Bool.and_eq_true_eq_eq_true_and_eq_true,
+          Bool.and_eq_true_eq_eq_true_and_eq_true] at hcheck
+        refine ⟨of_decide_eq_true hcheck.1.1, ?_, of_decide_eq_true hcheck.2⟩
+        intro E hE
+        have hall := (List.all_eq_true.mp hcheck.1.2) E hE
+        exact of_decide_eq_true hall
+      have hhit : ∀ E ∈ witnesses, (E ∩ C).Nonempty := by
+        intro E hE
+        exact hcover E (hparts.2.1 E hE).1
+      have hlen := card_le_of_pairwise_disjoint_hits hparts.2.2 hhit
+      omega
+  | branch edge children, k + 1, C, hcheck, hcover => by
+      rw [check, Bool.and_eq_true_eq_eq_true_and_eq_true] at hcheck
+      have hedge :
+          edge ∈ edges ∧ edge.Nonempty ∧ edge ⊆ (children.map Prod.fst).toFinset :=
+        of_decide_eq_true hcheck.1
+      obtain ⟨x, hx⟩ := hcover edge hedge.1
+      have hxedge : x ∈ edge := (Finset.mem_inter.mp hx).1
+      have hxC : x ∈ C := (Finset.mem_inter.mp hx).2
+      have hxkeys : x ∈ (children.map Prod.fst).toFinset := hedge.2.2 hxedge
+      rw [List.mem_toFinset] at hxkeys
+      simp only [List.mem_map] at hxkeys
+      rcases hxkeys with ⟨child, hchild_mem, hchild_fst⟩
+      have hchild_all := (List.all_eq_true.mp hcheck.2) child hchild_mem
+      rw [Bool.and_eq_true_eq_eq_true_and_eq_true] at hchild_all
+      have hchild_check :
+          child.2.check (edges.filter fun E => decide (x ∉ E)) k = true := by
+        have hraw := hchild_all.2
+        cases child with
+        | mk v cert =>
+            simp only at hchild_fst
+            subst v
+            exact hraw
+      have hcover_child : IsVertexCover (edges.filter fun E => decide (x ∉ E)) (C.erase x) := by
+        intro F hF
+        have hFedges : F ∈ edges := (Finset.mem_filter.mp hF).1
+        have hxnotF : x ∉ F := of_decide_eq_true (Finset.mem_filter.mp hF).2
+        obtain ⟨y, hy⟩ := hcover F hFedges
+        have hyF : y ∈ F := (Finset.mem_inter.mp hy).1
+        have hyC : y ∈ C := (Finset.mem_inter.mp hy).2
+        have hyne : y ≠ x := by
+          intro hEq
+          subst y
+          exact hxnotF hyF
+        exact ⟨y, Finset.mem_inter.mpr ⟨hyF, Finset.mem_erase.mpr ⟨hyne, hyC⟩⟩⟩
+      have hrec := check_complete hchild_check hcover_child
+      have hcard_erase : (C.erase x).card + 1 = C.card :=
+        Finset.card_erase_add_one hxC
+      omega
+
+end CoverLowerCert
+
+theorem prefix_hitting_of_cover_lower_certificate {V : Type*} [DecidableEq V]
+    {badEdges : Finset (Finset V)} {cert : CoverLowerCert V}
+    {P : Finset V} {keep lower : ℕ}
+    (hPcard : P.card = keep + lower)
+    (hcheck : cert.check (badEdges.filter fun E => decide (E ⊆ P)) lower = true) :
+    ∀ S : Finset V, S ⊆ P → keep < S.card → ContainsHyperedge badEdges S := by
+  intro S hS hcard
+  by_contra hnot
+  have hcover : IsVertexCover (badEdges.filter fun E => decide (E ⊆ P)) (P \ S) := by
+    intro E hE
+    have hEbad : E ∈ badEdges := (Finset.mem_filter.mp hE).1
+    have hEP : E ⊆ P := of_decide_eq_true (Finset.mem_filter.mp hE).2
+    by_contra hempty
+    rw [Finset.not_nonempty_iff_eq_empty] at hempty
+    have hES : E ⊆ S := by
+      intro x hxE
+      by_contra hxS
+      have hxDiff : x ∈ P \ S := Finset.mem_sdiff.mpr ⟨hEP hxE, hxS⟩
+      have hxInter : x ∈ E ∩ (P \ S) := Finset.mem_inter.mpr ⟨hxE, hxDiff⟩
+      rw [hempty] at hxInter
+      simp at hxInter
+    exact hnot ⟨E, hEbad, hES⟩
+  have hlower := CoverLowerCert.check_complete hcheck hcover
+  have hsdiff : (P \ S).card + S.card = P.card :=
+    Finset.card_sdiff_add_card_eq_card hS
+  omega
+
 /-- A reciprocal identity edge over a multiplier map. The edge says that the
 reciprocal of `target` is the sum of reciprocals over the nonempty right-hand
 side `rhs`. -/
