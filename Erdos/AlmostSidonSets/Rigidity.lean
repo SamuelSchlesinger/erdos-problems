@@ -886,4 +886,435 @@ theorem r3_second_extreme_pair
       omega
     omega
 
+/-! ## R4: Full reflection symmetry under maximum multiplicity
+
+The empirical-invariants report observed that every known SAS extremizer
+satisfies the full reflection symmetry `a ∈ A ↔ nstar - a ∈ A`,
+equivalently `A = B ∪ (nstar - B)` for some Sidon `B ⊆ [1, nstar/2]`
+(Erdős–Freud form). The crucial empirical invariant is "exact
+half-multiplicity": `2 · r_A(nstar) = |A|`, where `r_A(nstar) =
+|sumReprsFinset A nstar|`.
+
+The theorems below formalise the deduction: if the multiplicity at the
+exception value is precisely `|A| / 2` (equivalently `2r = |A|`), then
+every element of `A` belongs to some `nstar`-pair, hence has its
+reflection in `A`. The proof is a clean counting/bijection argument
+using `e1_distinct_pairs_disjoint` (disjointness of distinct
+sorted pairs) and `e2_pair_element_has_reflection` (each pair partner
+is the reflection). The "self-pair" case `nstar = 2c, (c, c)` is handled
+explicitly: a self-pair contributes a single element instead of two, so
+the cardinality identity becomes `|pairElements| = 2·r - [self-pair]`. -/
+
+/-- The set of elements of `A` that participate in some sorted
+`nstar`-pair: the union of first and second coordinates of
+`sumReprsFinset A nstar`. -/
+def pairElements (A : Finset ℕ) (nstar : ℕ) : Finset ℕ :=
+  (sumReprsFinset A nstar).image Prod.fst ∪ (sumReprsFinset A nstar).image Prod.snd
+
+theorem pairElements_subset (A : Finset ℕ) (nstar : ℕ) :
+    pairElements A nstar ⊆ A := by
+  intro x hx
+  unfold pairElements at hx
+  rw [Finset.mem_union] at hx
+  rcases hx with h | h
+  · rw [Finset.mem_image] at h
+    obtain ⟨p, hp_mem, hp_eq⟩ := h
+    have hp := mem_sumReprsFinset.mp hp_mem
+    subst hp_eq; exact hp.1
+  · rw [Finset.mem_image] at h
+    obtain ⟨p, hp_mem, hp_eq⟩ := h
+    have hp := mem_sumReprsFinset.mp hp_mem
+    subst hp_eq; exact hp.2.1
+
+/-- Every element of `pairElements A nstar` has its reflection `nstar - x`
+in `A`. -/
+theorem pairElements_has_reflection {A : Finset ℕ} {nstar x : ℕ}
+    (hx : x ∈ pairElements A nstar) : nstar - x ∈ A := by
+  unfold pairElements at hx
+  rw [Finset.mem_union] at hx
+  rcases hx with h | h
+  · rw [Finset.mem_image] at h
+    obtain ⟨p, hp_mem, hp_eq⟩ := h
+    have hp := mem_sumReprsFinset.mp hp_mem
+    subst hp_eq
+    have hsum : p.1 + p.2 = nstar := hp.2.2.2
+    have : nstar - p.1 = p.2 := by omega
+    rw [this]; exact hp.2.1
+  · rw [Finset.mem_image] at h
+    obtain ⟨p, hp_mem, hp_eq⟩ := h
+    have hp := mem_sumReprsFinset.mp hp_mem
+    subst hp_eq
+    have hsum : p.1 + p.2 = nstar := hp.2.2.2
+    have : nstar - p.2 = p.1 := by omega
+    rw [this]; exact hp.1
+
+/-- The "self-pair" indicator: there exists a `c ∈ A` with `2c = nstar`
+and `(c, c) ∈ sumReprsFinset A nstar`. -/
+def HasSelfPair (A : Finset ℕ) (nstar : ℕ) : Prop :=
+  ∃ c ∈ A, 2 * c = nstar
+
+instance (A : Finset ℕ) (nstar : ℕ) : Decidable (HasSelfPair A nstar) :=
+  decidable_of_iff (∃ c ∈ A, 2 * c = nstar) Iff.rfl
+
+/-- Counting lemma (no-self-pair case). If no `c ∈ A` has `2c = nstar`,
+then every sorted pair in `sumReprsFinset A nstar` has distinct
+coordinates, and `|pairElements A nstar| = 2 · r_A(nstar)`. -/
+theorem pairElements_card_no_self_pair
+    (A : Finset ℕ) (nstar : ℕ) (h_no_self : ¬ HasSelfPair A nstar) :
+    (pairElements A nstar).card = 2 * (sumReprsFinset A nstar).card := by
+  classical
+  -- Strategy: show pairElements equals the image of sumReprsFinset under
+  -- the "split-pair" function p ↦ {p.1, p.2}, and use disjointness.
+  -- Cleaner: show the image of Prod.fst and Prod.snd are disjoint, and
+  -- each is injective on sumReprsFinset.
+  have h_fst_inj : Set.InjOn Prod.fst (sumReprsFinset A nstar : Set (ℕ × ℕ)) := by
+    intro p hp q hq hpq
+    have hp' := mem_sumReprsFinset.mp (Finset.mem_coe.mp hp)
+    have hq' := mem_sumReprsFinset.mp (Finset.mem_coe.mp hq)
+    ext
+    · exact hpq
+    · -- p.1 + p.2 = nstar = q.1 + q.2, p.1 = q.1, so p.2 = q.2
+      have : p.1 + p.2 = q.1 + q.2 := by rw [hp'.2.2.2, hq'.2.2.2]
+      omega
+  have h_snd_inj : Set.InjOn Prod.snd (sumReprsFinset A nstar : Set (ℕ × ℕ)) := by
+    intro p hp q hq hpq
+    have hp' := mem_sumReprsFinset.mp (Finset.mem_coe.mp hp)
+    have hq' := mem_sumReprsFinset.mp (Finset.mem_coe.mp hq)
+    ext
+    · -- p.1 + p.2 = nstar = q.1 + q.2, p.2 = q.2, so p.1 = q.1
+      have : p.1 + p.2 = q.1 + q.2 := by rw [hp'.2.2.2, hq'.2.2.2]
+      omega
+    · exact hpq
+  have h_card_fst : ((sumReprsFinset A nstar).image Prod.fst).card =
+      (sumReprsFinset A nstar).card :=
+    Finset.card_image_of_injOn h_fst_inj
+  have h_card_snd : ((sumReprsFinset A nstar).image Prod.snd).card =
+      (sumReprsFinset A nstar).card :=
+    Finset.card_image_of_injOn h_snd_inj
+  -- Disjointness: an element of image-fst is a "small" coord of some pair,
+  -- and an element of image-snd is a "large" coord of some pair. If x is
+  -- both, then x = p.1 ≤ p.2 and x = q.2 ≥ q.1, with p.1 + p.2 = q.1 + q.2,
+  -- forcing p.1 = p.2 (a self-pair), contradicting h_no_self.
+  have h_disj : Disjoint ((sumReprsFinset A nstar).image Prod.fst)
+                          ((sumReprsFinset A nstar).image Prod.snd) := by
+    rw [Finset.disjoint_left]
+    intro x hx_fst hx_snd
+    rw [Finset.mem_image] at hx_fst hx_snd
+    obtain ⟨p, hp_mem, hp_eq⟩ := hx_fst
+    obtain ⟨q, hq_mem, hq_eq⟩ := hx_snd
+    rw [mem_sumReprsFinset] at hp_mem hq_mem
+    -- p.1 = x = q.2; p.1 ≤ p.2, q.1 ≤ q.2 = x, sums equal nstar.
+    have hp1_eq : p.1 = x := hp_eq
+    have hq2_eq : q.2 = x := hq_eq
+    have hp_le : p.1 ≤ p.2 := hp_mem.2.2.1
+    have hq_le : q.1 ≤ q.2 := hq_mem.2.2.1
+    have hp_sum : p.1 + p.2 = nstar := hp_mem.2.2.2
+    have hq_sum : q.1 + q.2 = nstar := hq_mem.2.2.2
+    -- p.1 = x = q.2, p.2 = nstar - x = q.1. So p.1 ≤ p.2 means x ≤ nstar - x,
+    -- and q.1 ≤ q.2 means nstar - x ≤ x. Hence 2x = nstar.
+    have hx_le : x ≤ nstar - x := by omega
+    have hx_ge : nstar - x ≤ x := by omega
+    have hx_eq : x = nstar - x := le_antisymm hx_le hx_ge
+    have h2x : 2 * x = nstar := by omega
+    -- x ∈ A: from hp_mem.1, p.1 ∈ A, and p.1 = x.
+    have hx_mem : x ∈ A := by rw [← hp1_eq]; exact hp_mem.1
+    exact h_no_self ⟨x, hx_mem, h2x⟩
+  rw [pairElements, Finset.card_union_of_disjoint h_disj, h_card_fst, h_card_snd]
+  ring
+
+/-- Counting lemma (self-pair case). If `(c, c)` is the unique self-pair
+in `sumReprsFinset A nstar` (i.e. `2c = nstar` and `c ∈ A`), then
+`|pairElements A nstar| = 2 · r_A(nstar) - 1`. -/
+theorem pairElements_card_with_self_pair
+    (A : Finset ℕ) (nstar : ℕ) (c : ℕ) (hc_mem : c ∈ A) (h2c : 2 * c = nstar) :
+    (pairElements A nstar).card + 1 = 2 * (sumReprsFinset A nstar).card := by
+  classical
+  -- The self-pair (c, c) ∈ sumReprsFinset A nstar.
+  have hcc_mem : (c, c) ∈ sumReprsFinset A nstar := by
+    rw [mem_sumReprsFinset]; exact ⟨hc_mem, hc_mem, le_refl _, by omega⟩
+  -- Let R = sumReprsFinset A nstar, R' = R.erase (c, c).
+  set R := sumReprsFinset A nstar with hR_def
+  set R' := R.erase (c, c) with hR'_def
+  -- R' has no self-pair (since (c, c) was the only one — by uniqueness of c).
+  -- Actually we don't need that — we directly compute.
+  -- pairElements = image fst R ∪ image snd R = (image fst R' ∪ {c}) ∪ (image snd R' ∪ {c})
+  --              = image fst R' ∪ image snd R' ∪ {c}.
+  -- For p ∈ R', p ≠ (c, c). Since p.1 + p.2 = nstar and 2c = nstar, p = (c, c) iff
+  -- p.1 = c (which forces p.2 = c). So for p ∈ R', p.1 ≠ c and p.2 ≠ c.
+  -- Also for p ∈ R', p.1 ≠ p.2 (else p = (p.1, p.1) gives 2p.1 = nstar, and the
+  -- unique solution in ℕ is p.1 = c, contradiction).
+  have h_R'_no_self_coord : ∀ p ∈ R', p.1 ≠ c ∧ p.2 ≠ c := by
+    intro p hp
+    have hp_ne : p ≠ (c, c) := (Finset.mem_erase.mp hp).1
+    have hp_mem := mem_sumReprsFinset.mp (Finset.mem_erase.mp hp).2
+    refine ⟨?_, ?_⟩
+    · intro h1
+      have hp2_eq : p.2 = c := by
+        have hsum : p.1 + p.2 = nstar := hp_mem.2.2.2
+        omega
+      exact hp_ne (Prod.ext h1 hp2_eq)
+    · intro h2
+      have hp1_eq : p.1 = c := by
+        have hsum : p.1 + p.2 = nstar := hp_mem.2.2.2
+        omega
+      exact hp_ne (Prod.ext hp1_eq h2)
+  have h_R'_no_self : ∀ p ∈ R', p.1 ≠ p.2 := by
+    intro p hp h_eq
+    have hp_mem := mem_sumReprsFinset.mp (Finset.mem_erase.mp hp).2
+    have hsum : p.1 + p.2 = nstar := hp_mem.2.2.2
+    have hp1c : p.1 = c := by omega
+    exact (h_R'_no_self_coord p hp).1 hp1c
+  -- image fst R = (image fst R') ∪ {c}, since (c, c) contributes c, and
+  -- by h_R'_no_self_coord no p ∈ R' contributes c.
+  have h_img_fst_R : R.image Prod.fst = R'.image Prod.fst ∪ {c} := by
+    ext x
+    constructor
+    · intro hx
+      rw [Finset.mem_image] at hx
+      obtain ⟨p, hp_mem, hp_eq⟩ := hx
+      rw [Finset.mem_union, Finset.mem_image, Finset.mem_singleton]
+      by_cases h : p = (c, c)
+      · right; subst h; exact hp_eq.symm
+      · left; exact ⟨p, Finset.mem_erase.mpr ⟨h, hp_mem⟩, hp_eq⟩
+    · intro hx
+      rw [Finset.mem_union, Finset.mem_image, Finset.mem_singleton] at hx
+      rw [Finset.mem_image]
+      rcases hx with ⟨p, hp_R', hp_eq⟩ | h
+      · refine ⟨p, ?_, hp_eq⟩
+        exact (Finset.mem_erase.mp hp_R').2
+      · exact ⟨(c, c), hcc_mem, h.symm⟩
+  have h_img_snd_R : R.image Prod.snd = R'.image Prod.snd ∪ {c} := by
+    ext x
+    constructor
+    · intro hx
+      rw [Finset.mem_image] at hx
+      obtain ⟨p, hp_mem, hp_eq⟩ := hx
+      rw [Finset.mem_union, Finset.mem_image, Finset.mem_singleton]
+      by_cases h : p = (c, c)
+      · right; subst h; exact hp_eq.symm
+      · left; exact ⟨p, Finset.mem_erase.mpr ⟨h, hp_mem⟩, hp_eq⟩
+    · intro hx
+      rw [Finset.mem_union, Finset.mem_image, Finset.mem_singleton] at hx
+      rw [Finset.mem_image]
+      rcases hx with ⟨p, hp_R', hp_eq⟩ | h
+      · refine ⟨p, ?_, hp_eq⟩
+        exact (Finset.mem_erase.mp hp_R').2
+      · exact ⟨(c, c), hcc_mem, h.symm⟩
+  -- Now: image fst R' and image snd R' are disjoint from {c}, and disjoint
+  -- from each other (by the same "self-pair" argument applied to R').
+  have h_fst_R'_no_c : c ∉ R'.image Prod.fst := by
+    rw [Finset.mem_image]; rintro ⟨p, hp, hp_eq⟩
+    exact (h_R'_no_self_coord p hp).1 hp_eq
+  have h_snd_R'_no_c : c ∉ R'.image Prod.snd := by
+    rw [Finset.mem_image]; rintro ⟨p, hp, hp_eq⟩
+    exact (h_R'_no_self_coord p hp).2 hp_eq
+  -- For R', no self-pair exists in the sense above, and pairs are
+  -- distinct-coordinate. So image fst R' and image snd R' are disjoint.
+  have h_R'_disj : Disjoint (R'.image Prod.fst) (R'.image Prod.snd) := by
+    rw [Finset.disjoint_left]
+    intro x hx_fst hx_snd
+    rw [Finset.mem_image] at hx_fst hx_snd
+    obtain ⟨p, hp_R', hp_eq⟩ := hx_fst
+    obtain ⟨q, hq_R', hq_eq⟩ := hx_snd
+    have hp_mem := mem_sumReprsFinset.mp (Finset.mem_erase.mp hp_R').2
+    have hq_mem := mem_sumReprsFinset.mp (Finset.mem_erase.mp hq_R').2
+    -- Same argument as before:
+    have hp_le : p.1 ≤ p.2 := hp_mem.2.2.1
+    have hq_le : q.1 ≤ q.2 := hq_mem.2.2.1
+    have hp_sum : p.1 + p.2 = nstar := hp_mem.2.2.2
+    have hq_sum : q.1 + q.2 = nstar := hq_mem.2.2.2
+    have hp1_eq : p.1 = x := hp_eq
+    have hq2_eq : q.2 = x := hq_eq
+    have hx_le : x ≤ nstar - x := by omega
+    have hx_ge : nstar - x ≤ x := by omega
+    have hx_eq : x = nstar - x := le_antisymm hx_le hx_ge
+    have h2x : 2 * x = nstar := by omega
+    -- So x = c by 2x = 2c (natural number)
+    have hx_c : x = c := by omega
+    rw [hx_c] at hp_eq
+    exact (h_R'_no_self_coord p hp_R').1 hp_eq
+  -- Injectivity on R' (same proof as no-self-pair case, restricted to R')
+  have h_fst_R'_inj : Set.InjOn Prod.fst (R' : Set (ℕ × ℕ)) := by
+    intro p hp q hq hpq
+    have hp_mem := mem_sumReprsFinset.mp (Finset.mem_erase.mp (Finset.mem_coe.mp hp)).2
+    have hq_mem := mem_sumReprsFinset.mp (Finset.mem_erase.mp (Finset.mem_coe.mp hq)).2
+    ext
+    · exact hpq
+    · have : p.1 + p.2 = q.1 + q.2 := by rw [hp_mem.2.2.2, hq_mem.2.2.2]
+      omega
+  have h_snd_R'_inj : Set.InjOn Prod.snd (R' : Set (ℕ × ℕ)) := by
+    intro p hp q hq hpq
+    have hp_mem := mem_sumReprsFinset.mp (Finset.mem_erase.mp (Finset.mem_coe.mp hp)).2
+    have hq_mem := mem_sumReprsFinset.mp (Finset.mem_erase.mp (Finset.mem_coe.mp hq)).2
+    ext
+    · have : p.1 + p.2 = q.1 + q.2 := by rw [hp_mem.2.2.2, hq_mem.2.2.2]
+      omega
+    · exact hpq
+  have h_card_R' : R'.card = R.card - 1 := Finset.card_erase_of_mem hcc_mem
+  have h_R_pos : 0 < R.card := Finset.card_pos.mpr ⟨(c, c), hcc_mem⟩
+  have h_card_fst_R' : (R'.image Prod.fst).card = R'.card :=
+    Finset.card_image_of_injOn h_fst_R'_inj
+  have h_card_snd_R' : (R'.image Prod.snd).card = R'.card :=
+    Finset.card_image_of_injOn h_snd_R'_inj
+  -- pairElements = (image fst R') ∪ {c} ∪ (image snd R') ∪ {c}
+  --              = (image fst R') ∪ (image snd R') ∪ {c}
+  have h_pe_eq : pairElements A nstar =
+      (R'.image Prod.fst ∪ R'.image Prod.snd) ∪ {c} := by
+    rw [pairElements, ← hR_def, h_img_fst_R, h_img_snd_R]
+    ext x
+    simp only [Finset.mem_union, Finset.mem_singleton]
+    tauto
+  rw [h_pe_eq]
+  -- {c} is disjoint from the union since c ∉ either image
+  have h_c_disj : Disjoint (R'.image Prod.fst ∪ R'.image Prod.snd) ({c} : Finset ℕ) := by
+    rw [Finset.disjoint_right]
+    intro x hx
+    rw [Finset.mem_singleton] at hx
+    subst hx
+    rw [Finset.mem_union]
+    push_neg
+    exact ⟨h_fst_R'_no_c, h_snd_R'_no_c⟩
+  rw [Finset.card_union_of_disjoint h_c_disj, Finset.card_singleton,
+      Finset.card_union_of_disjoint h_R'_disj, h_card_fst_R', h_card_snd_R']
+  omega
+
+/-- **R4 (Full reflection symmetry under maximum multiplicity, no self-pair
+case).** If `A` is almost-Sidon with exception value `nstar`, no element
+`c ∈ A` satisfies `2c = nstar`, and the multiplicity at `nstar` saturates
+the bound `2 · r_A(nstar) = |A|`, then every element of `A` participates
+in some `nstar`-pair, and consequently `nstar - a ∈ A` for every `a ∈ A`.
+
+This formalises the empirically observed "full reflection symmetry"
+invariant for SAS extremizers: every extremizer of the strong almost-Sidon
+problem satisfies `A = B ∪ (nstar - B)`, the Erdős–Freud form. The proof
+is a counting argument:
+
+* `pairElements A nstar ⊆ A` (`pairElements_subset`).
+* `|pairElements A nstar| = 2 · r_A(nstar)` in the no-self-pair case
+  (`pairElements_card_no_self_pair`).
+* Under the saturation hypothesis `2 · r = |A|`, the inclusion
+  `pairElements ⊆ A` forces equality, so every `a ∈ A` lies in
+  `pairElements A nstar` and has `nstar - a ∈ A`
+  (`pairElements_has_reflection`). -/
+theorem r4_full_reflection_under_max_multiplicity_no_self_pair
+    (A : Finset ℕ) (_hA : AlmostSidonFinset A)
+    {nstar : ℕ} (_h_exception : HasTwoSumReprs A nstar)
+    (h_no_self : ¬ HasSelfPair A nstar)
+    (h_max_mult : 2 * (sumReprsFinset A nstar).card = A.card) :
+    ∀ a ∈ A, nstar - a ∈ A := by
+  classical
+  have h_pe_sub : pairElements A nstar ⊆ A := pairElements_subset A nstar
+  have h_pe_card : (pairElements A nstar).card = 2 * (sumReprsFinset A nstar).card :=
+    pairElements_card_no_self_pair A nstar h_no_self
+  have h_pe_eq_A : pairElements A nstar = A :=
+    Finset.eq_of_subset_of_card_le h_pe_sub (by omega)
+  intro a ha
+  have ha_pe : a ∈ pairElements A nstar := by rw [h_pe_eq_A]; exact ha
+  exact pairElements_has_reflection ha_pe
+
+/-- **R4 (Full reflection symmetry under maximum multiplicity, self-pair
+case).** Variant for the self-pair case: if there exists `c ∈ A` with
+`2c = nstar` (so `(c, c)` is an `nstar`-pair), and `2 · r_A(nstar) =
+|A| + 1` (one fewer paired-element due to the self-pair contributing
+just one element), then every element of `A` has `nstar - a ∈ A`. The
+hypothesis `2r = |A| + 1` reflects the empirical observation that
+self-pair extremizers have one "extra" representation. -/
+theorem r4_full_reflection_under_max_multiplicity_self_pair
+    (A : Finset ℕ) (_hA : AlmostSidonFinset A)
+    {nstar : ℕ} (_h_exception : HasTwoSumReprs A nstar)
+    {c : ℕ} (hc_mem : c ∈ A) (h2c : 2 * c = nstar)
+    (h_max_mult : 2 * (sumReprsFinset A nstar).card = A.card + 1) :
+    ∀ a ∈ A, nstar - a ∈ A := by
+  classical
+  have h_pe_sub : pairElements A nstar ⊆ A := pairElements_subset A nstar
+  have h_pe_card : (pairElements A nstar).card + 1 =
+      2 * (sumReprsFinset A nstar).card :=
+    pairElements_card_with_self_pair A nstar c hc_mem h2c
+  -- So |pairElements| + 1 = |A| + 1, i.e. |pairElements| = |A|.
+  have h_pe_eq_A : pairElements A nstar = A :=
+    Finset.eq_of_subset_of_card_le h_pe_sub (by omega)
+  intro a ha
+  have ha_pe : a ∈ pairElements A nstar := by rw [h_pe_eq_A]; exact ha
+  exact pairElements_has_reflection ha_pe
+
+/-- **R4 (Full reflection symmetry under maximum multiplicity, unified
+form).** If `A` is almost-Sidon with exception `nstar`, and `2 · r_A(nstar)
+= |A| + δ` where `δ ∈ {0, 1}` matches the self-pair indicator (`δ = 1`
+exactly when some `c ∈ A` has `2c = nstar`), then every element of `A`
+has `nstar - a ∈ A`. -/
+theorem r4_full_reflection_under_max_multiplicity
+    (A : Finset ℕ) (hA : AlmostSidonFinset A)
+    {nstar : ℕ} (h_exception : HasTwoSumReprs A nstar)
+    (h_max_mult :
+      (¬ HasSelfPair A nstar ∧ 2 * (sumReprsFinset A nstar).card = A.card) ∨
+      (HasSelfPair A nstar ∧ 2 * (sumReprsFinset A nstar).card = A.card + 1)) :
+    ∀ a ∈ A, nstar - a ∈ A := by
+  rcases h_max_mult with ⟨h_no_self, h_mm⟩ | ⟨⟨c, hc, h2c⟩, h_mm⟩
+  · exact r4_full_reflection_under_max_multiplicity_no_self_pair A hA h_exception
+      h_no_self h_mm
+  · exact r4_full_reflection_under_max_multiplicity_self_pair A hA h_exception
+      hc h2c h_mm
+
+/-- **R4 (Erdős–Freud form).** Under the saturation hypothesis, `A` is
+exactly the union `B ∪ (nstar - B)` for `B = A ∩ [0, nstar/2]`. This is
+the explicit Erdős–Freud-form witness: `B` consists of the "small halves"
+of `nstar`-pairs (together with the self-pair element `c` if present),
+and `A = B ∪ (nstar - B)`. -/
+theorem r4_ef_decomposition
+    (A : Finset ℕ) (hA : AlmostSidonFinset A)
+    {nstar : ℕ} (h_exception : HasTwoSumReprs A nstar)
+    (h_max_mult :
+      (¬ HasSelfPair A nstar ∧ 2 * (sumReprsFinset A nstar).card = A.card) ∨
+      (HasSelfPair A nstar ∧ 2 * (sumReprsFinset A nstar).card = A.card + 1)) :
+    let B := A.filter (fun a => 2 * a ≤ nstar)
+    A = B ∪ B.image (fun a => nstar - a) := by
+  classical
+  intro B
+  have h_refl := r4_full_reflection_under_max_multiplicity A hA h_exception h_max_mult
+  -- Establish that every element x ∈ A satisfies x ≤ nstar.
+  have h_pe_sub : pairElements A nstar ⊆ A := pairElements_subset A nstar
+  have h_pe_eq_A : pairElements A nstar = A := by
+    rcases h_max_mult with ⟨h_no_self, h_mm⟩ | ⟨⟨c, hc, h2c⟩, h_mm⟩
+    · have h_pe_card : (pairElements A nstar).card =
+          2 * (sumReprsFinset A nstar).card :=
+        pairElements_card_no_self_pair A nstar h_no_self
+      exact Finset.eq_of_subset_of_card_le h_pe_sub (by omega)
+    · have h_pe_card : (pairElements A nstar).card + 1 =
+          2 * (sumReprsFinset A nstar).card :=
+        pairElements_card_with_self_pair A nstar c hc h2c
+      exact Finset.eq_of_subset_of_card_le h_pe_sub (by omega)
+  have h_le_nstar : ∀ a ∈ A, a ≤ nstar := by
+    intro a ha
+    have ha_pe : a ∈ pairElements A nstar := by rw [h_pe_eq_A]; exact ha
+    unfold pairElements at ha_pe
+    rw [Finset.mem_union] at ha_pe
+    rcases ha_pe with h1 | h1
+    · rw [Finset.mem_image] at h1
+      obtain ⟨p, hp_mem, hp_eq⟩ := h1
+      have hp := mem_sumReprsFinset.mp hp_mem
+      have hsum : p.1 + p.2 = nstar := hp.2.2.2
+      have : a = p.1 := hp_eq.symm
+      omega
+    · rw [Finset.mem_image] at h1
+      obtain ⟨p, hp_mem, hp_eq⟩ := h1
+      have hp := mem_sumReprsFinset.mp hp_mem
+      have hsum : p.1 + p.2 = nstar := hp.2.2.2
+      have : a = p.2 := hp_eq.symm
+      omega
+  ext x
+  simp only [B, Finset.mem_union, Finset.mem_filter, Finset.mem_image]
+  constructor
+  · intro hx
+    have hx_le_nstar : x ≤ nstar := h_le_nstar x hx
+    by_cases h : 2 * x ≤ nstar
+    · left; exact ⟨hx, h⟩
+    · right
+      push_neg at h
+      refine ⟨nstar - x, ⟨h_refl x hx, ?_⟩, ?_⟩
+      · omega
+      · omega
+  · rintro (⟨hx, _⟩ | ⟨y, ⟨hy, _⟩, hxy⟩)
+    · exact hx
+    · subst hxy; exact h_refl y hy
+
 end AlmostSidonSets
