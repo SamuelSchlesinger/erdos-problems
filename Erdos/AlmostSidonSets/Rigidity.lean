@@ -634,4 +634,256 @@ theorem r3_second_smallest_pair_unique
   exact r3_off_axis_unique_representation A hA h_exception (m' + M) h_ne_nstar
     a b m' M ha hb hm'_mem hM_mem hab_le hm'_le_M hab_sum rfl
 
+/-! ## R3 (second-extreme reflection axis)
+
+The R3 lemmas above (`r3_off_axis_unique_representation`,
+`r3_second_largest_pair_unique`, `r3_second_smallest_pair_unique`)
+constrain *off-axis* pair-sums. The lemmas below address the
+complementary structural question: *is the second-extreme pair
+`(m₂, M₂)` itself on the exception axis?*
+
+Empirically (OEIS A389182 + exhaustive search up to `N = 79`) every SAS
+extremizer has the Erdős–Freud form `B ∪ (n* − B)`, so elements pair up
+about `n*/2` and `(m₂, M₂)` is a reflection pair: `m₂ + M₂ = n*`. We
+prove this under the natural participation hypothesis that both `m₂` and
+`M₂` lie in some `n*`-pair, equivalently `n* − m₂ ∈ A` and
+`n* − M₂ ∈ A`. -/
+
+/-- **R3 (bracket form).** If `|A| ≥ 3` and `min A + max A = n*`, every
+sorted `n*`-pair `(c, d)` distinct from `(m, M)` satisfies `m₂ ≤ c` and
+`d ≤ M₂`: every non-extreme `n*`-pair sits inside the "second-extreme
+bracket" `[m₂, M₂]`. -/
+theorem r3_nonextreme_pair_in_second_bracket
+    (A : Finset ℕ) (h_card : 3 ≤ A.card)
+    {nstar : ℕ}
+    (h_axis : (A.min' (Finset.card_pos.mp (by omega : 0 < A.card))) +
+              (A.max' (Finset.card_pos.mp (by omega : 0 < A.card))) = nstar)
+    {c d : ℕ} (hc : c ∈ A) (hd : d ∈ A)
+    (h_le : c ≤ d) (h_sum : c + d = nstar)
+    (h_nonext : ¬ (c = A.min' (Finset.card_pos.mp (by omega : 0 < A.card)) ∧
+                    d = A.max' (Finset.card_pos.mp (by omega : 0 < A.card)))) :
+    let m := A.min' (Finset.card_pos.mp (by omega : 0 < A.card))
+    let M := A.max' (Finset.card_pos.mp (by omega : 0 < A.card))
+    let hmerase : (A.erase m).Nonempty := by
+      have : 1 ≤ (A.erase m).card := by
+        rw [Finset.card_erase_of_mem (A.min'_mem _)]; omega
+      exact Finset.card_pos.mp (by omega)
+    let hMerase : (A.erase M).Nonempty := by
+      have : 1 ≤ (A.erase M).card := by
+        rw [Finset.card_erase_of_mem (A.max'_mem _)]; omega
+      exact Finset.card_pos.mp (by omega)
+    let m₂ := (A.erase m).min' hmerase
+    let M₂ := (A.erase M).max' hMerase
+    m₂ ≤ c ∧ d ≤ M₂ := by
+  intro m M hmerase hMerase m₂ M₂
+  have h_card2 : 2 ≤ A.card := by omega
+  have h_interior : (c = m ∧ d = M) ∨ (m < c ∧ d < M) :=
+    e_anchor_nonextreme_pairs_interior A h_card2 h_axis hc hd h_le h_sum
+  have h_mc_dM : m < c ∧ d < M := by
+    rcases h_interior with h | h
+    · exact absurd h h_nonext
+    · exact h
+  obtain ⟨hmc, hdM⟩ := h_mc_dM
+  have hc_erase : c ∈ A.erase m :=
+    Finset.mem_erase.mpr ⟨Ne.symm (ne_of_lt hmc), hc⟩
+  have h_m2_le_c : m₂ ≤ c := (A.erase m).min'_le _ hc_erase
+  have hd_erase : d ∈ A.erase M :=
+    Finset.mem_erase.mpr ⟨ne_of_lt hdM, hd⟩
+  have h_d_le_M2 : d ≤ M₂ := (A.erase M).le_max' _ hd_erase
+  exact ⟨h_m2_le_c, h_d_le_M2⟩
+
+/-- **R3 (reflection bound for `m₂`).** If `|A| ≥ 3`, `m + M = n*`, and
+the reflection `n* − m₂` of the second-smallest element belongs to `A`,
+then `n* − m₂ ≤ M₂` (and moreover `m < n* − m₂ < M`). -/
+theorem r3_second_min_reflection_bounded
+    (A : Finset ℕ) (h_card : 3 ≤ A.card)
+    {nstar : ℕ}
+    (h_axis : (A.min' (Finset.card_pos.mp (by omega : 0 < A.card))) +
+              (A.max' (Finset.card_pos.mp (by omega : 0 < A.card))) = nstar)
+    (h_refl :
+      nstar - (A.erase (A.min' (Finset.card_pos.mp (by omega : 0 < A.card)))).min'
+        (by
+          have : 1 ≤ (A.erase (A.min' (Finset.card_pos.mp (by omega : 0 < A.card)))).card := by
+            rw [Finset.card_erase_of_mem (A.min'_mem _)]; omega
+          exact Finset.card_pos.mp (by omega)) ∈ A) :
+    let m := A.min' (Finset.card_pos.mp (by omega : 0 < A.card))
+    let M := A.max' (Finset.card_pos.mp (by omega : 0 < A.card))
+    let hmerase : (A.erase m).Nonempty := by
+      have : 1 ≤ (A.erase m).card := by
+        rw [Finset.card_erase_of_mem (A.min'_mem _)]; omega
+      exact Finset.card_pos.mp (by omega)
+    let hMerase : (A.erase M).Nonempty := by
+      have : 1 ≤ (A.erase M).card := by
+        rw [Finset.card_erase_of_mem (A.max'_mem _)]; omega
+      exact Finset.card_pos.mp (by omega)
+    let m₂ := (A.erase m).min' hmerase
+    let M₂ := (A.erase M).max' hMerase
+    nstar - m₂ ≤ M₂ ∧ m < nstar - m₂ ∧ nstar - m₂ < M := by
+  intro m M hmerase hMerase m₂ M₂
+  have hm₂_erase : m₂ ∈ A.erase m := (A.erase m).min'_mem _
+  have hm₂_mem : m₂ ∈ A := (Finset.mem_erase.mp hm₂_erase).2
+  have hm₂_ne : m₂ ≠ m := (Finset.mem_erase.mp hm₂_erase).1
+  have hm_mem : m ∈ A := A.min'_mem _
+  have hM_mem : M ∈ A := A.max'_mem _
+  have hm_le_m₂ : m ≤ m₂ := A.min'_le _ hm₂_mem
+  have hm_lt_m₂ : m < m₂ := lt_of_le_of_ne hm_le_m₂ (Ne.symm hm₂_ne)
+  set r := nstar - m₂ with hr_def
+  have hr_mem : r ∈ A := h_refl
+  have hm₂_le_M : m₂ ≤ M := A.le_max' _ hm₂_mem
+  have hsum_m2_r : m₂ + r = nstar := by simp only [hr_def]; omega
+  have hr_lt_M : r < M := by simp only [hr_def]; omega
+  have hm₂_lt_M : m₂ < M := by
+    by_contra h
+    push_neg at h
+    have h_eq : m₂ = M := le_antisymm hm₂_le_M h
+    have h_erase_2 : 2 ≤ (A.erase m).card := by
+      rw [Finset.card_erase_of_mem hm_mem]; omega
+    have h_exists_two : ∃ x ∈ A.erase m, x ≠ m₂ := by
+      by_contra hne
+      push_neg at hne
+      have h_sub : A.erase m ⊆ {m₂} := fun x hx => Finset.mem_singleton.mpr (hne x hx)
+      have : (A.erase m).card ≤ 1 := by
+        calc (A.erase m).card ≤ ({m₂} : Finset ℕ).card := Finset.card_le_card h_sub
+          _ = 1 := Finset.card_singleton _
+      omega
+    obtain ⟨y, hy_erase, hy_ne⟩ := h_exists_two
+    have hy_ge_m₂ : m₂ ≤ y := (A.erase m).min'_le _ hy_erase
+    have hy_mem : y ∈ A := (Finset.mem_erase.mp hy_erase).2
+    have hy_le_M : y ≤ M := A.le_max' _ hy_mem
+    have : y = m₂ := by omega
+    exact hy_ne this
+  have hr_gt_m : m < r := by simp only [hr_def]; omega
+  rcases le_or_gt m₂ r with hle | hlt
+  · have h_nonext : ¬ (m₂ = m ∧ r = M) := by
+      intro ⟨h1, _⟩; exact hm₂_ne h1
+    have hb := r3_nonextreme_pair_in_second_bracket A h_card h_axis hm₂_mem hr_mem
+                hle hsum_m2_r h_nonext
+    simp only at hb
+    exact ⟨hb.2, hr_gt_m, hr_lt_M⟩
+  · have hle' : r ≤ m₂ := le_of_lt hlt
+    have hsum' : r + m₂ = nstar := by omega
+    have hr_ne_m : r ≠ m := ne_of_gt hr_gt_m
+    have h_nonext : ¬ (r = m ∧ m₂ = M) := by
+      intro ⟨h1, _⟩; exact hr_ne_m h1
+    have hb := r3_nonextreme_pair_in_second_bracket A h_card h_axis hr_mem hm₂_mem
+                hle' hsum' h_nonext
+    simp only at hb
+    have hm₂_eq_r : m₂ = r := le_antisymm hb.1 hle'
+    refine ⟨?_, hr_gt_m, hr_lt_M⟩
+    rw [← hm₂_eq_r]; exact hb.2
+
+/-- **R3 (Second-extreme pair on exception axis).** Suppose `|A| ≥ 3`,
+`min A + max A = n*`, and that both reflections `n* − m₂` and `n* − M₂`
+lie in `A` (equivalently each second-extreme participates in some
+`n*`-pair). Then `m₂ + M₂ = n*`.
+
+This is the structural analogue of R2 for the second-extreme pair, valid
+under a participation hypothesis that provably holds in the Erdős–Freud
+construction `A = B ∪ (n* − B)`. The proof pinches `m₂ + M₂` between
+`n*` from below (via `r3_second_min_reflection_bounded`) and `n*` from
+above (via the symmetric application of the bracket lemma to the sorted
+pair `(s, M₂)` with `s = n* − M₂`). -/
+theorem r3_second_extreme_pair
+    (A : Finset ℕ) (h_card : 3 ≤ A.card)
+    {nstar : ℕ}
+    (h_axis : (A.min' (Finset.card_pos.mp (by omega : 0 < A.card))) +
+              (A.max' (Finset.card_pos.mp (by omega : 0 < A.card))) = nstar)
+    (h_refl_m₂ :
+      nstar - (A.erase (A.min' (Finset.card_pos.mp (by omega : 0 < A.card)))).min'
+        (by
+          have : 1 ≤ (A.erase (A.min' (Finset.card_pos.mp (by omega : 0 < A.card)))).card := by
+            rw [Finset.card_erase_of_mem (A.min'_mem _)]; omega
+          exact Finset.card_pos.mp (by omega)) ∈ A)
+    (h_refl_M₂ :
+      nstar - (A.erase (A.max' (Finset.card_pos.mp (by omega : 0 < A.card)))).max'
+        (by
+          have : 1 ≤ (A.erase (A.max' (Finset.card_pos.mp (by omega : 0 < A.card)))).card := by
+            rw [Finset.card_erase_of_mem (A.max'_mem _)]; omega
+          exact Finset.card_pos.mp (by omega)) ∈ A) :
+    let m := A.min' (Finset.card_pos.mp (by omega : 0 < A.card))
+    let M := A.max' (Finset.card_pos.mp (by omega : 0 < A.card))
+    let hmerase : (A.erase m).Nonempty := by
+      have : 1 ≤ (A.erase m).card := by
+        rw [Finset.card_erase_of_mem (A.min'_mem _)]; omega
+      exact Finset.card_pos.mp (by omega)
+    let hMerase : (A.erase M).Nonempty := by
+      have : 1 ≤ (A.erase M).card := by
+        rw [Finset.card_erase_of_mem (A.max'_mem _)]; omega
+      exact Finset.card_pos.mp (by omega)
+    let m₂ := (A.erase m).min' hmerase
+    let M₂ := (A.erase M).max' hMerase
+    m₂ + M₂ = nstar := by
+  intro m M hmerase hMerase m₂ M₂
+  have hb_m₂ := r3_second_min_reflection_bounded A h_card h_axis h_refl_m₂
+  simp only at hb_m₂
+  obtain ⟨h_le_M2_raw, _, _⟩ := hb_m₂
+  -- Convert h_le_M2_raw to use our local m₂ and M₂ via definitional equality.
+  have h_le_M2 : nstar - m₂ ≤ M₂ := h_le_M2_raw
+  have hM_mem : M ∈ A := A.max'_mem _
+  have hm_mem : m ∈ A := A.min'_mem _
+  have hM₂_erase : M₂ ∈ A.erase M := (A.erase M).max'_mem _
+  have hM₂_mem : M₂ ∈ A := (Finset.mem_erase.mp hM₂_erase).2
+  have hM₂_ne : M₂ ≠ M := (Finset.mem_erase.mp hM₂_erase).1
+  have hM₂_le_M : M₂ ≤ M := A.le_max' _ hM₂_mem
+  have hM₂_lt_M : M₂ < M := lt_of_le_of_ne hM₂_le_M hM₂_ne
+  set s := nstar - M₂ with hs_def
+  have hs_mem : s ∈ A := h_refl_M₂
+  have hsum_M2_s : M₂ + s = nstar := by simp only [hs_def]; omega
+  have hs_gt_m : m < s := by simp only [hs_def]; omega
+  have hm₂_erase : m₂ ∈ A.erase m := (A.erase m).min'_mem _
+  have hm₂_mem : m₂ ∈ A := (Finset.mem_erase.mp hm₂_erase).2
+  have hm₂_ne : m₂ ≠ m := (Finset.mem_erase.mp hm₂_erase).1
+  have hm_le_m₂ : m ≤ m₂ := A.min'_le _ hm₂_mem
+  have hm_lt_m₂ : m < m₂ := lt_of_le_of_ne hm_le_m₂ (Ne.symm hm₂_ne)
+  have hm₂_ne_M : m₂ ≠ M := by
+    intro h_eq
+    have h_erase_2 : 2 ≤ (A.erase m).card := by
+      rw [Finset.card_erase_of_mem hm_mem]; omega
+    have : ∃ y ∈ A.erase m, y ≠ m₂ := by
+      by_contra hne
+      push_neg at hne
+      have h_sub : A.erase m ⊆ {m₂} := fun x hx => Finset.mem_singleton.mpr (hne x hx)
+      have : (A.erase m).card ≤ 1 := by
+        calc (A.erase m).card ≤ ({m₂} : Finset ℕ).card := Finset.card_le_card h_sub
+          _ = 1 := Finset.card_singleton _
+      omega
+    obtain ⟨y, hy_erase, hy_ne⟩ := this
+    have hy_ge_m₂ : m₂ ≤ y := (A.erase m).min'_le _ hy_erase
+    have hy_mem : y ∈ A := (Finset.mem_erase.mp hy_erase).2
+    have hy_le_M : y ≤ M := A.le_max' _ hy_mem
+    have : y = m₂ := by omega
+    exact hy_ne this
+  have hm₂_erase_M : m₂ ∈ A.erase M :=
+    Finset.mem_erase.mpr ⟨hm₂_ne_M, hm₂_mem⟩
+  have hm₂_le_M₂ : m₂ ≤ M₂ := (A.erase M).le_max' _ hm₂_erase_M
+  have hM₂_gt_m : m < M₂ := lt_of_lt_of_le hm_lt_m₂ hm₂_le_M₂
+  have hs_lt_M : s < M := by simp only [hs_def]; omega
+  rcases le_or_gt M₂ s with hle | hlt
+  · have h_nonext : ¬ (M₂ = m ∧ s = M) := by
+      intro ⟨h1, _⟩; omega
+    have hbracket := r3_nonextreme_pair_in_second_bracket A h_card h_axis
+      hM₂_mem hs_mem hle hsum_M2_s h_nonext
+    simp only at hbracket
+    have hs_le_M₂ : s ≤ M₂ := hbracket.2
+    have hs_eq : s = M₂ := le_antisymm hs_le_M₂ hle
+    have h2M₂ : nstar = 2 * M₂ := by simp only [hs_def] at hs_eq; omega
+    have hM₂_le_m₂ : M₂ ≤ m₂ := by omega
+    have : m₂ = M₂ := le_antisymm hm₂_le_M₂ hM₂_le_m₂
+    omega
+  · have hle' : s ≤ M₂ := le_of_lt hlt
+    have hsum' : s + M₂ = nstar := by omega
+    have hs_ne_m : s ≠ m := ne_of_gt hs_gt_m
+    have h_nonext : ¬ (s = m ∧ M₂ = M) := by
+      intro ⟨h1, _⟩; exact hs_ne_m h1
+    have hbracket := r3_nonextreme_pair_in_second_bracket A h_card h_axis
+      hs_mem hM₂_mem hle' hsum' h_nonext
+    simp only at hbracket
+    have hm₂_le_s : m₂ ≤ s := hbracket.1
+    have h_le_nstar : m₂ + M₂ ≤ nstar := by simp only [hs_def] at hm₂_le_s; omega
+    have h_ge_nstar : nstar ≤ m₂ + M₂ := by
+      have hm₂_le_nstar : m₂ ≤ nstar := by
+        have := A.le_max' _ hm₂_mem; omega
+      omega
+    omega
+
 end AlmostSidonSets
