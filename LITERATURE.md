@@ -233,7 +233,7 @@ bands remain separated enough to block any other repeated sum.
   the existence of at most one repeated sum more efficiently than the raw
   Sidon-set bound. The lower-bound construction is now in place, so the next
   real mathematical work is on the converse direction.
-- **√2·√N strong-notion upper bound (conditional)**: ✓ **DONE** in
+- **√2·√N strong-notion upper bound (conditional Lean theorem)**: ✓ **DONE** in
   `AlmostSidonSets/UpperBound/Sqrt2BoundConditional.lean`. Every strong
   almost-Sidon `A ⊆ {1, …, N}` satisfies `|A| ≤ (√2 + ε)·√N` (for `N` large),
   **conditional on** the asymptotic Erdős–Turán/Lindström Sidon-interval
@@ -243,6 +243,13 @@ bands remain separated enough to block any other repeated sum.
   See `research/sqrt2-strong-almost-sidon/paper.md` for the writeup, including
   the separation from quasi-Sidon (Erdős–Freud's `√2` barrier is open for
   quasi-Sidon but becomes a theorem for the strong notion).
+  **Mathematical priority**: the `√2` upper-bound argument itself is NOT
+  novel. A literature survey on 2026-05-22 found that user
+  `DesmondWeisenberg` posted the identical midpoint-split + Lindström +
+  Cauchy–Schwarz proof on the [erdosproblems.com #864 discussion forum](https://www.erdosproblems.com/forum/discuss/864)
+  (post #75, 22:34 on 11 August 2025), nine months before our work. The
+  Lean formalization remains a distinct contribution as the first formal
+  proof; the mathematical novelty is gone.
 - **Unconditional √2·√N upper bound (remaining)**: need to prove
   `sidon_interval_asymptotic : SidonIntervalAsymptotic` — the classical
   Lindström/Erdős–Turán bound for Sidon sets in an interval. This is
@@ -251,6 +258,15 @@ bands remain separated enough to block any other repeated sum.
   a Sidon-injective change of variables; the crude `2M(M−1)` is easy but
   yields only `√2·√L` for Sidon, collapsing the main result to the trivial
   `2·√N`.
+- **Below-`√2` upper bound (open territory)**: confirmed genuinely open by
+  the 2026-05-22 survey. The most promising attack is a hybrid of the
+  midpoint split with Pikhurko-style autocorrelation on the cross-pair
+  contributions; realistic target constant `[1.30, 1.40]` per heuristic.
+  Pure Pikhurko-style Fourier alone is disqualified — the single bad atom
+  dominates the autocorrelation slack. See
+  `research/sqrt2-strong-almost-sidon/below-sqrt2.md` for the detailed
+  attack plan. OEIS A389182 and Tao's GitHub issue 143 provide small-`N`
+  extremizer data worth checking against.
 
 ---
 

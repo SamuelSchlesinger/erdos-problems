@@ -3,6 +3,24 @@
 **Draft note, 2026-05-22.** Companion to the Lean 4 formalization in
 `Erdos/AlmostSidonSets/UpperBound/`.
 
+**Prior art (added 2026-05-22 after literature survey):** the same
+upper bound `(√2 + o(1)) · √N` and essentially the same proof
+(midpoint split → Sidon-on-each-half → calculus on `k^{1/2} + (N−k)^{1/2}`)
+was posted on the public Erdős Problems discussion forum by user
+`DesmondWeisenberg` in post #75 of
+[the #864 thread](https://www.erdosproblems.com/forum/discuss/864) at
+22:34 on 11 August 2025, nine months before the present draft. We
+became aware of the prior post via a follow-up survey, and we acknowledge
+DesmondWeisenberg as the originator of the upper-bound argument. To our
+knowledge no preprint or journal version of the argument has appeared,
+and the bound has not been incorporated into the erdosproblems.com
+problem statement. The contribution of this note is therefore not the
+result itself but (i) its formal verification in Lean 4 (see
+`AlmostSidonSets/UpperBound/`), (ii) the explicit separation framing
+that distinguishes the strong from the quasi-Sidon notion (Section 5),
+and (iii) the open-question analysis in the companion note
+`below-sqrt2.md`.
+
 **Lean 4 formalization status:** The structural reduction (Section 4) is
 fully formalized as `strong_almostSidon_card_le_sqrt2_sqrt_of_sidon_interval`
 in `Erdos/AlmostSidonSets/UpperBound/Sqrt2BoundConditional.lean`,
@@ -186,10 +204,16 @@ sums can be spread arbitrarily.
 ## 6. Open question
 
 The conjectured tight constant is `2/√3 ≈ 1.155` (Erdős–Freud reflection
-construction). Reducing our `√2` to anything strictly below `√2` for the
-strong notion is open; the natural approach is a Fourier-style refinement
-of the midpoint split that penalises pairs straddling the midpoint, in the
-spirit of Pikhurko's autocorrelation analysis. We have not pursued this.
+construction). Reducing `√2` to anything strictly below `√2` for the
+strong notion is **open** as of writing; the literature survey (see
+`below-sqrt2.md`) confirms no preprint/journal/forum post improves the
+constant. The natural approach is a hybrid of the midpoint split with
+Pikhurko's autocorrelation analysis on the cross-terms, exploiting that
+straddling pairs contribute only to representations of values `≠ n*`.
+Heuristic estimates suggest a realistic target in `[1.30, 1.40]`;
+closing the gap to `2/√3` unconditionally would resolve the problem.
+We outline the concrete attack lines in the companion note
+`below-sqrt2.md`.
 
 ## References
 
@@ -202,3 +226,10 @@ spirit of Pikhurko's autocorrelation analysis. We have not pursued this.
    212–215.
 4. O. Pikhurko, *Dense edge-magic graphs and thin additive bases*, Discrete
    Math. **306** (2006), 2097–2107. arXiv:math/0309029.
+5. DesmondWeisenberg, post #75 in the Erdős Problem 864 forum discussion,
+   22:34 on 11 August 2025.
+   <https://www.erdosproblems.com/forum/discuss/864>.
+   First public statement of the `(√2 + o(1)) · √N` upper bound for
+   the strong almost-Sidon notion via the midpoint-split argument.
+6. OEIS sequence A389182 — extremizer sizes for the strong almost-Sidon
+   problem at small `N`. <https://oeis.org/A389182>.
