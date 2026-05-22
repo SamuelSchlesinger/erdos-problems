@@ -79,6 +79,38 @@ theorem consecutive_powerful_triple_mod_nine {n : ℕ}
       simpa using hsquare
     omega
 
+/-- **Prime-`5` local obstruction.**
+
+In any hypothetical consecutive powerful triple, whichever member is divisible
+by `5` must in fact be divisible by `25`. If none of `n`, `n+1`, and `n+2` is
+divisible by `5`, then `n` is congruent to `1` or `2` modulo `5`, giving the
+listed residue classes modulo `25`. -/
+theorem consecutive_powerful_triple_mod_twentyfive {n : ℕ}
+    (htriple : ConsecutivePowerfulTriple n) :
+    n % 25 = 0 ∨ n % 25 = 1 ∨ n % 25 = 2 ∨ n % 25 = 6 ∨
+      n % 25 = 7 ∨ n % 25 = 11 ∨ n % 25 = 12 ∨ n % 25 = 16 ∨
+      n % 25 = 17 ∨ n % 25 = 21 ∨ n % 25 = 22 ∨ n % 25 = 23 ∨
+      n % 25 = 24 := by
+  have hm5lt : n % 5 < 5 := Nat.mod_lt _ (by decide)
+  interval_cases hm5 : n % 5
+  · have h5 : 5 ∣ n := by omega
+    have h25 : 25 ∣ n := by
+      have hsquare := htriple.1.2 5 Nat.prime_five h5
+      simpa using hsquare
+    omega
+  · omega
+  · omega
+  · have h5 : 5 ∣ n + 2 := by omega
+    have h25 : 25 ∣ n + 2 := by
+      have hsquare := htriple.2.2.2 5 Nat.prime_five h5
+      simpa using hsquare
+    omega
+  · have h5 : 5 ∣ n + 1 := by omega
+    have h25 : 25 ∣ n + 1 := by
+      have hsquare := htriple.2.1.2 5 Nat.prime_five h5
+      simpa using hsquare
+    omega
+
 /-- **First combined residue obstruction.**
 
 Any hypothetical triple of consecutive powerful numbers must start in one of

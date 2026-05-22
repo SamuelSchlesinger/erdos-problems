@@ -36,6 +36,17 @@ theorem averageDegree_nonneg {n : ℕ} (G : SimpleGraph (Fin n)) :
   simpa [s] using
     (maximumIndepSet_card_eq_indepNum (G := (⊥ : SimpleGraph (Fin n))) s hsmax).symm
 
+/-- Every graph on a nonempty finite vertex type has an independent vertex, so its
+independence number is at least one. -/
+theorem one_le_indepNum_of_nonempty {α : Type*} [Finite α] [Nonempty α]
+    (G : SimpleGraph α) :
+    1 ≤ G.indepNum := by
+  classical
+  let v : α := Classical.arbitrary α
+  have hIndep : G.IsIndepSet ({v} : Finset α) := by
+    simp [SimpleGraph.IsIndepSet]
+  simpa using hIndep.card_le_indepNum
+
 /-- A `K₂`-free graph has no edges, so it is the empty graph. -/
 theorem cliqueFree_two_eq_bot {n : ℕ} {G : SimpleGraph (Fin n)}
     (hG : G.CliqueFree 2) :

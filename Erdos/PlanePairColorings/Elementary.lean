@@ -25,6 +25,21 @@ theorem HitsAllColorsOn.mono {k : ℕ} {c : PairColoring k} {A B : Set Plane}
   intro hA i
   exact HasColorOn.mono hAB (hA i)
 
+/-- A color witnessed on `A` gives an ordinary pair of points in `A`
+with that color. This is a non-dependent unpacking of `HasColorOn`. -/
+theorem HasColorOn.exists_pair {k : ℕ} {c : PairColoring k} {A : Set Plane}
+    {i : Fin k} (hA : HasColorOn c A i) :
+    ∃ x y : Plane, x ∈ A ∧ y ∈ A ∧ x ≠ y ∧ c x y = i := by
+  rcases hA with ⟨x, hx, y, hy, hxy, hcolor⟩
+  exact ⟨x, y, hx, hy, hxy, hcolor⟩
+
+/-- If `A` sees every color, then any requested color has a distinct pair
+of witnesses inside `A`. -/
+theorem HitsAllColorsOn.exists_pair {k : ℕ} {c : PairColoring k} {A : Set Plane}
+    (hA : HitsAllColorsOn c A) (i : Fin k) :
+    ∃ x y : Plane, x ∈ A ∧ y ∈ A ∧ x ≠ y ∧ c x y = i :=
+  HasColorOn.exists_pair (hA i)
+
 /-- An uncountable set contains two distinct points. -/
 theorem exists_ne_mem_of_not_countable {A : Set Plane} (hA : ¬ A.Countable) :
     ∃ x ∈ A, ∃ y ∈ A, x ≠ y := by
@@ -47,6 +62,26 @@ theorem exists_ne_mem_of_not_countable {A : Set Plane} (hA : ¬ A.Countable) :
 /-- The constant recoloring associated to a map on the color set. -/
 def recolor {k l : ℕ} (f : Fin l → Fin k) (c : PairColoring l) : PairColoring k :=
   fun x y => f (c x y)
+
+/-- Evaluating a recolored coloring just applies the color map to the
+old color. -/
+@[simp] theorem recolor_apply {k l : ℕ} (f : Fin l → Fin k)
+    (c : PairColoring l) (x y : Plane) :
+    recolor f c x y = f (c x y) :=
+  rfl
+
+/-- Recoloring by the identity map leaves a coloring unchanged. -/
+@[simp] theorem recolor_id {k : ℕ} (c : PairColoring k) :
+    recolor id c = c := by
+  funext x y
+  rfl
+
+/-- Recoloring twice is the same as recoloring once by the composite map. -/
+@[simp] theorem recolor_recolor {k l m : ℕ} (g : Fin k → Fin m)
+    (f : Fin l → Fin k) (c : PairColoring l) :
+    recolor g (recolor f c) = recolor (g ∘ f) c := by
+  funext x y
+  rfl
 
 theorem recolor_symmetric {k l : ℕ} {f : Fin l → Fin k} {c : PairColoring l}
     (hc : IsSymmetricColoring c) :
@@ -94,6 +129,14 @@ theorem not_planePairColoringStatement_zero :
     ¬ PlanePairColoringStatement 0 := by
   rintro ⟨c, _, _⟩
   exact Fin.elim0 (c (0, 0) (0, 0))
+
+/-- Any actual witness must use a positive number of colors: the zero-color
+case would require a value of `Fin 0` on a concrete pair of plane points. -/
+theorem planePairColoringStatement_pos {k : ℕ}
+    (h : PlanePairColoringStatement k) : 0 < k := by
+  refine Nat.pos_iff_ne_zero.mpr ?_
+  intro hk
+  exact not_planePairColoringStatement_zero (hk ▸ h)
 
 /-- The one-color variant is trivial: color every pair by the unique color. -/
 theorem planePairColoringStatement_one : PlanePairColoringStatement 1 := by

@@ -5,14 +5,19 @@ import Erdos.PrimeGapHarmonic.Statement
 
 This file records the basic formal infrastructure for problem `#950`: a clean
 membership description for the prime set, nonnegativity of every summand and of
-the full sum, exact vanishing for `n = 0, 1, 2`, and the first nontrivial lower
-bound coming from the prime `2`.
+the full sum, exact small values, and one-term lower bounds coming from any
+prime below `n`.
 -/
 namespace PrimeGapHarmonic
 
 @[simp] theorem mem_primesBelow {n p : ℕ} :
     p ∈ primesBelow n ↔ p < n ∧ Nat.Prime p := by
   simp [primesBelow]
+
+/-- A prime `p` with `p < n` is one of the indices in the reciprocal gap sum. -/
+theorem prime_mem_primesBelow {n p : ℕ} (hpn : p < n) (hp : Nat.Prime p) :
+    p ∈ primesBelow n := by
+  exact mem_primesBelow.mpr ⟨hpn, hp⟩
 
 theorem gapSummand_nonneg {n p : ℕ} (hp : p ∈ primesBelow n) :
     0 ≤ 1 / (((n - p : ℕ) : ℝ)) := by
@@ -25,6 +30,18 @@ theorem gapReciprocalSum_nonneg (n : ℕ) :
     0 ≤ gapReciprocalSum n := by
   unfold gapReciprocalSum
   exact Finset.sum_nonneg fun p hp => gapSummand_nonneg hp
+
+/--
+Every prime `p < n` contributes its own term `1 / (n - p)` to the sum, and all
+the remaining terms are nonnegative.
+-/
+theorem inv_sub_prime_le_gapReciprocalSum {n p : ℕ} (hpn : p < n)
+    (hp : Nat.Prime p) :
+    1 / (((n - p : ℕ) : ℝ)) ≤ gapReciprocalSum n := by
+  unfold gapReciprocalSum
+  exact Finset.single_le_sum
+    (fun q hq => gapSummand_nonneg hq)
+    (prime_mem_primesBelow hpn hp)
 
 @[simp] theorem primesBelow_zero : primesBelow 0 = ∅ := by
   ext p
@@ -51,6 +68,22 @@ theorem gapReciprocalSum_nonneg (n : ℕ) :
     · exact (Nat.not_prime_one hprime).elim
   · simp
 
+@[simp] theorem primesBelow_three : primesBelow 3 = {2} := by
+  ext p
+  constructor
+  · intro hp
+    rcases mem_primesBelow.mp hp with ⟨hp3, hprime⟩
+    have hp012 : p = 0 ∨ p = 1 ∨ p = 2 := by omega
+    rcases hp012 with rfl | rfl | rfl
+    · exact (Nat.not_prime_zero hprime).elim
+    · exact (Nat.not_prime_one hprime).elim
+    · simp
+  · intro hp
+    have hp2 : p = 2 := by
+      simpa using hp
+    rw [hp2]
+    exact prime_mem_primesBelow (by norm_num) Nat.prime_two
+
 @[simp] theorem gapReciprocalSum_zero : gapReciprocalSum 0 = 0 := by
   simp [gapReciprocalSum]
 
@@ -60,14 +93,16 @@ theorem gapReciprocalSum_nonneg (n : ℕ) :
 @[simp] theorem gapReciprocalSum_two : gapReciprocalSum 2 = 0 := by
   simp [gapReciprocalSum]
 
+@[simp] theorem gapReciprocalSum_three : gapReciprocalSum 3 = 1 := by
+  simp [gapReciprocalSum]
+
 theorem two_mem_primesBelow {n : ℕ} (hn : 2 < n) :
     2 ∈ primesBelow n := by
-  exact mem_primesBelow.mpr ⟨hn, Nat.prime_two⟩
+  exact prime_mem_primesBelow hn Nat.prime_two
 
 theorem inv_sub_two_le_gapReciprocalSum {n : ℕ} (hn : 2 < n) :
     1 / (((n - 2 : ℕ) : ℝ)) ≤ gapReciprocalSum n := by
-  unfold gapReciprocalSum
-  refine Finset.single_le_sum (fun p hp => gapSummand_nonneg hp) (two_mem_primesBelow hn)
+  exact inv_sub_prime_le_gapReciprocalSum hn Nat.prime_two
 
 theorem gapReciprocalSum_pos_of_two_lt {n : ℕ} (hn : 2 < n) :
     0 < gapReciprocalSum n := by

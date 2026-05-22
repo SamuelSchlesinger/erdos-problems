@@ -8,9 +8,27 @@ open Set
 If `A + B` eventually agrees with the prime numbers, then it cannot contain
 arbitrarily large even integers. This immediately rules out the possibility that
 both `A` and `B` contain infinitely many even elements, or that both contain
-infinitely many odd elements.
+infinitely many odd elements. Since every infinite subset of `ℕ` has infinitely
+many elements of at least one parity, the infinite parity classes on the two
+sides must be opposite.
 -/
 namespace InverseGoldbach
+
+/-- Every infinite subset of `ℕ` has infinitely many elements of at least one
+parity.  This is just the partition of `ℕ` into even and odd numbers, restricted
+to the given set. -/
+theorem infinite_evenPart_or_infinite_oddPart {A : Set ℕ} (hA : A.Infinite) :
+    (evenPart A).Infinite ∨ (oddPart A).Infinite := by
+  have hsplit : A = evenPart A ∪ oddPart A := by
+    ext n
+    constructor
+    · intro hn
+      rcases Nat.even_or_odd n with hEven | hOdd
+      · exact Or.inl ⟨hn, hEven⟩
+      · exact Or.inr ⟨hn, hOdd⟩
+    · rintro (⟨hn, _⟩ | ⟨hn, _⟩) <;> exact hn
+  rw [hsplit] at hA
+  exact Set.infinite_union.mp hA
 
 /-- A set which eventually agrees with the primes contains no sufficiently large
 even number. -/
@@ -79,5 +97,52 @@ theorem parity_obstruction_of_eventually_primes {A B : Set ℕ}
       ¬ ((oddPart A).Infinite ∧ (oddPart B).Infinite) := by
   exact ⟨not_both_infinite_even_of_eventually_primes hAB,
     not_both_infinite_odd_of_eventually_primes hAB⟩
+
+/-- If `A` and `B` are infinite and `A + B` eventually agrees with the primes,
+then some infinite parity class of `A` is paired with the opposite infinite
+parity class of `B`. -/
+theorem exists_opposite_infinite_parity_parts_of_eventually_primes {A B : Set ℕ}
+    (hA : A.Infinite) (hB : B.Infinite)
+    (hAB : AgreesWithPrimesEventually (pairSumset A B)) :
+    ((evenPart A).Infinite ∧ (oddPart B).Infinite) ∨
+      ((oddPart A).Infinite ∧ (evenPart B).Infinite) := by
+  rcases infinite_evenPart_or_infinite_oddPart hA with hAe | hAo
+  · rcases infinite_evenPart_or_infinite_oddPart hB with hBe | hBo
+    · exact False.elim (not_both_infinite_even_of_eventually_primes hAB ⟨hAe, hBe⟩)
+    · exact Or.inl ⟨hAe, hBo⟩
+  · rcases infinite_evenPart_or_infinite_oddPart hB with hBe | hBo
+    · exact Or.inr ⟨hAo, hBe⟩
+    · exact False.elim (not_both_infinite_odd_of_eventually_primes hAB ⟨hAo, hBo⟩)
+
+/-- In the same situation, infinitude of one parity class on either side is
+equivalent to infinitude of the opposite parity class on the other side. -/
+theorem infinite_parity_parts_opposite_of_eventually_primes {A B : Set ℕ}
+    (hA : A.Infinite) (hB : B.Infinite)
+    (hAB : AgreesWithPrimesEventually (pairSumset A B)) :
+    ((evenPart A).Infinite ↔ (oddPart B).Infinite) ∧
+      ((oddPart A).Infinite ↔ (evenPart B).Infinite) := by
+  have hNoEven := not_both_infinite_even_of_eventually_primes hAB
+  have hNoOdd := not_both_infinite_odd_of_eventually_primes hAB
+  have hAsplit := infinite_evenPart_or_infinite_oddPart hA
+  have hBsplit := infinite_evenPart_or_infinite_oddPart hB
+  constructor
+  · constructor
+    · intro hAe
+      rcases hBsplit with hBe | hBo
+      · exact False.elim (hNoEven ⟨hAe, hBe⟩)
+      · exact hBo
+    · intro hBo
+      rcases hAsplit with hAe | hAo
+      · exact hAe
+      · exact False.elim (hNoOdd ⟨hAo, hBo⟩)
+  · constructor
+    · intro hAo
+      rcases hBsplit with hBe | hBo
+      · exact hBe
+      · exact False.elim (hNoOdd ⟨hAo, hBo⟩)
+    · intro hBe
+      rcases hAsplit with hAe | hAo
+      · exact False.elim (hNoEven ⟨hAe, hBe⟩)
+      · exact hAo
 
 end InverseGoldbach

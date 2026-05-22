@@ -10,6 +10,11 @@ is `n`-uniform and has no Property B witness. Consequently
 `m(n) ≤ choose (2n - 1) n`
 
 for every `n ≥ 1`.
+
+We also record the elementary lower-bound sanity check: the empty hypergraph
+has Property B, so a bad uniform hypergraph must have at least one edge. In
+the one-uniform case this combines with the middle-layer construction to give
+`m(1) = 1`.
 -/
 namespace PropertyBBounds
 
@@ -67,11 +72,41 @@ theorem badUniformHypergraph_middleLayer {n : ℕ} (hn : 1 ≤ n) :
   · exact not_hasPropertyB_middleLayer hn
   · exact middleLayer_card n
 
+/-- The empty hypergraph has Property B: any choice of color class vacuously
+avoids monochromatic edges. -/
+theorem hasPropertyB_empty (α : Type*) [Fintype α] [DecidableEq α] :
+    HasPropertyB (∅ : Finset (Finset α)) := by
+  refine ⟨∅, ?_⟩
+  intro e he
+  simp at he
+
+/-- Consequently, no `n`-uniform hypergraph with zero edges can fail
+Property B. -/
+theorem not_badUniformHypergraph_zero_edges (n : ℕ) :
+    ¬ BadUniformHypergraph n 0 := by
+  rintro ⟨α, hα, hαdec, H, _hUniform, hnotB, hcard⟩
+  letI := hα
+  letI := hαdec
+  have hH : H = ∅ := Finset.card_eq_zero.mp hcard
+  exact hnotB (by simpa [hH] using hasPropertyB_empty α)
+
 /-- Any explicit bad witness bounds `m(n)` from above by minimality. -/
 theorem mValue_le_of_badUniformHypergraph {n m : ℕ}
     (h : BadUniformHypergraph n m) :
     mValue n ≤ m := by
   exact Nat.sInf_le h
+
+/-- Once a bad `n`-uniform hypergraph exists, the minimum bad edge count is at
+least one. -/
+theorem one_le_mValue_of_exists_bad {n m : ℕ}
+    (hbad : BadUniformHypergraph n m) :
+    1 ≤ mValue n := by
+  have hne : ({m : ℕ | BadUniformHypergraph n m} : Set ℕ).Nonempty := ⟨m, hbad⟩
+  have hmem : BadUniformHypergraph n (mValue n) := Nat.sInf_mem hne
+  by_contra hnot
+  have hzero : mValue n = 0 := by
+    omega
+  exact not_badUniformHypergraph_zero_edges n (by simpa [hzero] using hmem)
 
 /-- The classical Erdős-Lovász middle-layer construction gives the elementary
 upper bound `m(n) ≤ choose (2n - 1) n`. -/
@@ -84,5 +119,14 @@ with the general middle-layer upper bound. -/
 theorem mValue_two_le_three :
     mValue 2 ≤ 3 := by
   simpa using mValue_le_middleLayer (n := 2) (by omega)
+
+/-- The exact one-uniform case: one singleton edge is already non-Property-B,
+and zero edges never suffice. -/
+theorem mValue_one :
+    mValue 1 = 1 := by
+  refine le_antisymm ?_ ?_
+  · simpa using mValue_le_middleLayer (n := 1) (by omega)
+  · exact one_le_mValue_of_exists_bad
+      (badUniformHypergraph_middleLayer (n := 1) (by omega))
 
 end PropertyBBounds

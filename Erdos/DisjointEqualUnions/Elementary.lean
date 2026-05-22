@@ -3,15 +3,29 @@ import Erdos.DisjointEqualUnions.Statement
 /- 
 # Elementary Facts About Disjoint Equal-Unions
 
-This file formalizes the standard star-family obstruction for Erdős problem
-`#643`. If every edge contains a fixed vertex `v`, then no two edges are
-disjoint, so the forbidden equal-union disjoint quadruple cannot occur.
+This file formalizes the standard pairwise-intersecting obstruction for Erdős
+problem `#643`. If no two edges of a family are disjoint, then the forbidden
+equal-union disjoint quadruple cannot occur. In particular, this applies to a
+star family, where every edge contains a fixed vertex `v`.
 
 Taking all `t`-sets through one vertex therefore gives a `t`-uniform family of
 size `choose(n - 1, t - 1)` with no forbidden quadruple, yielding the lower
 bound construction behind Füredi's theorem.
 -/
 namespace DisjointEqualUnions
+
+/-- A hypergraph is pairwise non-disjoint if any two distinct edges meet. -/
+def PairwiseNonDisjoint {n : ℕ} (H : Finset (Finset (Fin n))) : Prop :=
+  (↑H : Set (Finset (Fin n))).Pairwise (fun A B => ¬ Disjoint A B)
+
+/-- Pairwise non-disjoint families avoid the forbidden configuration in
+Erdős problem `#643`: the first disjoint pair required by such a configuration
+already contradicts pairwise non-disjointness. -/
+theorem not_hasForbiddenQuad_of_pairwiseNonDisjoint {n : ℕ}
+    {H : Finset (Finset (Fin n))} (hH : PairwiseNonDisjoint H) :
+    ¬ HasForbiddenQuad H := by
+  rintro ⟨A, hA, B, hB, C, hC, D, hD, hAB, -, -, -, -, -, hdisAB, -, -⟩
+  exact hH hA hB hAB hdisAB
 
 /-- The family of all `t`-sets containing a fixed vertex `v`. -/
 def starFamily {n : ℕ} (v : Fin n) (t : ℕ) : Finset (Finset (Fin n)) :=
@@ -54,12 +68,19 @@ theorem starFamily_card {n t : ℕ} (v : Fin n) :
     have hErase := congrArg (fun w : Finset (Fin n) => w.erase v) hEq
     simpa [Finset.erase_insert hsv, Finset.erase_insert huv] using hErase
 
+/-- A star family is pairwise non-disjoint because every edge contains its
+center vertex. -/
+theorem starFamily_pairwiseNonDisjoint {n t : ℕ} (v : Fin n) :
+    PairwiseNonDisjoint (starFamily v t) := by
+  intro A hA B hB _ hdis
+  have hAv : v ∈ A := mem_starFamily_vertex (by simpa using hA)
+  have hBv : v ∈ B := mem_starFamily_vertex (by simpa using hB)
+  exact (Finset.disjoint_left.mp hdis hAv) hBv
+
 theorem not_hasForbiddenQuad_starFamily {n t : ℕ} (v : Fin n) :
     ¬ HasForbiddenQuad (starFamily v t) := by
-  rintro ⟨A, hA, B, hB, C, hC, D, hD, -, -, -, -, -, -, hdisAB, -, -⟩
-  have hAv : v ∈ A := mem_starFamily_vertex hA
-  have hBv : v ∈ B := mem_starFamily_vertex hB
-  exact (Finset.disjoint_left.mp hdisAB hAv) hBv
+  exact not_hasForbiddenQuad_of_pairwiseNonDisjoint
+    (starFamily_pairwiseNonDisjoint (t := t) v)
 
 /-- The star family witnesses that the forcing threshold must exceed
 `choose(n - 1, t - 1)` whenever `n > 0` and `t > 0`. -/

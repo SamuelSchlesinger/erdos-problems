@@ -285,6 +285,54 @@ bands remain separated enough to block any other repeated sum.
     The corollary `r2_extreme_pair_unique_when_not_on_axis` extracts the
     structural reading. This matches the empirical observation that every
     SAS extremizer up to `N = 79` has `min + max = n*`.
+- **Axis-partner shadow lemma**: ✓ **DONE** in
+  `AlmostSidonSets/Maximality.lean`. This starts the local-replacement
+  attack on the remaining R4 saturation gap. A maximal almost-Sidon set is
+  defined by forbidding any insertion inside `{1, ..., N}`. If `A` is maximal
+  with exception `n*` and `y ∈ {1, ..., N} \ A`, then inserting `y` must
+  create an off-axis shadow:
+  either `2y = b + c ≠ n*` or `y + a = b + c ≠ n*` for old elements
+  `a, b, c ∈ A`. The specialization
+  `maximal_missing_reflection_has_shadow` applies this to missing reflections
+  `y = n* - x`. Cardinality extremizers are proved insertion-maximal by
+  `IsCardinalityMaximalAlmostSidonInInterval.isMaximal`, and the obstruction
+  is also packaged as nonemptiness of `insertionShadowFinset A n* y`, with
+  an extremizer-level corollary
+  `cardinalityMaximal_missing_reflection_shadow_nonempty`. See
+  `research/sqrt2-strong-almost-sidon/axis-partner-shadow-report.md`.
+- **Shadow refinements for the R4 saturation gap**: ✓ **DONE** in
+  `AlmostSidonSets/Maximality.lean`. The self-shadow branch now has a
+  descent obstruction:
+  `selfShadow_forces_extra_endpoint`, `selfShadow_highExtra_descends`, and
+  `leastExtra_no_high_selfShadow`. Thus a least high extra cannot be blocked
+  by `2y = b + c`. The translate branch is packaged as `TranslateShadow`,
+  with R3 giving `translateShadow_same_value_forces_same_oldPair` and the
+  missing-reflection corollaries
+  `reflectionTranslate_equalOffset_distinctOldPair_false`,
+  `reflectionTranslate_sameValue_forces_anchor_order`, and
+  `reflectionTranslate_noAnchorDifference_disjoint`. The endpoint-reflection
+  lemma `translateShadow_endpoint_not_pairElements` now proves that old-pair
+  endpoints in any translate shadow of a missing reflection are always extras
+  (`translateShadow_forces_oldPair_endpoints_extra`). The paired-anchor branch
+  is sharper still:
+  `translateShadow_pairedAnchor_forces_oldPair_endpoints_extra`,
+  `translateShadow_contains_x_with_pairedAnchor_gives_selfShadow`,
+  `leastHighExtra_translateShadow_pairedAnchor_ascends`, and
+  `leastHighExtra_forces_larger_extra`. Extras are now packaged as
+  `extraElements`; high in-range missing reflections are impossible when
+  `extraElements.card ≤ 1`
+  (`extraElements_card_le_one_not_high_missingReflection`). The unique-extra
+  middle-band escape is characterized by
+  `uniqueExtra_maximal_missingReflection_shadow_shape` and
+  `uniqueExtra_maximal_missingReflection_exact_pairEndpoints`: any translate
+  shadow must collapse to the exact paired-endpoint equations
+  `x + d = 2y`, `y + a = 2x`, and `a + d = n*`. Finally, the all-extras-high
+  regime is ruled out for any in-range missing reflection by
+  `allExtrasHigh_maximal_missingReflection_false`; equivalently,
+  `exists_middle_extra_of_maximal_missingReflection` forces a low/middle extra
+  under the natural assumption that all extras lie on the exception axis.
+  Empirical companion:
+  `research/sqrt2-strong-almost-sidon/data/shadow_certificates.py`.
 
 ---
 
