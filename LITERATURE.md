@@ -267,6 +267,24 @@ bands remain separated enough to block any other repeated sum.
   `research/sqrt2-strong-almost-sidon/below-sqrt2.md` for the detailed
   attack plan. OEIS A389182 and Tao's GitHub issue 143 provide small-`N`
   extremizer data worth checking against.
+- **Two structural rigidity lemmas for SAS extremizers**: ✓ **DONE** in
+  `AlmostSidonSets/Rigidity.lean`. Extracted from the direct-combinatorial
+  attempt (see `research/sqrt2-strong-almost-sidon/direct-combinatorial-attack.md`):
+  - **R1 (Single-atom amplification)**:
+    `r1_atMostTwoReprs_implies_sidon_after_one_removal`. If `A` is
+    non-empty almost-Sidon and no value has three distinct sorted
+    representations (i.e., the exception has multiplicity ≤ 2 if it
+    exists), then removing one element of `A` produces a genuine Sidon
+    set. Consequence: near-extremal SAS sets must have *at least three*
+    representations at the exceptional value.
+  - **R2 (Extreme-pair axis identification)**:
+    `r2_extreme_pair_on_exception_axis_or_unique`. If `A` is almost-Sidon
+    with `|A| ≥ 2` and admits any exceptional value `n*`, then either
+    `min A + max A = n*` (the extreme pair lies on the exception axis) or
+    `(min A, max A)` is the unique sorted-pair representation of its sum.
+    The corollary `r2_extreme_pair_unique_when_not_on_axis` extracts the
+    structural reading. This matches the empirical observation that every
+    SAS extremizer up to `N = 79` has `min + max = n*`.
 
 ---
 
