@@ -3,6 +3,17 @@
 **Draft note, 2026-05-22.** Companion to the Lean 4 formalization in
 `Erdos/AlmostSidonSets/UpperBound/`.
 
+**Lean 4 formalization status:** The structural reduction (Section 4) is
+fully formalized as `strong_almostSidon_card_le_sqrt2_sqrt_of_sidon_interval`
+in `Erdos/AlmostSidonSets/UpperBound/Sqrt2BoundConditional.lean`,
+conditional on the asymptotic Sidon-interval bound. The Cauchy–Schwarz
+inequality `√x + √(N − x) ≤ √(2N)` is at
+`Erdos/AlmostSidonSets/UpperBound/SplitOptimization.lean`. The remaining
+piece — the classical Erdős–Turán/Lindström bound (Section 3) in Lean —
+is open work; see
+`research/openai-motifs-tier1/sidon-almost/lean-status.md` Priority 3 for
+the estimated effort.
+
 ## Abstract
 
 For a finite set `A ⊆ {1, ..., N}` of positive integers, call `A` **strong

@@ -677,6 +677,42 @@ private theorem pp_692835 : Pseudoperfect 692835 := by
     40755, 46189, 53295, 62985, 138567, 230945} : Finset ℕ),
     Finset.mem_powerset.mpr (by native_decide), by native_decide⟩
 
+set_option linter.style.nativeDecide false in
+private theorem pp_1225785 : Pseudoperfect 1225785 := by
+  refine ⟨({3, 11, 15, 17, 19, 23, 33, 51, 55, 57, 69, 85, 115, 165, 187,
+    209, 253, 255, 285, 323, 345, 391, 437, 561, 627, 759, 935, 969, 1045,
+    1173, 1265, 1311, 1615, 2185, 2805, 3135, 3553, 3795, 4301, 4807, 4845,
+    5865, 6555, 7429, 12903, 14421, 17765, 21505, 22287, 37145, 53295, 64515,
+    72105, 81719, 111435, 245157, 408595} : Finset ℕ),
+    Finset.mem_powerset.mpr (by native_decide), by native_decide⟩
+
+set_option linter.style.nativeDecide false in
+private theorem pp_1545555 : Pseudoperfect 1545555 := by
+  refine ⟨({1, 3, 11, 15, 17, 19, 29, 33, 51, 55, 85, 87, 95, 145, 165, 187,
+    209, 255, 285, 319, 323, 435, 493, 551, 561, 627, 935, 957, 969, 1479,
+    1595, 1615, 1653, 2465, 2755, 2805, 3135, 3553, 4785, 4845, 5423, 6061,
+    7395, 8265, 9367, 10659, 16269, 17765, 27115, 28101, 30305, 46835, 53295,
+    81345, 90915, 103037, 140505, 309111, 515185} : Finset ℕ),
+    Finset.mem_powerset.mpr (by native_decide), by native_decide⟩
+
+set_option linter.style.nativeDecide false in
+private theorem pp_1652145 : Pseudoperfect 1652145 := by
+  refine ⟨({3, 11, 15, 17, 19, 31, 33, 51, 55, 57, 85, 93, 95, 155, 165, 187,
+    209, 255, 285, 323, 341, 465, 527, 561, 589, 627, 935, 969, 1023, 1045,
+    1581, 1615, 1705, 1767, 2635, 2945, 3135, 3553, 4845, 5115, 5797, 6479,
+    7905, 8835, 10013, 17391, 17765, 19437, 28985, 30039, 32395, 50065, 53295,
+    86955, 97185, 110143, 150195, 330429, 550715} : Finset ℕ),
+    Finset.mem_powerset.mpr (by native_decide), by native_decide⟩
+
+set_option linter.style.nativeDecide false in
+private theorem pp_1448655 : Pseudoperfect 1448655 := by
+  refine ⟨({13, 15, 19, 39, 51, 57, 65, 69, 85, 95, 115, 195, 221, 247, 255,
+    285, 299, 323, 345, 391, 437, 663, 741, 897, 969, 1105, 1173, 1235, 1311,
+    1495, 1615, 1955, 2185, 3315, 3705, 4199, 4485, 4845, 5083, 5865, 6555,
+    7429, 12597, 15249, 17043, 20995, 22287, 25415, 28405, 37145, 62985,
+    76245, 85215, 96577, 111435, 289731, 482885} : Finset ℕ),
+    Finset.mem_powerset.mpr (by native_decide), by native_decide⟩
+
 /-! ### Pseudoperfect squarefree cores -/
 
 /-- A prime at least `13` does not divide `3 * 5 * 7 * 11`. -/
@@ -700,6 +736,48 @@ private theorem prime_ge13_not_dvd_1155 {r : ℕ} (hr : Nat.Prime r) (hr13 : 13 
   · have : r = 11 := (Nat.prime_dvd_prime_iff_eq hr (by decide : Nat.Prime 11)).mp h11
     omega
 
+/-- A prime at least `17` does not divide `3 * 5 * 7 * 13`. -/
+private theorem prime_ge17_not_dvd_1365 {r : ℕ} (hr : Nat.Prime r) (hr17 : 17 ≤ r) :
+    ¬ r ∣ 1365 := by
+  intro hd
+  have hd' : r ∣ 3 * (5 * (7 * 13)) := by
+    simpa [show 1365 = 3 * (5 * (7 * 13)) by norm_num] using hd
+  rw [hr.dvd_mul] at hd'
+  rcases hd' with h3 | hd'
+  · have : r = 3 := (Nat.prime_dvd_prime_iff_eq hr (by decide : Nat.Prime 3)).mp h3
+    omega
+  rw [hr.dvd_mul] at hd'
+  rcases hd' with h5 | hd'
+  · have : r = 5 := (Nat.prime_dvd_prime_iff_eq hr (by decide : Nat.Prime 5)).mp h5
+    omega
+  rw [hr.dvd_mul] at hd'
+  rcases hd' with h7 | h13
+  · have : r = 7 := (Nat.prime_dvd_prime_iff_eq hr (by decide : Nat.Prime 7)).mp h7
+    omega
+  · have : r = 13 := (Nat.prime_dvd_prime_iff_eq hr (by decide : Nat.Prime 13)).mp h13
+    omega
+
+/-- A prime at least `17` does not divide `3 * 5 * 11 * 13`. -/
+private theorem prime_ge17_not_dvd_2145 {r : ℕ} (hr : Nat.Prime r) (hr17 : 17 ≤ r) :
+    ¬ r ∣ 2145 := by
+  intro hd
+  have hd' : r ∣ 3 * (5 * (11 * 13)) := by
+    simpa [show 2145 = 3 * (5 * (11 * 13)) by norm_num] using hd
+  rw [hr.dvd_mul] at hd'
+  rcases hd' with h3 | hd'
+  · have : r = 3 := (Nat.prime_dvd_prime_iff_eq hr (by decide : Nat.Prime 3)).mp h3
+    omega
+  rw [hr.dvd_mul] at hd'
+  rcases hd' with h5 | hd'
+  · have : r = 5 := (Nat.prime_dvd_prime_iff_eq hr (by decide : Nat.Prime 5)).mp h5
+    omega
+  rw [hr.dvd_mul] at hd'
+  rcases hd' with h11 | h13
+  · have : r = 11 := (Nat.prime_dvd_prime_iff_eq hr (by decide : Nat.Prime 11)).mp h11
+    omega
+  · have : r = 13 := (Nat.prime_dvd_prime_iff_eq hr (by decide : Nat.Prime 13)).mp h13
+    omega
+
 set_option linter.style.nativeDecide false in
 private theorem properDivisors_1155_sum : (1155 : ℕ).properDivisors.sum id = 1149 := by
   native_decide
@@ -707,6 +785,253 @@ private theorem properDivisors_1155_sum : (1155 : ℕ).properDivisors.sum id = 1
 set_option linter.style.nativeDecide false in
 private theorem divisors_1155_sum : (1155 : ℕ).divisors.sum id = 2304 := by
   native_decide
+
+set_option linter.style.nativeDecide false in
+private theorem properDivisors_1365_sum : (1365 : ℕ).properDivisors.sum id = 1323 := by
+  native_decide
+
+set_option linter.style.nativeDecide false in
+private theorem divisors_1365_sum : (1365 : ℕ).divisors.sum id = 2688 := by
+  native_decide
+
+set_option linter.style.nativeDecide false in
+private theorem properDivisors_2145_sum : (2145 : ℕ).properDivisors.sum id = 1887 := by
+  native_decide
+
+set_option linter.style.nativeDecide false in
+private theorem divisors_2145_sum : (2145 : ℕ).divisors.sum id = 4032 := by
+  native_decide
+
+/- The proper-divisor subset sums of `1155` fill `0..1149` except `2` and
+`1147`. The following bitmask table is a compact certificate: bit `i` chooses
+the `i`th proper divisor in `divisor1155At`. The table value is arbitrary at
+the two holes. -/
+set_option linter.style.longLine false in
+private def properSubsetSum1155Masks : List ℕ := [
+  0, 1, 0, 2, 3, 4, 5, 8, 6, 7, 10, 11, 12, 13, 18, 14,
+  15, 21, 24, 22, 23, 26, 27, 28, 29, 42, 30, 31, 45, 50, 46, 47,
+  53, 56, 54, 55, 58, 59, 60, 61, 86, 62, 63, 91, 92, 93, 106, 94,
+  95, 109, 114, 110, 111, 117, 120, 118, 119, 122, 123, 124, 125, 173, 126, 127,
+  175, 181, 184, 182, 183, 186, 187, 188, 189, 214, 190, 191, 219, 220, 221, 234,
+  222, 223, 237, 242, 238, 239, 245, 248, 246, 247, 250, 251, 252, 253, 380, 254,
+  255, 382, 383, 431, 437, 440, 438, 439, 442, 443, 444, 445, 470, 446, 447, 475,
+  476, 477, 490, 478, 479, 493, 498, 494, 495, 501, 504, 502, 503, 506, 507, 508,
+  509, 702, 510, 511, 732, 733, 746, 734, 735, 749, 754, 750, 751, 757, 760, 758,
+  759, 762, 763, 764, 765, 892, 766, 767, 894, 895, 943, 949, 952, 950, 951, 954,
+  955, 956, 957, 982, 958, 959, 987, 988, 989, 1002, 990, 991, 1005, 1010, 1006, 1007,
+  1013, 1016, 1014, 1015, 1018, 1019, 1020, 1021, 1469, 1022, 1023, 1471, 1499, 1500, 1501, 1514,
+  1502, 1503, 1517, 1522, 1518, 1519, 1525, 1528, 1526, 1527, 1530, 1531, 1532, 1533, 1726, 1534,
+  1535, 1756, 1757, 1770, 1758, 1759, 1773, 1778, 1774, 1775, 1781, 1784, 1782, 1783, 1786, 1787,
+  1788, 1789, 1916, 1790, 1791, 1918, 1919, 1967, 1973, 1976, 1974, 1975, 1978, 1979, 1980, 1981,
+  2006, 1982, 1983, 2011, 2012, 2013, 2026, 2014, 2015, 2029, 2034, 2030, 2031, 2037, 2040, 2038,
+  2039, 2042, 2043, 2044, 2045, 3000, 2046, 2047, 3002, 3003, 3004, 3005, 3030, 3006, 3007, 3035,
+  3036, 3037, 3050, 3038, 3039, 3053, 3058, 3054, 3055, 3061, 3064, 3062, 3063, 3066, 3067, 3068,
+  3069, 3517, 3070, 3071, 3519, 3547, 3548, 3549, 3562, 3550, 3551, 3565, 3570, 3566, 3567, 3573,
+  3576, 3574, 3575, 3578, 3579, 3580, 3581, 3774, 3582, 3583, 3804, 3805, 3818, 3806, 3807, 3821,
+  3826, 3822, 3823, 3829, 3832, 3830, 3831, 3834, 3835, 3836, 3837, 3964, 3838, 3839, 3966, 3967,
+  4015, 4021, 4024, 4022, 4023, 4026, 4027, 4028, 4029, 4054, 4030, 4031, 4059, 4060, 4061, 4074,
+  4062, 4063, 4077, 4082, 4078, 4079, 4085, 4088, 4086, 4087, 4090, 4091, 4092, 4093, 5623, 4094,
+  4095, 5628, 5629, 5822, 5630, 5631, 5852, 5853, 5866, 5854, 5855, 5869, 5874, 5870, 5871, 5877,
+  5880, 5878, 5879, 5882, 5883, 5884, 5885, 6012, 5886, 5887, 6014, 6015, 6063, 6069, 6072, 6070,
+  6071, 6074, 6075, 6076, 6077, 6102, 6078, 6079, 6107, 6108, 6109, 6122, 6110, 6111, 6125, 6130,
+  6126, 6127, 6133, 6136, 6134, 6135, 6138, 6139, 6140, 6141, 7096, 6142, 6143, 7098, 7099, 7100,
+  7101, 7126, 7102, 7103, 7131, 7132, 7133, 7146, 7134, 7135, 7149, 7154, 7150, 7151, 7157, 7160,
+  7158, 7159, 7162, 7163, 7164, 7165, 7613, 7166, 7167, 7615, 7643, 7644, 7645, 7658, 7646, 7647,
+  7661, 7666, 7662, 7663, 7669, 7672, 7670, 7671, 7674, 7675, 7676, 7677, 7870, 7678, 7679, 7900,
+  7901, 7914, 7902, 7903, 7917, 7922, 7918, 7919, 7925, 7928, 7926, 7927, 7930, 7931, 7932, 7933,
+  8060, 7934, 7935, 8062, 8063, 8111, 8117, 8120, 8118, 8119, 8122, 8123, 8124, 8125, 8150, 8126,
+  8127, 8155, 8156, 8157, 8170, 8158, 8159, 8173, 8178, 8174, 8175, 8181, 8184, 8182, 8183, 8186,
+  8187, 8188, 8189, 11762, 8190, 8191, 11765, 11768, 11766, 11767, 11770, 11771, 11772, 11773, 11966, 11774,
+  11775, 11996, 11997, 12010, 11998, 11999, 12013, 12018, 12014, 12015, 12021, 12024, 12022, 12023, 12026, 12027,
+  12028, 12029, 12156, 12030, 12031, 12158, 12159, 12207, 12213, 12216, 12214, 12215, 12218, 12219, 12220, 12221,
+  12246, 12222, 12223, 12251, 12252, 12253, 12266, 12254, 12255, 12269, 12274, 12270, 12271, 12277, 12280, 12278,
+  12279, 12282, 12283, 12284, 12285, 13815, 12286, 12287, 13820, 13821, 14014, 13822, 13823, 14044, 14045, 14058,
+  14046, 14047, 14061, 14066, 14062, 14063, 14069, 14072, 14070, 14071, 14074, 14075, 14076, 14077, 14204, 14078,
+  14079, 14206, 14207, 14255, 14261, 14264, 14262, 14263, 14266, 14267, 14268, 14269, 14294, 14270, 14271, 14299,
+  14300, 14301, 14314, 14302, 14303, 14317, 14322, 14318, 14319, 14325, 14328, 14326, 14327, 14330, 14331, 14332,
+  14333, 15288, 14334, 14335, 15290, 15291, 15292, 15293, 15318, 15294, 15295, 15323, 15324, 15325, 15338, 15326,
+  15327, 15341, 15346, 15342, 15343, 15349, 15352, 15350, 15351, 15354, 15355, 15356, 15357, 15805, 15358, 15359,
+  15807, 15835, 15836, 15837, 15850, 15838, 15839, 15853, 15858, 15854, 15855, 15861, 15864, 15862, 15863, 15866,
+  15867, 15868, 15869, 16062, 15870, 15871, 16092, 16093, 16106, 16094, 16095, 16109, 16114, 16110, 16111, 16117,
+  16120, 16118, 16119, 16122, 16123, 16124, 16125, 16252, 16126, 16127, 16254, 16255, 16303, 16309, 16312, 16310,
+  16311, 16314, 16315, 16316, 16317, 16342, 16318, 16319, 16347, 16348, 16349, 16362, 16350, 16351, 16365, 16370,
+  16366, 16367, 16373, 16376, 16374, 16375, 16378, 16379, 16380, 16381, 22238, 16382, 16383, 22258, 22254, 22255,
+  22261, 22264, 22262, 22263, 22266, 22267, 22268, 22269, 22396, 22270, 22271, 22398, 22399, 22447, 22453, 22456,
+  22454, 22455, 22458, 22459, 22460, 22461, 22486, 22462, 22463, 22491, 22492, 22493, 22506, 22494, 22495, 22509,
+  22514, 22510, 22511, 22517, 22520, 22518, 22519, 22522, 22523, 22524, 22525, 23480, 22526, 22527, 23482, 23483,
+  23484, 23485, 23510, 23486, 23487, 23515, 23516, 23517, 23530, 23518, 23519, 23533, 23538, 23534, 23535, 23541,
+  23544, 23542, 23543, 23546, 23547, 23548, 23549, 23997, 23550, 23551, 23999, 24027, 24028, 24029, 24042, 24030,
+  24031, 24045, 24050, 24046, 24047, 24053, 24056, 24054, 24055, 24058, 24059, 24060, 24061, 24254, 24062, 24063,
+  24284, 24285, 24298, 24286, 24287, 24301, 24306, 24302, 24303, 24309, 24312, 24310, 24311, 24314, 24315, 24316,
+  24317, 24444, 24318, 24319, 24446, 24447, 24495, 24501, 24504, 24502, 24503, 24506, 24507, 24508, 24509, 24534,
+  24510, 24511, 24539, 24540, 24541, 24554, 24542, 24543, 24557, 24562, 24558, 24559, 24565, 24568, 24566, 24567,
+  24570, 24571, 24572, 24573, 28146, 24574, 24575, 28149, 28152, 28150, 28151, 28154, 28155, 28156, 28157, 28350,
+  28158, 28159, 28380, 28381, 28394, 28382, 28383, 28397, 28402, 28398, 28399, 28405, 28408, 28406, 28407, 28410,
+  28411, 28412, 28413, 28540, 28414, 28415, 28542, 28543, 28591, 28597, 28600, 28598, 28599, 28602, 28603, 28604,
+  28605, 28630, 28606, 28607, 28635, 28636, 28637, 28650, 28638, 28639, 28653, 28658, 28654, 28655, 28661, 28664,
+  28662, 28663, 28666, 28667, 28668, 28669, 30199, 28670, 28671, 30204, 30205, 30398, 30206, 30207, 30428, 30429,
+  30442, 30430, 30431, 30445, 30450, 30446, 30447, 30453, 30456, 30454, 30455, 30458, 30459, 30460, 30461, 30588,
+  30462, 30463, 30590, 30591, 30639, 30645, 30648, 30646, 30647, 30650, 30651, 30652, 30653, 30678, 30654, 30655,
+  30683, 30684, 30685, 30698, 30686, 30687, 30701, 30706, 30702, 30703, 30709, 30712, 30710, 30711, 30714, 30715,
+  30716, 30717, 31672, 30718, 30719, 31674, 31675, 31676, 31677, 31702, 31678, 31679, 31707, 31708, 31709, 31722,
+  31710, 31711, 31725, 31730, 31726, 31727, 31733, 31736, 31734, 31735, 31738, 31739, 31740, 31741, 32189, 31742,
+  31743, 32191, 32219, 32220, 32221, 32234, 32222, 32223, 32237, 32242, 32238, 32239, 32245, 32248, 32246, 32247,
+  32250, 32251, 32252, 32253, 32446, 32254, 32255, 32476, 32477, 32490, 32478, 32479, 32493, 32498, 32494, 32495,
+  32501, 32504, 32502, 32503, 32506, 32507, 32508, 32509, 32636, 32510, 32511, 32638, 32639, 32687, 32693, 32696,
+  32694, 32695, 32698, 32699, 32700, 32701, 32726, 32702, 32703, 32731, 32732, 32733, 32746, 32734, 32735, 32749,
+  32754, 32750, 32751, 32757, 32760, 32758, 32759, 32762, 32763, 32764, 32765, 0, 32766, 32767
+]
+
+private def subsetSum1155Allowed (t : ℕ) : Bool :=
+  t ≤ 2304 && t != 2 && t != 1147 && t != 1150 && t != 1151 && t != 1152 &&
+    t != 1153 && t != 1154 && t != 1157 && t != 2302
+
+private def subsetSum1155Mask (t : ℕ) : ℕ :=
+  if t ≤ 1149 then
+    properSubsetSum1155Masks.getD t 0
+  else if 1155 ≤ t then
+    32768 + properSubsetSum1155Masks.getD (t - 1155) 0
+  else
+    0
+
+private def divisor1155At : ℕ → ℕ
+  | 0 => 1
+  | 1 => 3
+  | 2 => 5
+  | 3 => 7
+  | 4 => 11
+  | 5 => 15
+  | 6 => 21
+  | 7 => 33
+  | 8 => 35
+  | 9 => 55
+  | 10 => 77
+  | 11 => 105
+  | 12 => 165
+  | 13 => 231
+  | 14 => 385
+  | _ => 1155
+
+private def subsetSum1155Witness (t : ℕ) : Finset ℕ :=
+  ((Finset.range 16).filter fun i => (subsetSum1155Mask t).testBit i).image divisor1155At
+
+set_option linter.style.nativeDecide false in
+set_option linter.style.maxHeartbeats false in
+set_option maxHeartbeats 0 in
+private theorem subsetSum1155Witness_spec {t : ℕ} (ht : subsetSum1155Allowed t = true) :
+    subsetSum1155Witness t ⊆ (1155 : ℕ).divisors ∧ (subsetSum1155Witness t).sum id = t := by
+  have hclosed : ∀ t ∈ Finset.Icc 0 2304, subsetSum1155Allowed t = true →
+      subsetSum1155Witness t ⊆ (1155 : ℕ).divisors ∧
+        (subsetSum1155Witness t).sum id = t := by
+    native_decide
+  have htle : t ≤ 2304 := by
+    by_contra htle
+    unfold subsetSum1155Allowed at ht
+    simp [htle] at ht
+  exact hclosed t (by simp [htle]) ht
+
+private def certShift1155 (r s : ℕ) : ℕ :=
+  let T := 6 * s * (r - 384)
+  let q := T / r
+  let rem := T % r
+  if subsetSum1155Allowed q && subsetSum1155Allowed rem then 0
+  else if subsetSum1155Allowed (q - 2) && subsetSum1155Allowed (rem + 2 * r) then 2
+  else if subsetSum1155Allowed (q - 3) && subsetSum1155Allowed (rem + 3 * r) then 3
+  else if subsetSum1155Allowed (q - 4) && subsetSum1155Allowed (rem + 4 * r) then 4
+  else if subsetSum1155Allowed (q - 5) && subsetSum1155Allowed (rem + 5 * r) then 5
+  else 1
+
+private def certShift1155Spec (r s : ℕ) : Bool :=
+  let T := 6 * s * (r - 384)
+  let k := certShift1155 r s
+  k ≤ 5 && k ≤ T / r && subsetSum1155Allowed (T / r - k) &&
+    subsetSum1155Allowed (T % r + k * r)
+
+/- In the finite corridor, the quotient/remainder construction works after a
+shift by at most five, except for the three explicit pairs handled separately
+below. This is a bounded finite verification over the `3,5,7,11` corridor. -/
+set_option linter.style.nativeDecide false in
+set_option linter.style.maxHeartbeats false in
+set_option maxHeartbeats 0 in
+private theorem certShift1155Spec_of_corridor {r s : ℕ}
+    (hr : Nat.Prime r) (hs : Nat.Prime s) (hr384 : 384 < r) (hrs : r < s)
+    (hr761 : r ≤ 761) (hcorr : s * (r - 384) ≤ 384 * (r + 1))
+    (hne491 : ¬ (r = 491 ∧ s = 883))
+    (hne557 : ¬ (r = 557 ∧ s = 619))
+    (hne571 : ¬ (r = 571 ∧ s = 587)) : certShift1155Spec r s = true := by
+  have hclosed : ∀ r ∈ Finset.Icc 389 761, ∀ s ∈ Finset.Icc (r + 1) 29952,
+      Nat.Prime r → Nat.Prime s → s * (r - 384) ≤ 384 * (r + 1) →
+      ¬ (r = 491 ∧ s = 883) → ¬ (r = 557 ∧ s = 619) →
+      ¬ (r = 571 ∧ s = 587) → certShift1155Spec r s = true := by
+    native_decide
+  have hr389 : 389 ≤ r := by
+    by_contra h
+    push_neg at h
+    have hr_cases : r = 385 ∨ r = 386 ∨ r = 387 ∨ r = 388 := by omega
+    rcases hr_cases with rfl | rfl | rfl | rfl <;> norm_num at hr
+  have hrmem : r ∈ Finset.Icc 389 761 := by
+    simp [hr389, hr761]
+  have hsle : s ≤ 29952 := by
+    have hden_pos : 0 < r - 384 := by omega
+    have hnum : 384 * (r + 1) ≤ 29952 * (r - 384) := by
+      zify [show 384 ≤ r from by omega]
+      nlinarith
+    have hprod : s * (r - 384) ≤ 29952 * (r - 384) := le_trans hcorr hnum
+    exact Nat.le_of_mul_le_mul_right hprod hden_pos
+  have hsge : r + 1 ≤ s := by omega
+  have hsmem : s ∈ Finset.Icc (r + 1) 29952 := by
+    simp [hsge, hsle]
+  exact hclosed r hrmem s hsmem hr hs hcorr hne491 hne557 hne571
+
+private theorem cert_1155_of_corridor_nonexception {r s : ℕ}
+    (hr : Nat.Prime r) (hs : Nat.Prime s) (hr384 : 384 < r) (hrs : r < s)
+    (hr761 : r ≤ 761) (hcorr : s * (r - 384) ≤ 384 * (r + 1))
+    (hne491 : ¬ (r = 491 ∧ s = 883))
+    (hne557 : ¬ (r = 557 ∧ s = 619))
+    (hne571 : ¬ (r = 571 ∧ s = 587)) :
+    ∃ A B C : Finset ℕ, A ⊆ (1155 : ℕ).divisors ∧ B ⊆ (1155 : ℕ).divisors ∧
+      C ⊆ (1155 : ℕ).divisors ∧ A.sum id + r * B.sum id + s * C.sum id =
+        6 * r * s := by
+  let T := 6 * s * (r - 384)
+  let k := certShift1155 r s
+  have hspec : k ≤ 5 ∧ k ≤ T / r ∧ subsetSum1155Allowed (T / r - k) = true ∧
+      subsetSum1155Allowed (T % r + k * r) = true := by
+    have hraw := certShift1155Spec_of_corridor hr hs hr384 hrs hr761 hcorr
+      hne491 hne557 hne571
+    dsimp [certShift1155Spec, T, k] at hraw
+    simp only [Bool.and_eq_true, decide_eq_true_eq] at hraw
+    rcases hraw with ⟨⟨⟨hk5, hkdiv⟩, hB⟩, hA⟩
+    exact ⟨hk5, hkdiv, hB, hA⟩
+  rcases hspec with ⟨_hk5, hkdiv, hBallowed, hAallowed⟩
+  let A := subsetSum1155Witness (T % r + k * r)
+  let B := subsetSum1155Witness (T / r - k)
+  let C := (1155 : ℕ).divisors
+  obtain ⟨hAsub, hAsum⟩ := subsetSum1155Witness_spec hAallowed
+  obtain ⟨hBsub, hBsum⟩ := subsetSum1155Witness_spec hBallowed
+  refine ⟨A, B, C, hAsub, hBsub, ?_, ?_⟩
+  · intro x hx
+    exact hx
+  · have hCsum : C.sum id = 2304 := by
+      dsimp [C]
+      exact divisors_1155_sum
+    rw [hAsum, hBsum, hCsum]
+    have hfill : T % r + k * r + r * (T / r - k) = T := by
+      have hdecomp : T % r + r * (T / r) = T := Nat.mod_add_div T r
+      have hq : T / r = T / r - k + k := (Nat.sub_add_cancel hkdiv).symm
+      rw [hq, Nat.mul_add] at hdecomp
+      calc
+        T % r + k * r + r * (T / r - k) =
+            T % r + (r * (T / r - k) + r * k) := by
+          rw [mul_comm k r]
+          rw [Nat.add_assoc, Nat.add_comm (r * k) (r * (T / r - k))]
+        _ = T := hdecomp
+    calc
+      T % r + k * r + r * (T / r - k) + s * 2304 = T + s * 2304 := by
+        rw [hfill]
+      _ = 6 * r * s := by
+        dsimp [T]
+        zify [show 384 ≤ r from by omega]
+        ring
 
 /- The product of the fixed core `3 * 5 * 7 * 11` with a prime
 `13 ≤ r ≤ 383` is pseudoperfect.
@@ -772,6 +1097,1063 @@ private theorem pp_1155_mul_of_small_prime {r : ℕ} (hr : Nat.Prime r) (hr13 : 
         exact Nat.eq_of_mul_eq_mul_left hr.pos hab
     rw [hUsum, hsumR]
     ring
+
+/-- No prime at least `17` can divide a divisor of `1365`. -/
+private theorem no_prime_ge17_dvd_of_dvd_1365 {p x : ℕ} (hp : Nat.Prime p) (hp17 : 17 ≤ p)
+    (hx : x ∣ 1365) : ¬ p ∣ x := by
+  intro hpx
+  exact prime_ge17_not_dvd_1365 hp hp17 (hpx.trans hx)
+
+/- The product of the fixed core `3 * 5 * 7 * 13` with a prime
+`17 ≤ r ≤ 61` is pseudoperfect.
+
+Here the proper divisors of `1365` sum to `1323 = 1365 - 42`, so the
+`r`-multiples of those divisors leave a gap of `42r`. A bounded subset-sum
+check over the divisors of `1365` fills that gap for each prime in this range. -/
+set_option linter.style.nativeDecide false in
+private theorem forty_two_mul_subset_sum_1365_small {r : ℕ} (hr : Nat.Prime r)
+    (hr17 : 17 ≤ r) (hr61 : r ≤ 61) :
+    ∃ U : Finset ℕ, U ⊆ (1365 : ℕ).divisors ∧ U.sum id = 42 * r := by
+  have hclosed : ∀ r ∈ Finset.Icc 17 61, Nat.Prime r →
+      ∃ U : Finset ℕ, U ⊆ (1365 : ℕ).divisors ∧ U.sum id = 42 * r := by
+    native_decide
+  exact hclosed r (by simp [hr17, hr61]) hr
+
+/-- If `17 ≤ r ≤ 61` is prime, then `1365 * r` is pseudoperfect.
+
+This is the first parametric pruning lemma for the `3,5,7,13` branch. -/
+private theorem pp_1365_mul_of_small_prime {r : ℕ} (hr : Nat.Prime r) (hr17 : 17 ≤ r)
+    (hr61 : r ≤ 61) : Pseudoperfect (1365 * r) := by
+  obtain ⟨U, hUsub, hUsum⟩ := forty_two_mul_subset_sum_1365_small hr hr17 hr61
+  let R := (1365 : ℕ).properDivisors.image fun d => r * d
+  refine ⟨U ∪ R, Finset.mem_powerset.mpr ?_, ?_⟩
+  · intro x hx
+    rw [Finset.mem_union] at hx
+    rcases hx with hxU | hxR
+    · have hxdiv1365 : x ∣ 1365 := Nat.dvd_of_mem_divisors (hUsub hxU)
+      rw [Nat.mem_properDivisors]
+      refine ⟨?_, ?_⟩
+      · exact hxdiv1365.trans (dvd_mul_right 1365 r)
+      · have hxle : x ≤ 1365 := Nat.le_of_dvd (by norm_num) hxdiv1365
+        have hrgt : 1 < r := lt_of_lt_of_le (by norm_num : 1 < 17) hr17
+        nlinarith
+    · rw [Finset.mem_image] at hxR
+      rcases hxR with ⟨d, hd, rfl⟩
+      rw [Nat.mem_properDivisors] at hd ⊢
+      refine ⟨?_, ?_⟩
+      · rcases hd.1 with ⟨k, hk⟩
+        use k
+        rw [hk]
+        ring
+      · simpa [mul_comm] using Nat.mul_lt_mul_of_pos_left hd.2 hr.pos
+  · have hdisj : Disjoint U R := by
+      rw [Finset.disjoint_left]
+      intro x hxU hxR
+      rw [Finset.mem_image] at hxR
+      rcases hxR with ⟨d, _hd, hxd⟩
+      have hxdiv1365 : x ∣ 1365 := Nat.dvd_of_mem_divisors (hUsub hxU)
+      have hrdvdx : r ∣ x := by
+        rw [← hxd]
+        exact dvd_mul_right r d
+      exact prime_ge17_not_dvd_1365 hr hr17 (hrdvdx.trans hxdiv1365)
+    rw [Finset.sum_union hdisj]
+    have hsumR : R.sum id = r * 1323 := by
+      dsimp [R]
+      rw [Finset.sum_image]
+      · change (∑ x ∈ (1365 : ℕ).properDivisors, r * id x) = r * 1323
+        rw [← Finset.mul_sum, properDivisors_1365_sum]
+      · intro a _ha b _hb hab
+        exact Nat.eq_of_mul_eq_mul_left hr.pos hab
+    rw [hUsum, hsumR]
+    ring
+
+/- The proper-divisor subset sums of `1365` fill `0..1323` except `2` and
+`1321`. This table mirrors `properSubsetSum1155Masks`: bit `i` chooses the
+`i`th proper divisor in `divisor1365At`. -/
+set_option linter.style.longLine false in
+private def properSubsetSum1365Masks : List ℕ := [
+  0, 1, 0, 2, 3, 4, 5, 8, 6, 7, 10, 11, 12, 13, 17, 14,
+  15, 19, 20, 21, 24, 22, 23, 26, 27, 28, 29, 44, 30, 31, 46, 47,
+  51, 52, 53, 56, 54, 55, 58, 59, 60, 61, 86, 62, 63, 91, 92, 93,
+  108, 94, 95, 110, 111, 115, 116, 117, 120, 118, 119, 122, 123, 124, 125, 158,
+  126, 127, 175, 179, 180, 181, 184, 182, 183, 186, 187, 188, 189, 214, 190, 191,
+  219, 220, 221, 236, 222, 223, 238, 239, 243, 244, 245, 248, 246, 247, 250, 251,
+  252, 253, 378, 254, 255, 381, 414, 382, 383, 431, 435, 436, 437, 440, 438, 439,
+  442, 443, 444, 445, 470, 446, 447, 475, 476, 477, 492, 478, 479, 494, 495, 499,
+  500, 501, 504, 502, 503, 506, 507, 508, 509, 695, 510, 511, 700, 701, 726, 702,
+  703, 731, 732, 733, 748, 734, 735, 750, 751, 755, 756, 757, 760, 758, 759, 762,
+  763, 764, 765, 890, 766, 767, 893, 926, 894, 895, 943, 947, 948, 949, 952, 950,
+  951, 954, 955, 956, 957, 982, 958, 959, 987, 988, 989, 1004, 990, 991, 1006, 1007,
+  1011, 1012, 1013, 1016, 1014, 1015, 1018, 1019, 1020, 1021, 1463, 1022, 1023, 1468, 1469, 1494,
+  1470, 1471, 1499, 1500, 1501, 1516, 1502, 1503, 1518, 1519, 1523, 1524, 1525, 1528, 1526, 1527,
+  1530, 1531, 1532, 1533, 1719, 1534, 1535, 1724, 1725, 1750, 1726, 1727, 1755, 1756, 1757, 1772,
+  1758, 1759, 1774, 1775, 1779, 1780, 1781, 1784, 1782, 1783, 1786, 1787, 1788, 1789, 1914, 1790,
+  1791, 1917, 1950, 1918, 1919, 1967, 1971, 1972, 1973, 1976, 1974, 1975, 1978, 1979, 1980, 1981,
+  2006, 1982, 1983, 2011, 2012, 2013, 2028, 2014, 2015, 2030, 2031, 2035, 2036, 2037, 2040, 2038,
+  2039, 2042, 2043, 2044, 2045, 3038, 2046, 2047, 3055, 3059, 3060, 3061, 3064, 3062, 3063, 3066,
+  3067, 3068, 3069, 3511, 3070, 3071, 3516, 3517, 3542, 3518, 3519, 3547, 3548, 3549, 3564, 3550,
+  3551, 3566, 3567, 3571, 3572, 3573, 3576, 3574, 3575, 3578, 3579, 3580, 3581, 3767, 3582, 3583,
+  3772, 3773, 3798, 3774, 3775, 3803, 3804, 3805, 3820, 3806, 3807, 3822, 3823, 3827, 3828, 3829,
+  3832, 3830, 3831, 3834, 3835, 3836, 3837, 3962, 3838, 3839, 3965, 3998, 3966, 3967, 4015, 4019,
+  4020, 4021, 4024, 4022, 4023, 4026, 4027, 4028, 4029, 4054, 4030, 4031, 4059, 4060, 4061, 4076,
+  4062, 4063, 4078, 4079, 4083, 4084, 4085, 4088, 4086, 4087, 4090, 4091, 4092, 4093, 5118, 4094,
+  4095, 5565, 5590, 5566, 5567, 5595, 5596, 5597, 5612, 5598, 5599, 5614, 5615, 5619, 5620, 5621,
+  5624, 5622, 5623, 5626, 5627, 5628, 5629, 5815, 5630, 5631, 5820, 5821, 5846, 5822, 5823, 5851,
+  5852, 5853, 5868, 5854, 5855, 5870, 5871, 5875, 5876, 5877, 5880, 5878, 5879, 5882, 5883, 5884,
+  5885, 6010, 5886, 5887, 6013, 6046, 6014, 6015, 6063, 6067, 6068, 6069, 6072, 6070, 6071, 6074,
+  6075, 6076, 6077, 6102, 6078, 6079, 6107, 6108, 6109, 6124, 6110, 6111, 6126, 6127, 6131, 6132,
+  6133, 6136, 6134, 6135, 6138, 6139, 6140, 6141, 7134, 6142, 6143, 7151, 7155, 7156, 7157, 7160,
+  7158, 7159, 7162, 7163, 7164, 7165, 7607, 7166, 7167, 7612, 7613, 7638, 7614, 7615, 7643, 7644,
+  7645, 7660, 7646, 7647, 7662, 7663, 7667, 7668, 7669, 7672, 7670, 7671, 7674, 7675, 7676, 7677,
+  7863, 7678, 7679, 7868, 7869, 7894, 7870, 7871, 7899, 7900, 7901, 7916, 7902, 7903, 7918, 7919,
+  7923, 7924, 7925, 7928, 7926, 7927, 7930, 7931, 7932, 7933, 8058, 7934, 7935, 8061, 8094, 8062,
+  8063, 8111, 8115, 8116, 8117, 8120, 8118, 8119, 8122, 8123, 8124, 8125, 8150, 8126, 8127, 8155,
+  8156, 8157, 8172, 8158, 8159, 8174, 8175, 8179, 8180, 8181, 8184, 8182, 8183, 8186, 8187, 8188,
+  8189, 11743, 8190, 8191, 11763, 11764, 11765, 11768, 11766, 11767, 11770, 11771, 11772, 11773, 11959, 11774,
+  11775, 11964, 11965, 11990, 11966, 11967, 11995, 11996, 11997, 12012, 11998, 11999, 12014, 12015, 12019, 12020,
+  12021, 12024, 12022, 12023, 12026, 12027, 12028, 12029, 12154, 12030, 12031, 12157, 12190, 12158, 12159, 12207,
+  12211, 12212, 12213, 12216, 12214, 12215, 12218, 12219, 12220, 12221, 12246, 12222, 12223, 12251, 12252, 12253,
+  12268, 12254, 12255, 12270, 12271, 12275, 12276, 12277, 12280, 12278, 12279, 12282, 12283, 12284, 12285, 13310,
+  12286, 12287, 13757, 13782, 13758, 13759, 13787, 13788, 13789, 13804, 13790, 13791, 13806, 13807, 13811, 13812,
+  13813, 13816, 13814, 13815, 13818, 13819, 13820, 13821, 14007, 13822, 13823, 14012, 14013, 14038, 14014, 14015,
+  14043, 14044, 14045, 14060, 14046, 14047, 14062, 14063, 14067, 14068, 14069, 14072, 14070, 14071, 14074, 14075,
+  14076, 14077, 14202, 14078, 14079, 14205, 14238, 14206, 14207, 14255, 14259, 14260, 14261, 14264, 14262, 14263,
+  14266, 14267, 14268, 14269, 14294, 14270, 14271, 14299, 14300, 14301, 14316, 14302, 14303, 14318, 14319, 14323,
+  14324, 14325, 14328, 14326, 14327, 14330, 14331, 14332, 14333, 15326, 14334, 14335, 15343, 15347, 15348, 15349,
+  15352, 15350, 15351, 15354, 15355, 15356, 15357, 15799, 15358, 15359, 15804, 15805, 15830, 15806, 15807, 15835,
+  15836, 15837, 15852, 15838, 15839, 15854, 15855, 15859, 15860, 15861, 15864, 15862, 15863, 15866, 15867, 15868,
+  15869, 16055, 15870, 15871, 16060, 16061, 16086, 16062, 16063, 16091, 16092, 16093, 16108, 16094, 16095, 16110,
+  16111, 16115, 16116, 16117, 16120, 16118, 16119, 16122, 16123, 16124, 16125, 16250, 16126, 16127, 16253, 16286,
+  16254, 16255, 16303, 16307, 16308, 16309, 16312, 16310, 16311, 16314, 16315, 16316, 16317, 16342, 16318, 16319,
+  16347, 16348, 16349, 16364, 16350, 16351, 16366, 16367, 16371, 16372, 16373, 16376, 16374, 16375, 16378, 16379,
+  16380, 16381, 21998, 16382, 16383, 22004, 22005, 22008, 22006, 22007, 22010, 22011, 22012, 22013, 22199, 22014,
+  22015, 22204, 22205, 22230, 22206, 22207, 22235, 22236, 22237, 22252, 22238, 22239, 22254, 22255, 22259, 22260,
+  22261, 22264, 22262, 22263, 22266, 22267, 22268, 22269, 22394, 22270, 22271, 22397, 22430, 22398, 22399, 22447,
+  22451, 22452, 22453, 22456, 22454, 22455, 22458, 22459, 22460, 22461, 22486, 22462, 22463, 22491, 22492, 22493,
+  22508, 22494, 22495, 22510, 22511, 22515, 22516, 22517, 22520, 22518, 22519, 22522, 22523, 22524, 22525, 23518,
+  22526, 22527, 23535, 23539, 23540, 23541, 23544, 23542, 23543, 23546, 23547, 23548, 23549, 23991, 23550, 23551,
+  23996, 23997, 24022, 23998, 23999, 24027, 24028, 24029, 24044, 24030, 24031, 24046, 24047, 24051, 24052, 24053,
+  24056, 24054, 24055, 24058, 24059, 24060, 24061, 24247, 24062, 24063, 24252, 24253, 24278, 24254, 24255, 24283,
+  24284, 24285, 24300, 24286, 24287, 24302, 24303, 24307, 24308, 24309, 24312, 24310, 24311, 24314, 24315, 24316,
+  24317, 24442, 24318, 24319, 24445, 24478, 24446, 24447, 24495, 24499, 24500, 24501, 24504, 24502, 24503, 24506,
+  24507, 24508, 24509, 24534, 24510, 24511, 24539, 24540, 24541, 24556, 24542, 24543, 24558, 24559, 24563, 24564,
+  24565, 24568, 24566, 24567, 24570, 24571, 24572, 24573, 28127, 24574, 24575, 28147, 28148, 28149, 28152, 28150,
+  28151, 28154, 28155, 28156, 28157, 28343, 28158, 28159, 28348, 28349, 28374, 28350, 28351, 28379, 28380, 28381,
+  28396, 28382, 28383, 28398, 28399, 28403, 28404, 28405, 28408, 28406, 28407, 28410, 28411, 28412, 28413, 28538,
+  28414, 28415, 28541, 28574, 28542, 28543, 28591, 28595, 28596, 28597, 28600, 28598, 28599, 28602, 28603, 28604,
+  28605, 28630, 28606, 28607, 28635, 28636, 28637, 28652, 28638, 28639, 28654, 28655, 28659, 28660, 28661, 28664,
+  28662, 28663, 28666, 28667, 28668, 28669, 29694, 28670, 28671, 30141, 30166, 30142, 30143, 30171, 30172, 30173,
+  30188, 30174, 30175, 30190, 30191, 30195, 30196, 30197, 30200, 30198, 30199, 30202, 30203, 30204, 30205, 30391,
+  30206, 30207, 30396, 30397, 30422, 30398, 30399, 30427, 30428, 30429, 30444, 30430, 30431, 30446, 30447, 30451,
+  30452, 30453, 30456, 30454, 30455, 30458, 30459, 30460, 30461, 30586, 30462, 30463, 30589, 30622, 30590, 30591,
+  30639, 30643, 30644, 30645, 30648, 30646, 30647, 30650, 30651, 30652, 30653, 30678, 30654, 30655, 30683, 30684,
+  30685, 30700, 30686, 30687, 30702, 30703, 30707, 30708, 30709, 30712, 30710, 30711, 30714, 30715, 30716, 30717,
+  31710, 30718, 30719, 31727, 31731, 31732, 31733, 31736, 31734, 31735, 31738, 31739, 31740, 31741, 32183, 31742,
+  31743, 32188, 32189, 32214, 32190, 32191, 32219, 32220, 32221, 32236, 32222, 32223, 32238, 32239, 32243, 32244,
+  32245, 32248, 32246, 32247, 32250, 32251, 32252, 32253, 32439, 32254, 32255, 32444, 32445, 32470, 32446, 32447,
+  32475, 32476, 32477, 32492, 32478, 32479, 32494, 32495, 32499, 32500, 32501, 32504, 32502, 32503, 32506, 32507,
+  32508, 32509, 32634, 32510, 32511, 32637, 32670, 32638, 32639, 32687, 32691, 32692, 32693, 32696, 32694, 32695,
+  32698, 32699, 32700, 32701, 32726, 32702, 32703, 32731, 32732, 32733, 32748, 32734, 32735, 32750, 32751, 32755,
+  32756, 32757, 32760, 32758, 32759, 32762, 32763, 32764, 32765, 0, 32766, 32767
+]
+
+private def subsetSum1365Allowed (t : ℕ) : Bool :=
+  t ≤ 2688 && t != 2 && t != 1321 && !(1324 ≤ t && t ≤ 1364) &&
+    t != 1367 && t != 2686
+
+private def subsetSum1365Mask (t : ℕ) : ℕ :=
+  if t ≤ 1323 then
+    properSubsetSum1365Masks.getD t 0
+  else if 1365 ≤ t then
+    32768 + properSubsetSum1365Masks.getD (t - 1365) 0
+  else
+    0
+
+private def divisor1365At : ℕ → ℕ
+  | 0 => 1
+  | 1 => 3
+  | 2 => 5
+  | 3 => 7
+  | 4 => 13
+  | 5 => 15
+  | 6 => 21
+  | 7 => 35
+  | 8 => 39
+  | 9 => 65
+  | 10 => 91
+  | 11 => 105
+  | 12 => 195
+  | 13 => 273
+  | 14 => 455
+  | _ => 1365
+
+private def subsetSum1365Witness (t : ℕ) : Finset ℕ :=
+  ((Finset.range 16).filter fun i => (subsetSum1365Mask t).testBit i).image divisor1365At
+
+set_option linter.style.nativeDecide false in
+set_option linter.style.maxHeartbeats false in
+set_option maxHeartbeats 0 in
+private theorem subsetSum1365Witness_spec {t : ℕ} (ht : subsetSum1365Allowed t = true) :
+    subsetSum1365Witness t ⊆ (1365 : ℕ).divisors ∧ (subsetSum1365Witness t).sum id = t := by
+  have hclosed : ∀ t ∈ Finset.Icc 0 2688, subsetSum1365Allowed t = true →
+      subsetSum1365Witness t ⊆ (1365 : ℕ).divisors ∧
+        (subsetSum1365Witness t).sum id = t := by
+    native_decide
+  have htle : t ≤ 2688 := by
+    by_contra htle
+    unfold subsetSum1365Allowed at ht
+    simp [htle] at ht
+  exact hclosed t (by simp [htle]) ht
+
+private def certShift1365 (r s : ℕ) : ℕ :=
+  let T := 42 * s * (r - 64)
+  ((List.range 34).find? fun k =>
+    k ≤ T / r && subsetSum1365Allowed (T / r - k) &&
+      subsetSum1365Allowed (T % r + k * r)).getD 0
+
+private def certShift1365Spec (r s : ℕ) : Bool :=
+  let T := 42 * s * (r - 64)
+  let k := certShift1365 r s
+  k ≤ 33 && k ≤ T / r && subsetSum1365Allowed (T / r - k) &&
+    subsetSum1365Allowed (T % r + k * r)
+
+/- In the finite `3,5,7,13` corridor, the quotient/remainder construction works
+after a shift by at most `33`, except for the explicit pair handled below. -/
+set_option linter.style.nativeDecide false in
+set_option linter.style.maxHeartbeats false in
+set_option maxHeartbeats 0 in
+private theorem certShift1365Spec_of_corridor {r s : ℕ}
+    (hr : Nat.Prime r) (hs : Nat.Prime s) (hr64 : 64 < r) (hrs : r < s)
+    (hr127 : r ≤ 127) (hcorr : s * (r - 64) ≤ 64 * (r + 1))
+    (hne73 : ¬ (r = 73 ∧ s = 263)) : certShift1365Spec r s = true := by
+  have hclosed : ∀ r ∈ Finset.Icc 67 127, ∀ s ∈ Finset.Icc (r + 1) 1451,
+      Nat.Prime r → Nat.Prime s → s * (r - 64) ≤ 64 * (r + 1) →
+      ¬ (r = 73 ∧ s = 263) → certShift1365Spec r s = true := by
+    native_decide
+  have hr67 : 67 ≤ r := by
+    by_contra h
+    push_neg at h
+    have hr_cases : r = 65 ∨ r = 66 := by omega
+    rcases hr_cases with rfl | rfl <;> norm_num at hr
+  have hrmem : r ∈ Finset.Icc 67 127 := by
+    simp [hr67, hr127]
+  have hsle : s ≤ 1451 := by
+    have hden_pos : 0 < r - 64 := by omega
+    have hnum : 64 * (r + 1) ≤ 1451 * (r - 64) := by
+      zify [show 64 ≤ r from by omega]
+      nlinarith
+    have hprod : s * (r - 64) ≤ 1451 * (r - 64) := le_trans hcorr hnum
+    exact Nat.le_of_mul_le_mul_right hprod hden_pos
+  have hsge : r + 1 ≤ s := by omega
+  have hsmem : s ∈ Finset.Icc (r + 1) 1451 := by
+    simp [hsge, hsle]
+  exact hclosed r hrmem s hsmem hr hs hcorr hne73
+
+private theorem cert_1365_of_corridor_nonexception {r s : ℕ}
+    (hr : Nat.Prime r) (hs : Nat.Prime s) (hr64 : 64 < r) (hrs : r < s)
+    (hr127 : r ≤ 127) (hcorr : s * (r - 64) ≤ 64 * (r + 1))
+    (hne73 : ¬ (r = 73 ∧ s = 263)) :
+    ∃ A B C : Finset ℕ, A ⊆ (1365 : ℕ).divisors ∧ B ⊆ (1365 : ℕ).divisors ∧
+      C ⊆ (1365 : ℕ).divisors ∧ A.sum id + r * B.sum id + s * C.sum id =
+        42 * r * s := by
+  let T := 42 * s * (r - 64)
+  let k := certShift1365 r s
+  have hspec : k ≤ 33 ∧ k ≤ T / r ∧ subsetSum1365Allowed (T / r - k) = true ∧
+      subsetSum1365Allowed (T % r + k * r) = true := by
+    have hraw := certShift1365Spec_of_corridor hr hs hr64 hrs hr127 hcorr hne73
+    dsimp [certShift1365Spec, T, k] at hraw
+    simp only [Bool.and_eq_true, decide_eq_true_eq] at hraw
+    rcases hraw with ⟨⟨⟨hk33, hkdiv⟩, hB⟩, hA⟩
+    exact ⟨hk33, hkdiv, hB, hA⟩
+  rcases hspec with ⟨_hk33, hkdiv, hBallowed, hAallowed⟩
+  let A := subsetSum1365Witness (T % r + k * r)
+  let B := subsetSum1365Witness (T / r - k)
+  let C := (1365 : ℕ).divisors
+  obtain ⟨hAsub, hAsum⟩ := subsetSum1365Witness_spec hAallowed
+  obtain ⟨hBsub, hBsum⟩ := subsetSum1365Witness_spec hBallowed
+  refine ⟨A, B, C, hAsub, hBsub, ?_, ?_⟩
+  · intro x hx
+    exact hx
+  · have hCsum : C.sum id = 2688 := by
+      dsimp [C]
+      exact divisors_1365_sum
+    rw [hAsum, hBsum, hCsum]
+    have hfill : T % r + k * r + r * (T / r - k) = T := by
+      have hdecomp : T % r + r * (T / r) = T := Nat.mod_add_div T r
+      have hq : T / r = T / r - k + k := (Nat.sub_add_cancel hkdiv).symm
+      rw [hq, Nat.mul_add] at hdecomp
+      calc
+        T % r + k * r + r * (T / r - k) =
+            T % r + (r * (T / r - k) + r * k) := by
+          rw [mul_comm k r]
+          rw [Nat.add_assoc, Nat.add_comm (r * k) (r * (T / r - k))]
+        _ = T := hdecomp
+    calc
+      T % r + k * r + r * (T / r - k) + s * 2688 = T + s * 2688 := by
+        rw [hfill]
+      _ = 42 * r * s := by
+        dsimp [T]
+        zify [show 64 ≤ r from by omega]
+        ring
+
+/-- A certificate lemma for the two-large-prime part of the `3,5,7,13` branch.
+
+If `A + rB + sC = 42rs`, where `A`, `B`, and `C` are subset sums of divisors of
+`1365`, then `1365*r*s` is pseudoperfect. -/
+private theorem pp_1365_mul_mul_of_cert {r s : ℕ} (hr : Nat.Prime r) (hs : Nat.Prime s)
+    (hr17 : 17 ≤ r) (hs17 : 17 ≤ s) (hrs : r ≠ s)
+    {A B C : Finset ℕ} (hA : A ⊆ (1365 : ℕ).divisors)
+    (hB : B ⊆ (1365 : ℕ).divisors) (hC : C ⊆ (1365 : ℕ).divisors)
+    (hsum : A.sum id + r * B.sum id + s * C.sum id = 42 * r * s) :
+    Pseudoperfect (1365 * r * s) := by
+  let RB := B.image fun d => r * d
+  let SC := C.image fun d => s * d
+  let RSD := (1365 : ℕ).properDivisors.image fun d => (r * s) * d
+  let W := ((A ∪ RB) ∪ SC) ∪ RSD
+  refine ⟨W, Finset.mem_powerset.mpr ?_, ?_⟩
+  · intro x hx
+    dsimp [W] at hx
+    rw [Finset.mem_union] at hx
+    rcases hx with hxABC | hxD
+    · rw [Finset.mem_union] at hxABC
+      rcases hxABC with hxAB | hxSC
+      · rw [Finset.mem_union] at hxAB
+        rcases hxAB with hxA | hxRB
+        · have hxdiv : x ∣ 1365 := Nat.dvd_of_mem_divisors (hA hxA)
+          rw [Nat.mem_properDivisors]
+          refine ⟨?_, ?_⟩
+          · exact hxdiv.trans ((dvd_mul_right 1365 r).trans (dvd_mul_right (1365 * r) s))
+          · have hxle : x ≤ 1365 := Nat.le_of_dvd (by norm_num) hxdiv
+            have hrgt : 1 < r := lt_of_lt_of_le (by norm_num : 1 < 17) hr17
+            have hsgt : 1 < s := lt_of_lt_of_le (by norm_num : 1 < 17) hs17
+            nlinarith
+        · rw [Finset.mem_image] at hxRB
+          rcases hxRB with ⟨d, hd, rfl⟩
+          have hddiv : d ∣ 1365 := Nat.dvd_of_mem_divisors (hB hd)
+          rw [Nat.mem_properDivisors]
+          refine ⟨?_, ?_⟩
+          · rcases hddiv with ⟨k, hk⟩
+            use k * s
+            rw [hk]
+            ring
+          · have hdle : d ≤ 1365 := Nat.le_of_dvd (by norm_num) hddiv
+            have hsgt : 1 < s := lt_of_lt_of_le (by norm_num : 1 < 17) hs17
+            nlinarith [hr.pos]
+      · rw [Finset.mem_image] at hxSC
+        rcases hxSC with ⟨d, hd, rfl⟩
+        have hddiv : d ∣ 1365 := Nat.dvd_of_mem_divisors (hC hd)
+        rw [Nat.mem_properDivisors]
+        refine ⟨?_, ?_⟩
+        · rcases hddiv with ⟨k, hk⟩
+          use k * r
+          rw [hk]
+          ring
+        · have hdle : d ≤ 1365 := Nat.le_of_dvd (by norm_num) hddiv
+          have hrgt : 1 < r := lt_of_lt_of_le (by norm_num : 1 < 17) hr17
+          nlinarith [hs.pos]
+    · rw [Finset.mem_image] at hxD
+      rcases hxD with ⟨d, hd, rfl⟩
+      rw [Nat.mem_properDivisors] at hd ⊢
+      refine ⟨?_, ?_⟩
+      · rcases hd.1 with ⟨k, hk⟩
+        use k
+        rw [hk]
+        ring
+      · nlinarith [Nat.mul_lt_mul_of_pos_left hd.2 (Nat.mul_pos hr.pos hs.pos)]
+  · have hnot_r_dvd_s : ¬ r ∣ s := by
+      intro hrsdvd
+      exact hrs ((Nat.prime_dvd_prime_iff_eq hr hs).mp hrsdvd)
+    have hcop_rs : Nat.Coprime r s := (hr.coprime_iff_not_dvd).mpr hnot_r_dvd_s
+    have hA_RB : Disjoint A RB := by
+      rw [Finset.disjoint_left]
+      intro x hxA hxRB
+      rw [Finset.mem_image] at hxRB
+      rcases hxRB with ⟨b, _hb, hxb⟩
+      have hxdiv : x ∣ 1365 := Nat.dvd_of_mem_divisors (hA hxA)
+      have hrdvdx : r ∣ x := by
+        rw [← hxb]
+        exact dvd_mul_right r b
+      exact no_prime_ge17_dvd_of_dvd_1365 hr hr17 hxdiv hrdvdx
+    have hA_SC : Disjoint A SC := by
+      rw [Finset.disjoint_left]
+      intro x hxA hxSC
+      rw [Finset.mem_image] at hxSC
+      rcases hxSC with ⟨c, _hc, hxc⟩
+      have hxdiv : x ∣ 1365 := Nat.dvd_of_mem_divisors (hA hxA)
+      have hsdvdx : s ∣ x := by
+        rw [← hxc]
+        exact dvd_mul_right s c
+      exact no_prime_ge17_dvd_of_dvd_1365 hs hs17 hxdiv hsdvdx
+    have hRB_SC : Disjoint RB SC := by
+      rw [Finset.disjoint_left]
+      intro x hxRB hxSC
+      rw [Finset.mem_image] at hxRB
+      rw [Finset.mem_image] at hxSC
+      rcases hxRB with ⟨b, _hb, hxb⟩
+      rcases hxSC with ⟨c, hc, hxc⟩
+      have hrdvd_sc : r ∣ s * c := by
+        rw [hxc]
+        rw [← hxb]
+        exact dvd_mul_right r b
+      have hrdvdc : r ∣ c := hcop_rs.dvd_of_dvd_mul_left hrdvd_sc
+      have hcdiv : c ∣ 1365 := Nat.dvd_of_mem_divisors (hC hc)
+      exact no_prime_ge17_dvd_of_dvd_1365 hr hr17 hcdiv hrdvdc
+    have hA_RSD : Disjoint A RSD := by
+      rw [Finset.disjoint_left]
+      intro x hxA hxD
+      rw [Finset.mem_image] at hxD
+      rcases hxD with ⟨d, _hd, hxd⟩
+      have hxdiv : x ∣ 1365 := Nat.dvd_of_mem_divisors (hA hxA)
+      have hrdvdx : r ∣ x := by
+        rw [← hxd]
+        use s * d
+        ring
+      exact no_prime_ge17_dvd_of_dvd_1365 hr hr17 hxdiv hrdvdx
+    have hRB_RSD : Disjoint RB RSD := by
+      rw [Finset.disjoint_left]
+      intro x hxRB hxD
+      rw [Finset.mem_image] at hxRB
+      rw [Finset.mem_image] at hxD
+      rcases hxRB with ⟨b, hb, hxb⟩
+      rcases hxD with ⟨d, _hd, hxd⟩
+      have hb_eq : b = s * d := by
+        apply Nat.eq_of_mul_eq_mul_left hr.pos
+        calc
+          r * b = x := hxb
+          _ = r * (s * d) := by
+            rw [← hxd]
+            ring
+      have hsdvdb : s ∣ b := by rw [hb_eq]; exact dvd_mul_right s d
+      have hbdiv : b ∣ 1365 := Nat.dvd_of_mem_divisors (hB hb)
+      exact no_prime_ge17_dvd_of_dvd_1365 hs hs17 hbdiv hsdvdb
+    have hSC_RSD : Disjoint SC RSD := by
+      rw [Finset.disjoint_left]
+      intro x hxSC hxD
+      rw [Finset.mem_image] at hxSC
+      rw [Finset.mem_image] at hxD
+      rcases hxSC with ⟨c, hc, hxc⟩
+      rcases hxD with ⟨d, _hd, hxd⟩
+      have hc_eq : c = r * d := by
+        apply Nat.eq_of_mul_eq_mul_left hs.pos
+        calc
+          s * c = x := hxc
+          _ = s * (r * d) := by
+            rw [← hxd]
+            ring
+      have hrdvdc : r ∣ c := by rw [hc_eq]; exact dvd_mul_right r d
+      have hcdiv : c ∣ 1365 := Nat.dvd_of_mem_divisors (hC hc)
+      exact no_prime_ge17_dvd_of_dvd_1365 hr hr17 hcdiv hrdvdc
+    have hAB_SC : Disjoint (A ∪ RB) SC := by
+      rw [Finset.disjoint_left]
+      intro x hx hxSC
+      rw [Finset.mem_union] at hx
+      rcases hx with hxA | hxRB
+      · exact (Finset.disjoint_left.mp hA_SC) hxA hxSC
+      · exact (Finset.disjoint_left.mp hRB_SC) hxRB hxSC
+    have hABC_D : Disjoint ((A ∪ RB) ∪ SC) RSD := by
+      rw [Finset.disjoint_left]
+      intro x hx hxD
+      rw [Finset.mem_union] at hx
+      rcases hx with hxAB | hxSC
+      · rw [Finset.mem_union] at hxAB
+        rcases hxAB with hxA | hxRB
+        · exact (Finset.disjoint_left.mp hA_RSD) hxA hxD
+        · exact (Finset.disjoint_left.mp hRB_RSD) hxRB hxD
+      · exact (Finset.disjoint_left.mp hSC_RSD) hxSC hxD
+    dsimp [W]
+    rw [Finset.sum_union hABC_D, Finset.sum_union hAB_SC, Finset.sum_union hA_RB]
+    have hsumRB : RB.sum id = r * B.sum id := by
+      dsimp [RB]
+      rw [Finset.sum_image]
+      · change (∑ x ∈ B, r * id x) = r * B.sum id
+        rw [← Finset.mul_sum]
+      · intro a _ha b _hb hab
+        exact Nat.eq_of_mul_eq_mul_left hr.pos hab
+    have hsumSC : SC.sum id = s * C.sum id := by
+      dsimp [SC]
+      rw [Finset.sum_image]
+      · change (∑ x ∈ C, s * id x) = s * C.sum id
+        rw [← Finset.mul_sum]
+      · intro a _ha b _hb hab
+        exact Nat.eq_of_mul_eq_mul_left hs.pos hab
+    have hsumRSD : RSD.sum id = r * s * 1323 := by
+      dsimp [RSD]
+      rw [Finset.sum_image]
+      · change (∑ x ∈ (1365 : ℕ).properDivisors, (r * s) * id x) = r * s * 1323
+        rw [← Finset.mul_sum, properDivisors_1365_sum]
+      · intro a _ha b _hb hab
+        exact Nat.eq_of_mul_eq_mul_left (Nat.mul_pos hr.pos hs.pos) hab
+    rw [hsumRB, hsumSC, hsumRSD]
+    nlinarith
+
+set_option linter.style.nativeDecide false in
+private theorem pp_1365_mul_mul_73_263 : Pseudoperfect (1365 * 73 * 263) := by
+  refine pp_1365_mul_mul_of_cert (r := 73) (s := 263)
+    (by norm_num) (by norm_num) (by norm_num) (by norm_num) (by norm_num)
+    (A := ({5, 13, 15, 21, 35, 39, 65, 91, 105, 195, 273, 455, 1365} :
+      Finset ℕ))
+    (B := ({3, 5, 7, 13, 15, 21, 35, 39, 65, 91, 105, 195, 273, 455, 1365} :
+      Finset ℕ))
+    (C := ({1, 3, 5, 7, 13, 15, 21, 35, 39, 65, 91, 195, 455, 1365} :
+      Finset ℕ)) ?_ ?_ ?_ ?_
+  · native_decide
+  · native_decide
+  · native_decide
+  · native_decide
+
+private theorem pp_1365_mul_mul_of_corridor {r s : ℕ}
+    (hr : Nat.Prime r) (hs : Nat.Prime s) (hrs_lt : r < s) (hr64 : 64 < r)
+    (hr127 : r ≤ 127) (hcorr : s * (r - 64) ≤ 64 * (r + 1)) :
+    Pseudoperfect (1365 * r * s) := by
+  by_cases h73 : r = 73 ∧ s = 263
+  · rcases h73 with ⟨rfl, rfl⟩
+    exact pp_1365_mul_mul_73_263
+  obtain ⟨A, B, C, hA, hB, hC, hsum⟩ :=
+    cert_1365_of_corridor_nonexception hr hs hr64 hrs_lt hr127 hcorr h73
+  exact pp_1365_mul_mul_of_cert hr hs (by omega) (by omega) (by omega) hA hB hC hsum
+
+private theorem sigma_1365_mul_mul {r s : ℕ} (hr : Nat.Prime r) (hs : Nat.Prime s)
+    (hr17 : 17 ≤ r) (hs17 : 17 ≤ s) (hrs : r ≠ s) :
+    (1365 * r * s).divisors.sum id = 2688 * (r + 1) * (s + 1) := by
+  have hcop_1365_r : Nat.Coprime 1365 r := by
+    rw [Nat.coprime_comm, hr.coprime_iff_not_dvd]
+    exact prime_ge17_not_dvd_1365 hr hr17
+  have hcop_1365_s : Nat.Coprime 1365 s := by
+    rw [Nat.coprime_comm, hs.coprime_iff_not_dvd]
+    exact prime_ge17_not_dvd_1365 hs hs17
+  have hnot_r_dvd_s : ¬ r ∣ s := by
+    intro hdiv
+    exact hrs ((Nat.prime_dvd_prime_iff_eq hr hs).mp hdiv)
+  have hcop_r_s : Nat.Coprime r s := (hr.coprime_iff_not_dvd).mpr hnot_r_dvd_s
+  have hcop_1365r_s : Nat.Coprime (1365 * r) s :=
+    Nat.Coprime.mul_left hcop_1365_s hcop_r_s
+  have hσr : r.divisors.sum id = r + 1 := by
+    simpa using sum_divisors_prime_pow_one hr
+  have hσs : s.divisors.sum id = s + 1 := by
+    simpa using sum_divisors_prime_pow_one hs
+  have hσ1365r : (1365 * r).divisors.sum id = 2688 * (r + 1) := by
+    calc
+      (1365 * r).divisors.sum id =
+          (1365 : ℕ).divisors.sum id * r.divisors.sum id :=
+        hcop_1365_r.sum_divisors_mul
+      _ = 2688 * (r + 1) := by rw [divisors_1365_sum, hσr]
+  calc
+    (1365 * r * s).divisors.sum id =
+        (1365 * r).divisors.sum id * s.divisors.sum id :=
+      hcop_1365r_s.sum_divisors_mul
+    _ = (2688 * (r + 1)) * (s + 1) := by rw [hσ1365r, hσs]
+    _ = 2688 * (r + 1) * (s + 1) := by ring
+
+private theorem not_abundant_1365_mul_mul_of_ratio_lt {r s : ℕ}
+    (hr : Nat.Prime r) (hs : Nat.Prime s) (hr17 : 17 ≤ r) (hs17 : 17 ≤ s)
+    (hrs : r ≠ s) (hratio : 64 * (r + s + 1) < r * s) :
+    ¬Abundant (1365 * r * s) := by
+  apply not_abundant_of_sigma_lt
+  rw [sigma_1365_mul_mul hr hs hr17 hs17 hrs]
+  nlinarith
+
+private theorem not_abundant_1365_mul_mul_of_outside_corridor {r s : ℕ}
+    (hr : Nat.Prime r) (hs : Nat.Prime s) (hr17 : 17 ≤ r) (hs17 : 17 ≤ s)
+    (hrs : r ≠ s) (hr64 : 64 < r)
+    (hout : 64 * (r + 1) < s * (r - 64)) : ¬Abundant (1365 * r * s) := by
+  apply not_abundant_1365_mul_mul_of_ratio_lt hr hs hr17 hs17 hrs
+  zify [show 64 ≤ r from by omega] at hout ⊢
+  nlinarith
+
+private theorem corridor_of_abundant_1365_mul_mul {r s : ℕ}
+    (hr : Nat.Prime r) (hs : Nat.Prime s) (hr17 : 17 ≤ r) (hs17 : 17 ≤ s)
+    (hrs : r ≠ s) (hr64 : 64 < r) (hab : Abundant (1365 * r * s)) :
+    s * (r - 64) ≤ 64 * (r + 1) := by
+  by_contra hout
+  have hout' : 64 * (r + 1) < s * (r - 64) := by omega
+  exact not_abundant_1365_mul_mul_of_outside_corridor hr hs hr17 hs17 hrs hr64 hout' hab
+
+private theorem first_prime_le_128_of_abundant_1365_mul_mul {r s : ℕ}
+    (hr : Nat.Prime r) (hs : Nat.Prime s) (hr17 : 17 ≤ r) (hs17 : 17 ≤ s)
+    (hrs : r ≠ s) (hrs_lt : r < s) (hr64 : 64 < r)
+    (hab : Abundant (1365 * r * s)) : r ≤ 128 := by
+  have hcorr :=
+    corridor_of_abundant_1365_mul_mul hr hs hr17 hs17 hrs hr64 hab
+  by_contra hle
+  have hr129 : 129 ≤ r := by omega
+  have hpos : 0 < r - 64 := by omega
+  have hgt : r * (r - 64) < s * (r - 64) :=
+    Nat.mul_lt_mul_of_pos_right hrs_lt hpos
+  have hlt : r * (r - 64) < 64 * (r + 1) := lt_of_lt_of_le hgt hcorr
+  zify [show 64 ≤ r from by omega] at hlt
+  nlinarith
+
+private theorem prime_le_127_of_le_128 {r : ℕ} (hr : Nat.Prime r) (hrle : r ≤ 128) :
+    r ≤ 127 := by
+  by_contra hle127
+  have hr128 : r = 128 := by omega
+  subst r
+  norm_num at hr
+
+/-- The ordered product `3*5*7*13*r*s` is not weird outside the finite
+large-prime corridor
+
+`s * (r - 64) ≤ 64 * (r + 1)`. -/
+theorem not_weird_1365_mul_mul_of_ordered_outside_corridor {r s : ℕ}
+    (hr : Nat.Prime r) (hs : Nat.Prime s) (hrs_lt : r < s) (hr64 : 64 < r)
+    (hout : 64 * (r + 1) < s * (r - 64)) : ¬Weird (1365 * r * s) := by
+  intro hw
+  exact not_abundant_1365_mul_mul_of_outside_corridor hr hs (by omega) (by omega)
+    (by omega) hr64 hout hw.1
+
+/-- Any weird ordered product `3*5*7*13*r*s` with `64 < r < s` must lie in the
+finite large-prime corridor. -/
+theorem corridor_of_weird_1365_mul_mul {r s : ℕ}
+    (hr : Nat.Prime r) (hs : Nat.Prime s) (hrs_lt : r < s) (hr64 : 64 < r)
+    (hw : Weird (1365 * r * s)) :
+    s * (r - 64) ≤ 64 * (r + 1) := by
+  exact corridor_of_abundant_1365_mul_mul hr hs (by omega) (by omega) (by omega)
+    hr64 hw.1
+
+/-- In a weird ordered product `3*5*7*13*r*s` with `64 < r < s`, the first
+extra prime is at most `127`. -/
+theorem first_prime_le_127_of_weird_1365_mul_mul {r s : ℕ}
+    (hr : Nat.Prime r) (hs : Nat.Prime s) (hrs_lt : r < s) (hr64 : 64 < r)
+    (hw : Weird (1365 * r * s)) : r ≤ 127 :=
+  prime_le_127_of_le_128 hr
+    (first_prime_le_128_of_abundant_1365_mul_mul hr hs (by omega) (by omega)
+      (by omega) hrs_lt hr64 hw.1)
+
+/-- The finite corridor for the ordered product `3*5*7*13*r*s` is completely
+pseudoperfect. -/
+theorem not_weird_1365_mul_mul_of_corridor {r s : ℕ}
+    (hr : Nat.Prime r) (hs : Nat.Prime s) (hrs_lt : r < s) (hr64 : 64 < r)
+    (hr127 : r ≤ 127) (hcorr : s * (r - 64) ≤ 64 * (r + 1)) :
+    ¬Weird (1365 * r * s) := by
+  intro hw
+  exact hw.2 (pp_1365_mul_mul_of_corridor hr hs hrs_lt hr64 hr127 hcorr)
+
+/-- No prime at least `17` can divide a divisor of `2145`. -/
+private theorem no_prime_ge17_dvd_of_dvd_2145 {p x : ℕ} (hp : Nat.Prime p) (hp17 : 17 ≤ p)
+    (hx : x ∣ 2145) : ¬ p ∣ x := by
+  intro hpx
+  exact prime_ge17_not_dvd_2145 hp hp17 (hpx.trans hx)
+
+private def divisor2145At : ℕ → ℕ
+  | 0 => 1
+  | 1 => 3
+  | 2 => 5
+  | 3 => 11
+  | 4 => 13
+  | 5 => 15
+  | 6 => 33
+  | 7 => 39
+  | 8 => 55
+  | 9 => 65
+  | 10 => 143
+  | 11 => 165
+  | 12 => 195
+  | 13 => 429
+  | 14 => 715
+  | _ => 2145
+
+private def mask2145Set (m : ℕ) : Finset ℕ :=
+  ((Finset.range 16).filter fun i => m.testBit i).image divisor2145At
+
+private def certMasks2145 : ℕ → ℕ → ℕ × ℕ × ℕ
+  | 17, 19 => (65503, 65535, 6135)
+  | 17, 23 => (65527, 65535, 20428)
+  | 17, 29 => (65501, 65535, 32765)
+  | 17, 31 => (12151, 65535, 32768)
+  | 17, 37 => (65500, 65535, 34235)
+  | 17, 41 => (65530, 65535, 36342)
+  | 17, 43 => (65488, 65535, 38872)
+  | 17, 47 => (65279, 65535, 40826)
+  | 17, 53 => (65500, 65535, 44414)
+  | 17, 59 => (65530, 65535, 48093)
+  | 17, 61 => (65401, 65535, 48383)
+  | 17, 67 => (65503, 65535, 49134)
+  | 17, 71 => (65518, 65535, 53115)
+  | 17, 73 => (65518, 65535, 53214)
+  | 17, 79 => (65375, 65535, 56543)
+  | 17, 83 => (65470, 65535, 56791)
+  | 17, 89 => (65465, 65535, 57292)
+  | 17, 97 => (65499, 65535, 59326)
+  | 17, 101 => (65277, 65535, 59388)
+  | 17, 103 => (65272, 65535, 60406)
+  | 17, 107 => (65492, 65535, 60664)
+  | 17, 109 => (64983, 65535, 60790)
+  | 17, 113 => (65492, 65535, 60879)
+  | 17, 127 => (63450, 65535, 61402)
+  | 17, 131 => (64751, 65535, 61436)
+  | 17, 137 => (61306, 65535, 63480)
+  | 17, 139 => (65501, 65535, 63485)
+  | 17, 149 => (65519, 65535, 64751)
+  | 17, 151 => (64973, 65535, 64762)
+  | 17, 157 => (65405, 65535, 64892)
+  | 17, 163 => (65465, 65535, 64983)
+  | 17, 167 => (64959, 65535, 64991)
+  | 17, 173 => (64984, 65535, 65023)
+  | 17, 179 => (64990, 65535, 65398)
+  | 17, 181 => (60380, 65535, 65402)
+  | 17, 191 => (59357, 65535, 65496)
+  | 17, 193 => (61434, 65535, 65498)
+  | 17, 197 => (64991, 65535, 65518)
+  | 17, 199 => (60414, 65535, 65528)
+  | 19, 23 => (65510, 65535, 24314)
+  | 19, 29 => (52985, 65535, 32768)
+  | 19, 31 => (65528, 65535, 33244)
+  | 19, 37 => (65516, 65535, 38911)
+  | 19, 41 => (65470, 65535, 42970)
+  | 19, 43 => (65277, 65535, 44494)
+  | 19, 47 => (65004, 65535, 48376)
+  | 19, 53 => (65494, 65535, 53206)
+  | 19, 59 => (64894, 65535, 56830)
+  | 19, 61 => (64767, 65535, 57306)
+  | 19, 67 => (65407, 65535, 60637)
+  | 19, 71 => (65279, 65535, 60923)
+  | 19, 73 => (65400, 65535, 61311)
+  | 19, 79 => (64732, 65535, 64506)
+  | 19, 83 => (65401, 65535, 64957)
+  | 19, 89 => (65530, 65535, 65469)
+  | 23, 29 => (65390, 65535, 36302)
+  | 23, 31 => (65400, 65535, 40440)
+  | 23, 37 => (65519, 65535, 52696)
+  | 23, 41 => (65529, 65535, 57294)
+  | 23, 43 => (65274, 65535, 60408)
+  | 23, 47 => (65405, 65535, 64495)
+  | 29, 31 => (65275, 65535, 57306)
+  | _, _ => (0, 0, 0)
+
+private def cert2145A (r s : ℕ) : Finset ℕ :=
+  mask2145Set (certMasks2145 r s).1
+
+private def cert2145B (r s : ℕ) : Finset ℕ :=
+  mask2145Set (certMasks2145 r s).2.1
+
+private def cert2145C (r s : ℕ) : Finset ℕ :=
+  mask2145Set (certMasks2145 r s).2.2
+
+/- The `3,5,11,13` abundance corridor contains only 62 ordered prime pairs.
+For each pair, `certMasks2145` supplies three divisor masks with
+`A.sum + r*B.sum + s*C.sum = 258rs`. -/
+set_option linter.style.nativeDecide false in
+set_option linter.style.maxHeartbeats false in
+set_option maxHeartbeats 0 in
+private theorem cert_2145_of_corridor {r s : ℕ}
+    (hr : Nat.Prime r) (hs : Nat.Prime s) (hr17 : 17 ≤ r) (hrs : r < s)
+    (hr31 : r ≤ 31) (hcorr : s * (43 * r - 672) ≤ 672 * (r + 1)) :
+    ∃ A B C : Finset ℕ, A ⊆ (2145 : ℕ).divisors ∧ B ⊆ (2145 : ℕ).divisors ∧
+      C ⊆ (2145 : ℕ).divisors ∧ A.sum id + r * B.sum id + s * C.sum id =
+        258 * r * s := by
+  have hclosed : ∀ r ∈ Finset.Icc 17 31, ∀ s ∈ Finset.Icc (r + 1) 206,
+      Nat.Prime r → Nat.Prime s → s * (43 * r - 672) ≤ 672 * (r + 1) →
+      cert2145A r s ⊆ (2145 : ℕ).divisors ∧ cert2145B r s ⊆ (2145 : ℕ).divisors ∧
+        cert2145C r s ⊆ (2145 : ℕ).divisors ∧
+          (cert2145A r s).sum id + r * (cert2145B r s).sum id +
+            s * (cert2145C r s).sum id = 258 * r * s := by
+    native_decide
+  have hrmem : r ∈ Finset.Icc 17 31 := by
+    simp [hr17, hr31]
+  have hsle : s ≤ 206 := by
+    have hden_pos : 0 < 43 * r - 672 := by omega
+    have hnum : 672 * (r + 1) ≤ 206 * (43 * r - 672) := by
+      zify [show 672 ≤ 43 * r from by nlinarith]
+      nlinarith
+    have hprod : s * (43 * r - 672) ≤ 206 * (43 * r - 672) := le_trans hcorr hnum
+    exact Nat.le_of_mul_le_mul_right hprod hden_pos
+  have hsge : r + 1 ≤ s := by omega
+  have hsmem : s ∈ Finset.Icc (r + 1) 206 := by
+    simp [hsge, hsle]
+  exact ⟨cert2145A r s, cert2145B r s, cert2145C r s,
+    hclosed r hrmem s hsmem hr hs hcorr⟩
+
+/-- A certificate lemma for the finite `3,5,11,13` branch.
+
+If `A + rB + sC = 258rs`, where `A`, `B`, and `C` are subset sums of divisors
+of `2145`, then `2145*r*s` is pseudoperfect. -/
+private theorem pp_2145_mul_mul_of_cert {r s : ℕ} (hr : Nat.Prime r) (hs : Nat.Prime s)
+    (hr17 : 17 ≤ r) (hs17 : 17 ≤ s) (hrs : r ≠ s)
+    {A B C : Finset ℕ} (hA : A ⊆ (2145 : ℕ).divisors)
+    (hB : B ⊆ (2145 : ℕ).divisors) (hC : C ⊆ (2145 : ℕ).divisors)
+    (hsum : A.sum id + r * B.sum id + s * C.sum id = 258 * r * s) :
+    Pseudoperfect (2145 * r * s) := by
+  let RB := B.image fun d => r * d
+  let SC := C.image fun d => s * d
+  let RSD := (2145 : ℕ).properDivisors.image fun d => (r * s) * d
+  let W := ((A ∪ RB) ∪ SC) ∪ RSD
+  refine ⟨W, Finset.mem_powerset.mpr ?_, ?_⟩
+  · intro x hx
+    dsimp [W] at hx
+    rw [Finset.mem_union] at hx
+    rcases hx with hxABC | hxD
+    · rw [Finset.mem_union] at hxABC
+      rcases hxABC with hxAB | hxSC
+      · rw [Finset.mem_union] at hxAB
+        rcases hxAB with hxA | hxRB
+        · have hxdiv : x ∣ 2145 := Nat.dvd_of_mem_divisors (hA hxA)
+          rw [Nat.mem_properDivisors]
+          refine ⟨?_, ?_⟩
+          · exact hxdiv.trans ((dvd_mul_right 2145 r).trans (dvd_mul_right (2145 * r) s))
+          · have hxle : x ≤ 2145 := Nat.le_of_dvd (by norm_num) hxdiv
+            have hrgt : 1 < r := lt_of_lt_of_le (by norm_num : 1 < 17) hr17
+            have hsgt : 1 < s := lt_of_lt_of_le (by norm_num : 1 < 17) hs17
+            nlinarith
+        · rw [Finset.mem_image] at hxRB
+          rcases hxRB with ⟨d, hd, rfl⟩
+          have hddiv : d ∣ 2145 := Nat.dvd_of_mem_divisors (hB hd)
+          rw [Nat.mem_properDivisors]
+          refine ⟨?_, ?_⟩
+          · rcases hddiv with ⟨k, hk⟩
+            use k * s
+            rw [hk]
+            ring
+          · have hdle : d ≤ 2145 := Nat.le_of_dvd (by norm_num) hddiv
+            have hsgt : 1 < s := lt_of_lt_of_le (by norm_num : 1 < 17) hs17
+            nlinarith [hr.pos]
+      · rw [Finset.mem_image] at hxSC
+        rcases hxSC with ⟨d, hd, rfl⟩
+        have hddiv : d ∣ 2145 := Nat.dvd_of_mem_divisors (hC hd)
+        rw [Nat.mem_properDivisors]
+        refine ⟨?_, ?_⟩
+        · rcases hddiv with ⟨k, hk⟩
+          use k * r
+          rw [hk]
+          ring
+        · have hdle : d ≤ 2145 := Nat.le_of_dvd (by norm_num) hddiv
+          have hrgt : 1 < r := lt_of_lt_of_le (by norm_num : 1 < 17) hr17
+          nlinarith [hs.pos]
+    · rw [Finset.mem_image] at hxD
+      rcases hxD with ⟨d, hd, rfl⟩
+      rw [Nat.mem_properDivisors] at hd ⊢
+      refine ⟨?_, ?_⟩
+      · rcases hd.1 with ⟨k, hk⟩
+        use k
+        rw [hk]
+        ring
+      · nlinarith [Nat.mul_lt_mul_of_pos_left hd.2 (Nat.mul_pos hr.pos hs.pos)]
+  · have hnot_r_dvd_s : ¬ r ∣ s := by
+      intro hrsdvd
+      exact hrs ((Nat.prime_dvd_prime_iff_eq hr hs).mp hrsdvd)
+    have hcop_rs : Nat.Coprime r s := (hr.coprime_iff_not_dvd).mpr hnot_r_dvd_s
+    have hA_RB : Disjoint A RB := by
+      rw [Finset.disjoint_left]
+      intro x hxA hxRB
+      rw [Finset.mem_image] at hxRB
+      rcases hxRB with ⟨b, _hb, hxb⟩
+      have hxdiv : x ∣ 2145 := Nat.dvd_of_mem_divisors (hA hxA)
+      have hrdvdx : r ∣ x := by
+        rw [← hxb]
+        exact dvd_mul_right r b
+      exact no_prime_ge17_dvd_of_dvd_2145 hr hr17 hxdiv hrdvdx
+    have hA_SC : Disjoint A SC := by
+      rw [Finset.disjoint_left]
+      intro x hxA hxSC
+      rw [Finset.mem_image] at hxSC
+      rcases hxSC with ⟨c, _hc, hxc⟩
+      have hxdiv : x ∣ 2145 := Nat.dvd_of_mem_divisors (hA hxA)
+      have hsdvdx : s ∣ x := by
+        rw [← hxc]
+        exact dvd_mul_right s c
+      exact no_prime_ge17_dvd_of_dvd_2145 hs hs17 hxdiv hsdvdx
+    have hRB_SC : Disjoint RB SC := by
+      rw [Finset.disjoint_left]
+      intro x hxRB hxSC
+      rw [Finset.mem_image] at hxRB
+      rw [Finset.mem_image] at hxSC
+      rcases hxRB with ⟨b, _hb, hxb⟩
+      rcases hxSC with ⟨c, hc, hxc⟩
+      have hrdvd_sc : r ∣ s * c := by
+        rw [hxc]
+        rw [← hxb]
+        exact dvd_mul_right r b
+      have hrdvdc : r ∣ c := hcop_rs.dvd_of_dvd_mul_left hrdvd_sc
+      have hcdiv : c ∣ 2145 := Nat.dvd_of_mem_divisors (hC hc)
+      exact no_prime_ge17_dvd_of_dvd_2145 hr hr17 hcdiv hrdvdc
+    have hA_RSD : Disjoint A RSD := by
+      rw [Finset.disjoint_left]
+      intro x hxA hxD
+      rw [Finset.mem_image] at hxD
+      rcases hxD with ⟨d, _hd, hxd⟩
+      have hxdiv : x ∣ 2145 := Nat.dvd_of_mem_divisors (hA hxA)
+      have hrdvdx : r ∣ x := by
+        rw [← hxd]
+        use s * d
+        ring
+      exact no_prime_ge17_dvd_of_dvd_2145 hr hr17 hxdiv hrdvdx
+    have hRB_RSD : Disjoint RB RSD := by
+      rw [Finset.disjoint_left]
+      intro x hxRB hxD
+      rw [Finset.mem_image] at hxRB
+      rw [Finset.mem_image] at hxD
+      rcases hxRB with ⟨b, hb, hxb⟩
+      rcases hxD with ⟨d, _hd, hxd⟩
+      have hb_eq : b = s * d := by
+        apply Nat.eq_of_mul_eq_mul_left hr.pos
+        calc
+          r * b = x := hxb
+          _ = r * (s * d) := by
+            rw [← hxd]
+            ring
+      have hsdvdb : s ∣ b := by rw [hb_eq]; exact dvd_mul_right s d
+      have hbdiv : b ∣ 2145 := Nat.dvd_of_mem_divisors (hB hb)
+      exact no_prime_ge17_dvd_of_dvd_2145 hs hs17 hbdiv hsdvdb
+    have hSC_RSD : Disjoint SC RSD := by
+      rw [Finset.disjoint_left]
+      intro x hxSC hxD
+      rw [Finset.mem_image] at hxSC
+      rw [Finset.mem_image] at hxD
+      rcases hxSC with ⟨c, hc, hxc⟩
+      rcases hxD with ⟨d, _hd, hxd⟩
+      have hc_eq : c = r * d := by
+        apply Nat.eq_of_mul_eq_mul_left hs.pos
+        calc
+          s * c = x := hxc
+          _ = s * (r * d) := by
+            rw [← hxd]
+            ring
+      have hrdvdc : r ∣ c := by rw [hc_eq]; exact dvd_mul_right r d
+      have hcdiv : c ∣ 2145 := Nat.dvd_of_mem_divisors (hC hc)
+      exact no_prime_ge17_dvd_of_dvd_2145 hr hr17 hcdiv hrdvdc
+    have hAB_SC : Disjoint (A ∪ RB) SC := by
+      rw [Finset.disjoint_left]
+      intro x hx hxSC
+      rw [Finset.mem_union] at hx
+      rcases hx with hxA | hxRB
+      · exact (Finset.disjoint_left.mp hA_SC) hxA hxSC
+      · exact (Finset.disjoint_left.mp hRB_SC) hxRB hxSC
+    have hABC_D : Disjoint ((A ∪ RB) ∪ SC) RSD := by
+      rw [Finset.disjoint_left]
+      intro x hx hxD
+      rw [Finset.mem_union] at hx
+      rcases hx with hxAB | hxSC
+      · rw [Finset.mem_union] at hxAB
+        rcases hxAB with hxA | hxRB
+        · exact (Finset.disjoint_left.mp hA_RSD) hxA hxD
+        · exact (Finset.disjoint_left.mp hRB_RSD) hxRB hxD
+      · exact (Finset.disjoint_left.mp hSC_RSD) hxSC hxD
+    dsimp [W]
+    rw [Finset.sum_union hABC_D, Finset.sum_union hAB_SC, Finset.sum_union hA_RB]
+    have hsumRB : RB.sum id = r * B.sum id := by
+      dsimp [RB]
+      rw [Finset.sum_image]
+      · change (∑ x ∈ B, r * id x) = r * B.sum id
+        rw [← Finset.mul_sum]
+      · intro a _ha b _hb hab
+        exact Nat.eq_of_mul_eq_mul_left hr.pos hab
+    have hsumSC : SC.sum id = s * C.sum id := by
+      dsimp [SC]
+      rw [Finset.sum_image]
+      · change (∑ x ∈ C, s * id x) = s * C.sum id
+        rw [← Finset.mul_sum]
+      · intro a _ha b _hb hab
+        exact Nat.eq_of_mul_eq_mul_left hs.pos hab
+    have hsumRSD : RSD.sum id = r * s * 1887 := by
+      dsimp [RSD]
+      rw [Finset.sum_image]
+      · change (∑ x ∈ (2145 : ℕ).properDivisors, (r * s) * id x) = r * s * 1887
+        rw [← Finset.mul_sum, properDivisors_2145_sum]
+      · intro a _ha b _hb hab
+        exact Nat.eq_of_mul_eq_mul_left (Nat.mul_pos hr.pos hs.pos) hab
+    rw [hsumRB, hsumSC, hsumRSD]
+    nlinarith
+
+private theorem pp_2145_mul_mul_of_corridor {r s : ℕ}
+    (hr : Nat.Prime r) (hs : Nat.Prime s) (hrs_lt : r < s) (hr17 : 17 ≤ r)
+    (hr31 : r ≤ 31) (hcorr : s * (43 * r - 672) ≤ 672 * (r + 1)) :
+    Pseudoperfect (2145 * r * s) := by
+  obtain ⟨A, B, C, hA, hB, hC, hsum⟩ :=
+    cert_2145_of_corridor hr hs hr17 hrs_lt hr31 hcorr
+  exact pp_2145_mul_mul_of_cert hr hs hr17 (by omega) (by omega) hA hB hC hsum
+
+private theorem sigma_2145_mul_mul {r s : ℕ} (hr : Nat.Prime r) (hs : Nat.Prime s)
+    (hr17 : 17 ≤ r) (hs17 : 17 ≤ s) (hrs : r ≠ s) :
+    (2145 * r * s).divisors.sum id = 4032 * (r + 1) * (s + 1) := by
+  have hcop_2145_r : Nat.Coprime 2145 r := by
+    rw [Nat.coprime_comm, hr.coprime_iff_not_dvd]
+    exact prime_ge17_not_dvd_2145 hr hr17
+  have hcop_2145_s : Nat.Coprime 2145 s := by
+    rw [Nat.coprime_comm, hs.coprime_iff_not_dvd]
+    exact prime_ge17_not_dvd_2145 hs hs17
+  have hnot_r_dvd_s : ¬ r ∣ s := by
+    intro hdiv
+    exact hrs ((Nat.prime_dvd_prime_iff_eq hr hs).mp hdiv)
+  have hcop_r_s : Nat.Coprime r s := (hr.coprime_iff_not_dvd).mpr hnot_r_dvd_s
+  have hcop_2145r_s : Nat.Coprime (2145 * r) s :=
+    Nat.Coprime.mul_left hcop_2145_s hcop_r_s
+  have hσr : r.divisors.sum id = r + 1 := by
+    simpa using sum_divisors_prime_pow_one hr
+  have hσs : s.divisors.sum id = s + 1 := by
+    simpa using sum_divisors_prime_pow_one hs
+  have hσ2145r : (2145 * r).divisors.sum id = 4032 * (r + 1) := by
+    calc
+      (2145 * r).divisors.sum id =
+          (2145 : ℕ).divisors.sum id * r.divisors.sum id :=
+        hcop_2145_r.sum_divisors_mul
+      _ = 4032 * (r + 1) := by rw [divisors_2145_sum, hσr]
+  calc
+    (2145 * r * s).divisors.sum id =
+        (2145 * r).divisors.sum id * s.divisors.sum id :=
+      hcop_2145r_s.sum_divisors_mul
+    _ = (4032 * (r + 1)) * (s + 1) := by rw [hσ2145r, hσs]
+    _ = 4032 * (r + 1) * (s + 1) := by ring
+
+private theorem not_abundant_2145_mul_mul_of_ratio_lt {r s : ℕ}
+    (hr : Nat.Prime r) (hs : Nat.Prime s) (hr17 : 17 ≤ r) (hs17 : 17 ≤ s)
+    (hrs : r ≠ s) (hratio : 672 * (r + s + 1) < 43 * r * s) :
+    ¬Abundant (2145 * r * s) := by
+  apply not_abundant_of_sigma_lt
+  rw [sigma_2145_mul_mul hr hs hr17 hs17 hrs]
+  nlinarith
+
+private theorem not_abundant_2145_mul_mul_of_outside_corridor {r s : ℕ}
+    (hr : Nat.Prime r) (hs : Nat.Prime s) (hr17 : 17 ≤ r) (hs17 : 17 ≤ s)
+    (hrs : r ≠ s) (hout : 672 * (r + 1) < s * (43 * r - 672)) :
+    ¬Abundant (2145 * r * s) := by
+  apply not_abundant_2145_mul_mul_of_ratio_lt hr hs hr17 hs17 hrs
+  zify [show 672 ≤ 43 * r from by nlinarith] at hout ⊢
+  nlinarith
+
+private theorem corridor_of_abundant_2145_mul_mul {r s : ℕ}
+    (hr : Nat.Prime r) (hs : Nat.Prime s) (hr17 : 17 ≤ r) (hs17 : 17 ≤ s)
+    (hrs : r ≠ s) (hab : Abundant (2145 * r * s)) :
+    s * (43 * r - 672) ≤ 672 * (r + 1) := by
+  by_contra hout
+  have hout' : 672 * (r + 1) < s * (43 * r - 672) := by omega
+  exact not_abundant_2145_mul_mul_of_outside_corridor hr hs hr17 hs17 hrs hout' hab
+
+private theorem first_prime_le_31_of_abundant_2145_mul_mul {r s : ℕ}
+    (hr : Nat.Prime r) (hs : Nat.Prime s) (hr17 : 17 ≤ r) (hs17 : 17 ≤ s)
+    (hrs : r ≠ s) (hrs_lt : r < s) (hab : Abundant (2145 * r * s)) : r ≤ 31 := by
+  have hcorr := corridor_of_abundant_2145_mul_mul hr hs hr17 hs17 hrs hab
+  by_contra hle
+  have hr32 : 32 ≤ r := by omega
+  have hpos : 0 < 43 * r - 672 := by omega
+  have hgt : r * (43 * r - 672) < s * (43 * r - 672) :=
+    Nat.mul_lt_mul_of_pos_right hrs_lt hpos
+  have hlt : r * (43 * r - 672) < 672 * (r + 1) := lt_of_lt_of_le hgt hcorr
+  zify [show 672 ≤ 43 * r from by nlinarith] at hlt
+  nlinarith
+
+/-- Any weird ordered product `3*5*11*13*r*s` with `17 ≤ r < s` must lie in
+the finite large-prime corridor. -/
+theorem corridor_of_weird_2145_mul_mul {r s : ℕ}
+    (hr : Nat.Prime r) (hs : Nat.Prime s) (hr17 : 17 ≤ r) (hrs_lt : r < s)
+    (hw : Weird (2145 * r * s)) :
+    s * (43 * r - 672) ≤ 672 * (r + 1) := by
+  exact corridor_of_abundant_2145_mul_mul hr hs hr17 (by omega) (by omega) hw.1
+
+/-- In a weird ordered product `3*5*11*13*r*s` with `17 ≤ r < s`, the first
+extra prime is at most `31`. -/
+theorem first_prime_le_31_of_weird_2145_mul_mul {r s : ℕ}
+    (hr : Nat.Prime r) (hs : Nat.Prime s) (hr17 : 17 ≤ r) (hrs_lt : r < s)
+    (hw : Weird (2145 * r * s)) : r ≤ 31 :=
+  first_prime_le_31_of_abundant_2145_mul_mul hr hs hr17 (by omega) (by omega)
+    hrs_lt hw.1
+
+/-- The finite corridor for the ordered product `3*5*11*13*r*s` is completely
+pseudoperfect. -/
+theorem not_weird_2145_mul_mul_of_corridor {r s : ℕ}
+    (hr : Nat.Prime r) (hs : Nat.Prime s) (hr17 : 17 ≤ r) (hrs_lt : r < s)
+    (hr31 : r ≤ 31) (hcorr : s * (43 * r - 672) ≤ 672 * (r + 1)) :
+    ¬Weird (2145 * r * s) := by
+  intro hw
+  exact hw.2 (pp_2145_mul_mul_of_corridor hr hs hrs_lt hr17 hr31 hcorr)
 
 /-- No prime at least `13` can divide a divisor of `1155`. -/
 private theorem no_prime_ge13_dvd_of_dvd_1155 {p x : ℕ} (hp : Nat.Prime p) (hp13 : 13 ≤ p)
@@ -977,6 +2359,63 @@ private theorem pp_1155_mul_mul_of_cert {r s : ℕ} (hr : Nat.Prime r) (hs : Nat
     rw [hsumRB, hsumSC, hsumRSD]
     nlinarith
 
+set_option linter.style.nativeDecide false in
+private theorem pp_1155_mul_mul_491_883 : Pseudoperfect (1155 * 491 * 883) := by
+  refine pp_1155_mul_mul_of_cert (r := 491) (s := 883)
+    (by norm_num) (by norm_num) (by norm_num) (by norm_num) (by norm_num)
+    (A := ({3, 5, 11, 21, 33, 35, 55, 105, 165, 231} : Finset ℕ))
+    (B := ({1155} : Finset ℕ))
+    (C := ({3, 5, 7, 11, 15, 21, 33, 35, 55, 77, 105, 165, 231, 385, 1155} :
+      Finset ℕ)) ?_ ?_ ?_ ?_
+  · native_decide
+  · native_decide
+  · native_decide
+  · native_decide
+
+set_option linter.style.nativeDecide false in
+private theorem pp_1155_mul_mul_557_619 : Pseudoperfect (1155 * 557 * 619) := by
+  refine pp_1155_mul_mul_of_cert (r := 557) (s := 619)
+    (by norm_num) (by norm_num) (by norm_num) (by norm_num) (by norm_num)
+    (A := ({1, 3, 5, 7, 11, 15, 21, 33, 35, 55, 77, 165, 231, 385} :
+      Finset ℕ))
+    (B := ({1155} : Finset ℕ))
+    (C := ({1, 5, 7, 11, 15, 21, 33, 35, 55, 77, 105, 165, 231, 385, 1155} :
+      Finset ℕ)) ?_ ?_ ?_ ?_
+  · native_decide
+  · native_decide
+  · native_decide
+  · native_decide
+
+set_option linter.style.nativeDecide false in
+private theorem pp_1155_mul_mul_571_587 : Pseudoperfect (1155 * 571 * 587) := by
+  refine pp_1155_mul_mul_of_cert (r := 571) (s := 587)
+    (by norm_num) (by norm_num) (by norm_num) (by norm_num) (by norm_num)
+    (A := ({3, 11, 15, 21, 33, 55, 77, 105, 165, 385} : Finset ℕ))
+    (B := ({1155} : Finset ℕ))
+    (C := ({1, 5, 7, 11, 15, 21, 33, 35, 55, 77, 105, 165, 231, 385, 1155} :
+      Finset ℕ)) ?_ ?_ ?_ ?_
+  · native_decide
+  · native_decide
+  · native_decide
+  · native_decide
+
+private theorem pp_1155_mul_mul_of_corridor {r s : ℕ}
+    (hr : Nat.Prime r) (hs : Nat.Prime s) (hrs_lt : r < s) (hr384 : 384 < r)
+    (hr761 : r ≤ 761) (hcorr : s * (r - 384) ≤ 384 * (r + 1)) :
+    Pseudoperfect (1155 * r * s) := by
+  by_cases h491 : r = 491 ∧ s = 883
+  · rcases h491 with ⟨rfl, rfl⟩
+    exact pp_1155_mul_mul_491_883
+  by_cases h557 : r = 557 ∧ s = 619
+  · rcases h557 with ⟨rfl, rfl⟩
+    exact pp_1155_mul_mul_557_619
+  by_cases h571 : r = 571 ∧ s = 587
+  · rcases h571 with ⟨rfl, rfl⟩
+    exact pp_1155_mul_mul_571_587
+  obtain ⟨A, B, C, hA, hB, hC, hsum⟩ :=
+    cert_1155_of_corridor_nonexception hr hs hr384 hrs_lt hr761 hcorr h491 h557 h571
+  exact pp_1155_mul_mul_of_cert hr hs (by omega) (by omega) (by omega) hA hB hC hsum
+
 private theorem sigma_1155_mul_mul {r s : ℕ} (hr : Nat.Prime r) (hs : Nat.Prime s)
     (hr13 : 13 ≤ r) (hs13 : 13 ≤ s) (hrs : r ≠ s) :
     (1155 * r * s).divisors.sum id = 2304 * (r + 1) * (s + 1) := by
@@ -1103,6 +2542,76 @@ private theorem prod_3_5_7_11_r_s {r s : ℕ} (hr13 : 13 ≤ r) (hs13 : 13 ≤ s
     · simp [h5r, h5s]
   · simp [h3r, h3s]
 
+/-- The product of the five-prime core `3,5,7,13,r` is `1365 * r`. -/
+private theorem prod_3_5_7_13_r {r : ℕ} (hr17 : 17 ≤ r) :
+    (∏ p ∈ ({3, 5, 7, 13, r} : Finset ℕ), p) = 1365 * r := by
+  have h3r : 3 ≠ r := by omega
+  have h5r : 5 ≠ r := by omega
+  have h7r : 7 ≠ r := by omega
+  have h13r : 13 ≠ r := by omega
+  rw [Finset.prod_insert]
+  · rw [Finset.prod_insert]
+    · rw [Finset.prod_insert]
+      · rw [Finset.prod_insert]
+        · rw [Finset.prod_singleton]
+          ring
+        · simp [h13r]
+      · simp [h7r]
+    · simp [h5r]
+  · simp [h3r]
+
+/-- The product of the six-prime core `3,5,7,13,r,s` is `1365*r*s`,
+provided the two extra primes are at least `17` and distinct. -/
+private theorem prod_3_5_7_13_r_s {r s : ℕ} (hr17 : 17 ≤ r) (hs17 : 17 ≤ s)
+    (hrs : r ≠ s) :
+    (∏ p ∈ ({3, 5, 7, 13, r, s} : Finset ℕ), p) = 1365 * r * s := by
+  have h3r : 3 ≠ r := by omega
+  have h3s : 3 ≠ s := by omega
+  have h5r : 5 ≠ r := by omega
+  have h5s : 5 ≠ s := by omega
+  have h7r : 7 ≠ r := by omega
+  have h7s : 7 ≠ s := by omega
+  have h13r : 13 ≠ r := by omega
+  have h13s : 13 ≠ s := by omega
+  rw [Finset.prod_insert]
+  · rw [Finset.prod_insert]
+    · rw [Finset.prod_insert]
+      · rw [Finset.prod_insert]
+        · rw [Finset.prod_insert]
+          · rw [Finset.prod_singleton]
+            ring
+          · simp [hrs]
+        · simp [h13r, h13s]
+      · simp [h7r, h7s]
+    · simp [h5r, h5s]
+  · simp [h3r, h3s]
+
+/-- The product of the six-prime core `3,5,11,13,r,s` is `2145*r*s`,
+provided the two extra primes are at least `17` and distinct. -/
+private theorem prod_3_5_11_13_r_s {r s : ℕ} (hr17 : 17 ≤ r) (hs17 : 17 ≤ s)
+    (hrs : r ≠ s) :
+    (∏ p ∈ ({3, 5, 11, 13, r, s} : Finset ℕ), p) = 2145 * r * s := by
+  have h3r : 3 ≠ r := by omega
+  have h3s : 3 ≠ s := by omega
+  have h5r : 5 ≠ r := by omega
+  have h5s : 5 ≠ s := by omega
+  have h11r : 11 ≠ r := by omega
+  have h11s : 11 ≠ s := by omega
+  have h13r : 13 ≠ r := by omega
+  have h13s : 13 ≠ s := by omega
+  rw [Finset.prod_insert]
+  · rw [Finset.prod_insert]
+    · rw [Finset.prod_insert]
+      · rw [Finset.prod_insert]
+        · rw [Finset.prod_insert]
+          · rw [Finset.prod_singleton]
+            ring
+          · simp [hrs]
+        · simp [h13r, h13s]
+      · simp [h11r, h11s]
+    · simp [h5r, h5s]
+  · simp [h3r, h3s]
+
 /-- If a pseudoperfect number divides a positive integer, then the integer is
 pseudoperfect.
 
@@ -1206,6 +2715,16 @@ theorem not_weird_of_squarefree_primeFactors_contains_3_5_7_11_small_extra {n r 
     rw [prod_3_5_7_11_r hr13]
     exact pp_1155_mul_of_small_prime hr hr13 hr383)
 
+/-- In the `3,5,7,13` branch with no extra `11`, any extra prime
+`17 ≤ r ≤ 61` makes the candidate pseudoperfect, hence not weird. This is the
+small-prime side of the next squarefree six-prime branch. -/
+theorem not_weird_of_squarefree_primeFactors_contains_3_5_7_13_small_extra {n r : ℕ}
+    (hsq : Squarefree n) (hr : Nat.Prime r) (hr17 : 17 ≤ r) (hr61 : r ≤ 61)
+    (hsubset : ({3, 5, 7, 13, r} : Finset ℕ) ⊆ n.primeFactors) : ¬Weird n :=
+  not_weird_squarefree_of_pseudoperfect_primeFactors_subset hsq hsubset (by
+    rw [prod_3_5_7_13_r hr17]
+    exact pp_1365_mul_of_small_prime hr hr17 hr61)
+
 /-- Certificate form for the remaining two-large-prime corridor in the
 `3,5,7,11` branch.
 
@@ -1268,6 +2787,17 @@ theorem first_prime_le_761_of_weird_1155_mul_mul {r s : ℕ}
   prime_le_761_of_le_768 hr
     (first_prime_le_768_of_weird_1155_mul_mul hr hs hrs_lt hr384 hw)
 
+/-- The finite corridor for the ordered product `3*5*7*11*r*s` is completely
+pseudoperfect. This closes the product-level `3,5,7,11` branch: outside the
+corridor the product is not abundant, and inside it the product is
+pseudoperfect. -/
+theorem not_weird_1155_mul_mul_of_corridor {r s : ℕ}
+    (hr : Nat.Prime r) (hs : Nat.Prime s) (hrs_lt : r < s) (hr384 : 384 < r)
+    (hr761 : r ≤ 761) (hcorr : s * (r - 384) ≤ 384 * (r + 1)) :
+    ¬Weird (1155 * r * s) := by
+  intro hw
+  exact hw.2 (pp_1155_mul_mul_of_corridor hr hs hrs_lt hr384 hr761 hcorr)
+
 set_option linter.style.nativeDecide false in
 /-- One exceptional large-pair certificate in the `3,5,7,11` branch. -/
 theorem not_weird_of_squarefree_primeFactors_contains_3_5_7_11_491_883 {n : ℕ}
@@ -1325,6 +2855,38 @@ theorem not_weird_of_squarefree_primeFactors_contains_3_5_11_13_17_19 {n : ℕ}
     (hsubset : ({3, 5, 11, 13, 17, 19} : Finset ℕ) ⊆ n.primeFactors) : ¬Weird n :=
   not_weird_squarefree_of_pseudoperfect_primeFactors_subset hsq hsubset (by
     simpa using pp_692835)
+
+/-- The pseudoperfect core `3 * 5 * 11 * 17 * 19 * 23` rules out every
+squarefree weird multiple of it. -/
+theorem not_weird_of_squarefree_primeFactors_contains_3_5_11_17_19_23 {n : ℕ}
+    (hsq : Squarefree n)
+    (hsubset : ({3, 5, 11, 17, 19, 23} : Finset ℕ) ⊆ n.primeFactors) : ¬Weird n :=
+  not_weird_squarefree_of_pseudoperfect_primeFactors_subset hsq hsubset (by
+    simpa using pp_1225785)
+
+/-- The pseudoperfect core `3 * 5 * 11 * 17 * 19 * 29` rules out every
+squarefree weird multiple of it. -/
+theorem not_weird_of_squarefree_primeFactors_contains_3_5_11_17_19_29 {n : ℕ}
+    (hsq : Squarefree n)
+    (hsubset : ({3, 5, 11, 17, 19, 29} : Finset ℕ) ⊆ n.primeFactors) : ¬Weird n :=
+  not_weird_squarefree_of_pseudoperfect_primeFactors_subset hsq hsubset (by
+    simpa using pp_1545555)
+
+/-- The pseudoperfect core `3 * 5 * 11 * 17 * 19 * 31` rules out every
+squarefree weird multiple of it. -/
+theorem not_weird_of_squarefree_primeFactors_contains_3_5_11_17_19_31 {n : ℕ}
+    (hsq : Squarefree n)
+    (hsubset : ({3, 5, 11, 17, 19, 31} : Finset ℕ) ⊆ n.primeFactors) : ¬Weird n :=
+  not_weird_squarefree_of_pseudoperfect_primeFactors_subset hsq hsubset (by
+    simpa using pp_1652145)
+
+/-- The pseudoperfect core `3 * 5 * 13 * 17 * 19 * 23` rules out every
+squarefree weird multiple of it. -/
+theorem not_weird_of_squarefree_primeFactors_contains_3_5_13_17_19_23 {n : ℕ}
+    (hsq : Squarefree n)
+    (hsubset : ({3, 5, 13, 17, 19, 23} : Finset ℕ) ⊆ n.primeFactors) : ¬Weird n :=
+  not_weird_squarefree_of_pseudoperfect_primeFactors_subset hsq hsubset (by
+    simpa using pp_1448655)
 
 /-! ### Exceptional abundant forms are pseudoperfect -/
 
@@ -2196,6 +3758,171 @@ private theorem squarefree_six_ratio_3_5_17_19_23_29_lt (p0 p1 p2 p3 p4 p5 : ℕ
     (Nat.mul_lt_mul_left (by norm_num : 0 < 3231615)).mp hscaled'
   simpa [A0, A1, A2, A3, A4, A5, B0, B1, B2, B3, B4, B5] using hlt
 
+/-- The exact squarefree ratio bound for lower bounds `3,5,13,17,19,29`. -/
+private theorem squarefree_six_ratio_3_5_13_17_19_29_lt (p0 p1 p2 p3 p4 p5 : ℕ)
+    (hp0 : 3 ≤ p0) (hp1 : 5 ≤ p1) (hp2 : 13 ≤ p2)
+    (hp3 : 17 ≤ p3) (hp4 : 19 ≤ p4) (hp5 : 29 ≤ p5) :
+    (p0 + 1) * (p1 + 1) * (p2 + 1) * (p3 + 1) * (p4 + 1) * (p5 + 1) <
+      2 * (p0 * p1 * p2 * p3 * p4 * p5) := by
+  let A0 := p0 + 1
+  let A1 := p1 + 1
+  let A2 := p2 + 1
+  let A3 := p3 + 1
+  let A4 := p4 + 1
+  let A5 := p5 + 1
+  let B0 := p0
+  let B1 := p1
+  let B2 := p2
+  let B3 := p3
+  let B4 := p4
+  let B5 := p5
+  have h0 : 3 * A0 ≤ 4 * B0 := by dsimp [A0, B0]; nlinarith
+  have h1 : 5 * A1 ≤ 6 * B1 := by dsimp [A1, B1]; nlinarith
+  have h2 : 13 * A2 ≤ 14 * B2 := by dsimp [A2, B2]; nlinarith
+  have h3 : 17 * A3 ≤ 18 * B3 := by dsimp [A3, B3]; nlinarith
+  have h4 : 19 * A4 ≤ 20 * B4 := by dsimp [A4, B4]; nlinarith
+  have h5 : 29 * A5 ≤ 30 * B5 := by dsimp [A5, B5]; nlinarith
+  have hchain :
+      (3 * A0) * (5 * A1) * (13 * A2) * (17 * A3) * (19 * A4) * (29 * A5) ≤
+        (4 * B0) * (6 * B1) * (14 * B2) * (18 * B3) * (20 * B4) * (30 * B5) := by
+    gcongr
+  have hscaled : 1826565 * (A0 * A1 * A2 * A3 * A4 * A5) ≤
+      3628800 * (B0 * B1 * B2 * B3 * B4 * B5) := by
+    calc
+      1826565 * (A0 * A1 * A2 * A3 * A4 * A5)
+          = (3 * A0) * (5 * A1) * (13 * A2) * (17 * A3) * (19 * A4) *
+              (29 * A5) := by
+            ring
+      _ ≤ (4 * B0) * (6 * B1) * (14 * B2) * (18 * B3) * (20 * B4) *
+          (30 * B5) :=
+        hchain
+      _ = 3628800 * (B0 * B1 * B2 * B3 * B4 * B5) := by ring
+  have hBpos : 0 < B0 * B1 * B2 * B3 * B4 * B5 := by
+    dsimp [B0, B1, B2, B3, B4, B5]
+    positivity
+  have hceil : 3628800 * (B0 * B1 * B2 * B3 * B4 * B5) <
+      1826565 * (2 * (B0 * B1 * B2 * B3 * B4 * B5)) := by
+    have hconst : 3628800 < 1826565 * 2 := by norm_num
+    simpa [mul_assoc, mul_left_comm, mul_comm] using
+      mul_lt_mul_of_pos_right hconst hBpos
+  have hscaled' : 1826565 * (A0 * A1 * A2 * A3 * A4 * A5) <
+      1826565 * (2 * (B0 * B1 * B2 * B3 * B4 * B5)) :=
+    lt_of_le_of_lt hscaled hceil
+  have hlt : A0 * A1 * A2 * A3 * A4 * A5 <
+      2 * (B0 * B1 * B2 * B3 * B4 * B5) :=
+    (Nat.mul_lt_mul_left (by norm_num : 0 < 1826565)).mp hscaled'
+  simpa [A0, A1, A2, A3, A4, A5, B0, B1, B2, B3, B4, B5] using hlt
+
+/-- The exact squarefree ratio bound for lower bounds `3,5,11,17,19,37`. -/
+private theorem squarefree_six_ratio_3_5_11_17_19_37_lt (p0 p1 p2 p3 p4 p5 : ℕ)
+    (hp0 : 3 ≤ p0) (hp1 : 5 ≤ p1) (hp2 : 11 ≤ p2)
+    (hp3 : 17 ≤ p3) (hp4 : 19 ≤ p4) (hp5 : 37 ≤ p5) :
+    (p0 + 1) * (p1 + 1) * (p2 + 1) * (p3 + 1) * (p4 + 1) * (p5 + 1) <
+      2 * (p0 * p1 * p2 * p3 * p4 * p5) := by
+  let A0 := p0 + 1
+  let A1 := p1 + 1
+  let A2 := p2 + 1
+  let A3 := p3 + 1
+  let A4 := p4 + 1
+  let A5 := p5 + 1
+  let B0 := p0
+  let B1 := p1
+  let B2 := p2
+  let B3 := p3
+  let B4 := p4
+  let B5 := p5
+  have h0 : 3 * A0 ≤ 4 * B0 := by dsimp [A0, B0]; nlinarith
+  have h1 : 5 * A1 ≤ 6 * B1 := by dsimp [A1, B1]; nlinarith
+  have h2 : 11 * A2 ≤ 12 * B2 := by dsimp [A2, B2]; nlinarith
+  have h3 : 17 * A3 ≤ 18 * B3 := by dsimp [A3, B3]; nlinarith
+  have h4 : 19 * A4 ≤ 20 * B4 := by dsimp [A4, B4]; nlinarith
+  have h5 : 37 * A5 ≤ 38 * B5 := by dsimp [A5, B5]; nlinarith
+  have hchain :
+      (3 * A0) * (5 * A1) * (11 * A2) * (17 * A3) * (19 * A4) * (37 * A5) ≤
+        (4 * B0) * (6 * B1) * (12 * B2) * (18 * B3) * (20 * B4) * (38 * B5) := by
+    gcongr
+  have hscaled : 1971915 * (A0 * A1 * A2 * A3 * A4 * A5) ≤
+      3939840 * (B0 * B1 * B2 * B3 * B4 * B5) := by
+    calc
+      1971915 * (A0 * A1 * A2 * A3 * A4 * A5)
+          = (3 * A0) * (5 * A1) * (11 * A2) * (17 * A3) * (19 * A4) *
+              (37 * A5) := by
+            ring
+      _ ≤ (4 * B0) * (6 * B1) * (12 * B2) * (18 * B3) * (20 * B4) *
+          (38 * B5) :=
+        hchain
+      _ = 3939840 * (B0 * B1 * B2 * B3 * B4 * B5) := by ring
+  have hBpos : 0 < B0 * B1 * B2 * B3 * B4 * B5 := by
+    dsimp [B0, B1, B2, B3, B4, B5]
+    positivity
+  have hceil : 3939840 * (B0 * B1 * B2 * B3 * B4 * B5) <
+      1971915 * (2 * (B0 * B1 * B2 * B3 * B4 * B5)) := by
+    have hconst : 3939840 < 1971915 * 2 := by norm_num
+    simpa [mul_assoc, mul_left_comm, mul_comm] using
+      mul_lt_mul_of_pos_right hconst hBpos
+  have hscaled' : 1971915 * (A0 * A1 * A2 * A3 * A4 * A5) <
+      1971915 * (2 * (B0 * B1 * B2 * B3 * B4 * B5)) :=
+    lt_of_le_of_lt hscaled hceil
+  have hlt : A0 * A1 * A2 * A3 * A4 * A5 <
+      2 * (B0 * B1 * B2 * B3 * B4 * B5) :=
+    (Nat.mul_lt_mul_left (by norm_num : 0 < 1971915)).mp hscaled'
+  simpa [A0, A1, A2, A3, A4, A5, B0, B1, B2, B3, B4, B5] using hlt
+
+/-- The exact squarefree ratio bound for lower bounds `3,5,11,17,23,29`. -/
+private theorem squarefree_six_ratio_3_5_11_17_23_29_lt (p0 p1 p2 p3 p4 p5 : ℕ)
+    (hp0 : 3 ≤ p0) (hp1 : 5 ≤ p1) (hp2 : 11 ≤ p2)
+    (hp3 : 17 ≤ p3) (hp4 : 23 ≤ p4) (hp5 : 29 ≤ p5) :
+    (p0 + 1) * (p1 + 1) * (p2 + 1) * (p3 + 1) * (p4 + 1) * (p5 + 1) <
+      2 * (p0 * p1 * p2 * p3 * p4 * p5) := by
+  let A0 := p0 + 1
+  let A1 := p1 + 1
+  let A2 := p2 + 1
+  let A3 := p3 + 1
+  let A4 := p4 + 1
+  let A5 := p5 + 1
+  let B0 := p0
+  let B1 := p1
+  let B2 := p2
+  let B3 := p3
+  let B4 := p4
+  let B5 := p5
+  have h0 : 3 * A0 ≤ 4 * B0 := by dsimp [A0, B0]; nlinarith
+  have h1 : 5 * A1 ≤ 6 * B1 := by dsimp [A1, B1]; nlinarith
+  have h2 : 11 * A2 ≤ 12 * B2 := by dsimp [A2, B2]; nlinarith
+  have h3 : 17 * A3 ≤ 18 * B3 := by dsimp [A3, B3]; nlinarith
+  have h4 : 23 * A4 ≤ 24 * B4 := by dsimp [A4, B4]; nlinarith
+  have h5 : 29 * A5 ≤ 30 * B5 := by dsimp [A5, B5]; nlinarith
+  have hchain :
+      (3 * A0) * (5 * A1) * (11 * A2) * (17 * A3) * (23 * A4) * (29 * A5) ≤
+        (4 * B0) * (6 * B1) * (12 * B2) * (18 * B3) * (24 * B4) * (30 * B5) := by
+    gcongr
+  have hscaled : 1870935 * (A0 * A1 * A2 * A3 * A4 * A5) ≤
+      3732480 * (B0 * B1 * B2 * B3 * B4 * B5) := by
+    calc
+      1870935 * (A0 * A1 * A2 * A3 * A4 * A5)
+          = (3 * A0) * (5 * A1) * (11 * A2) * (17 * A3) * (23 * A4) *
+              (29 * A5) := by
+            ring
+      _ ≤ (4 * B0) * (6 * B1) * (12 * B2) * (18 * B3) * (24 * B4) *
+          (30 * B5) :=
+        hchain
+      _ = 3732480 * (B0 * B1 * B2 * B3 * B4 * B5) := by ring
+  have hBpos : 0 < B0 * B1 * B2 * B3 * B4 * B5 := by
+    dsimp [B0, B1, B2, B3, B4, B5]
+    positivity
+  have hceil : 3732480 * (B0 * B1 * B2 * B3 * B4 * B5) <
+      1870935 * (2 * (B0 * B1 * B2 * B3 * B4 * B5)) := by
+    have hconst : 3732480 < 1870935 * 2 := by norm_num
+    simpa [mul_assoc, mul_left_comm, mul_comm] using
+      mul_lt_mul_of_pos_right hconst hBpos
+  have hscaled' : 1870935 * (A0 * A1 * A2 * A3 * A4 * A5) <
+      1870935 * (2 * (B0 * B1 * B2 * B3 * B4 * B5)) :=
+    lt_of_le_of_lt hscaled hceil
+  have hlt : A0 * A1 * A2 * A3 * A4 * A5 <
+      2 * (B0 * B1 * B2 * B3 * B4 * B5) :=
+    (Nat.mul_lt_mul_left (by norm_num : 0 < 1870935)).mp hscaled'
+  simpa [A0, A1, A2, A3, A4, A5, B0, B1, B2, B3, B4, B5] using hlt
+
 /-- Six distinct odd prime factors with no factor `3` force non-abundance.
 
 The ordered prime factors are at least `5, 7, 11, 13, 17, 19`; hence
@@ -3012,5 +4739,903 @@ theorem squarefree_six_3_5_7_11_frontier_corridor {n : ℕ}
       corridor_of_weird_1155_mul_mul hb_prime ha_prime hba_lt hb384 hwprod,
       first_prime_le_761_of_weird_1155_mul_mul hb_prime ha_prime hba_lt hb384 hwprod,
       hnprod'⟩
+
+/-- **The `3,5,7,11` branch of the squarefree six-prime frontier is empty.**
+
+Any squarefree odd weird number with exactly six prime factors and containing
+`3,5,7,11` would reduce to the finite corridor above, but every product in
+that corridor is pseudoperfect. -/
+theorem not_weird_of_squarefree_six_primeFactors_contains_3_5_7_11 {n : ℕ}
+    (hodd : ¬Even n) (hcard : n.primeFactors.card = 6) (hsq : Squarefree n)
+    (h3 : 3 ∈ n.primeFactors) (h5 : 5 ∈ n.primeFactors)
+    (h7 : 7 ∈ n.primeFactors) (h11 : 11 ∈ n.primeFactors) : ¬Weird n := by
+  intro hw
+  obtain ⟨r, s, hr, hs, hr384, hrs, hcorr, hr761, hn⟩ :=
+    squarefree_six_3_5_7_11_frontier_corridor hw hodd hcard hsq h3 h5 h7 h11
+  have hwprod : Weird (1155 * r * s) := by
+    simpa [hn] using hw
+  exact not_weird_1155_mul_mul_of_corridor hr hs hrs hr384 hr761 hcorr hwprod
+
+/-- Squarefree six-prime candidates in the `3,5,7,13` branch with no `11`
+reduce to a finite corridor.
+
+If an odd squarefree weird number has exactly six prime factors, contains
+`3,5,7,13`, and avoids `11`, then its two remaining prime factors can be
+written as `64 < r < s`, with
+
+`s * (r - 64) ≤ 64 * (r + 1)`
+
+and in fact `r ≤ 127`. -/
+theorem squarefree_six_3_5_7_13_frontier_corridor {n : ℕ}
+    (hw : Weird n) (hodd : ¬Even n) (hcard : n.primeFactors.card = 6)
+    (hsq : Squarefree n) (h3 : 3 ∈ n.primeFactors) (h5 : 5 ∈ n.primeFactors)
+    (h7 : 7 ∈ n.primeFactors) (h13 : 13 ∈ n.primeFactors)
+    (hno11 : 11 ∉ n.primeFactors) :
+    ∃ r s : ℕ,
+      Nat.Prime r ∧ Nat.Prime s ∧ 64 < r ∧ r < s ∧
+        s * (r - 64) ≤ 64 * (r + 1) ∧ r ≤ 127 ∧ n = 1365 * r * s := by
+  let B : Finset ℕ := {3, 5, 7, 13}
+  have hBsub : B ⊆ n.primeFactors := by
+    intro p hp
+    simp only [B, Finset.mem_insert, Finset.mem_singleton] at hp
+    rcases hp with rfl | rfl | rfl | rfl
+    · exact h3
+    · exact h5
+    · exact h7
+    · exact h13
+  let R := n.primeFactors \ B
+  have hRcard : R.card = 2 := by
+    change (n.primeFactors \ B).card = 2
+    have hsdiff : (n.primeFactors \ B).card + B.card = n.primeFactors.card :=
+      Finset.card_sdiff_add_card_eq_card hBsub
+    have hBcard : B.card = 4 := by decide
+    rw [hBcard, hcard] at hsdiff
+    omega
+  obtain ⟨a, b, hab, hR⟩ := Finset.card_eq_two.mp hRcard
+  have haR : a ∈ R := by rw [hR]; simp
+  have hbR : b ∈ R := by rw [hR]; simp
+  have ha_mem : a ∈ n.primeFactors := (Finset.mem_sdiff.mp haR).1
+  have hb_mem : b ∈ n.primeFactors := (Finset.mem_sdiff.mp hbR).1
+  have ha_notB : a ∉ B := (Finset.mem_sdiff.mp haR).2
+  have hb_notB : b ∉ B := (Finset.mem_sdiff.mp hbR).2
+  have ha_prime : Nat.Prime a := Nat.prime_of_mem_primeFactors ha_mem
+  have hb_prime : Nat.Prime b := Nat.prime_of_mem_primeFactors hb_mem
+  have ha_ne3 : a ≠ 3 := by intro h; exact ha_notB (by simp [B, h])
+  have ha_ne5 : a ≠ 5 := by intro h; exact ha_notB (by simp [B, h])
+  have ha_ne7 : a ≠ 7 := by intro h; exact ha_notB (by simp [B, h])
+  have ha_ne13 : a ≠ 13 := by intro h; exact ha_notB (by simp [B, h])
+  have hb_ne3 : b ≠ 3 := by intro h; exact hb_notB (by simp [B, h])
+  have hb_ne5 : b ≠ 5 := by intro h; exact hb_notB (by simp [B, h])
+  have hb_ne7 : b ≠ 7 := by intro h; exact hb_notB (by simp [B, h])
+  have hb_ne13 : b ≠ 13 := by intro h; exact hb_notB (by simp [B, h])
+  have ha_ne11 : a ≠ 11 := by intro h; exact hno11 (h ▸ ha_mem)
+  have hb_ne11 : b ≠ 11 := by intro h; exact hno11 (h ▸ hb_mem)
+  have ha_ge17 : 17 ≤ a :=
+    prime_factor_ge_seventeen_of_not_small hodd ha_mem ha_ne3 ha_ne5 ha_ne7 ha_ne11 ha_ne13
+  have hb_ge17 : 17 ≤ b :=
+    prime_factor_ge_seventeen_of_not_small hodd hb_mem hb_ne3 hb_ne5 hb_ne7 hb_ne11 hb_ne13
+  have hasubset : ({3, 5, 7, 13, a} : Finset ℕ) ⊆ n.primeFactors := by
+    intro p hp
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hp
+    rcases hp with rfl | rfl | rfl | rfl | rfl
+    · exact h3
+    · exact h5
+    · exact h7
+    · exact h13
+    · exact ha_mem
+  have hbsubset : ({3, 5, 7, 13, b} : Finset ℕ) ⊆ n.primeFactors := by
+    intro p hp
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hp
+    rcases hp with rfl | rfl | rfl | rfl | rfl
+    · exact h3
+    · exact h5
+    · exact h7
+    · exact h13
+    · exact hb_mem
+  have ha64 : 64 < a := by
+    by_contra hle64
+    have ha61 : a ≤ 61 := by
+      by_contra hle61
+      push_neg at hle61
+      have hacases : a = 62 ∨ a = 63 ∨ a = 64 := by omega
+      rcases hacases with rfl | rfl | rfl <;> norm_num at ha_prime
+    exact (not_weird_of_squarefree_primeFactors_contains_3_5_7_13_small_extra
+      hsq ha_prime ha_ge17 ha61 hasubset) hw
+  have hb64 : 64 < b := by
+    by_contra hle64
+    have hb61 : b ≤ 61 := by
+      by_contra hle61
+      push_neg at hle61
+      have hbcases : b = 62 ∨ b = 63 ∨ b = 64 := by omega
+      rcases hbcases with rfl | rfl | rfl <;> norm_num at hb_prime
+    exact (not_weird_of_squarefree_primeFactors_contains_3_5_7_13_small_extra
+      hsq hb_prime hb_ge17 hb61 hbsubset) hw
+  have hpf : n.primeFactors = ({3, 5, 7, 13, a, b} : Finset ℕ) := by
+    ext p
+    constructor
+    · intro hp
+      by_cases hpB : p ∈ B
+      · have hpbase : p = 3 ∨ p = 5 ∨ p = 7 ∨ p = 13 := by
+          simpa only [B, Finset.mem_insert, Finset.mem_singleton] using hpB
+        rcases hpbase with rfl | rfl | rfl | rfl <;> simp
+      · have hpR : p ∈ R := Finset.mem_sdiff.mpr ⟨hp, hpB⟩
+        rw [hR] at hpR
+        rcases (by simpa using hpR : p = a ∨ p = b) with rfl | rfl <;> simp
+    · intro hp
+      simp only [Finset.mem_insert, Finset.mem_singleton] at hp
+      rcases hp with rfl | rfl | rfl | rfl | rfl | rfl
+      · exact h3
+      · exact h5
+      · exact h7
+      · exact h13
+      · exact ha_mem
+      · exact hb_mem
+  have hnprod : n = 1365 * a * b := by
+    rw [← Nat.prod_primeFactors_of_squarefree hsq, hpf,
+      prod_3_5_7_13_r_s ha_ge17 hb_ge17 hab]
+  rcases lt_or_gt_of_ne hab with hab_lt | hba_lt
+  · have hwprod : Weird (1365 * a * b) := by simpa [hnprod] using hw
+    refine ⟨a, b, ha_prime, hb_prime, ha64, hab_lt,
+      corridor_of_weird_1365_mul_mul ha_prime hb_prime hab_lt ha64 hwprod,
+      first_prime_le_127_of_weird_1365_mul_mul ha_prime hb_prime hab_lt ha64 hwprod,
+      hnprod⟩
+  · have hnprod' : n = 1365 * b * a := by
+      rw [hnprod]
+      ring
+    have hwprod : Weird (1365 * b * a) := by simpa [hnprod'] using hw
+    refine ⟨b, a, hb_prime, ha_prime, hb64, hba_lt,
+      corridor_of_weird_1365_mul_mul hb_prime ha_prime hba_lt hb64 hwprod,
+      first_prime_le_127_of_weird_1365_mul_mul hb_prime ha_prime hba_lt hb64 hwprod,
+      hnprod'⟩
+
+/-- **The `3,5,7,13` branch of the squarefree six-prime frontier is empty.**
+
+The case with an additional factor `11` was already closed by the `3,5,7,11`
+branch. In the remaining case the two extra primes are at least `17`; small
+extra primes make the five-prime core pseudoperfect, while the large-prime
+candidates reduce to the finite `1365` corridor, which is also pseudoperfect. -/
+theorem not_weird_of_squarefree_six_primeFactors_contains_3_5_7_13 {n : ℕ}
+    (hodd : ¬Even n) (hcard : n.primeFactors.card = 6) (hsq : Squarefree n)
+    (h3 : 3 ∈ n.primeFactors) (h5 : 5 ∈ n.primeFactors)
+    (h7 : 7 ∈ n.primeFactors) (h13 : 13 ∈ n.primeFactors) : ¬Weird n := by
+  intro hw
+  by_cases h11 : 11 ∈ n.primeFactors
+  · exact not_weird_of_squarefree_six_primeFactors_contains_3_5_7_11
+      hodd hcard hsq h3 h5 h7 h11 hw
+  obtain ⟨r, s, hr, hs, hr64, hrs, hcorr, hr127, hn⟩ :=
+    squarefree_six_3_5_7_13_frontier_corridor hw hodd hcard hsq h3 h5 h7 h13 h11
+  have hwprod : Weird (1365 * r * s) := by
+    simpa [hn] using hw
+  exact not_weird_1365_mul_mul_of_corridor hr hs hrs hr64 hr127 hcorr hwprod
+
+/-- Squarefree six-prime candidates in the `3,5,11,13` branch with no `7`
+reduce to a finite corridor.
+
+If an odd squarefree weird number has exactly six prime factors, contains
+`3,5,11,13`, and avoids `7`, then its two remaining prime factors can be
+written as `17 ≤ r < s`, with
+
+`s * (43 * r - 672) ≤ 672 * (r + 1)`
+
+and in fact `r ≤ 31`. -/
+theorem squarefree_six_3_5_11_13_frontier_corridor {n : ℕ}
+    (hw : Weird n) (hodd : ¬Even n) (hcard : n.primeFactors.card = 6)
+    (hsq : Squarefree n) (h3 : 3 ∈ n.primeFactors) (h5 : 5 ∈ n.primeFactors)
+    (h11 : 11 ∈ n.primeFactors) (h13 : 13 ∈ n.primeFactors)
+    (hno7 : 7 ∉ n.primeFactors) :
+    ∃ r s : ℕ,
+      Nat.Prime r ∧ Nat.Prime s ∧ 17 ≤ r ∧ r < s ∧
+        s * (43 * r - 672) ≤ 672 * (r + 1) ∧ r ≤ 31 ∧ n = 2145 * r * s := by
+  let B : Finset ℕ := {3, 5, 11, 13}
+  have hBsub : B ⊆ n.primeFactors := by
+    intro p hp
+    simp only [B, Finset.mem_insert, Finset.mem_singleton] at hp
+    rcases hp with rfl | rfl | rfl | rfl
+    · exact h3
+    · exact h5
+    · exact h11
+    · exact h13
+  let R := n.primeFactors \ B
+  have hRcard : R.card = 2 := by
+    change (n.primeFactors \ B).card = 2
+    have hsdiff : (n.primeFactors \ B).card + B.card = n.primeFactors.card :=
+      Finset.card_sdiff_add_card_eq_card hBsub
+    have hBcard : B.card = 4 := by decide
+    rw [hBcard, hcard] at hsdiff
+    omega
+  obtain ⟨a, b, hab, hR⟩ := Finset.card_eq_two.mp hRcard
+  have haR : a ∈ R := by rw [hR]; simp
+  have hbR : b ∈ R := by rw [hR]; simp
+  have ha_mem : a ∈ n.primeFactors := (Finset.mem_sdiff.mp haR).1
+  have hb_mem : b ∈ n.primeFactors := (Finset.mem_sdiff.mp hbR).1
+  have ha_notB : a ∉ B := (Finset.mem_sdiff.mp haR).2
+  have hb_notB : b ∉ B := (Finset.mem_sdiff.mp hbR).2
+  have ha_prime : Nat.Prime a := Nat.prime_of_mem_primeFactors ha_mem
+  have hb_prime : Nat.Prime b := Nat.prime_of_mem_primeFactors hb_mem
+  have ha_ne3 : a ≠ 3 := by intro h; exact ha_notB (by simp [B, h])
+  have ha_ne5 : a ≠ 5 := by intro h; exact ha_notB (by simp [B, h])
+  have ha_ne11 : a ≠ 11 := by intro h; exact ha_notB (by simp [B, h])
+  have ha_ne13 : a ≠ 13 := by intro h; exact ha_notB (by simp [B, h])
+  have hb_ne3 : b ≠ 3 := by intro h; exact hb_notB (by simp [B, h])
+  have hb_ne5 : b ≠ 5 := by intro h; exact hb_notB (by simp [B, h])
+  have hb_ne11 : b ≠ 11 := by intro h; exact hb_notB (by simp [B, h])
+  have hb_ne13 : b ≠ 13 := by intro h; exact hb_notB (by simp [B, h])
+  have ha_ne7 : a ≠ 7 := by intro h; exact hno7 (h ▸ ha_mem)
+  have hb_ne7 : b ≠ 7 := by intro h; exact hno7 (h ▸ hb_mem)
+  have ha_ge17 : 17 ≤ a :=
+    prime_factor_ge_seventeen_of_not_small hodd ha_mem ha_ne3 ha_ne5 ha_ne7 ha_ne11 ha_ne13
+  have hb_ge17 : 17 ≤ b :=
+    prime_factor_ge_seventeen_of_not_small hodd hb_mem hb_ne3 hb_ne5 hb_ne7 hb_ne11 hb_ne13
+  have hpf : n.primeFactors = ({3, 5, 11, 13, a, b} : Finset ℕ) := by
+    ext p
+    constructor
+    · intro hp
+      by_cases hpB : p ∈ B
+      · have hpbase : p = 3 ∨ p = 5 ∨ p = 11 ∨ p = 13 := by
+          simpa only [B, Finset.mem_insert, Finset.mem_singleton] using hpB
+        rcases hpbase with rfl | rfl | rfl | rfl <;> simp
+      · have hpR : p ∈ R := Finset.mem_sdiff.mpr ⟨hp, hpB⟩
+        rw [hR] at hpR
+        rcases (by simpa using hpR : p = a ∨ p = b) with rfl | rfl <;> simp
+    · intro hp
+      simp only [Finset.mem_insert, Finset.mem_singleton] at hp
+      rcases hp with rfl | rfl | rfl | rfl | rfl | rfl
+      · exact h3
+      · exact h5
+      · exact h11
+      · exact h13
+      · exact ha_mem
+      · exact hb_mem
+  have hnprod : n = 2145 * a * b := by
+    rw [← Nat.prod_primeFactors_of_squarefree hsq, hpf,
+      prod_3_5_11_13_r_s ha_ge17 hb_ge17 hab]
+  rcases lt_or_gt_of_ne hab with hab_lt | hba_lt
+  · have hwprod : Weird (2145 * a * b) := by simpa [hnprod] using hw
+    refine ⟨a, b, ha_prime, hb_prime, ha_ge17, hab_lt,
+      corridor_of_weird_2145_mul_mul ha_prime hb_prime ha_ge17 hab_lt hwprod,
+      first_prime_le_31_of_weird_2145_mul_mul ha_prime hb_prime ha_ge17 hab_lt hwprod,
+      hnprod⟩
+  · have hnprod' : n = 2145 * b * a := by
+      rw [hnprod]
+      ring
+    have hwprod : Weird (2145 * b * a) := by simpa [hnprod'] using hw
+    refine ⟨b, a, hb_prime, ha_prime, hb_ge17, hba_lt,
+      corridor_of_weird_2145_mul_mul hb_prime ha_prime hb_ge17 hba_lt hwprod,
+      first_prime_le_31_of_weird_2145_mul_mul hb_prime ha_prime hb_ge17 hba_lt hwprod,
+      hnprod'⟩
+
+/-- **The `3,5,11,13` branch of the squarefree six-prime frontier is empty.**
+
+The case with an additional factor `7` was already closed by the `3,5,7,11`
+branch. In the remaining case the two extra primes are at least `17`, abundance
+forces one of just 62 ordered prime pairs, and each pair has a pseudoperfect
+certificate over the divisors of `2145`. -/
+theorem not_weird_of_squarefree_six_primeFactors_contains_3_5_11_13 {n : ℕ}
+    (hodd : ¬Even n) (hcard : n.primeFactors.card = 6) (hsq : Squarefree n)
+    (h3 : 3 ∈ n.primeFactors) (h5 : 5 ∈ n.primeFactors)
+    (h11 : 11 ∈ n.primeFactors) (h13 : 13 ∈ n.primeFactors) : ¬Weird n := by
+  intro hw
+  by_cases h7 : 7 ∈ n.primeFactors
+  · exact not_weird_of_squarefree_six_primeFactors_contains_3_5_7_11
+      hodd hcard hsq h3 h5 h7 h11 hw
+  obtain ⟨r, s, hr, hs, hr17, hrs, hcorr, hr31, hn⟩ :=
+    squarefree_six_3_5_11_13_frontier_corridor hw hodd hcard hsq h3 h5 h11 h13 h7
+  have hwprod : Weird (2145 * r * s) := by
+    simpa [hn] using hw
+  exact not_weird_2145_mul_mul_of_corridor hr hs hr17 hrs hr31 hcorr hwprod
+
+/-- **The `3,5,13` singleton branch of the squarefree six-prime frontier is
+empty.**
+
+The pair branches with `7` or `11` are already closed. If neither appears,
+the ordered prime factors are at least `3,5,13,17,19,23`. Once the largest is
+at least `29`, the divisor-sum ratio is below `2`; otherwise primality and
+ordering force the last three primes to be exactly `17,19,23`, whose six-prime
+core is pseudoperfect. -/
+theorem not_weird_of_squarefree_six_primeFactors_contains_3_5_13 {n : ℕ}
+    (hodd : ¬Even n) (hcard : n.primeFactors.card = 6) (hsq : Squarefree n)
+    (h3 : 3 ∈ n.primeFactors) (h5 : 5 ∈ n.primeFactors)
+    (h13 : 13 ∈ n.primeFactors) : ¬Weird n := by
+  intro hw
+  by_cases h7 : 7 ∈ n.primeFactors
+  · exact not_weird_of_squarefree_six_primeFactors_contains_3_5_7_13
+      hodd hcard hsq h3 h5 h7 h13 hw
+  by_cases h11 : 11 ∈ n.primeFactors
+  · exact not_weird_of_squarefree_six_primeFactors_contains_3_5_11_13
+      hodd hcard hsq h3 h5 h11 h13 hw
+  let S := n.primeFactors
+  let e := S.orderEmbOfFin hcard
+  let p0 := e ⟨0, by decide⟩
+  let p1 := e ⟨1, by decide⟩
+  let p2 := e ⟨2, by decide⟩
+  let p3 := e ⟨3, by decide⟩
+  let p4 := e ⟨4, by decide⟩
+  let p5 := e ⟨5, by decide⟩
+  have hp0_mem : p0 ∈ n.primeFactors := by
+    dsimp [p0, e, S]
+    exact Finset.orderEmbOfFin_mem n.primeFactors hcard ⟨0, by decide⟩
+  have hp1_mem : p1 ∈ n.primeFactors := by
+    dsimp [p1, e, S]
+    exact Finset.orderEmbOfFin_mem n.primeFactors hcard ⟨1, by decide⟩
+  have hp2_mem : p2 ∈ n.primeFactors := by
+    dsimp [p2, e, S]
+    exact Finset.orderEmbOfFin_mem n.primeFactors hcard ⟨2, by decide⟩
+  have hp3_mem : p3 ∈ n.primeFactors := by
+    dsimp [p3, e, S]
+    exact Finset.orderEmbOfFin_mem n.primeFactors hcard ⟨3, by decide⟩
+  have hp4_mem : p4 ∈ n.primeFactors := by
+    dsimp [p4, e, S]
+    exact Finset.orderEmbOfFin_mem n.primeFactors hcard ⟨4, by decide⟩
+  have hp5_mem : p5 ∈ n.primeFactors := by
+    dsimp [p5, e, S]
+    exact Finset.orderEmbOfFin_mem n.primeFactors hcard ⟨5, by decide⟩
+  have hp0 : Nat.Prime p0 := Nat.prime_of_mem_primeFactors hp0_mem
+  have hp1 : Nat.Prime p1 := Nat.prime_of_mem_primeFactors hp1_mem
+  have hp2 : Nat.Prime p2 := Nat.prime_of_mem_primeFactors hp2_mem
+  have hp3 : Nat.Prime p3 := Nat.prime_of_mem_primeFactors hp3_mem
+  have hp4 : Nat.Prime p4 := Nat.prime_of_mem_primeFactors hp4_mem
+  have hp5 : Nat.Prime p5 := Nat.prime_of_mem_primeFactors hp5_mem
+  have hp01 : p0 < p1 := by
+    dsimp [p0, p1, e]
+    exact (S.orderEmbOfFin hcard).strictMono (by decide)
+  have hp12 : p1 < p2 := by
+    dsimp [p1, p2, e]
+    exact (S.orderEmbOfFin hcard).strictMono (by decide)
+  have hp23 : p2 < p3 := by
+    dsimp [p2, p3, e]
+    exact (S.orderEmbOfFin hcard).strictMono (by decide)
+  have hp34 : p3 < p4 := by
+    dsimp [p3, p4, e]
+    exact (S.orderEmbOfFin hcard).strictMono (by decide)
+  have hp45 : p4 < p5 := by
+    dsimp [p4, p5, e]
+    exact (S.orderEmbOfFin hcard).strictMono (by decide)
+  have hp0_ge3 : 3 ≤ p0 := prime_factor_ge_three_of_odd hodd hp0_mem
+  have hp1_ne3 : p1 ≠ 3 := by intro h; omega
+  have hp1_ge5 : 5 ≤ p1 := prime_factor_ge_five_of_ne_three hodd hp1_mem hp1_ne3
+  have hp2_ne3 : p2 ≠ 3 := by intro h; omega
+  have hp2_ne5 : p2 ≠ 5 := by intro h; omega
+  have hp2_ge7 : 7 ≤ p2 :=
+    prime_factor_ge_seven_of_ne_three_five hodd hp2_mem hp2_ne3 hp2_ne5
+  have hp2_ne7 : p2 ≠ 7 := by intro h; exact h7 (h ▸ hp2_mem)
+  have hp2_ge11 : 11 ≤ p2 := prime_ge_eleven_of_ge_seven_ne_seven hp2 hp2_ge7 hp2_ne7
+  have hp2_ne11 : p2 ≠ 11 := by intro h; exact h11 (h ▸ hp2_mem)
+  have hp2_ge13 : 13 ≤ p2 :=
+    prime_ge_thirteen_of_ge_eleven_ne_eleven hp2 hp2_ge11 hp2_ne11
+  have hp3_ne3 : p3 ≠ 3 := by intro h; omega
+  have hp3_ne5 : p3 ≠ 5 := by intro h; omega
+  have hp3_ne7 : p3 ≠ 7 := by intro h; exact h7 (h ▸ hp3_mem)
+  have hp3_ne11 : p3 ≠ 11 := by intro h; exact h11 (h ▸ hp3_mem)
+  have hp3_ne13 : p3 ≠ 13 := by intro h; omega
+  have hp3_ge17 : 17 ≤ p3 :=
+    prime_factor_ge_seventeen_of_not_small hodd hp3_mem hp3_ne3 hp3_ne5
+      hp3_ne7 hp3_ne11 hp3_ne13
+  have hp4_ne3 : p4 ≠ 3 := by intro h; omega
+  have hp4_ne5 : p4 ≠ 5 := by intro h; omega
+  have hp4_ne7 : p4 ≠ 7 := by intro h; exact h7 (h ▸ hp4_mem)
+  have hp4_ne11 : p4 ≠ 11 := by intro h; exact h11 (h ▸ hp4_mem)
+  have hp4_ne13 : p4 ≠ 13 := by intro h; omega
+  have hp4_ge17 : 17 ≤ p4 :=
+    prime_factor_ge_seventeen_of_not_small hodd hp4_mem hp4_ne3 hp4_ne5
+      hp4_ne7 hp4_ne11 hp4_ne13
+  have hp4_ne17 : p4 ≠ 17 := by intro h; omega
+  have hp4_ge19 : 19 ≤ p4 :=
+    prime_ge_nineteen_of_ge_seventeen_ne_seventeen hp4 hp4_ge17 hp4_ne17
+  have hp5_ne3 : p5 ≠ 3 := by intro h; omega
+  have hp5_ne5 : p5 ≠ 5 := by intro h; omega
+  have hp5_ne7 : p5 ≠ 7 := by intro h; exact h7 (h ▸ hp5_mem)
+  have hp5_ne11 : p5 ≠ 11 := by intro h; exact h11 (h ▸ hp5_mem)
+  have hp5_ne13 : p5 ≠ 13 := by intro h; omega
+  have hp5_ge17 : 17 ≤ p5 :=
+    prime_factor_ge_seventeen_of_not_small hodd hp5_mem hp5_ne3 hp5_ne5
+      hp5_ne7 hp5_ne11 hp5_ne13
+  have hp5_ne17 : p5 ≠ 17 := by intro h; omega
+  have hp5_ge19 : 19 ≤ p5 :=
+    prime_ge_nineteen_of_ge_seventeen_ne_seventeen hp5 hp5_ge17 hp5_ne17
+  have hp5_ne19 : p5 ≠ 19 := by intro h; omega
+  have hp5_ge23 : 23 ≤ p5 :=
+    prime_ge_twentythree_of_ge_nineteen_ne_nineteen hp5 hp5_ge19 hp5_ne19
+  have hn : n ≠ 0 := by exact Nat.ne_of_gt hw.1.1
+  have hf0 : n.factorization p0 = 1 :=
+    Nat.factorization_eq_one_of_squarefree hsq hp0 (Nat.dvd_of_mem_primeFactors hp0_mem)
+  have hf1 : n.factorization p1 = 1 :=
+    Nat.factorization_eq_one_of_squarefree hsq hp1 (Nat.dvd_of_mem_primeFactors hp1_mem)
+  have hf2 : n.factorization p2 = 1 :=
+    Nat.factorization_eq_one_of_squarefree hsq hp2 (Nat.dvd_of_mem_primeFactors hp2_mem)
+  have hf3 : n.factorization p3 = 1 :=
+    Nat.factorization_eq_one_of_squarefree hsq hp3 (Nat.dvd_of_mem_primeFactors hp3_mem)
+  have hf4 : n.factorization p4 = 1 :=
+    Nat.factorization_eq_one_of_squarefree hsq hp4 (Nat.dvd_of_mem_primeFactors hp4_mem)
+  have hf5 : n.factorization p5 = 1 :=
+    Nat.factorization_eq_one_of_squarefree hsq hp5 (Nat.dvd_of_mem_primeFactors hp5_mem)
+  have hsum_ordered : n.divisors.sum id =
+      ∏ i : Fin 6, ((e i) ^ n.factorization (e i)).divisors.sum id := by
+    have hprod : n.divisors.sum id =
+        ∏ p ∈ S, (p ^ n.factorization p).divisors.sum id := by
+      dsimp [S]
+      change (∑ d ∈ n.divisors, d) =
+        ∏ p ∈ n.primeFactors, (p ^ n.factorization p).divisors.sum id
+      rw [Nat.sum_divisors hn]
+      refine Finset.prod_congr rfl ?_
+      intro p hp
+      rw [Nat.sum_divisors_prime_pow (Nat.prime_of_mem_primeFactors hp)]
+      simp
+    calc
+      n.divisors.sum id = ∏ p ∈ S, (p ^ n.factorization p).divisors.sum id := hprod
+      _ = ∏ i : Fin 6, ((e i) ^ n.factorization (e i)).divisors.sum id := by
+        simpa [e] using
+          prod_finset_eq_orderEmbOfFin S hcard
+            (fun p => (p ^ n.factorization p).divisors.sum id)
+  have hn_ordered : n = ∏ i : Fin 6, (e i) ^ n.factorization (e i) := by
+    have hprod : n = ∏ p ∈ S, p ^ n.factorization p := by
+      dsimp [S]
+      have hfact := Nat.factorization_prod_pow_eq_self hn
+      conv_lhs => rw [← hfact]
+      simp only [Finsupp.prod, Nat.support_factorization]
+    calc
+      n = ∏ p ∈ S, p ^ n.factorization p := hprod
+      _ = ∏ i : Fin 6, (e i) ^ n.factorization (e i) := by
+        simpa [e] using
+          prod_finset_eq_orderEmbOfFin S hcard (fun p => p ^ n.factorization p)
+  have hsum_squarefree : n.divisors.sum id =
+      (p0 + 1) * (p1 + 1) * (p2 + 1) * (p3 + 1) * (p4 + 1) * (p5 + 1) := by
+    have hσ0 : (p0 ^ n.factorization p0).divisors.sum id = p0 + 1 := by
+      rw [hf0]
+      exact sum_divisors_prime_pow_one hp0
+    have hσ1 : (p1 ^ n.factorization p1).divisors.sum id = p1 + 1 := by
+      rw [hf1]
+      exact sum_divisors_prime_pow_one hp1
+    have hσ2 : (p2 ^ n.factorization p2).divisors.sum id = p2 + 1 := by
+      rw [hf2]
+      exact sum_divisors_prime_pow_one hp2
+    have hσ3 : (p3 ^ n.factorization p3).divisors.sum id = p3 + 1 := by
+      rw [hf3]
+      exact sum_divisors_prime_pow_one hp3
+    have hσ4 : (p4 ^ n.factorization p4).divisors.sum id = p4 + 1 := by
+      rw [hf4]
+      exact sum_divisors_prime_pow_one hp4
+    have hσ5 : (p5 ^ n.factorization p5).divisors.sum id = p5 + 1 := by
+      rw [hf5]
+      exact sum_divisors_prime_pow_one hp5
+    rw [hsum_ordered, prod_fin_six]
+    change (p0 ^ n.factorization p0).divisors.sum id *
+        (p1 ^ n.factorization p1).divisors.sum id *
+        (p2 ^ n.factorization p2).divisors.sum id *
+        (p3 ^ n.factorization p3).divisors.sum id *
+        (p4 ^ n.factorization p4).divisors.sum id *
+        (p5 ^ n.factorization p5).divisors.sum id =
+      (p0 + 1) * (p1 + 1) * (p2 + 1) * (p3 + 1) * (p4 + 1) * (p5 + 1)
+    rw [hσ0, hσ1, hσ2, hσ3, hσ4, hσ5]
+  have hn_squarefree : n = p0 * p1 * p2 * p3 * p4 * p5 := by
+    rw [hn_ordered, prod_fin_six]
+    change p0 ^ n.factorization p0 * p1 ^ n.factorization p1 *
+        p2 ^ n.factorization p2 * p3 ^ n.factorization p3 *
+        p4 ^ n.factorization p4 * p5 ^ n.factorization p5 =
+      p0 * p1 * p2 * p3 * p4 * p5
+    rw [hf0, hf1, hf2, hf3, hf4, hf5]
+    simp [pow_one]
+  by_cases hp5_large : 29 ≤ p5
+  · have hlt :
+        (p0 + 1) * (p1 + 1) * (p2 + 1) * (p3 + 1) * (p4 + 1) * (p5 + 1) <
+          2 * (p0 * p1 * p2 * p3 * p4 * p5) :=
+      squarefree_six_ratio_3_5_13_17_19_29_lt p0 p1 p2 p3 p4 p5
+        hp0_ge3 hp1_ge5 hp2_ge13 hp3_ge17 hp4_ge19 hp5_large
+    have hnot : ¬Abundant n := by
+      apply not_abundant_of_sigma_lt
+      rw [hsum_squarefree, hn_squarefree]
+      exact hlt
+    exact hnot hw.1
+  · have hp5_le28 : p5 ≤ 28 := by omega
+    have hp5_eq23 : p5 = 23 := by
+      have hcases : p5 = 23 ∨ p5 = 24 ∨ p5 = 25 ∨ p5 = 26 ∨ p5 = 27 ∨ p5 = 28 := by
+        omega
+      rcases hcases with h23 | h24 | h25 | h26 | h27 | h28
+      · exact h23
+      · exfalso
+        exact (by norm_num : ¬ Nat.Prime 24) (by simpa [h24] using hp5)
+      · exfalso
+        exact (by norm_num : ¬ Nat.Prime 25) (by simpa [h25] using hp5)
+      · exfalso
+        exact (by norm_num : ¬ Nat.Prime 26) (by simpa [h26] using hp5)
+      · exfalso
+        exact (by norm_num : ¬ Nat.Prime 27) (by simpa [h27] using hp5)
+      · exfalso
+        exact (by norm_num : ¬ Nat.Prime 28) (by simpa [h28] using hp5)
+    have hp4_eq19 : p4 = 19 := by
+      have hp4_le22 : p4 ≤ 22 := by omega
+      have hcases : p4 = 19 ∨ p4 = 20 ∨ p4 = 21 ∨ p4 = 22 := by omega
+      rcases hcases with h19 | h20 | h21 | h22
+      · exact h19
+      · exfalso
+        exact (by norm_num : ¬ Nat.Prime 20) (by simpa [h20] using hp4)
+      · exfalso
+        exact (by norm_num : ¬ Nat.Prime 21) (by simpa [h21] using hp4)
+      · exfalso
+        exact (by norm_num : ¬ Nat.Prime 22) (by simpa [h22] using hp4)
+    have hp3_eq17 : p3 = 17 := by
+      have hp3_le18 : p3 ≤ 18 := by omega
+      have hcases : p3 = 17 ∨ p3 = 18 := by omega
+      rcases hcases with h17 | h18
+      · exact h17
+      · exfalso
+        exact (by norm_num : ¬ Nat.Prime 18) (by simpa [h18] using hp3)
+    have hsubset : ({3, 5, 13, 17, 19, 23} : Finset ℕ) ⊆ n.primeFactors := by
+      intro p hp
+      simp only [Finset.mem_insert, Finset.mem_singleton] at hp
+      rcases hp with rfl | rfl | rfl | rfl | rfl | rfl
+      · exact h3
+      · exact h5
+      · exact h13
+      · simpa [hp3_eq17] using hp3_mem
+      · simpa [hp4_eq19] using hp4_mem
+      · simpa [hp5_eq23] using hp5_mem
+    exact not_weird_of_squarefree_primeFactors_contains_3_5_13_17_19_23
+      hsq hsubset hw
+
+/-- **The `3,5,11` singleton branch of the squarefree six-prime frontier is
+empty.**
+
+The pair branches with `7` or `13` are already closed. If neither appears, the
+ordered prime factors are at least `3,5,11,17,19,23`. Large tails are
+non-abundant by ratio bounds; the remaining finite tails are exactly
+`17,19,23`, `17,19,29`, and `17,19,31`, all of which are pseudoperfect cores. -/
+theorem not_weird_of_squarefree_six_primeFactors_contains_3_5_11 {n : ℕ}
+    (hodd : ¬Even n) (hcard : n.primeFactors.card = 6) (hsq : Squarefree n)
+    (h3 : 3 ∈ n.primeFactors) (h5 : 5 ∈ n.primeFactors)
+    (h11 : 11 ∈ n.primeFactors) : ¬Weird n := by
+  intro hw
+  by_cases h7 : 7 ∈ n.primeFactors
+  · exact not_weird_of_squarefree_six_primeFactors_contains_3_5_7_11
+      hodd hcard hsq h3 h5 h7 h11 hw
+  by_cases h13 : 13 ∈ n.primeFactors
+  · exact not_weird_of_squarefree_six_primeFactors_contains_3_5_11_13
+      hodd hcard hsq h3 h5 h11 h13 hw
+  let S := n.primeFactors
+  let e := S.orderEmbOfFin hcard
+  let p0 := e ⟨0, by decide⟩
+  let p1 := e ⟨1, by decide⟩
+  let p2 := e ⟨2, by decide⟩
+  let p3 := e ⟨3, by decide⟩
+  let p4 := e ⟨4, by decide⟩
+  let p5 := e ⟨5, by decide⟩
+  have hp0_mem : p0 ∈ n.primeFactors := by
+    dsimp [p0, e, S]
+    exact Finset.orderEmbOfFin_mem n.primeFactors hcard ⟨0, by decide⟩
+  have hp1_mem : p1 ∈ n.primeFactors := by
+    dsimp [p1, e, S]
+    exact Finset.orderEmbOfFin_mem n.primeFactors hcard ⟨1, by decide⟩
+  have hp2_mem : p2 ∈ n.primeFactors := by
+    dsimp [p2, e, S]
+    exact Finset.orderEmbOfFin_mem n.primeFactors hcard ⟨2, by decide⟩
+  have hp3_mem : p3 ∈ n.primeFactors := by
+    dsimp [p3, e, S]
+    exact Finset.orderEmbOfFin_mem n.primeFactors hcard ⟨3, by decide⟩
+  have hp4_mem : p4 ∈ n.primeFactors := by
+    dsimp [p4, e, S]
+    exact Finset.orderEmbOfFin_mem n.primeFactors hcard ⟨4, by decide⟩
+  have hp5_mem : p5 ∈ n.primeFactors := by
+    dsimp [p5, e, S]
+    exact Finset.orderEmbOfFin_mem n.primeFactors hcard ⟨5, by decide⟩
+  have hp0 : Nat.Prime p0 := Nat.prime_of_mem_primeFactors hp0_mem
+  have hp1 : Nat.Prime p1 := Nat.prime_of_mem_primeFactors hp1_mem
+  have hp2 : Nat.Prime p2 := Nat.prime_of_mem_primeFactors hp2_mem
+  have hp3 : Nat.Prime p3 := Nat.prime_of_mem_primeFactors hp3_mem
+  have hp4 : Nat.Prime p4 := Nat.prime_of_mem_primeFactors hp4_mem
+  have hp5 : Nat.Prime p5 := Nat.prime_of_mem_primeFactors hp5_mem
+  have hp01 : p0 < p1 := by
+    dsimp [p0, p1, e]
+    exact (S.orderEmbOfFin hcard).strictMono (by decide)
+  have hp12 : p1 < p2 := by
+    dsimp [p1, p2, e]
+    exact (S.orderEmbOfFin hcard).strictMono (by decide)
+  have hp23 : p2 < p3 := by
+    dsimp [p2, p3, e]
+    exact (S.orderEmbOfFin hcard).strictMono (by decide)
+  have hp34 : p3 < p4 := by
+    dsimp [p3, p4, e]
+    exact (S.orderEmbOfFin hcard).strictMono (by decide)
+  have hp45 : p4 < p5 := by
+    dsimp [p4, p5, e]
+    exact (S.orderEmbOfFin hcard).strictMono (by decide)
+  have hp0_ge3 : 3 ≤ p0 := prime_factor_ge_three_of_odd hodd hp0_mem
+  have hp1_ne3 : p1 ≠ 3 := by intro h; omega
+  have hp1_ge5 : 5 ≤ p1 := prime_factor_ge_five_of_ne_three hodd hp1_mem hp1_ne3
+  have hp2_ne3 : p2 ≠ 3 := by intro h; omega
+  have hp2_ne5 : p2 ≠ 5 := by intro h; omega
+  have hp2_ge7 : 7 ≤ p2 :=
+    prime_factor_ge_seven_of_ne_three_five hodd hp2_mem hp2_ne3 hp2_ne5
+  have hp2_ne7 : p2 ≠ 7 := by intro h; exact h7 (h ▸ hp2_mem)
+  have hp2_ge11 : 11 ≤ p2 := prime_ge_eleven_of_ge_seven_ne_seven hp2 hp2_ge7 hp2_ne7
+  have hp3_ne3 : p3 ≠ 3 := by intro h; omega
+  have hp3_ne5 : p3 ≠ 5 := by intro h; omega
+  have hp3_ne7 : p3 ≠ 7 := by intro h; exact h7 (h ▸ hp3_mem)
+  have hp3_ne11 : p3 ≠ 11 := by intro h; omega
+  have hp3_ne13 : p3 ≠ 13 := by intro h; exact h13 (h ▸ hp3_mem)
+  have hp3_ge17 : 17 ≤ p3 :=
+    prime_factor_ge_seventeen_of_not_small hodd hp3_mem hp3_ne3 hp3_ne5
+      hp3_ne7 hp3_ne11 hp3_ne13
+  have hp4_ne3 : p4 ≠ 3 := by intro h; omega
+  have hp4_ne5 : p4 ≠ 5 := by intro h; omega
+  have hp4_ne7 : p4 ≠ 7 := by intro h; exact h7 (h ▸ hp4_mem)
+  have hp4_ne11 : p4 ≠ 11 := by intro h; omega
+  have hp4_ne13 : p4 ≠ 13 := by intro h; exact h13 (h ▸ hp4_mem)
+  have hp4_ge17 : 17 ≤ p4 :=
+    prime_factor_ge_seventeen_of_not_small hodd hp4_mem hp4_ne3 hp4_ne5
+      hp4_ne7 hp4_ne11 hp4_ne13
+  have hp4_ne17 : p4 ≠ 17 := by intro h; omega
+  have hp4_ge19 : 19 ≤ p4 :=
+    prime_ge_nineteen_of_ge_seventeen_ne_seventeen hp4 hp4_ge17 hp4_ne17
+  have hp5_ne3 : p5 ≠ 3 := by intro h; omega
+  have hp5_ne5 : p5 ≠ 5 := by intro h; omega
+  have hp5_ne7 : p5 ≠ 7 := by intro h; exact h7 (h ▸ hp5_mem)
+  have hp5_ne11 : p5 ≠ 11 := by intro h; omega
+  have hp5_ne13 : p5 ≠ 13 := by intro h; exact h13 (h ▸ hp5_mem)
+  have hp5_ge17 : 17 ≤ p5 :=
+    prime_factor_ge_seventeen_of_not_small hodd hp5_mem hp5_ne3 hp5_ne5
+      hp5_ne7 hp5_ne11 hp5_ne13
+  have hp5_ne17 : p5 ≠ 17 := by intro h; omega
+  have hp5_ge19 : 19 ≤ p5 :=
+    prime_ge_nineteen_of_ge_seventeen_ne_seventeen hp5 hp5_ge17 hp5_ne17
+  have hp5_ne19 : p5 ≠ 19 := by intro h; omega
+  have hp5_ge23 : 23 ≤ p5 :=
+    prime_ge_twentythree_of_ge_nineteen_ne_nineteen hp5 hp5_ge19 hp5_ne19
+  have hn : n ≠ 0 := by exact Nat.ne_of_gt hw.1.1
+  have hf0 : n.factorization p0 = 1 :=
+    Nat.factorization_eq_one_of_squarefree hsq hp0 (Nat.dvd_of_mem_primeFactors hp0_mem)
+  have hf1 : n.factorization p1 = 1 :=
+    Nat.factorization_eq_one_of_squarefree hsq hp1 (Nat.dvd_of_mem_primeFactors hp1_mem)
+  have hf2 : n.factorization p2 = 1 :=
+    Nat.factorization_eq_one_of_squarefree hsq hp2 (Nat.dvd_of_mem_primeFactors hp2_mem)
+  have hf3 : n.factorization p3 = 1 :=
+    Nat.factorization_eq_one_of_squarefree hsq hp3 (Nat.dvd_of_mem_primeFactors hp3_mem)
+  have hf4 : n.factorization p4 = 1 :=
+    Nat.factorization_eq_one_of_squarefree hsq hp4 (Nat.dvd_of_mem_primeFactors hp4_mem)
+  have hf5 : n.factorization p5 = 1 :=
+    Nat.factorization_eq_one_of_squarefree hsq hp5 (Nat.dvd_of_mem_primeFactors hp5_mem)
+  have hsum_ordered : n.divisors.sum id =
+      ∏ i : Fin 6, ((e i) ^ n.factorization (e i)).divisors.sum id := by
+    have hprod : n.divisors.sum id =
+        ∏ p ∈ S, (p ^ n.factorization p).divisors.sum id := by
+      dsimp [S]
+      change (∑ d ∈ n.divisors, d) =
+        ∏ p ∈ n.primeFactors, (p ^ n.factorization p).divisors.sum id
+      rw [Nat.sum_divisors hn]
+      refine Finset.prod_congr rfl ?_
+      intro p hp
+      rw [Nat.sum_divisors_prime_pow (Nat.prime_of_mem_primeFactors hp)]
+      simp
+    calc
+      n.divisors.sum id = ∏ p ∈ S, (p ^ n.factorization p).divisors.sum id := hprod
+      _ = ∏ i : Fin 6, ((e i) ^ n.factorization (e i)).divisors.sum id := by
+        simpa [e] using
+          prod_finset_eq_orderEmbOfFin S hcard
+            (fun p => (p ^ n.factorization p).divisors.sum id)
+  have hn_ordered : n = ∏ i : Fin 6, (e i) ^ n.factorization (e i) := by
+    have hprod : n = ∏ p ∈ S, p ^ n.factorization p := by
+      dsimp [S]
+      have hfact := Nat.factorization_prod_pow_eq_self hn
+      conv_lhs => rw [← hfact]
+      simp only [Finsupp.prod, Nat.support_factorization]
+    calc
+      n = ∏ p ∈ S, p ^ n.factorization p := hprod
+      _ = ∏ i : Fin 6, (e i) ^ n.factorization (e i) := by
+        simpa [e] using
+          prod_finset_eq_orderEmbOfFin S hcard (fun p => p ^ n.factorization p)
+  have hsum_squarefree : n.divisors.sum id =
+      (p0 + 1) * (p1 + 1) * (p2 + 1) * (p3 + 1) * (p4 + 1) * (p5 + 1) := by
+    have hσ0 : (p0 ^ n.factorization p0).divisors.sum id = p0 + 1 := by
+      rw [hf0]
+      exact sum_divisors_prime_pow_one hp0
+    have hσ1 : (p1 ^ n.factorization p1).divisors.sum id = p1 + 1 := by
+      rw [hf1]
+      exact sum_divisors_prime_pow_one hp1
+    have hσ2 : (p2 ^ n.factorization p2).divisors.sum id = p2 + 1 := by
+      rw [hf2]
+      exact sum_divisors_prime_pow_one hp2
+    have hσ3 : (p3 ^ n.factorization p3).divisors.sum id = p3 + 1 := by
+      rw [hf3]
+      exact sum_divisors_prime_pow_one hp3
+    have hσ4 : (p4 ^ n.factorization p4).divisors.sum id = p4 + 1 := by
+      rw [hf4]
+      exact sum_divisors_prime_pow_one hp4
+    have hσ5 : (p5 ^ n.factorization p5).divisors.sum id = p5 + 1 := by
+      rw [hf5]
+      exact sum_divisors_prime_pow_one hp5
+    rw [hsum_ordered, prod_fin_six]
+    change (p0 ^ n.factorization p0).divisors.sum id *
+        (p1 ^ n.factorization p1).divisors.sum id *
+        (p2 ^ n.factorization p2).divisors.sum id *
+        (p3 ^ n.factorization p3).divisors.sum id *
+        (p4 ^ n.factorization p4).divisors.sum id *
+        (p5 ^ n.factorization p5).divisors.sum id =
+      (p0 + 1) * (p1 + 1) * (p2 + 1) * (p3 + 1) * (p4 + 1) * (p5 + 1)
+    rw [hσ0, hσ1, hσ2, hσ3, hσ4, hσ5]
+  have hn_squarefree : n = p0 * p1 * p2 * p3 * p4 * p5 := by
+    rw [hn_ordered, prod_fin_six]
+    change p0 ^ n.factorization p0 * p1 ^ n.factorization p1 *
+        p2 ^ n.factorization p2 * p3 ^ n.factorization p3 *
+        p4 ^ n.factorization p4 * p5 ^ n.factorization p5 =
+      p0 * p1 * p2 * p3 * p4 * p5
+    rw [hf0, hf1, hf2, hf3, hf4, hf5]
+    simp [pow_one]
+  by_cases hp5_large : 37 ≤ p5
+  · have hlt :
+        (p0 + 1) * (p1 + 1) * (p2 + 1) * (p3 + 1) * (p4 + 1) * (p5 + 1) <
+          2 * (p0 * p1 * p2 * p3 * p4 * p5) :=
+      squarefree_six_ratio_3_5_11_17_19_37_lt p0 p1 p2 p3 p4 p5
+        hp0_ge3 hp1_ge5 hp2_ge11 hp3_ge17 hp4_ge19 hp5_large
+    have hnot : ¬Abundant n := by
+      apply not_abundant_of_sigma_lt
+      rw [hsum_squarefree, hn_squarefree]
+      exact hlt
+    exact hnot hw.1
+  by_cases hp4_large : 23 ≤ p4
+  · have hp5_ne23 : p5 ≠ 23 := by intro h; omega
+    have hp5_ge29 : 29 ≤ p5 :=
+      prime_ge_twentynine_of_ge_twentythree_ne_twentythree hp5 hp5_ge23 hp5_ne23
+    have hlt :
+        (p0 + 1) * (p1 + 1) * (p2 + 1) * (p3 + 1) * (p4 + 1) * (p5 + 1) <
+          2 * (p0 * p1 * p2 * p3 * p4 * p5) :=
+      squarefree_six_ratio_3_5_11_17_23_29_lt p0 p1 p2 p3 p4 p5
+        hp0_ge3 hp1_ge5 hp2_ge11 hp3_ge17 hp4_large hp5_ge29
+    have hnot : ¬Abundant n := by
+      apply not_abundant_of_sigma_lt
+      rw [hsum_squarefree, hn_squarefree]
+      exact hlt
+    exact hnot hw.1
+  · have hp4_le22 : p4 ≤ 22 := by omega
+    have hp4_eq19 : p4 = 19 := by
+      have hcases : p4 = 19 ∨ p4 = 20 ∨ p4 = 21 ∨ p4 = 22 := by omega
+      rcases hcases with h19 | h20 | h21 | h22
+      · exact h19
+      · exfalso
+        exact (by norm_num : ¬ Nat.Prime 20) (by simpa [h20] using hp4)
+      · exfalso
+        exact (by norm_num : ¬ Nat.Prime 21) (by simpa [h21] using hp4)
+      · exfalso
+        exact (by norm_num : ¬ Nat.Prime 22) (by simpa [h22] using hp4)
+    have hp3_eq17 : p3 = 17 := by
+      have hp3_le18 : p3 ≤ 18 := by omega
+      have hcases : p3 = 17 ∨ p3 = 18 := by omega
+      rcases hcases with h17 | h18
+      · exact h17
+      · exfalso
+        exact (by norm_num : ¬ Nat.Prime 18) (by simpa [h18] using hp3)
+    have hp5_le36 : p5 ≤ 36 := by omega
+    have hp5_cases : p5 = 23 ∨ p5 = 29 ∨ p5 = 31 := by
+      have hcases : p5 = 23 ∨ p5 = 24 ∨ p5 = 25 ∨ p5 = 26 ∨ p5 = 27 ∨
+          p5 = 28 ∨ p5 = 29 ∨ p5 = 30 ∨ p5 = 31 ∨ p5 = 32 ∨ p5 = 33 ∨
+          p5 = 34 ∨ p5 = 35 ∨ p5 = 36 := by
+        omega
+      rcases hcases with h23 | h24 | h25 | h26 | h27 | h28 | h29 | h30 | h31 |
+        h32 | h33 | h34 | h35 | h36
+      · exact Or.inl h23
+      · exfalso; exact (by norm_num : ¬ Nat.Prime 24) (by simpa [h24] using hp5)
+      · exfalso; exact (by norm_num : ¬ Nat.Prime 25) (by simpa [h25] using hp5)
+      · exfalso; exact (by norm_num : ¬ Nat.Prime 26) (by simpa [h26] using hp5)
+      · exfalso; exact (by norm_num : ¬ Nat.Prime 27) (by simpa [h27] using hp5)
+      · exfalso; exact (by norm_num : ¬ Nat.Prime 28) (by simpa [h28] using hp5)
+      · exact Or.inr (Or.inl h29)
+      · exfalso; exact (by norm_num : ¬ Nat.Prime 30) (by simpa [h30] using hp5)
+      · exact Or.inr (Or.inr h31)
+      · exfalso; exact (by norm_num : ¬ Nat.Prime 32) (by simpa [h32] using hp5)
+      · exfalso; exact (by norm_num : ¬ Nat.Prime 33) (by simpa [h33] using hp5)
+      · exfalso; exact (by norm_num : ¬ Nat.Prime 34) (by simpa [h34] using hp5)
+      · exfalso; exact (by norm_num : ¬ Nat.Prime 35) (by simpa [h35] using hp5)
+      · exfalso; exact (by norm_num : ¬ Nat.Prime 36) (by simpa [h36] using hp5)
+    rcases hp5_cases with hp5_eq23 | hp5_eq29 | hp5_eq31
+    · have hsubset : ({3, 5, 11, 17, 19, 23} : Finset ℕ) ⊆ n.primeFactors := by
+        intro p hp
+        simp only [Finset.mem_insert, Finset.mem_singleton] at hp
+        rcases hp with rfl | rfl | rfl | rfl | rfl | rfl
+        · exact h3
+        · exact h5
+        · exact h11
+        · simpa [hp3_eq17] using hp3_mem
+        · simpa [hp4_eq19] using hp4_mem
+        · simpa [hp5_eq23] using hp5_mem
+      exact not_weird_of_squarefree_primeFactors_contains_3_5_11_17_19_23
+        hsq hsubset hw
+    · have hsubset : ({3, 5, 11, 17, 19, 29} : Finset ℕ) ⊆ n.primeFactors := by
+        intro p hp
+        simp only [Finset.mem_insert, Finset.mem_singleton] at hp
+        rcases hp with rfl | rfl | rfl | rfl | rfl | rfl
+        · exact h3
+        · exact h5
+        · exact h11
+        · simpa [hp3_eq17] using hp3_mem
+        · simpa [hp4_eq19] using hp4_mem
+        · simpa [hp5_eq29] using hp5_mem
+      exact not_weird_of_squarefree_primeFactors_contains_3_5_11_17_19_29
+        hsq hsubset hw
+    · have hsubset : ({3, 5, 11, 17, 19, 31} : Finset ℕ) ⊆ n.primeFactors := by
+        intro p hp
+        simp only [Finset.mem_insert, Finset.mem_singleton] at hp
+        rcases hp with rfl | rfl | rfl | rfl | rfl | rfl
+        · exact h3
+        · exact h5
+        · exact h11
+        · simpa [hp3_eq17] using hp3_mem
+        · simpa [hp4_eq19] using hp4_mem
+        · simpa [hp5_eq31] using hp5_mem
+      exact not_weird_of_squarefree_primeFactors_contains_3_5_11_17_19_31
+        hsq hsubset hw
+
+/-- A squarefree odd weird number with exactly six prime factors cannot contain
+both `7` and `11`. The earlier frontier theorems force `3` and `5`; the new
+`3,5,7,11` branch closure then gives the contradiction. -/
+theorem odd_weird_squarefree_six_prime_factors_not_contains_7_and_11 {n : ℕ}
+    (hw : Weird n) (hodd : ¬Even n) (hcard : n.primeFactors.card = 6)
+    (hsq : Squarefree n) : ¬ (7 ∈ n.primeFactors ∧ 11 ∈ n.primeFactors) := by
+  rintro ⟨h7, h11⟩
+  have h3 : 3 ∈ n.primeFactors := odd_weird_six_prime_factors_contains_three hw hodd hcard
+  have h5 : 5 ∈ n.primeFactors :=
+    odd_weird_squarefree_six_prime_factors_contains_five hw hodd hcard hsq
+  exact not_weird_of_squarefree_six_primeFactors_contains_3_5_7_11
+    hodd hcard hsq h3 h5 h7 h11 hw
+
+/-- A squarefree odd weird number with exactly six prime factors cannot contain
+both `7` and `13`. -/
+theorem odd_weird_squarefree_six_prime_factors_not_contains_7_and_13 {n : ℕ}
+    (hw : Weird n) (hodd : ¬Even n) (hcard : n.primeFactors.card = 6)
+    (hsq : Squarefree n) : ¬ (7 ∈ n.primeFactors ∧ 13 ∈ n.primeFactors) := by
+  rintro ⟨h7, h13⟩
+  have h3 : 3 ∈ n.primeFactors := odd_weird_six_prime_factors_contains_three hw hodd hcard
+  have h5 : 5 ∈ n.primeFactors :=
+    odd_weird_squarefree_six_prime_factors_contains_five hw hodd hcard hsq
+  exact not_weird_of_squarefree_six_primeFactors_contains_3_5_7_13
+    hodd hcard hsq h3 h5 h7 h13 hw
+
+/-- A squarefree odd weird number with exactly six prime factors cannot contain
+both `11` and `13`. -/
+theorem odd_weird_squarefree_six_prime_factors_not_contains_11_and_13 {n : ℕ}
+    (hw : Weird n) (hodd : ¬Even n) (hcard : n.primeFactors.card = 6)
+    (hsq : Squarefree n) : ¬ (11 ∈ n.primeFactors ∧ 13 ∈ n.primeFactors) := by
+  rintro ⟨h11, h13⟩
+  have h3 : 3 ∈ n.primeFactors := odd_weird_six_prime_factors_contains_three hw hodd hcard
+  have h5 : 5 ∈ n.primeFactors :=
+    odd_weird_squarefree_six_prime_factors_contains_five hw hodd hcard hsq
+  exact not_weird_of_squarefree_six_primeFactors_contains_3_5_11_13
+    hodd hcard hsq h3 h5 h11 h13 hw
+
+/-- A squarefree odd weird number with exactly six prime factors cannot contain
+`13`. The earlier frontier theorems force `3` and `5`, and the singleton
+`3,5,13` branch is empty. -/
+theorem odd_weird_squarefree_six_prime_factors_not_contains_13 {n : ℕ}
+    (hw : Weird n) (hodd : ¬Even n) (hcard : n.primeFactors.card = 6)
+    (hsq : Squarefree n) : 13 ∉ n.primeFactors := by
+  intro h13
+  have h3 : 3 ∈ n.primeFactors := odd_weird_six_prime_factors_contains_three hw hodd hcard
+  have h5 : 5 ∈ n.primeFactors :=
+    odd_weird_squarefree_six_prime_factors_contains_five hw hodd hcard hsq
+  exact not_weird_of_squarefree_six_primeFactors_contains_3_5_13
+    hodd hcard hsq h3 h5 h13 hw
+
+/-- A squarefree odd weird number with exactly six prime factors cannot contain
+`11`. The earlier frontier theorems force `3` and `5`, and the singleton
+`3,5,11` branch is empty. -/
+theorem odd_weird_squarefree_six_prime_factors_not_contains_11 {n : ℕ}
+    (hw : Weird n) (hodd : ¬Even n) (hcard : n.primeFactors.card = 6)
+    (hsq : Squarefree n) : 11 ∉ n.primeFactors := by
+  intro h11
+  have h3 : 3 ∈ n.primeFactors := odd_weird_six_prime_factors_contains_three hw hodd hcard
+  have h5 : 5 ∈ n.primeFactors :=
+    odd_weird_squarefree_six_prime_factors_contains_five hw hodd hcard hsq
+  exact not_weird_of_squarefree_six_primeFactors_contains_3_5_11
+    hodd hcard hsq h3 h5 h11 hw
+
+/-- At the current frontier, a squarefree odd weird number with exactly six
+prime factors would have to contain `7`. The companion corollaries rule out
+`11` and `13`. -/
+theorem odd_weird_squarefree_six_prime_factors_contains_seven_only_frontier {n : ℕ}
+    (hw : Weird n) (hodd : ¬Even n) (hcard : n.primeFactors.card = 6)
+    (hsq : Squarefree n) : 7 ∈ n.primeFactors := by
+  rcases odd_weird_squarefree_six_prime_factors_contains_7_or_11_or_13
+      hw hodd hcard hsq with h7 | h11 | h13
+  · exact h7
+  · exact (odd_weird_squarefree_six_prime_factors_not_contains_11
+      hw hodd hcard hsq h11).elim
+  · exact (odd_weird_squarefree_six_prime_factors_not_contains_13
+      hw hodd hcard hsq h13).elim
 
 end WeirdNumbers

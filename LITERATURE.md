@@ -184,8 +184,10 @@ adjoined, then inserting `x` would create either a midpoint collision
 
 | Paper | Key Contribution |
 |-------|-----------------|
-| Erdős-Freud 1991 | Lower-bound construction by doubling a Sidon set `B ⊆ [1, N/3]` with its reflection `N - B` |
+| Erdős-Freud 1991 ([JNT 38](https://doi.org/10.1016/0022-314X(91)90080-T)) | Lower-bound construction by doubling a Sidon set `B ⊆ [1, N/3]` with its reflection `N - B`; explicit "√2 barrier" hinted on p. 204 for the broader quasi-Sidon class |
 | Erdős 1992 | Problem statement source cited on erdosproblems.com |
+| Pikhurko 2006 ([arXiv:math/0309029](https://arxiv.org/abs/math/0309029)) | Quasi-Sidon upper bound (1.863 + o(1))·√N — strict improvement on Erdős–Freud's 1.98, but for the *broader* quasi-Sidon notion, not the strong "≤1 exceptional value" notion |
+| Lindström 1969 (J. Combin. Theory 6) | Classical Sidon upper bound `|A| ≤ √N + N^{1/4} + 1` for `A ⊆ [1, N]` |
 
 This problem asks for the largest `A ⊆ {1, ..., N}` for which there is at most
 one integer admitting more than one sorted representation `n = a + b` with
@@ -231,6 +233,24 @@ bands remain separated enough to block any other repeated sum.
   the existence of at most one repeated sum more efficiently than the raw
   Sidon-set bound. The lower-bound construction is now in place, so the next
   real mathematical work is on the converse direction.
+- **√2·√N strong-notion upper bound (conditional)**: ✓ **DONE** in
+  `AlmostSidonSets/UpperBound/Sqrt2BoundConditional.lean`. Every strong
+  almost-Sidon `A ⊆ {1, …, N}` satisfies `|A| ≤ (√2 + ε)·√N` (for `N` large),
+  **conditional on** the asymptotic Erdős–Turán/Lindström Sidon-interval
+  bound `SidonIntervalAsymptotic`. Proof: midpoint split at the exceptional
+  value (using existing `Structure.lean` infrastructure) + Cauchy–Schwarz
+  `√x + √(N−x) ≤ √(2N)` (proved in `UpperBound/SplitOptimization.lean`).
+  See `research/sqrt2-strong-almost-sidon/paper.md` for the writeup, including
+  the separation from quasi-Sidon (Erdős–Freud's `√2` barrier is open for
+  quasi-Sidon but becomes a theorem for the strong notion).
+- **Unconditional √2·√N upper bound (remaining)**: need to prove
+  `sidon_interval_asymptotic : SidonIntervalAsymptotic` — the classical
+  Lindström/Erdős–Turán bound for Sidon sets in an interval. This is
+  standard mathematics not currently in Mathlib; estimated 600–800 lines of
+  Lean. The core subtlety is the tight `M(M−1)` off-diagonal sum requiring
+  a Sidon-injective change of variables; the crude `2M(M−1)` is easy but
+  yields only `√2·√L` for Sidon, collapsing the main result to the trivial
+  `2·√N`.
 
 ---
 
