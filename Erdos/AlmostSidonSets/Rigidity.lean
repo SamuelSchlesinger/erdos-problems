@@ -200,6 +200,126 @@ theorem r2_extreme_pair_on_exception_axis_or_unique
     have := h_alt a b ha hb hab_le hab_sum
     exact h_ne this.1 this.2
 
+/-- **E1 (Disjoint-pair structure at the exception).** Two *distinct* sorted
+pairs `(a₁, a₂)` and `(b₁, b₂)` summing to the same value `n` necessarily
+use disjoint pairs of elements: `{a₁, a₂} ∩ {b₁, b₂} = ∅`.
+
+This is an unconditional, elementary cancellation fact. It does not even
+require the ambient set to be (almost-)Sidon. In the SAS context, it
+implies: the `k` distinct sorted pairs at the exception value `n*` use
+`2k` pairwise-distinct elements of `A` — the only possible coincidence
+across pairs is between an element and itself, which is excluded by
+distinctness of the sorted pairs.
+
+Together with R1 (which removes a single element to obtain a Sidon set)
+this says the SAS surplus at the exception is structurally *non-overlapping*:
+each new representation costs two fresh elements, not one. -/
+theorem e1_distinct_pairs_disjoint
+    {a₁ a₂ b₁ b₂ n : ℕ}
+    (hle_a : a₁ ≤ a₂) (hle_b : b₁ ≤ b₂)
+    (hsum_a : a₁ + a₂ = n) (hsum_b : b₁ + b₂ = n)
+    (hneq : a₁ ≠ b₁ ∨ a₂ ≠ b₂) :
+    a₁ ≠ b₁ ∧ a₁ ≠ b₂ ∧ a₂ ≠ b₁ ∧ a₂ ≠ b₂ := by
+  -- First, distinct sorted pairs with same sum force *both* coordinates
+  -- to differ: if a₁ = b₁ then a₂ = n - a₁ = n - b₁ = b₂.
+  have hboth_ne : a₁ ≠ b₁ ∧ a₂ ≠ b₂ := by
+    refine ⟨?_, ?_⟩
+    · intro h1
+      rcases hneq with h | h
+      · exact h h1
+      · apply h
+        have : a₂ = n - a₁ := by omega
+        have : b₂ = n - b₁ := by omega
+        omega
+    · intro h2
+      rcases hneq with h | h
+      · apply h
+        have : a₁ = n - a₂ := by omega
+        have : b₁ = n - b₂ := by omega
+        omega
+      · exact h h2
+  obtain ⟨hne11, hne22⟩ := hboth_ne
+  -- Now the cross-coincidences: a₁ = b₂ would force a₁ ≥ b₁ (since b₁ ≤ b₂ = a₁)
+  -- and a₁ ≤ a₂ = n - a₁ = n - b₂ = b₁, hence a₁ = b₁, contradicting hne11.
+  refine ⟨hne11, ?_, ?_, hne22⟩
+  · intro h12
+    -- a₁ = b₂, want contradiction.
+    -- a₂ = n - a₁ = n - b₂ = b₁, so a₂ = b₁.
+    have ha2_eq_b1 : a₂ = b₁ := by omega
+    -- Then b₁ = a₂ ≥ a₁ = b₂, but b₁ ≤ b₂, so b₁ = b₂, hence a₂ = b₂, contradicting hne22.
+    have : b₁ = b₂ := le_antisymm hle_b (by omega)
+    omega
+  · intro h21
+    -- a₂ = b₁: then a₂ ≤ b₂ (since b₁ ≤ b₂), and a₁ ≤ a₂ = b₁.
+    -- Also a₁ = n - a₂ = n - b₁ = b₂.
+    have ha1_eq_b2 : a₁ = b₂ := by omega
+    -- a₁ = b₂ ≥ b₁ = a₂, but a₁ ≤ a₂, so a₁ = a₂ = b₁, contradicting hne11.
+    have ha_eq : a₁ = a₂ := le_antisymm hle_a (by omega)
+    omega
+
+/-- **E1' (Set-level disjointness corollary).** In a set with two distinct
+sorted representations of the same value, the four witnesses are
+pairwise distinct. This is the immediate cardinality-2k corollary used
+when iterating R1-style peels. -/
+theorem e1_four_distinct
+    {a₁ a₂ b₁ b₂ n : ℕ}
+    (hle_a : a₁ ≤ a₂) (hle_b : b₁ ≤ b₂)
+    (hsum_a : a₁ + a₂ = n) (hsum_b : b₁ + b₂ = n)
+    (hneq : a₁ ≠ b₁ ∨ a₂ ≠ b₂) :
+    a₁ ≠ b₁ ∧ a₁ ≠ b₂ ∧ a₂ ≠ b₁ ∧ a₂ ≠ b₂ :=
+  e1_distinct_pairs_disjoint hle_a hle_b hsum_a hsum_b hneq
+
+/-- **E2 (Reflection structure of pair elements).** Every element `x ∈ A`
+participating in an n*-pair is reflected to its partner `n* - x ∈ A`.
+The k pairs at n* therefore form k "reflective" couples about the
+midpoint `n*/2`. -/
+theorem e2_pair_element_has_reflection
+    {A : Finset ℕ} {a b nstar : ℕ}
+    (_ha : a ∈ A) (_hb : b ∈ A) (hsum : a + b = nstar) :
+    b = nstar - a := by
+  omega
+
+/-- **E_anchor (Anchor-confinement of non-extreme n*-pairs).**
+Suppose `A` is almost-Sidon with at least two elements, exception `nstar`,
+and `min A + max A = nstar` (the case forced by R2 in the near-extremal
+regime). Then for *any* sorted n*-pair `(a, b)` with `a + b = nstar` and
+`a ≤ b`, we have either `(a, b) = (m, M)` *or* `m < a` and `b < M`. In
+other words: aside from the anchor pair `(m, M)`, every n*-pair lies
+strictly in the open interval `(m, M)`.
+
+This is a structural refinement of R2 + E1: not only is the extreme pair
+on the exception axis, but every *other* n*-pair is *strictly interior*. -/
+theorem e_anchor_nonextreme_pairs_interior
+    (A : Finset ℕ) (h_card : 2 ≤ A.card)
+    {nstar : ℕ}
+    (h_axis : (A.min' (Finset.card_pos.mp (by omega : 0 < A.card))) +
+              (A.max' (Finset.card_pos.mp (by omega : 0 < A.card))) = nstar)
+    {a b : ℕ} (ha : a ∈ A) (hb : b ∈ A)
+    (h_le : a ≤ b) (h_sum : a + b = nstar) :
+    let m := A.min' (Finset.card_pos.mp (by omega : 0 < A.card))
+    let M := A.max' (Finset.card_pos.mp (by omega : 0 < A.card))
+    (a = m ∧ b = M) ∨ (m < a ∧ b < M) := by
+  intro m M
+  have hm_mem : m ∈ A := A.min'_mem _
+  have hM_mem : M ∈ A := A.max'_mem _
+  have hm_le_a : m ≤ a := A.min'_le _ ha
+  have hb_le_M : b ≤ M := A.le_max' _ hb
+  have hm_le_M : m ≤ M := A.min'_le M hM_mem
+  -- Apply E1 to (m, M) vs (a, b): either same pair, or all 4 elements distinct.
+  by_cases h_eq : a = m ∧ b = M
+  · exact Or.inl h_eq
+  · right
+    -- (a, b) ≠ (m, M), so by E1 the four elements are pairwise distinct,
+    -- and in particular a ≠ m and b ≠ M.
+    have hneq : a ≠ m ∨ b ≠ M := by
+      by_cases h1 : a = m
+      · right; intro h2; exact h_eq ⟨h1, h2⟩
+      · left; exact h1
+    have hdisj := e1_distinct_pairs_disjoint h_le hm_le_M h_sum h_axis hneq
+    obtain ⟨ha_ne_m, _ha_ne_M, _hb_ne_m, hb_ne_M⟩ := hdisj
+    exact ⟨lt_of_le_of_ne hm_le_a (Ne.symm ha_ne_m),
+           lt_of_le_of_ne hb_le_M (hb_ne_M)⟩
+
 /-- **Corollary of R2.** If `A` is almost-Sidon with at least two elements
 and admits some exceptional value `n*`, but the extreme-pair sum
 `min A + max A` is NOT that exceptional value, then `(min A, max A)` is the
@@ -218,5 +338,300 @@ theorem r2_extreme_pair_unique_when_not_on_axis
   · exact absurd h h_off_axis
   · intro m M a b ha hb hab_le hab_sum
     exact h a b ha hb hab_le hab_sum
+
+/-! ## Generalized R1: quantitative cardinality / multiplicity tradeoff
+
+The following generalizes R1 from "at most two representations" to "at most
+`k + 1` representations". Let `A` be almost-Sidon. If no value has more than
+`k + 1` sorted-pair representations in `A`, then there is a Sidon subset
+`S ⊆ A` with `A.card ≤ S.card + k`.
+
+Combined with the Lindström-style Sidon interval bound, this yields
+`|A| ≤ √N + O(N^{1/4}) + k`. Contrapositive: an almost-Sidon set strictly
+exceeding that bound has some value with `≥ k + 2` representations.
+
+The proof is by induction on `k`. The base case `k = 0` says "no value has
+two reps" hence `A` is Sidon. The step `k → k + 1` exploits the disjointness
+of distinct sorted pairs (E1 above): when some value has the maximal
+multiplicity `k + 2`, removing any element appearing in one of those pairs
+drops the multiplicity at that value by exactly one, while leaving the
+almost-Sidon property intact. -/
+
+/-- The finset of sorted-pair representations of `n` in `A`. -/
+def sumReprsFinset (A : Finset ℕ) (n : ℕ) : Finset (ℕ × ℕ) :=
+  (A ×ˢ A).filter fun p => p.1 ≤ p.2 ∧ p.1 + p.2 = n
+
+@[simp] theorem mem_sumReprsFinset {A : Finset ℕ} {n : ℕ} {p : ℕ × ℕ} :
+    p ∈ sumReprsFinset A n ↔
+      p.1 ∈ A ∧ p.2 ∈ A ∧ p.1 ≤ p.2 ∧ p.1 + p.2 = n := by
+  simp [sumReprsFinset, and_assoc]
+
+/-- `n` has at least `k + 1` sorted-pair representations in `A`. -/
+def HasKPlusOneSumReprs (A : Finset ℕ) (n k : ℕ) : Prop :=
+  k + 1 ≤ (sumReprsFinset A n).card
+
+theorem hasTwoSumReprs_iff_two_le_card {A : Finset ℕ} {n : ℕ} :
+    HasTwoSumReprs A n ↔ 2 ≤ (sumReprsFinset A n).card := by
+  classical
+  constructor
+  · rintro ⟨a₁, ha₁, a₂, ha₂, b₁, hb₁, b₂, hb₂, hle1, hle2, hsum1, hsum2, hneq⟩
+    have hp1 : (a₁, a₂) ∈ sumReprsFinset A n := by
+      rw [mem_sumReprsFinset]; exact ⟨ha₁, ha₂, hle1, hsum1⟩
+    have hp2 : (b₁, b₂) ∈ sumReprsFinset A n := by
+      rw [mem_sumReprsFinset]; exact ⟨hb₁, hb₂, hle2, hsum2⟩
+    have hp_ne : (a₁, a₂) ≠ (b₁, b₂) := by
+      intro heq
+      have hpair := (Prod.mk.injEq ..).mp heq
+      rcases hneq with h | h
+      · exact h hpair.1
+      · exact h hpair.2
+    have hsub : ({(a₁, a₂), (b₁, b₂)} : Finset (ℕ × ℕ)) ⊆ sumReprsFinset A n := by
+      intro p hp
+      simp only [Finset.mem_insert, Finset.mem_singleton] at hp
+      rcases hp with rfl | rfl
+      exacts [hp1, hp2]
+    have hcard : ({(a₁, a₂), (b₁, b₂)} : Finset (ℕ × ℕ)).card = 2 := by
+      simp [hp_ne]
+    have := Finset.card_le_card hsub
+    omega
+  · intro h
+    have h_pos : 0 < (sumReprsFinset A n).card := by omega
+    obtain ⟨p, hp⟩ := Finset.card_pos.mp h_pos
+    have h_pos' : 0 < ((sumReprsFinset A n).erase p).card := by
+      rw [Finset.card_erase_of_mem hp]; omega
+    obtain ⟨q, hq⟩ := Finset.card_pos.mp h_pos'
+    have hq_mem : q ∈ sumReprsFinset A n := (Finset.mem_erase.mp hq).2
+    have hq_ne : q ≠ p := (Finset.mem_erase.mp hq).1
+    rw [mem_sumReprsFinset] at hp hq_mem
+    refine ⟨p.1, hp.1, p.2, hp.2.1, q.1, hq_mem.1, q.2, hq_mem.2.1,
+            hp.2.2.1, hq_mem.2.2.1, hp.2.2.2, hq_mem.2.2.2, ?_⟩
+    by_cases h1 : p.1 = q.1
+    · right; intro h2
+      apply hq_ne
+      ext
+      · exact h1.symm
+      · exact h2.symm
+    · left; intro h2; exact h1 h2
+
+/-- Erasing one element preserves the almost-Sidon property. -/
+theorem AlmostSidonFinset.erase {A : Finset ℕ} (hA : AlmostSidonFinset A)
+    (x : ℕ) : AlmostSidonFinset (A.erase x) := by
+  intro m n hm hn
+  apply hA m n
+  · obtain ⟨a₁, ha₁, a₂, ha₂, b₁, hb₁, b₂, hb₂, hle1, hle2, hsum1, hsum2, hneq⟩ := hm
+    exact ⟨a₁, (Finset.mem_erase.mp ha₁).2, a₂, (Finset.mem_erase.mp ha₂).2,
+           b₁, (Finset.mem_erase.mp hb₁).2, b₂, (Finset.mem_erase.mp hb₂).2,
+           hle1, hle2, hsum1, hsum2, hneq⟩
+  · obtain ⟨a₁, ha₁, a₂, ha₂, b₁, hb₁, b₂, hb₂, hle1, hle2, hsum1, hsum2, hneq⟩ := hn
+    exact ⟨a₁, (Finset.mem_erase.mp ha₁).2, a₂, (Finset.mem_erase.mp ha₂).2,
+           b₁, (Finset.mem_erase.mp hb₁).2, b₂, (Finset.mem_erase.mp hb₂).2,
+           hle1, hle2, hsum1, hsum2, hneq⟩
+
+/-- If no value has two representations, the set is Sidon. -/
+theorem isSidonFinset_of_no_twoSumReprs {A : Finset ℕ}
+    (h : ∀ n, ¬ HasTwoSumReprs A n) : IsSidonFinset A := by
+  intro a₁ a₂ b₁ b₂ ha₁ ha₂ hb₁ hb₂ hle1 hle2 hsum
+  have ha₁' : a₁ ∈ A := Finset.mem_coe.mp ha₁
+  have ha₂' : a₂ ∈ A := Finset.mem_coe.mp ha₂
+  have hb₁' : b₁ ∈ A := Finset.mem_coe.mp hb₁
+  have hb₂' : b₂ ∈ A := Finset.mem_coe.mp hb₂
+  by_contra hne
+  push_neg at hne
+  have hneq : a₁ ≠ b₁ ∨ a₂ ≠ b₂ := by
+    by_cases h1 : a₁ = b₁
+    · right; exact hne h1
+    · left; exact h1
+  exact h (a₁ + a₂) ⟨a₁, ha₁', a₂, ha₂', b₁, hb₁', b₂, hb₂', hle1, hle2,
+                     rfl, hsum.symm, hneq⟩
+
+/-- The sorted-pair representations of `n` in `A.erase a` form a subset of
+those in `A`. -/
+theorem sumReprsFinset_erase_subset {A : Finset ℕ} {a n : ℕ} :
+    sumReprsFinset (A.erase a) n ⊆ sumReprsFinset A n := by
+  intro p hp
+  rw [mem_sumReprsFinset] at hp ⊢
+  exact ⟨(Finset.mem_erase.mp hp.1).2, (Finset.mem_erase.mp hp.2.1).2,
+         hp.2.2.1, hp.2.2.2⟩
+
+/-- **Generalized R1 (quantitative multiplicity / cardinality bound).** Let `A`
+be an almost-Sidon set. If no value has `k + 2` or more sorted-pair
+representations (i.e. `HasKPlusOneSumReprs A n (k + 1)` fails for every `n`),
+then we can remove `k` elements from `A` to obtain a Sidon subset.
+
+In symbols: `∃ S ⊆ A, IsSidonFinset S ∧ A.card ≤ S.card + k`.
+
+The base case `k = 0` is "every value has ≤ 1 rep" so `A` is already Sidon
+(`S = A`). The inductive step exploits the unique-pairing fact
+(`e1_distinct_pairs_disjoint`): when some value has the maximal multiplicity
+`k + 2`, removing any element appearing in one of those pairs drops the
+multiplicity at that value by exactly one, while leaving the almost-Sidon
+property intact. Iterating gives a Sidon subset after `k` removals. -/
+theorem r1_general_multiplicity_bound
+    (A : Finset ℕ) (hA : AlmostSidonFinset A) (k : ℕ)
+    (h_atMost : ∀ n, ¬ HasKPlusOneSumReprs A n (k + 1)) :
+    ∃ S ⊆ A, IsSidonFinset S ∧ A.card ≤ S.card + k := by
+  classical
+  induction k generalizing A with
+  | zero =>
+    refine ⟨A, subset_refl A, ?_, by omega⟩
+    apply isSidonFinset_of_no_twoSumReprs
+    intro n h_two
+    have h_card : 2 ≤ (sumReprsFinset A n).card :=
+      hasTwoSumReprs_iff_two_le_card.mp h_two
+    exact h_atMost n h_card
+  | succ k ih =>
+    by_cases h_inner : ∀ n, ¬ HasKPlusOneSumReprs A n (k + 1)
+    · obtain ⟨S, hS_sub, hS_sidon, hS_card⟩ := ih A hA h_inner
+      exact ⟨S, hS_sub, hS_sidon, by omega⟩
+    · push_neg at h_inner
+      obtain ⟨nstar, h_many⟩ := h_inner
+      -- `h_many : HasKPlusOneSumReprs A nstar (k + 1)`
+      -- i.e. `k + 2 ≤ (sumReprsFinset A nstar).card`
+      have h_many' : k + 2 ≤ (sumReprsFinset A nstar).card := by
+        unfold HasKPlusOneSumReprs at h_many; omega
+      have h_card_pos : 0 < (sumReprsFinset A nstar).card := by omega
+      obtain ⟨⟨a, b⟩, hab_mem⟩ : (sumReprsFinset A nstar).Nonempty :=
+        Finset.card_pos.mp h_card_pos
+      have hab := mem_sumReprsFinset.mp hab_mem
+      obtain ⟨haA, hbA, hab_le, hab_sum⟩ := hab
+      have h_erase_AS : AlmostSidonFinset (A.erase a) :=
+        AlmostSidonFinset.erase hA a
+      have h_erase_bound :
+          ∀ n, ¬ HasKPlusOneSumReprs (A.erase a) n (k + 1) := by
+        intro n h_many_erase
+        have h_sub : sumReprsFinset (A.erase a) n ⊆ sumReprsFinset A n :=
+          sumReprsFinset_erase_subset
+        unfold HasKPlusOneSumReprs at h_many_erase
+        have h_card_back : k + 2 ≤ (sumReprsFinset A n).card :=
+          le_trans h_many_erase (Finset.card_le_card h_sub)
+        have h_card_at_n : (sumReprsFinset A n).card ≤ k + 2 := by
+          by_contra hgt; push_neg at hgt
+          have h_target : HasKPlusOneSumReprs A n (k + 1 + 1) := by
+            unfold HasKPlusOneSumReprs; omega
+          exact h_atMost n h_target
+        by_cases h_n_eq : n = nstar
+        · have h_pair_in : (a, b) ∈ sumReprsFinset A n := by
+            rw [mem_sumReprsFinset, h_n_eq]
+            exact ⟨haA, hbA, hab_le, hab_sum⟩
+          have h_pair_out : (a, b) ∉ sumReprsFinset (A.erase a) n := by
+            intro h
+            rw [mem_sumReprsFinset] at h
+            exact (Finset.mem_erase.mp h.1).1 rfl
+          have h_strict : (sumReprsFinset (A.erase a) n).card <
+              (sumReprsFinset A n).card := by
+            apply Finset.card_lt_card
+            exact (Finset.ssubset_iff_of_subset h_sub).mpr
+                  ⟨(a, b), h_pair_in, h_pair_out⟩
+          omega
+        · have h_two_n : HasTwoSumReprs A n :=
+            hasTwoSumReprs_iff_two_le_card.mpr (by omega)
+          have h_two_nstar : HasTwoSumReprs A nstar :=
+            hasTwoSumReprs_iff_two_le_card.mpr (by omega)
+          exact h_n_eq (hA n nstar h_two_n h_two_nstar)
+      obtain ⟨S, hS_sub_erase, hS_sidon, hS_card⟩ :=
+        ih (A.erase a) h_erase_AS h_erase_bound
+      refine ⟨S, hS_sub_erase.trans (Finset.erase_subset _ _), hS_sidon, ?_⟩
+      have h_card_erase : (A.erase a).card = A.card - 1 :=
+        Finset.card_erase_of_mem haA
+      have h_card_pos_A : 0 < A.card := Finset.card_pos.mpr ⟨a, haA⟩
+      omega
+
+/-! ## R3: Off-axis pair-sums are Sidon-unique
+
+An empirical investigation of all 12 known SAS extremizers (N = 70..79 from
+exhaustive bitfield search, plus N = 100 and N = 200 from asymmetric Erdős–Freud
+search; see `research/sqrt2-strong-almost-sidon/data/analyze_invariants.py`)
+revealed that every off-axis pair-sum is realised by a unique sorted pair from
+`A`. R3 makes this rigorous and shows the property follows directly from the
+almost-Sidon axiom — no further combinatorial input is needed.
+
+Concretely: among the 12 extremizers, for *every* `a, b ∈ A` with
+`a + b ≠ nstar`, the pair `(min a b, max a b)` is the unique sorted-pair
+representation of `a + b` in `A × A`. The lemma `r3_off_axis_unique_representation`
+below proves this for all almost-Sidon sets, not just extremizers.
+
+Two specialisations capture the empirical observations directly:
+
+* `r3_second_largest_pair_unique`: under R2 (i.e. `min A + max A = nstar`),
+  the pair `(min A, M₂)` is the unique sorted-pair sum for *any* `M₂ ∈ A`
+  with `M₂ < max A`. Empirically `M₂` is the "second-largest" element, but
+  the lemma applies to every interior element.
+* `r3_second_smallest_pair_unique`: symmetric statement for `(m₂, max A)`. -/
+
+/-- **R3 (Off-axis pair-sums are Sidon-unique).** In any almost-Sidon set `A`,
+every sum value `s` with `s ≠ nstar` has at most one sorted-pair
+representation. Equivalently: a pair-sum either equals the exception `nstar`
+or is realised by exactly one sorted pair from `A`.
+
+This strengthens R2's uniqueness branch (which handled the specific extreme
+pair `(min A, max A)`) to *every* off-axis pair-sum, capturing the empirical
+observation that off-axis sums in known extremizers are always uniquely
+realised. -/
+theorem r3_off_axis_unique_representation
+    (A : Finset ℕ) (hA : AlmostSidonFinset A)
+    {nstar : ℕ} (h_exception : HasTwoSumReprs A nstar)
+    (s : ℕ) (hs_ne : s ≠ nstar) :
+    ∀ a₁ a₂ b₁ b₂ : ℕ,
+      a₁ ∈ A → a₂ ∈ A → b₁ ∈ A → b₂ ∈ A →
+      a₁ ≤ a₂ → b₁ ≤ b₂ →
+      a₁ + a₂ = s → b₁ + b₂ = s →
+      a₁ = b₁ ∧ a₂ = b₂ := by
+  intro a₁ a₂ b₁ b₂ ha₁ ha₂ hb₁ hb₂ hle1 hle2 hsum1 hsum2
+  by_contra h_ne
+  push_neg at h_ne
+  have hneq : a₁ ≠ b₁ ∨ a₂ ≠ b₂ := by
+    by_cases h1 : a₁ = b₁
+    · right; exact h_ne h1
+    · left; exact h1
+  have h_two_s : HasTwoSumReprs A s :=
+    ⟨a₁, ha₁, a₂, ha₂, b₁, hb₁, b₂, hb₂, hle1, hle2, hsum1, hsum2, hneq⟩
+  exact hs_ne (hA _ _ h_two_s h_exception)
+
+/-- **R3 specialised — sub-extreme pair on the small side is unique.**
+Combining R2 (`min A + max A = nstar` in near-extremal SAS) with R3,
+the pair `(min A, M')` is the unique sorted-pair representation of
+`min A + M'` whenever `M' ∈ A` lies *strictly* below `max A`.
+
+Empirically (12/12 extremizers), `M' = M₂` (second-largest element) gives a
+uniquely-realised sum sitting just below the exception value `nstar`. -/
+theorem r3_second_largest_pair_unique
+    (A : Finset ℕ) (hA : AlmostSidonFinset A) (h_card : 2 ≤ A.card)
+    {nstar : ℕ} (h_exception : HasTwoSumReprs A nstar)
+    (h_axis : (A.min' (Finset.card_pos.mp (by omega : 0 < A.card))) +
+              (A.max' (Finset.card_pos.mp (by omega : 0 < A.card))) = nstar)
+    {M' : ℕ} (hM'_mem : M' ∈ A)
+    (hM'_lt : M' < A.max' (Finset.card_pos.mp (by omega : 0 < A.card))) :
+    let m := A.min' (Finset.card_pos.mp (by omega : 0 < A.card))
+    ∀ a b : ℕ, a ∈ A → b ∈ A → a ≤ b → a + b = m + M' → a = m ∧ b = M' := by
+  intro m a b ha hb hab_le hab_sum
+  have hm_mem : m ∈ A := A.min'_mem _
+  have hm_le_M' : m ≤ M' := A.min'_le _ hM'_mem
+  have h_lt_nstar : m + M' < nstar := by
+    rw [← h_axis]; exact Nat.add_lt_add_left hM'_lt m
+  have h_ne_nstar : m + M' ≠ nstar := Nat.ne_of_lt h_lt_nstar
+  exact r3_off_axis_unique_representation A hA h_exception (m + M') h_ne_nstar
+    a b m M' ha hb hm_mem hM'_mem hab_le hm_le_M' hab_sum rfl
+
+/-- **R3 specialised — sub-extreme pair on the large side is unique.**
+Symmetric counterpart: under R2, the pair `(m', max A)` is the unique
+sorted-pair representation of `m' + max A` whenever `m' ∈ A` lies strictly
+above `min A`. -/
+theorem r3_second_smallest_pair_unique
+    (A : Finset ℕ) (hA : AlmostSidonFinset A) (h_card : 2 ≤ A.card)
+    {nstar : ℕ} (h_exception : HasTwoSumReprs A nstar)
+    (h_axis : (A.min' (Finset.card_pos.mp (by omega : 0 < A.card))) +
+              (A.max' (Finset.card_pos.mp (by omega : 0 < A.card))) = nstar)
+    {m' : ℕ} (hm'_mem : m' ∈ A)
+    (hm'_gt : A.min' (Finset.card_pos.mp (by omega : 0 < A.card)) < m') :
+    let M := A.max' (Finset.card_pos.mp (by omega : 0 < A.card))
+    ∀ a b : ℕ, a ∈ A → b ∈ A → a ≤ b → a + b = m' + M → a = m' ∧ b = M := by
+  intro M a b ha hb hab_le hab_sum
+  have hM_mem : M ∈ A := A.max'_mem _
+  have hm'_le_M : m' ≤ M := A.le_max' _ hm'_mem
+  have h_gt_nstar : nstar < m' + M := by
+    rw [← h_axis]; exact Nat.add_lt_add_right hm'_gt M
+  have h_ne_nstar : m' + M ≠ nstar := (Nat.ne_of_lt h_gt_nstar).symm
+  exact r3_off_axis_unique_representation A hA h_exception (m' + M) h_ne_nstar
+    a b m' M ha hb hm'_mem hM_mem hab_le hm'_le_M hab_sum rfl
 
 end AlmostSidonSets
