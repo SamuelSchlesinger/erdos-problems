@@ -1,0 +1,106 @@
+# random_restart.py results
+# seed = 42
+
+=== N=100 ===
+  restarts = 100
+  ef_pred  = 16.354
+  max_size = 15
+  size histogram:
+    size=11: count=5
+    size=12: count=34
+    size=13: count=30
+    size=14: count=30
+    size=15: count=1
+  EF-form (criteria-based)   = 62
+  near-EF (dev_best <= 2)    = 43
+  non-near-EF (dev_best > 2) = 57
+  max non-EF size = 13
+  elapsed = 0.7 s
+
+  Top non-EF examples (largest):
+    size=13  dev_best=3  dev_best_in=3  dev_strict=11  exc=84
+      best_axis=84 best_third=38
+      A = [1, 2, 4, 17, 27, 38, 46, 67, 76, 80, 82, 83, 100]
+    size=13  dev_best=3  dev_best_in=3  dev_strict=13  exc=62
+      best_axis=62 best_third=20
+      A = [2, 4, 5, 10, 14, 48, 52, 57, 58, 60, 71, 78, 93]
+    size=13  dev_best=3  dev_best_in=3  dev_strict=13  exc=50
+      best_axis=50 best_third=21
+      A = [5, 8, 14, 19, 21, 29, 31, 36, 42, 45, 80, 99, 100]
+    size=13  dev_best=3  dev_best_in=3  dev_strict=11  exc=76
+      best_axis=76 best_third=31
+      A = [2, 9, 12, 14, 18, 31, 45, 58, 62, 64, 67, 82, 90]
+    size=13  dev_best=3  dev_best_in=3  dev_strict=13  exc=74
+      best_axis=74 best_third=28
+      A = [5, 7, 12, 13, 16, 28, 46, 58, 61, 67, 69, 86, 96]
+
+=== N=200 ===
+  restarts = 100
+  ef_pred  = 22.046
+  max_size = 19
+  size histogram:
+    size=15: count=49
+    size=16: count=15
+    size=17: count=19
+    size=18: count=13
+    size=19: count=4
+  EF-form (criteria-based)   = 35
+  near-EF (dev_best <= 2)    = 19
+  non-near-EF (dev_best > 2) = 81
+  max non-EF size = 17
+  elapsed = 2.0 s
+
+  Top non-EF examples (largest):
+    size=17  dev_best=3  dev_best_in=3  dev_strict=15  exc=165
+      best_axis=165 best_third=78
+      A = [13, 14, 18, 37, 53, 66, 78, 87, 99, 112, 128, 147, 151, 152, 179, 189, 196]
+    size=17  dev_best=3  dev_best_in=3  dev_strict=17  exc=148
+      best_axis=148 best_third=65
+      A = [2, 3, 10, 15, 26, 48, 65, 83, 100, 122, 133, 138, 145, 146, 148, 175, 189]
+    size=17  dev_best=3  dev_best_in=3  dev_strict=15  exc=155
+      best_axis=155 best_third=72
+      A = [4, 12, 14, 30, 35, 44, 47, 72, 83, 108, 111, 120, 125, 141, 151, 170, 197]
+    size=17  dev_best=3  dev_best_in=3  dev_strict=15  exc=181
+      best_axis=181 best_third=90
+      A = [16, 19, 23, 28, 48, 83, 85, 96, 98, 133, 153, 158, 162, 165, 184, 192, 198]
+    size=17  dev_best=4  dev_best_in=4  dev_strict=17  exc=116
+      best_axis=116 best_third=58
+      A = [2, 3, 9, 12, 20, 45, 58, 71, 96, 104, 107, 113, 114, 154, 174, 178, 193]
+
+=== N=500 ===
+  restarts = 100
+  ef_pred  = 33.008
+  max_size = 28
+  size histogram:
+    size=20: count=1
+    size=21: count=64
+    size=22: count=20
+    size=23: count=5
+    size=24: count=4
+    size=25: count=1
+    size=26: count=1
+    size=27: count=2
+    size=28: count=2
+  EF-form (criteria-based)   = 10
+  near-EF (dev_best <= 2)    = 5
+  non-near-EF (dev_best > 2) = 95
+  max non-EF size = 25
+  elapsed = 8.9 s
+
+  Top non-EF examples (largest):
+    size=25  dev_best=4  dev_best_in=4  dev_strict=23  exc=384
+      best_axis=384 best_third=273
+      A = [4, 6, 12, 15, 25, 41, 80, 97, 111, 129, 192, 255, 273, 287, 304, 343, 359, 369, 372, 378, 380, 420, 472, 499, 500]
+    size=24  dev_best=4  dev_best_in=4  dev_strict=24  exc=335
+      best_axis=335 best_third=164
+      A = [24, 27, 41, 51, 59, 92, 117, 118, 162, 164, 171, 173, 217, 218, 243, 276, 284, 294, 308, 311, 403, 418, 439, 481]
+    size=24  dev_best=7  dev_best_in=7  dev_strict=24  exc=250
+      best_axis=250 best_third=128
+      A = [8, 10, 15, 46, 57, 61, 113, 116, 125, 134, 137, 189, 193, 204, 235, 240, 242, 279, 324, 402, 435, 463, 489, 495]
+    size=23  dev_best=7  dev_best_in=3  dev_strict=23  exc=540
+      best_axis=540 best_third=259
+      A = [7, 30, 32, 35, 41, 77, 98, 130, 148, 233, 240, 259, 281, 300, 307, 320, 337, 392, 410, 442, 463, 475, 499]
+    size=23  dev_best=9  dev_best_in=8  dev_strict=23  exc=525
+      best_axis=525 best_third=262
+      A = [20, 26, 31, 40, 70, 72, 108, 112, 115, 133, 134, 181, 191, 313, 337, 368, 391, 417, 453, 455, 485, 494, 499]
+

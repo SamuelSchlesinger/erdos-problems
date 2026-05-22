@@ -1,0 +1,133 @@
+# EF Locality Test Results
+# Construction: A_EF = B ∪ (N − B), B = Sidon set in [1, ⌊N/3⌋]
+# (B built via Erdős–Turán seed + greedy extension; may not be absolute max)
+#
+N=100  M=33  |B|=7  |A_EF|=14  SAS=YES  exc_val=100
+  Single-element ADD: 0 witnesses (EF locally maximal vs add)
+  SWAP witness: remove 8, add 47 (|A|=14)
+  SWAP witness: remove 14, add 53 (|A|=14)
+  SWAP witness: remove 86, add 47 (|A|=14)
+  SWAP witness: remove 92, add 53 (|A|=14)
+  Single-element SWAP: 4 witnesses (same-size moves)
+  Colliding-pair ADD (x+y=N): 0 witnesses
+  Iterated AUG: 0 colliding-pair rounds, final |A|=14 (gain=0)
+  >>> EF locally maximal vs single ADD?  YES
+  >>> Colliding-pair gives improvement?   NO
+
+# wall: 0.00 s for N=100
+#
+N=200  M=66  |B|=10  |A_EF|=20  SAS=YES  exc_val=200
+  ADD witness: x=100  (|A_new|=21)
+  Single-element ADD: 1 witnesses (EF NOT locally maximal vs add)
+  SWAP witness: remove 1, add 100 (|A|=20)
+  SWAP witness: remove 2, add 100 (|A|=20)
+  SWAP witness: remove 7, add 98 (|A|=20)
+  SWAP witness: remove 7, add 100 (|A|=20)
+  SWAP witness: remove 11, add 100 (|A|=20)
+  Single-element SWAP: 24 witnesses (same-size moves)
+  Colliding-pair ADD (x+y=N): 0 witnesses
+  Iterated AUG: 0 colliding-pair rounds, final |A|=20 (gain=0)
+  >>> EF locally maximal vs single ADD?  NO
+  >>> Colliding-pair gives improvement?   NO
+
+# wall: 4.16 s for N=200
+#
+N=500  M=166  |B|=15  |A_EF|=30  SAS=YES  exc_val=500
+  ADD witness: x=250  (|A_new|=31)
+  Single-element ADD: 1 witnesses (EF NOT locally maximal vs add)
+  SWAP witness: remove 1, add 250 (|A|=30)
+  SWAP witness: remove 5, add 250 (|A|=30)
+  SWAP witness: remove 21, add 250 (|A|=30)
+  SWAP witness: remove 31, add 250 (|A|=30)
+  SWAP witness: remove 58, add 250 (|A|=30)
+  Single-element SWAP: 30 witnesses (same-size moves)
+  Colliding-pair ADD (x+y=N): 0 witnesses
+  Iterated AUG: 0 colliding-pair rounds, final |A|=30 (gain=0)
+  >>> EF locally maximal vs single ADD?  NO
+  >>> Colliding-pair gives improvement?   NO
+
+# wall: 176.78 s for N=500
+#
+N=1000  M=333  |B|=20  |A_EF|=40  SAS=YES  exc_val=1000
+  ADD witness: x=382  (|A_new|=41)
+  ADD witness: x=383  (|A_new|=41)
+  ADD witness: x=393  (|A_new|=41)
+  ADD witness: x=607  (|A_new|=41)
+  ADD witness: x=617  (|A_new|=41)
+  Single-element ADD: 6 witnesses (EF NOT locally maximal vs add)
+  SWAP witness: remove 1, add 382 (|A|=40)
+  SWAP witness: remove 1, add 383 (|A|=40)
+  SWAP witness: remove 1, add 393 (|A|=40)
+  SWAP witness: remove 1, add 607 (|A|=40)
+  SWAP witness: remove 1, add 617 (|A|=40)
+  Single-element SWAP: 260 witnesses (same-size moves)
+  PAIR witness: add {382, 618} (sum=1000=N), |A_new|=42
+  PAIR witness: add {383, 617} (sum=1000=N), |A_new|=42
+  PAIR witness: add {393, 607} (sum=1000=N), |A_new|=42
+  Colliding-pair ADD (x+y=N): 3 witnesses
+  AUG round 1: added pair {382, 618}, |A|=42
+  Iterated AUG: 1 colliding-pair rounds, final |A|=42 (gain=2)
+  >>> EF locally maximal vs single ADD?  NO
+  >>> Colliding-pair gives improvement?   YES
+
+# wall: 0.00 s for N=1000
+#
+N=5000  M=1666  |B|=33  |A_EF|=66  SAS=YES  exc_val=5000
+  ADD witness: x=1821  (|A_new|=67)
+  ADD witness: x=1842  (|A_new|=67)
+  ADD witness: x=1886  (|A_new|=67)
+  ADD witness: x=1896  (|A_new|=67)
+  ADD witness: x=1898  (|A_new|=67)
+  Single-element ADD: 96 witnesses (EF NOT locally maximal vs add)
+  SWAP witness: remove 1, add 1821 (|A|=66)
+  SWAP witness: remove 1, add 1842 (|A|=66)
+  SWAP witness: remove 1, add 1886 (|A|=66)
+  SWAP witness: remove 1, add 1896 (|A|=66)
+  SWAP witness: remove 1, add 1898 (|A|=66)
+  Single-element SWAP: 6518 witnesses (same-size moves)
+  PAIR witness: add {1821, 3179} (sum=5000=N), |A_new|=68
+  PAIR witness: add {1842, 3158} (sum=5000=N), |A_new|=68
+  PAIR witness: add {1886, 3114} (sum=5000=N), |A_new|=68
+  PAIR witness: add {1896, 3104} (sum=5000=N), |A_new|=68
+  PAIR witness: add {1898, 3102} (sum=5000=N), |A_new|=68
+  Colliding-pair ADD (x+y=N): 48 witnesses
+  AUG round 1: added pair {1821, 3179}, |A|=68
+  AUG round 2: added pair {1896, 3104}, |A|=70
+  AUG round 3: added pair {2029, 2971}, |A|=72
+  AUG round 4: added pair {2312, 2688}, |A|=74
+  Iterated AUG: 4 colliding-pair rounds, final |A|=74 (gain=8)
+  >>> EF locally maximal vs single ADD?  NO
+  >>> Colliding-pair gives improvement?   YES
+
+# wall: 0.17 s for N=5000
+#
+N=10000  M=3333  |B|=42  |A_EF|=84  SAS=YES  exc_val=10000
+  ADD witness: x=3354  (|A_new|=85)
+  ADD witness: x=3377  (|A_new|=85)
+  ADD witness: x=3428  (|A_new|=85)
+  ADD witness: x=3470  (|A_new|=85)
+  ADD witness: x=3563  (|A_new|=85)
+  Single-element ADD: 362 witnesses (EF NOT locally maximal vs add)
+  SWAP witness: remove 1, add 3354 (|A|=84)
+  SWAP witness: remove 1, add 3377 (|A|=84)
+  SWAP witness: remove 1, add 3428 (|A|=84)
+  SWAP witness: remove 1, add 3470 (|A|=84)
+  SWAP witness: remove 1, add 3563 (|A|=84)
+  Single-element SWAP: 30794 witnesses (same-size moves)
+  PAIR witness: add {3354, 6646} (sum=10000=N), |A_new|=86
+  PAIR witness: add {3377, 6623} (sum=10000=N), |A_new|=86
+  PAIR witness: add {3428, 6572} (sum=10000=N), |A_new|=86
+  PAIR witness: add {3470, 6530} (sum=10000=N), |A_new|=86
+  PAIR witness: add {3563, 6437} (sum=10000=N), |A_new|=86
+  Colliding-pair ADD (x+y=N): 181 witnesses
+  AUG round 1: added pair {3354, 6646}, |A|=86
+  AUG round 2: added pair {3591, 6409}, |A|=88
+  AUG round 3: added pair {3797, 6203}, |A|=90
+  AUG round 4: added pair {3998, 6002}, |A|=92
+  AUG round 5: added pair {4490, 5510}, |A|=94
+  Iterated AUG: 6 colliding-pair rounds, final |A|=96 (gain=12)
+  >>> EF locally maximal vs single ADD?  NO
+  >>> Colliding-pair gives improvement?   YES
+
+# wall: 0.94 s for N=10000
+#
