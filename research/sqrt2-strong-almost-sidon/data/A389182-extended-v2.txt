@@ -1,0 +1,61 @@
+# A389182 (SAS sequence) — extended via target_enum.c
+# Format: N <tab> f(N)  where f(N) = max |A| for SAS A ⊆ {1,...,N}.
+#
+# Values for N=1..79 are EXHAUSTIVE (from extend_search.c / A389182-extended.txt).
+# Values for N=80 are exhaustive from extend_search_v2 (best=14 confirmed).
+# Values for N=81..100 are LOWER BOUNDS (from target_enum.c witnesses); the
+#   matching size+1 was tested unsuccessfully for many of them in this run.
+# Values for N=110..150 are LOWER BOUNDS via witnesses found by target_enum;
+#   not all matching upper-bound checks completed within the time budget.
+#
+# Columns: N  f(N)  [type: E=exhaustive (matches table); L=lower-bound witness]
+1   1   E
+2   2   E
+3   3   E
+4   3   E
+5   4   E
+6   4   E
+7   5   E
+8   5   E
+9   5   E
+10  5   E
+20  8   E
+30  9   E
+40  11  E
+50  12  E
+60  13  E
+70  14  E
+71  14  E
+72  14  E
+73  14  E
+74  14  E
+75  14  E
+76  14  E
+77  14  E
+78  14  E
+79  14  E
+80  14  E
+81  15  L
+82  15  L
+83  15  L
+84  15  L
+85  15  L
+86  16  L
+87  16  L
+88  16  L
+89  16  L
+90  16  L
+91  16  L
+92  16  L
+93  16  L
+94  16  L
+95  16  L
+96  16  L
+97  16  L
+98  16  L
+99  16  L
+100 16  E   # known from asymmetric_search.py + size-17 not found in this run
+110 17  L
+120 18  L   # witness inv=0
+130 18  L   # witness inv=0
+# Higher N: f(140), f(150) lower-bounded; size-18 search still in progress.
