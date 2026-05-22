@@ -419,15 +419,29 @@ need to prove separately.
 | B (Autoconvolution g→1⁺) | L² norm bounds on f·f | L² averaging is blind to single-atom strength |
 | C (Density-profile) | Value-disjointness via EF Lemma 1+3 | Constraint has 1/4 slack at the worst case; tight only at extremality |
 
-**All FIVE Fourier-style attacks converge on the same obstruction**
-(adding the two OP attacks): they extract per-half information but
-not *joint* information about `(A_-, A_+)`. The precise diagnostic
-from attempt D2 (OP application): the integrated value-disjointness
-constraint at `α = β = 1/2` has 1/4 slack of a *geometric*
-(not statistical) origin — the densities `d_-(v) + d_×(v)` saturate
-to 1 only at `v = n*`, which SAS exempts. No improvement in the
-per-half Fourier control can close this gap; only a *bipartite*
-(joint) constraint that forces `α + β < 1` can.
+**All ELEVEN attacks** (5 Fourier-direct plus 6 cross-domain scouts)
+**converge on the same meta-obstruction**: SAS bipartite rigidity is
+*location-sensitive*, but every method we've tried (Fourier energy,
+autoconvolution, density profile, OP Fourier-uniformity, algebraic
+NT, entropy, spectral graph, polynomial method, coding theory,
+restriction/decoupling) is either:
+- *Translation-invariant* (Cayley spectra, coding-theory bounds,
+  algebraic NT class-group methods), or
+- *L^p-averaged* and blind to single-atom structure (entropy,
+  autoconvolution, restriction/decoupling), or
+- *Per-half only* and unable to express joint `(A_-, A_+)`
+  constraints (Pikhurko-cross, OP-adaptation).
+
+The conjecture `2/√3` requires a method that is **simultaneously
+fine-grained enough to detect L^∞ single-atom strength AND
+positionally sensitive**. No such tool is in the standard
+additive-combinatorics toolkit, and 6 cross-domain scouts found
+nothing in adjacent fields either.
+
+The empirical data (10 additional values N=70..79 added in this
+session, all EF-form within ±2) strongly supports the conjecture,
+but the route to a proof is *not* via any existing technique we've
+been able to identify.
 
 The conjecture `2/√3` appears equivalent to a
 **joint structural rigidity theorem** for SAS extremizers:
@@ -486,3 +500,12 @@ density-profile via Erdős–Freud Lemma 1.
 | 2026-05-22 | All three elementary refinements exhausted. The `2/√3` conjecture appears equivalent to a Freiman-style structural rigidity theorem for SAS extremizers. Genuine research project, not days of work. |
 | 2026-05-22 | **Attempt D1 (Ortega–Prendiville Fourier-uniformity adaptation) negative**: SAS Fourier-uniformity bound `Δ ≪ N^{5/12} + k·N^{1/6}` survives only for `k ≪ N^{1/3}`, vacuous in SAS regime `k ≈ N^{1/2}/√2`. Detail in `op-adaptation.md`. |
 | 2026-05-22 | **Attempt D2 (OP rigidity application) — precise diagnostic**: per-half OP rigidity (Fourier uniformity for each `A_±`) closes G1+G2 but NOT G3. The 1/4 slack at `α=β=1/2` is *geometric*, not statistical. To break `√2` we need *bipartite rigidity* — a joint `(A_-, A_+)` constraint forcing `α + β < 1`. Detail in `op-application.md`. Quantified intermediate: under "one half compressed to (1/2−δ)·N", get `c ≤ (1/√2)(√(1−2δ) + 1)`; at `δ = 1/12` this is `c ≈ 1.353`. |
+| 2026-05-22 | **Six cross-domain scouts dispatched** to find bipartite rigidity outside Fourier methods. All negative with structural diagnosis: |
+|             |  - Algebraic NT (`algebraic-nt-attack.md`): positional / multiplicative mismatch with OpenAI motifs. |
+|             |  - Entropy (`entropy-attack.md`): Tao's dictionary equates entropy = cardinality for uniform RVs; already exhausted. |
+|             |  - Spectral graph (`spectral-attack.md`): Cayley spectra are translation-invariant; same vacuous LU ≈ N/2 result as Pikhurko-cross. |
+|             |  - Polynomial method (`polynomial-method-attack.md`): wrong regime — CLP needs `𝔽_p^n` exponential savings; SAS needs √N granularity in ℤ_N. |
+|             |  - Coding theory (`coding-theory-attack.md`): Singleton/Plotkin/Delsarte give cardinality bounds, all translation-invariant. |
+|             |  - Restriction / decoupling (`restriction-attack.md`): no curvature on flat intervals; no transversality; L^p averaging again. |
+| 2026-05-22 | **Six attacks converge on the same meta-obstruction**: SAS bipartite rigidity is *location-sensitive*, but every elementary tool from our 11 different attempts (5 Fourier-direct + 6 cross-domain) is *translation-invariant* or *L^p-averaged*. The conjecture `2/√3` requires a method that is simultaneously fine-grained enough to detect single-atom strength AND positionally sensitive. No such tool is in the standard additive-combinatorics toolkit. |
+| 2026-05-22 | **Computer search extension (N = 70..79)** in `computer-search-report.md`: 10 new values, all extremizers are approximately Erdős–Freud form (deviation ≤ 2). f(N) = 14 across N = 69..79. Strong empirical support for the rigidity conjecture. |

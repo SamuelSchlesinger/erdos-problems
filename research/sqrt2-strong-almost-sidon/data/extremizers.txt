@@ -1,0 +1,100 @@
+# Extremizing SAS sets for N = 70..78.
+# Columns:
+#   N, f(N), EF_pred, ratio, exc
+#   ef_strict = whether A = lo ∪ (N-lo) exactly with lo = A ∩ [1, ⌊N/3⌋]
+#   dev_strict = |A △ (lo ∪ (N-lo))|
+#   dev_best = min over (axis_shift, third_offset) of deviation
+#
+# A 'dev_best = 0' or '= 1' is a strict EF-form extremizer.
+# A 'dev_best = 2' is 'EF + one extra colliding pair' (still EF-like).
+
+N= 70  f=14  pred= 14.058  ratio=0.9959  exc=71  ef_strict=0  dev_strict=12  dev_best= 2 (axis_shift=+1, third_off=-4)  dev_pair_sums_to_axis=yes
+   A   = [1, 2, 4, 9, 15, 19, 31, 40, 52, 56, 62, 67, 69, 70]
+   lo  = [1, 2, 4, 9, 15, 19]  (third = 23)
+   hi  = [52, 56, 62, 67, 69, 70]
+   mid = [31, 40]
+   dev_strict_set = [31, 40, 51, 52, 55, 56, 61, 62, 66, 67, 68, 70]
+   dev_best_set   = [31, 40]  (axis=71, threshold=19)
+   best lo = [1, 2, 4, 9, 15, 19] (length 6), lo_sidon=1
+
+N= 71  f=14  pred= 14.142  ratio=0.9900  exc=71  ef_strict=0  dev_strict= 2  dev_best= 2 (axis_shift=+0, third_off=-4)  dev_pair_sums_to_axis=yes
+   A   = [1, 2, 4, 9, 15, 19, 31, 40, 52, 56, 62, 67, 69, 70]
+   lo  = [1, 2, 4, 9, 15, 19]  (third = 23)
+   hi  = [52, 56, 62, 67, 69, 70]
+   mid = [31, 40]
+   dev_strict_set = [31, 40]
+   dev_best_set   = [31, 40]  (axis=71, threshold=19)
+   best lo = [1, 2, 4, 9, 15, 19] (length 6), lo_sidon=1
+
+N= 72  f=14  pred= 14.226  ratio=0.9841  exc=71  ef_strict=0  dev_strict=12  dev_best= 2 (axis_shift=-1, third_off=-5)  dev_pair_sums_to_axis=yes
+   A   = [1, 2, 4, 9, 15, 19, 31, 40, 52, 56, 62, 67, 69, 70]
+   lo  = [1, 2, 4, 9, 15, 19]  (third = 24)
+   hi  = [52, 56, 62, 67, 69, 70]
+   mid = [31, 40]
+   dev_strict_set = [31, 40, 52, 53, 56, 57, 62, 63, 67, 68, 69, 71]
+   dev_best_set   = [31, 40]  (axis=71, threshold=19)
+   best lo = [1, 2, 4, 9, 15, 19] (length 6), lo_sidon=1
+
+N= 73  f=14  pred= 14.309  ratio=0.9784  exc=74  ef_strict=0  dev_strict=12  dev_best= 2 (axis_shift=+1, third_off=-3)  dev_pair_sums_to_axis=yes
+   A   = [1, 2, 4, 8, 16, 21, 32, 42, 53, 58, 66, 70, 72, 73]
+   lo  = [1, 2, 4, 8, 16, 21]  (third = 24)
+   hi  = [53, 58, 66, 70, 72, 73]
+   mid = [32, 42]
+   dev_strict_set = [32, 42, 52, 53, 57, 58, 65, 66, 69, 70, 71, 73]
+   dev_best_set   = [32, 42]  (axis=74, threshold=21)
+   best lo = [1, 2, 4, 8, 16, 21] (length 6), lo_sidon=1
+
+N= 74  f=14  pred= 14.391  ratio=0.9728  exc=74  ef_strict=0  dev_strict= 2  dev_best= 2 (axis_shift=+0, third_off=-3)  dev_pair_sums_to_axis=yes
+   A   = [1, 2, 4, 8, 16, 21, 32, 42, 53, 58, 66, 70, 72, 73]
+   lo  = [1, 2, 4, 8, 16, 21]  (third = 24)
+   hi  = [53, 58, 66, 70, 72, 73]
+   mid = [32, 42]
+   dev_strict_set = [32, 42]
+   dev_best_set   = [32, 42]  (axis=74, threshold=21)
+   best lo = [1, 2, 4, 8, 16, 21] (length 6), lo_sidon=1
+
+N= 75  f=14  pred= 14.473  ratio=0.9673  exc=76  ef_strict=0  dev_strict=12  dev_best= 2 (axis_shift=+1, third_off=-4)  dev_pair_sums_to_axis=yes
+   A   = [1, 2, 4, 8, 13, 21, 31, 45, 55, 63, 68, 72, 74, 75]
+   lo  = [1, 2, 4, 8, 13, 21]  (third = 25)
+   hi  = [55, 63, 68, 72, 74, 75]
+   mid = [31, 45]
+   dev_strict_set = [31, 45, 54, 55, 62, 63, 67, 68, 71, 72, 73, 75]
+   dev_best_set   = [31, 45]  (axis=76, threshold=21)
+   best lo = [1, 2, 4, 8, 13, 21] (length 6), lo_sidon=1
+
+N= 76  f=14  pred= 14.554  ratio=0.9619  exc=76  ef_strict=0  dev_strict= 2  dev_best= 2 (axis_shift=+0, third_off=-4)  dev_pair_sums_to_axis=yes
+   A   = [1, 2, 4, 8, 13, 21, 31, 45, 55, 63, 68, 72, 74, 75]
+   lo  = [1, 2, 4, 8, 13, 21]  (third = 25)
+   hi  = [55, 63, 68, 72, 74, 75]
+   mid = [31, 45]
+   dev_strict_set = [31, 45]
+   dev_best_set   = [31, 45]  (axis=76, threshold=21)
+   best lo = [1, 2, 4, 8, 13, 21] (length 6), lo_sidon=1
+
+N= 77  f=14  pred= 14.635  ratio=0.9566  exc=76  ef_strict=0  dev_strict=12  dev_best= 2 (axis_shift=-1, third_off=-4)  dev_pair_sums_to_axis=yes
+   A   = [1, 2, 4, 8, 13, 21, 31, 45, 55, 63, 68, 72, 74, 75]
+   lo  = [1, 2, 4, 8, 13, 21]  (third = 25)
+   hi  = [55, 63, 68, 72, 74, 75]
+   mid = [31, 45]
+   dev_strict_set = [31, 45, 55, 56, 63, 64, 68, 69, 72, 73, 74, 76]
+   dev_best_set   = [31, 45]  (axis=76, threshold=21)
+   best lo = [1, 2, 4, 8, 13, 21] (length 6), lo_sidon=1
+
+N= 78  f=14  pred= 14.715  ratio=0.9514  exc=78  ef_strict=1  dev_strict= 0  dev_best= 0 (axis_shift=+0, third_off=+0)  dev_pair_sums_to_axis=n/a
+   A   = [1, 2, 5, 11, 19, 24, 26, 52, 54, 59, 67, 73, 76, 77]
+   lo  = [1, 2, 5, 11, 19, 24, 26]  (third = 26)
+   hi  = [52, 54, 59, 67, 73, 76, 77]
+   mid = []
+   dev_strict_set = []
+   dev_best_set   = []  (axis=78, threshold=26)
+   best lo = [1, 2, 5, 11, 19, 24, 26] (length 7), lo_sidon=1
+
+N= 79  f=14  pred= 14.795  ratio=0.9463  exc=79  ef_strict=1  dev_strict= 0  dev_best= 0 (axis_shift=+0, third_off=+0)  dev_pair_sums_to_axis=n/a
+   A   = [1, 2, 5, 11, 19, 24, 26, 53, 55, 60, 68, 74, 77, 78]
+   lo  = [1, 2, 5, 11, 19, 24, 26]  (third = 26)
+   hi  = [53, 55, 60, 68, 74, 77, 78]
+   mid = []
+   dev_strict_set = []
+   dev_best_set   = []  (axis=79, threshold=26)
+   best lo = [1, 2, 5, 11, 19, 24, 26] (length 7), lo_sidon=1
+
