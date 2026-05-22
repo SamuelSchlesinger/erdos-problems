@@ -155,4 +155,160 @@ theorem hValue_two_one : hValue 2 1 := by
   rw [hSempty] at hsum
   simp at hsum
 
+/-- The divisors of `4` are `{1, 2, 4}`. -/
+private lemma divisors_four : Nat.divisors 4 = ({1, 2, 4} : Finset ℕ) := by
+  decide
+
+/-- The divisors of `3` are `{1, 3}`. -/
+private lemma divisors_three : Nat.divisors 3 = ({1, 3} : Finset ℕ) := by
+  decide
+
+/-- The divisors of `5` are `{1, 5}`. -/
+private lemma divisors_five : Nat.divisors 5 = ({1, 5} : Finset ℕ) := by
+  decide
+
+/-- The number `4` is practical: every `1 ≤ n ≤ 4` is a sum of distinct divisors
+of `4`. The representations are `1 = 1`, `2 = 2`, `3 = 1 + 2`, `4 = 4`. -/
+theorem isPractical_four : IsPractical 4 := by
+  refine ⟨by norm_num, ?_⟩
+  intro n hn1 hnle
+  have hn : n = 1 ∨ n = 2 ∨ n = 3 ∨ n = 4 := by omega
+  rcases hn with rfl | rfl | rfl | rfl
+  · refine ⟨({1} : Finset ℕ), ?_, ?_⟩
+    · intro d hd
+      rw [Finset.mem_singleton] at hd
+      subst d
+      exact Nat.one_mem_divisors.mpr (by norm_num)
+    · simp
+  · refine ⟨({2} : Finset ℕ), ?_, ?_⟩
+    · intro d hd
+      rw [Finset.mem_singleton] at hd
+      subst d
+      exact Nat.mem_divisors.mpr ⟨by decide, by norm_num⟩
+    · simp
+  · refine ⟨({1, 2} : Finset ℕ), ?_, ?_⟩
+    · intro d hd
+      rw [Finset.mem_insert, Finset.mem_singleton] at hd
+      rcases hd with rfl | rfl
+      · exact Nat.one_mem_divisors.mpr (by norm_num)
+      · exact Nat.mem_divisors.mpr ⟨by decide, by norm_num⟩
+    · decide
+  · refine ⟨({4} : Finset ℕ), ?_, ?_⟩
+    · intro d hd
+      rw [Finset.mem_singleton] at hd
+      subst d
+      exact Nat.mem_divisors.mpr ⟨dvd_rfl, by norm_num⟩
+    · simp
+
+/-- For `4`, two divisors always suffice in the defining range. The maximum is
+attained at `n = 3 = 1 + 2`; every other target uses a single divisor. -/
+theorem hBound_four_two : hBound 4 2 := by
+  refine ⟨isPractical_four, ?_⟩
+  intro n hn1 hnle
+  have hn : n = 1 ∨ n = 2 ∨ n = 3 ∨ n = 4 := by omega
+  rcases hn with rfl | rfl | rfl | rfl
+  · refine ⟨({1} : Finset ℕ), ?_, ?_, ?_⟩
+    · intro d hd
+      rw [Finset.mem_singleton] at hd
+      subst d
+      exact Nat.one_mem_divisors.mpr (by norm_num)
+    · simp
+    · simp
+  · refine ⟨({2} : Finset ℕ), ?_, ?_, ?_⟩
+    · intro d hd
+      rw [Finset.mem_singleton] at hd
+      subst d
+      exact Nat.mem_divisors.mpr ⟨by decide, by norm_num⟩
+    · simp
+    · simp
+  · refine ⟨({1, 2} : Finset ℕ), ?_, ?_, ?_⟩
+    · intro d hd
+      rw [Finset.mem_insert, Finset.mem_singleton] at hd
+      rcases hd with rfl | rfl
+      · exact Nat.one_mem_divisors.mpr (by norm_num)
+      · exact Nat.mem_divisors.mpr ⟨by decide, by norm_num⟩
+    · decide
+    · decide
+  · refine ⟨({4} : Finset ℕ), ?_, ?_, ?_⟩
+    · intro d hd
+      rw [Finset.mem_singleton] at hd
+      subst d
+      exact Nat.mem_divisors.mpr ⟨dvd_rfl, by norm_num⟩
+    · simp
+    · simp
+
+/-- Helper: every subset of `{a, b}` (as a `Finset ℕ`) is one of the four
+canonical subsets `∅`, `{a}`, `{b}`, `{a, b}`. -/
+private lemma subset_pair_cases {a b : ℕ} (hab : a ≠ b) {S : Finset ℕ}
+    (hS : S ⊆ ({a, b} : Finset ℕ)) :
+    S = ∅ ∨ S = {a} ∨ S = {b} ∨ S = ({a, b} : Finset ℕ) := by
+  classical
+  by_cases ha : a ∈ S
+  · by_cases hb : b ∈ S
+    · right; right; right
+      apply Finset.Subset.antisymm hS
+      intro x hx
+      rw [Finset.mem_insert, Finset.mem_singleton] at hx
+      rcases hx with rfl | rfl
+      · exact ha
+      · exact hb
+    · right; left
+      apply Finset.Subset.antisymm
+      · intro x hxS
+        rw [Finset.mem_singleton]
+        have hx2 : x ∈ ({a, b} : Finset ℕ) := hS hxS
+        rw [Finset.mem_insert, Finset.mem_singleton] at hx2
+        rcases hx2 with rfl | rfl
+        · rfl
+        · exact absurd hxS hb
+      · intro x hx
+        rw [Finset.mem_singleton] at hx
+        subst x
+        exact ha
+  · by_cases hb : b ∈ S
+    · right; right; left
+      apply Finset.Subset.antisymm
+      · intro x hxS
+        rw [Finset.mem_singleton]
+        have hx2 : x ∈ ({a, b} : Finset ℕ) := hS hxS
+        rw [Finset.mem_insert, Finset.mem_singleton] at hx2
+        rcases hx2 with rfl | rfl
+        · exact absurd hxS ha
+        · rfl
+      · intro x hx
+        rw [Finset.mem_singleton] at hx
+        subst x
+        exact hb
+    · left
+      rw [Finset.eq_empty_iff_forall_notMem]
+      intro x hxS
+      have hx2 : x ∈ ({a, b} : Finset ℕ) := hS hxS
+      rw [Finset.mem_insert, Finset.mem_singleton] at hx2
+      rcases hx2 with rfl | rfl
+      · exact ha hxS
+      · exact hb hxS
+
+/-- The number `3` is **not** practical: the divisors of `3` are `{1, 3}`, so
+the achievable subset sums are `0, 1, 3, 4`. The target `n = 2` is unreachable. -/
+theorem not_isPractical_three : ¬ IsPractical 3 := by
+  intro hp
+  have hrep : DivisorRepresentation 3 2 :=
+    hp.representation (by norm_num) (by norm_num)
+  rcases hrep with ⟨S, hS, hsum⟩
+  rw [divisors_three] at hS
+  have hcases := subset_pair_cases (a := 1) (b := 3) (by norm_num) hS
+  rcases hcases with h | h | h | h <;> rw [h] at hsum <;> simp at hsum
+
+/-- The number `5` is **not** practical: the divisors of `5` are `{1, 5}`, so
+the achievable subset sums are `0, 1, 5, 6`. The targets `n = 2, 3, 4` are all
+unreachable; we use `n = 2` to derive the contradiction. -/
+theorem not_isPractical_five : ¬ IsPractical 5 := by
+  intro hp
+  have hrep : DivisorRepresentation 5 2 :=
+    hp.representation (by norm_num) (by norm_num)
+  rcases hrep with ⟨S, hS, hsum⟩
+  rw [divisors_five] at hS
+  have hcases := subset_pair_cases (a := 1) (b := 5) (by norm_num) hS
+  rcases hcases with h | h | h | h <;> rw [h] at hsum <;> simp at hsum
+
 end PracticalNumbers
