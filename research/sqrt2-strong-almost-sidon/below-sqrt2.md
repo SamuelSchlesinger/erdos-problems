@@ -419,11 +419,18 @@ need to prove separately.
 | B (Autoconvolution g→1⁺) | L² norm bounds on f·f | L² averaging is blind to single-atom strength |
 | C (Density-profile) | Value-disjointness via EF Lemma 1+3 | Constraint has 1/4 slack at the worst case; tight only at extremality |
 
-**All three fail at the same structural point:** they don't extract
-enough information from the SAS hypothesis to distinguish the
-near-extremal sub-case `|A_-| ≈ √(αN)` from the general case
-`|A_-| ≤ √(αN)`. The conjecture `2/√3` appears to be equivalent to a
-**structural rigidity theorem** for SAS extremizers:
+**All FIVE Fourier-style attacks converge on the same obstruction**
+(adding the two OP attacks): they extract per-half information but
+not *joint* information about `(A_-, A_+)`. The precise diagnostic
+from attempt D2 (OP application): the integrated value-disjointness
+constraint at `α = β = 1/2` has 1/4 slack of a *geometric*
+(not statistical) origin — the densities `d_-(v) + d_×(v)` saturate
+to 1 only at `v = n*`, which SAS exempts. No improvement in the
+per-half Fourier control can close this gap; only a *bipartite*
+(joint) constraint that forces `α + β < 1` can.
+
+The conjecture `2/√3` appears equivalent to a
+**joint structural rigidity theorem** for SAS extremizers:
 
 > *Conjecture (Freiman-style rigidity for SAS):* If `A ⊆ {1,...,N}` is
 > SAS with `|A| ≥ (2/√3 + ε) · √N` (for small `ε > 0`), then `A`
@@ -477,3 +484,5 @@ density-profile via Erdős–Freud Lemma 1.
 | 2026-05-22 | **Attempt B (autoconvolution g→1⁺) negative**: L² methods miss single-atom strength. Detail in `autoconvolution-attack.md`. |
 | 2026-05-22 | **Attempt C (density profile via EF Lemma 1+3) negative**: 1/4 slack at the `√2` corner; conditional `2/√3` requires a stronger constraint than SAS gives. Detail in `density-profile-attack.md`. |
 | 2026-05-22 | All three elementary refinements exhausted. The `2/√3` conjecture appears equivalent to a Freiman-style structural rigidity theorem for SAS extremizers. Genuine research project, not days of work. |
+| 2026-05-22 | **Attempt D1 (Ortega–Prendiville Fourier-uniformity adaptation) negative**: SAS Fourier-uniformity bound `Δ ≪ N^{5/12} + k·N^{1/6}` survives only for `k ≪ N^{1/3}`, vacuous in SAS regime `k ≈ N^{1/2}/√2`. Detail in `op-adaptation.md`. |
+| 2026-05-22 | **Attempt D2 (OP rigidity application) — precise diagnostic**: per-half OP rigidity (Fourier uniformity for each `A_±`) closes G1+G2 but NOT G3. The 1/4 slack at `α=β=1/2` is *geometric*, not statistical. To break `√2` we need *bipartite rigidity* — a joint `(A_-, A_+)` constraint forcing `α + β < 1`. Detail in `op-application.md`. Quantified intermediate: under "one half compressed to (1/2−δ)·N", get `c ≤ (1/√2)(√(1−2δ) + 1)`; at `δ = 1/12` this is `c ≈ 1.353`. |
