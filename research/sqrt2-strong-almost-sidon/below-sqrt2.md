@@ -379,26 +379,88 @@ SAS is washed out by L² averaging.
 Both attempts independently arrived at the same path forward:
 **value-disjointness / density-profile arguments**, using Erdős–Freud
 Lemma 1 (uniform distribution of extremal Sidon sets) and Pikhurko
-Lemma 10 (sumset density profile). This is exactly the
-"position-dependent constraint" sketched earlier in this note.
+Lemma 10 (sumset density profile).
 
-The key statement to prove (for `n* = N`, the worst case):
+### Attempt C — Density profile via Erdős–Freud Lemma 1+3
+*Detail document: [`density-profile-attack.md`](density-profile-attack.md)*
 
-> If `A_-` is an extremal Sidon set in `[1, αN]` with `α > 1/3`, then
-> the within-`A_-` sumset has *positive density* in the overlap region
-> `(N/2, 2αN]`. Specifically, the density approaches the
-> Erdős–Freud value `(some explicit fraction)` as `A_-` approaches
-> Lindström extremality. Cross sums in the same region would create
-> value-coincidences with within-`A_-` sums, violating SAS.
+Worked through the value-disjointness attack using EF Lemma 1 (uniform
+distribution under strict extremality) and Lemma 3 (within-sumset
+density profile `d_-(v) = min(v, 2αN − v)/(2αN)`).
 
-If this density-positivity can be made quantitative, the argument
-forces `α ≤ 1/3` (essentially the Erdős–Freud regime) and yields the
-bound `(2/√3 + o(1)) · √N` — closing the problem.
+**Critical new structural insight (G2):** Under the SAS hypothesis,
+the cross-sumset density profile is *not* the trapezoidal convolution
+of uniform distributions — it is the **constant indicator**
+`d_×(v) = √(αβ)/(α + β)` on the cross-sum support. Reason: SAS forces
+`r_×(v) ≤ 1` at the value level, flattening the multiplicity profile.
+This is a real correction to the naive convolution intuition.
 
-This is Line 2 of the original taxonomy ("triple-counting with
-cross-within compatibility") combined with the Erdős–Freud Lemma 1
-density profile. The Fourier-energy methods (Lines 1' and 3) are
-both *disqualified by their own diagnostics*.
+The integrated value-disjointness constraint over the overlap
+`((1 − β)N, 2αN]` gives:
+
+  `τ/(4α) + √(αβ)/(α + β) ≤ 1`
+
+(equation D-9-corr in the detail document). **At `α = β = 1/2` this
+evaluates to `1/4 + 1/2 = 3/4`, with slack `1/4`.** So the constraint
+is non-binding at the `√2` corner. Unconditional result: no
+improvement.
+
+**Conditional 2/√3:** the *stronger* hypothesis `d_-(v) + d_×(v) ≤ 1/2`
+(rather than the SAS-derived `≤ 1`) would close the argument to
+`2/√3`. But this stronger constraint is NOT a direct consequence of
+SAS — it's a structural property of *extremal* SAS sets that we'd
+need to prove separately.
+
+### Three negative attacks: the meta-finding
+
+| Attack | Method | Why it fails |
+|---|---|---|
+| A (Pikhurko-cross) | Fourier gap-deficit on bipartite convolution | Cross-sumset covers ≤ N/2 of N; too many gaps make Fourier vacuous |
+| B (Autoconvolution g→1⁺) | L² norm bounds on f·f | L² averaging is blind to single-atom strength |
+| C (Density-profile) | Value-disjointness via EF Lemma 1+3 | Constraint has 1/4 slack at the worst case; tight only at extremality |
+
+**All three fail at the same structural point:** they don't extract
+enough information from the SAS hypothesis to distinguish the
+near-extremal sub-case `|A_-| ≈ √(αN)` from the general case
+`|A_-| ≤ √(αN)`. The conjecture `2/√3` appears to be equivalent to a
+**structural rigidity theorem** for SAS extremizers:
+
+> *Conjecture (Freiman-style rigidity for SAS):* If `A ⊆ {1,...,N}` is
+> SAS with `|A| ≥ (2/√3 + ε) · √N` (for small `ε > 0`), then `A`
+> can be "approximately" written as `B ∪ (N − B)` for some Sidon
+> `B ⊂ [1, N/3]`.
+
+Proving this rigidity would close the problem to `2/√3`. Without
+rigidity, none of the three attempted methods can distinguish the
+extremal regime (where `2/√3` holds) from the general regime (where
+only `√2` is known).
+
+### Verdict on the open question
+
+The territory `(2/√3, √2)` is genuine open ground. Three sophisticated
+attacks — covering Fourier-gap, autoconvolution, and density-profile —
+all give `√2` and identify the same underlying obstacle. The next
+substantive direction is a structural rigidity theorem for SAS
+extremizers, which is a serious research project (months to years of
+focused work, not days).
+
+**Pragmatic recommendations:**
+
+1. **Stop attempting `2/√3` via elementary refinements.** The three
+   attacks here exhaust the elementary toolkit.
+2. **Computer-search at moderate N.** Extend Spencer's `N ≤ 69` data
+   to `N ≤ 200` or beyond, looking for non-EF extremizers. If they
+   exist, the conjecture might be wrong; if they don't, that's strong
+   evidence for the rigidity claim.
+3. **Look for analogues of Freiman's theorem in the SAS setting.**
+   The classical Freiman theorem characterizes sets `A` with small
+   sumset `|A + A|`; we want a characterization of SAS sets with
+   nearly-maximal `|A|`.
+
+These are real, hard research directions. Resolving them is not on
+the horizon, but the OEIS A389182 empirical evidence + the three
+negative attacks here establish: (a) the conjecture is well-supported,
+and (b) it is *not* an elementary corollary of known techniques.
 
 ## Tracking
 
@@ -413,4 +475,5 @@ density-profile via Erdős–Freud Lemma 1.
 | 2026-05-22 | Structural sketch via Erdős–Freud Lemma 1 + non-collision constraint outlined; potentially closes the problem. |
 | 2026-05-22 | **Attempt A (Pikhurko cross-terms) negative**: short by factor of 2 in the cross-product constraint. Detail in `pikhurko-adaptation.md`. |
 | 2026-05-22 | **Attempt B (autoconvolution g→1⁺) negative**: L² methods miss single-atom strength. Detail in `autoconvolution-attack.md`. |
-| 2026-05-22 | Both attempts independently recommend density-profile / value-disjointness via Erdős–Freud Lemma 1. This is now the open research direction. |
+| 2026-05-22 | **Attempt C (density profile via EF Lemma 1+3) negative**: 1/4 slack at the `√2` corner; conditional `2/√3` requires a stronger constraint than SAS gives. Detail in `density-profile-attack.md`. |
+| 2026-05-22 | All three elementary refinements exhausted. The `2/√3` conjecture appears equivalent to a Freiman-style structural rigidity theorem for SAS extremizers. Genuine research project, not days of work. |
