@@ -214,11 +214,134 @@ end up with a clean argument that gives `√2 − ε` for some unspecified
 `ε`, rather than an explicit constant. That's still a real result but
 less satisfying than an explicit `1.36` or similar.
 
+## Empirical evidence (2026-05-22): EF construction is essentially tight
+
+We pulled OEIS [A389182](https://oeis.org/A389182) (69 terms,
+`N = 1..69`, computed by David Spencer per
+[teorth/erdosproblems issue 143](https://github.com/teorth/erdosproblems/issues/143))
+and compared `f(N)` against `2·|B(⌊N/3⌋)|` where `|B(M)|` is the
+maximum Sidon-set size in `[1, M]` (OEIS A005282). The gap
+`f(N) − 2·B(⌊N/3⌋)` is in `{−1, 0, +1}` for every tested `N`. The
+Erdős–Freud reflection construction is essentially tight at small `N`.
+
+The asymptotic of the EF construction itself is
+`2·B(N/3) ≈ (2/√3)·√N + (2/3^{1/4})·N^{1/4} ≈ 1.155·√N + 1.520·N^{1/4}`,
+which matches the OEIS data essentially exactly:
+
+| N | EF prediction | OEIS f(N) |
+|---|---------------|-----------|
+| 25 | 9.17 | 9 |
+| 49 | 12.11 | 12 |
+| 69 | 13.98 | 14 |
+
+The empirical ratio `f(N)/√N` is `1.69` at `N = 69` (much higher than
+both `√2 ≈ 1.414` and `2/√3 ≈ 1.155`) — but this is fully explained by
+the `N^{1/4}` lower-order term. The asymptotic ratio for the EF
+construction only reaches `1.20` at `N = 10⁶` and `1.16` at `N = 10¹⁰`.
+
+**Empirical conclusion: the conjectured constant `2/√3` is strongly
+supported.** The lower-bound construction (EF) appears asymptotically
+tight; pushing the upper bound below `√2` toward `2/√3` is the right
+target, and we should expect that the right answer is `2/√3` (not some
+intermediate constant).
+
+See `analyze_oeis.py` for the script and `data/A389182.txt` for the data.
+
+## Structural sketch from the empirical analysis
+
+The empirical tightness of EF suggests a *structural* roadmap. EF has
+the form `A = B ∪ (N − B)` with Sidon `B ⊂ [1, N/3]`. That is:
+
+- `A_-` (the lower half) occupies only the first **third** of `[1, N/2]`.
+- `A_+` symmetrically occupies the last third of `(N/2, N]`.
+- The middle third `[N/3 + 1, 2N/3 − 1]` is empty.
+
+The structural question is: can we prove any maximal `A` must be
+concentrated like this?
+
+### Failed attempt: elementary "energy" counting
+
+Parametrize `A_- ⊂ [1, α N]`, `A_+ ⊂ ((1 − β) N, N]` with
+`α, β ∈ [0, 1/2]` (the midpoint constraint forces both halves into half
+the interval). For Lindström-extremal halves:
+`|A_-| ≈ √(αN)`, `|A_+| ≈ √(βN)`. Sumset cardinalities:
+
+- Within-`A_-`: `|A_-|(|A_-|+1)/2 ≈ αN/2` distinct values in `[2, 2αN]`.
+- Within-`A_+`: `βN/2` distinct values in `[2(1-β)N, 2N]`.
+- Cross: `√(αβ)·N` distinct values in `[(1-β)N, (1+α)N]`.
+
+By strong almost-Sidon, all distinct except at `n*`. So the total
+count fits in `[2, 2N]`:
+
+  `αN/2 + βN/2 + √(αβ)·N ≤ 2N`, i.e., `(α + β)/2 + √(αβ) ≤ 2`.
+
+Maximize `√α + √β` subject to this constraint and `α, β ≤ 1/2`:
+the constraint becomes `1/2 + √(αβ) ≤ 2`, automatic. So the maximizer
+is the corner `α = β = 1/2`, giving `√α + √β = √2`. **The counting
+constraint does not bind below `√2`** — it only re-proves the bound we
+already have.
+
+### Why naive energy fails
+
+The constraint "sumsets disjoint" treats values as occupying interval
+ranges uniformly, but it doesn't capture *which* values are hit.
+Within-`A_-` and cross sumsets *could* coexist in the overlap range
+`(αN, 2αN]` if their hit-patterns are disjoint at the value level —
+not just at the cardinality level. Naive cardinality counting allows
+this and gives no improvement.
+
+### Where the 2/√3 must come from
+
+The Erdős–Freud construction's distinctive feature is that **every**
+cross pair sums to exactly `n* = N` — i.e., cross sums are *maximally
+concentrated*. This forces the within-half sumsets to cover most of
+the available range, leaving cross sums no room except at `n*`. The
+1/3-restriction of `B` is the consequence.
+
+For a general maximal `A`, cross sums need not concentrate at `n*` —
+some may take other values, costing room from the within-half sumsets.
+But not all cross-sum values are equally "expensive": those in the
+overlap with within-half sumsets are heavily constrained, those
+outside are free.
+
+A correct argument should weigh cross-sum values by their position
+*relative to* the within-half sumsets, not just by total count. This
+is exactly the kind of structural argument Erdős–Freud Lemma 1+3
+provides: the within-half sumset has a known *density profile* over
+`[2, 2αN]` (uniform asymptotically, density 1/4 in the bulk, lower at
+the endpoints).
+
+**The honest attack outline:**
+
+1. Apply Erdős–Freud Lemma 1: for near-extremal `A_-`, the within-`A_-`
+   sumset has a specific density profile on `[2, 2αN]`.
+2. The cross sumset has its own density profile on `[(1-β)N, (1+α)N]`,
+   constrained by the structure of `A_- × A_+`.
+3. In the overlap region, the two profiles must be *additively
+   disjoint* (their values are different, not just their counts).
+4. This is a Plancherel-style constraint on the *Fourier
+   transforms* of the sumset indicators. The Pikhurko-style argument
+   on the cross-terms is the right vehicle.
+
+This is where the **hybrid midpoint × Pikhurko** approach (Line 1' in
+this note) becomes concrete: the cross-term Fourier analysis is what
+distinguishes "interval-overlap" from "value-overlap" and yields a
+sub-`√2` constant.
+
+**Bottom line on the structural sketch:** we have empirical evidence
+that the conjectured `2/√3` is tight, and a clear story for *why*
+elementary methods cannot reach it (they treat values as a uniform
+resource, missing the position-dependent constraint). Resolving the
+gap requires Fourier/density-profile arguments.
+
 ## Tracking
 
-Status: open. Survey complete 2026-05-22; Line 1' is recommended.
+Status: open. Survey complete 2026-05-22; empirical evidence for
+`2/√3` collected; structural sketch outlined.
 
 | Date | Event |
 |------|-------|
 | 2026-05-22 | Notes drafted; survey agent dispatched. |
-| 2026-05-22 | Survey complete: `√2` is prior art (DesmondWeisenberg Aug 2025); below-`√2` confirmed genuinely open. Recommended Line 1' (hybrid). |
+| 2026-05-22 | Survey complete: `√2` is prior art (DesmondWeisenberg Aug 2025); below-`√2` confirmed genuinely open. |
+| 2026-05-22 | OEIS A389182 analysis: EF construction is essentially tight; `2/√3` strongly supported as the asymptotic. |
+| 2026-05-22 | Structural sketch via Erdős–Freud Lemma 1 + non-collision constraint outlined; potentially closes the problem. |
