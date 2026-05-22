@@ -334,10 +334,76 @@ elementary methods cannot reach it (they treat values as a uniform
 resource, missing the position-dependent constraint). Resolving the
 gap requires Fourier/density-profile arguments.
 
+## Attack attempts and convergent diagnosis (2026-05-22)
+
+Two Fourier-style attacks attempted in parallel, both negative but
+convergent in their diagnosis:
+
+### Attempt A — Pikhurko Theorem 2 on cross-terms
+*Detail document: [`pikhurko-adaptation.md`](pikhurko-adaptation.md)*
+
+Adapted Pikhurko's gap-deficit Fourier inequality to the bipartite
+cross-pair convolution `f_- * f_+`. Got the explicit constraint
+`L · U ≤ ((π+2)²/((π+2)² + 2)) · N ≈ 0.93 · N`. Combined with
+Lindström per half (`L² ≤ αN`, `U² ≤ βN` with `α + β ≤ 1`), this
+gives `αβ ≤ 0.86`. **Vacuous** — `αβ ≤ 1/4` automatically. No
+improvement.
+
+**Quantitative gap diagnosis (key):** to reach `2/√3` from this style
+of argument one would need `K < 1/2` (specifically `K = 1/6` gives
+exactly `2/√3`); the Pikhurko-cross constraint is `K ≈ 0.93`, **short
+by roughly a factor of two**.
+
+**Structural diagnosis:** Pikhurko's inequality is a *gap-deficit*
+statement — it converts "sumset has few gaps in its ambient interval"
+into a size bound. In the bipartite cross setting the cross-sumset
+covers at most `N/2` of an interval of length `N` (since
+`L·U ≤ √(αβ)·N ≤ N/2`), leaving `≥ N/2` gaps. With `Θ(N)` gaps the
+gap-deficit inequality is vacuous.
+
+### Attempt B — White / CRV autoconvolution at `g → 1⁺`
+*Detail document: [`autoconvolution-attack.md`](autoconvolution-attack.md)*
+
+White's Corollary 2 with `g = 1` gives a worse constant than
+Lindström (the autoconvolution bound deteriorates as `g → 1⁺`).
+CRV stratified form with `l = 2k − 2` extra slack at `n*` has the
+`l²` term dominate when `k = Θ(√N)`, also vacuous.
+
+**Structural diagnosis:** autoconvolution methods extract
+*L²-averaged* information; the SAS hypothesis is "L^∞ minus one
+atom" — these are structurally mismatched. Single-atom strength of
+SAS is washed out by L² averaging.
+
+### Convergent recommendation
+
+Both attempts independently arrived at the same path forward:
+**value-disjointness / density-profile arguments**, using Erdős–Freud
+Lemma 1 (uniform distribution of extremal Sidon sets) and Pikhurko
+Lemma 10 (sumset density profile). This is exactly the
+"position-dependent constraint" sketched earlier in this note.
+
+The key statement to prove (for `n* = N`, the worst case):
+
+> If `A_-` is an extremal Sidon set in `[1, αN]` with `α > 1/3`, then
+> the within-`A_-` sumset has *positive density* in the overlap region
+> `(N/2, 2αN]`. Specifically, the density approaches the
+> Erdős–Freud value `(some explicit fraction)` as `A_-` approaches
+> Lindström extremality. Cross sums in the same region would create
+> value-coincidences with within-`A_-` sums, violating SAS.
+
+If this density-positivity can be made quantitative, the argument
+forces `α ≤ 1/3` (essentially the Erdős–Freud regime) and yields the
+bound `(2/√3 + o(1)) · √N` — closing the problem.
+
+This is Line 2 of the original taxonomy ("triple-counting with
+cross-within compatibility") combined with the Erdős–Freud Lemma 1
+density profile. The Fourier-energy methods (Lines 1' and 3) are
+both *disqualified by their own diagnostics*.
+
 ## Tracking
 
-Status: open. Survey complete 2026-05-22; empirical evidence for
-`2/√3` collected; structural sketch outlined.
+Status: open. Two Fourier attacks closed (negative); next step is
+density-profile via Erdős–Freud Lemma 1.
 
 | Date | Event |
 |------|-------|
@@ -345,3 +411,6 @@ Status: open. Survey complete 2026-05-22; empirical evidence for
 | 2026-05-22 | Survey complete: `√2` is prior art (DesmondWeisenberg Aug 2025); below-`√2` confirmed genuinely open. |
 | 2026-05-22 | OEIS A389182 analysis: EF construction is essentially tight; `2/√3` strongly supported as the asymptotic. |
 | 2026-05-22 | Structural sketch via Erdős–Freud Lemma 1 + non-collision constraint outlined; potentially closes the problem. |
+| 2026-05-22 | **Attempt A (Pikhurko cross-terms) negative**: short by factor of 2 in the cross-product constraint. Detail in `pikhurko-adaptation.md`. |
+| 2026-05-22 | **Attempt B (autoconvolution g→1⁺) negative**: L² methods miss single-atom strength. Detail in `autoconvolution-attack.md`. |
+| 2026-05-22 | Both attempts independently recommend density-profile / value-disjointness via Erdős–Freud Lemma 1. This is now the open research direction. |
