@@ -614,6 +614,80 @@ def extraElements (A : Finset ℕ) (nstar : ℕ) : Finset ℕ :=
     x ∈ extraElements A nstar ↔ x ∈ A ∧ x ∉ pairElements A nstar := by
   simp [extraElements]
 
+/-! ## Extra defect
+
+The shadow lemmas below are most useful when phrased quantitatively.  The
+`extraDefect` is the exact number of elements of `A` not covered by the
+exception-axis pairs.  Later, the R4 counting lemmas identify this same number
+with the saturation deficit from the Erdős-Freud half-multiplicity identity. -/
+
+/-- The number of elements of `A` not participating in an `nstar`-pair. -/
+def extraDefect (A : Finset ℕ) (nstar : ℕ) : ℕ :=
+  (extraElements A nstar).card
+
+@[simp] theorem extraDefect_eq_zero {A : Finset ℕ} {nstar : ℕ} :
+    extraDefect A nstar = 0 ↔ extraElements A nstar = ∅ := by
+  simp [extraDefect]
+
+/-- The extra defect is exactly the complement of the paired elements inside
+`A`. -/
+theorem extraDefect_add_pairElements_card (A : Finset ℕ) (nstar : ℕ) :
+    extraDefect A nstar + (pairElements A nstar).card = A.card := by
+  classical
+  have h_pair_sub : pairElements A nstar ⊆ A := pairElements_subset A nstar
+  have hdisj : Disjoint (extraElements A nstar) (pairElements A nstar) := by
+    rw [Finset.disjoint_left]
+    intro x hx hpe
+    rw [mem_extraElements] at hx
+    exact hx.2 hpe
+  have hunion : extraElements A nstar ∪ pairElements A nstar = A := by
+    ext x
+    rw [Finset.mem_union, mem_extraElements]
+    constructor
+    · intro hx
+      rcases hx with h | h
+      · exact h.1
+      · exact h_pair_sub h
+    · intro hxA
+      by_cases hxPE : x ∈ pairElements A nstar
+      · exact Or.inr hxPE
+      · exact Or.inl ⟨hxA, hxPE⟩
+  have hcard := Finset.card_union_of_disjoint hdisj
+  rw [hunion] at hcard
+  simpa [extraDefect] using hcard.symm
+
+/-- Difference form of the extra-defect decomposition. -/
+theorem extraDefect_eq_card_sub_pairElements_card (A : Finset ℕ) (nstar : ℕ) :
+    extraDefect A nstar = A.card - (pairElements A nstar).card := by
+  have h := extraDefect_add_pairElements_card A nstar
+  omega
+
+/-- If the extra defect is at most one and one extra is specified, then it is
+the unique extra. -/
+theorem unique_extra_of_extraDefect_le_one
+    {A : Finset ℕ} {nstar x : ℕ}
+    (hxExtra : x ∈ extraElements A nstar)
+    (hdef : extraDefect A nstar ≤ 1) :
+    ∀ z ∈ extraElements A nstar, z = x := by
+  intro z hz
+  by_contra hzx
+  have hsub : ({x, z} : Finset ℕ) ⊆ extraElements A nstar := by
+    intro w hw
+    rw [Finset.mem_insert, Finset.mem_singleton] at hw
+    rcases hw with rfl | rfl
+    · exact hxExtra
+    · exact hz
+  have htwo : 2 ≤ (extraElements A nstar).card := by
+    have hcard_pair : ({x, z} : Finset ℕ).card = 2 := by
+      have hxz : x ≠ z := Ne.symm hzx
+      simp [hxz]
+    calc
+      2 = ({x, z} : Finset ℕ).card := hcard_pair.symm
+      _ ≤ (extraElements A nstar).card := Finset.card_le_card hsub
+  have hcard_le : (extraElements A nstar).card ≤ 1 := by
+    simpa [extraDefect] using hdef
+  omega
+
 /-- A translate shadow for a missing reflection cannot be made entirely from
 paired elements: at least one of the anchor `a` and old-pair endpoints `b, c`
 is extra.
@@ -1158,6 +1232,26 @@ theorem uniqueExtra_maximal_missingReflection_exact_pairEndpoints
   have hd_reflPE : nstar - d ∈ pairElements A nstar :=
     pairElements_reflection_mem hdPE
   exact ⟨d, hdA, hdPE, hxd, nstar - d, hd_reflA, hd_reflPE, by omega, by omega⟩
+
+/-- Defect-one endpoint rigidity.  If the extra defect is at most one, then a
+specified extra with an in-range missing reflection is forced into the exact
+unique-extra endpoint configuration.
+
+This is the finite stability form compatible with the `N = 9` counterexample:
+defect one is not impossible, but it has the rigid endpoint shape. -/
+theorem extraDefect_le_one_maximal_missingReflection_exact_pairEndpoints
+    {A : Finset ℕ} {N nstar x y : ℕ}
+    (hmax : IsMaximalAlmostSidonInInterval A N)
+    (h_exception : HasTwoSumReprs A nstar)
+    (hxExtra : x ∈ extraElements A nstar)
+    (hxy : x + y = nstar) (hyN : y ∈ ground N)
+    (hdef : extraDefect A nstar ≤ 1) :
+    ∃ d ∈ A, d ∈ pairElements A nstar ∧ x + d = 2 * y ∧
+      ∃ a ∈ A, a ∈ pairElements A nstar ∧ y + a = 2 * x ∧
+        a + d = nstar := by
+  exact uniqueExtra_maximal_missingReflection_exact_pairEndpoints
+    hmax h_exception hxExtra hxy hyN
+      (unique_extra_of_extraDefect_le_one hxExtra hdef)
 
 /-- Moving right on a fixed reflection axis preserves the high inequality:
 if `x + y = z + yz = nstar`, `x < z`, and `2y < x`, then `2yz < z`. -/
@@ -1714,24 +1808,191 @@ theorem extraElements_card_le_one_not_high_missingReflection
     (hcard : (extraElements A nstar).card ≤ 1)
     (hhigh : 2 * y < x) :
     False := by
-  have hunique : ∀ z ∈ extraElements A nstar, z = x := by
-    intro z hz
-    by_contra hzx
-    have hsub : ({x, z} : Finset ℕ) ⊆ extraElements A nstar := by
-      intro w hw
-      rw [Finset.mem_insert, Finset.mem_singleton] at hw
-      rcases hw with rfl | rfl
-      · exact hxExtra
-      · exact hz
-    have htwo : 2 ≤ (extraElements A nstar).card := by
-      have hcard_pair : ({x, z} : Finset ℕ).card = 2 := by
-        have hxz : x ≠ z := Ne.symm hzx
-        simp [hxz]
-      calc
-        2 = ({x, z} : Finset ℕ).card := hcard_pair.symm
-        _ ≤ (extraElements A nstar).card := Finset.card_le_card hsub
-    omega
+  have hdef : extraDefect A nstar ≤ 1 := by
+    simpa [extraDefect] using hcard
+  have hunique : ∀ z ∈ extraElements A nstar, z = x :=
+    unique_extra_of_extraDefect_le_one hxExtra hdef
   exact uniqueExtra_not_high_missingReflection hmax h_exception hxExtra hxy hyN hyA
     hunique hhigh
+
+/-! ## R4 saturation closes the extra set
+
+The preceding local lemmas analyze what an unpaired element would have to do
+under maximality.  The R4 saturation hypothesis is stronger: its counting
+identity already forces every element of `A` to appear in an `nstar`-pair, so
+the extra set is empty before any shadow analysis is needed. -/
+
+/-- The R4 saturation deficit.  Without a self-pair, saturation means
+`2 * r_A(nstar) = A.card`; with a self-pair, it means
+`2 * r_A(nstar) = A.card + 1`.  This definition records the corresponding
+finite deficit as a natural number. -/
+def r4SaturationDefect (A : Finset ℕ) (nstar : ℕ) : ℕ :=
+  if HasSelfPair A nstar then
+    A.card + 1 - 2 * (sumReprsFinset A nstar).card
+  else
+    A.card - 2 * (sumReprsFinset A nstar).card
+
+/-- No-self-pair form: the extra defect plus twice the `nstar` multiplicity
+is exactly `A.card`. -/
+theorem extraDefect_add_twice_sumReprs_card_no_self
+    (A : Finset ℕ) (nstar : ℕ)
+    (h_no_self : ¬ HasSelfPair A nstar) :
+    extraDefect A nstar + 2 * (sumReprsFinset A nstar).card = A.card := by
+  have h_extra := extraDefect_add_pairElements_card A nstar
+  have h_pair : (pairElements A nstar).card =
+      2 * (sumReprsFinset A nstar).card :=
+    pairElements_card_no_self_pair A nstar h_no_self
+  omega
+
+/-- Self-pair form: the extra defect plus twice the `nstar` multiplicity is
+`A.card + 1`, because the self-pair contributes one paired element but one
+representation. -/
+theorem extraDefect_add_twice_sumReprs_card_self
+    (A : Finset ℕ) (nstar : ℕ)
+    (h_self : HasSelfPair A nstar) :
+    extraDefect A nstar + 2 * (sumReprsFinset A nstar).card = A.card + 1 := by
+  rcases h_self with ⟨c, hc, h2c⟩
+  have h_extra := extraDefect_add_pairElements_card A nstar
+  have h_pair : (pairElements A nstar).card + 1 =
+      2 * (sumReprsFinset A nstar).card :=
+    pairElements_card_with_self_pair A nstar c hc h2c
+  omega
+
+/-- In the no-self-pair branch, the R4 saturation deficit is the extra
+defect. -/
+theorem extraDefect_eq_r4SaturationDefect_no_self
+    (A : Finset ℕ) (nstar : ℕ)
+    (h_no_self : ¬ HasSelfPair A nstar) :
+    extraDefect A nstar =
+      A.card - 2 * (sumReprsFinset A nstar).card := by
+  have h := extraDefect_add_twice_sumReprs_card_no_self A nstar h_no_self
+  omega
+
+/-- In the self-pair branch, the R4 saturation deficit is the extra defect. -/
+theorem extraDefect_eq_r4SaturationDefect_self
+    (A : Finset ℕ) (nstar : ℕ)
+    (h_self : HasSelfPair A nstar) :
+    extraDefect A nstar =
+      A.card + 1 - 2 * (sumReprsFinset A nstar).card := by
+  have h := extraDefect_add_twice_sumReprs_card_self A nstar h_self
+  omega
+
+/-- The two notions of defect coincide: the number of unpaired elements is
+exactly the finite deficit from R4 half-multiplicity saturation. -/
+theorem extraDefect_eq_r4SaturationDefect (A : Finset ℕ) {nstar : ℕ} :
+    extraDefect A nstar = r4SaturationDefect A nstar := by
+  by_cases h_self : HasSelfPair A nstar
+  · rw [r4SaturationDefect, if_pos h_self]
+    exact extraDefect_eq_r4SaturationDefect_self A nstar h_self
+  · rw [r4SaturationDefect, if_neg h_self]
+    exact extraDefect_eq_r4SaturationDefect_no_self A nstar h_self
+
+/-- Zero R4 defect recovers the R4 maximum-multiplicity alternatives. -/
+theorem r4_saturation_of_r4SaturationDefect_zero
+    (A : Finset ℕ) {nstar : ℕ}
+    (hdef : r4SaturationDefect A nstar = 0) :
+    (¬ HasSelfPair A nstar ∧ 2 * (sumReprsFinset A nstar).card = A.card) ∨
+      (HasSelfPair A nstar ∧ 2 * (sumReprsFinset A nstar).card = A.card + 1) := by
+  have hExtra0 : extraDefect A nstar = 0 := by
+    rw [extraDefect_eq_r4SaturationDefect A]
+    exact hdef
+  by_cases h_self : HasSelfPair A nstar
+  · right
+    refine ⟨h_self, ?_⟩
+    have h := extraDefect_add_twice_sumReprs_card_self A nstar h_self
+    omega
+  · left
+    refine ⟨h_self, ?_⟩
+    have h := extraDefect_add_twice_sumReprs_card_no_self A nstar h_self
+    omega
+
+/-- Near-saturation defect-one form of endpoint rigidity.  If the R4
+saturation defect is at most one, then any specified extra with an in-range
+missing reflection has the exact unique-extra endpoint shape. -/
+theorem r4SaturationDefect_le_one_maximal_missingReflection_exact_pairEndpoints
+    {A : Finset ℕ} {N nstar x y : ℕ}
+    (hmax : IsMaximalAlmostSidonInInterval A N)
+    (h_exception : HasTwoSumReprs A nstar)
+    (hxExtra : x ∈ extraElements A nstar)
+    (hxy : x + y = nstar) (hyN : y ∈ ground N)
+    (hdef : r4SaturationDefect A nstar ≤ 1) :
+    ∃ d ∈ A, d ∈ pairElements A nstar ∧ x + d = 2 * y ∧
+      ∃ a ∈ A, a ∈ pairElements A nstar ∧ y + a = 2 * x ∧
+        a + d = nstar := by
+  apply extraDefect_le_one_maximal_missingReflection_exact_pairEndpoints
+    hmax h_exception hxExtra hxy hyN
+  rwa [extraDefect_eq_r4SaturationDefect A]
+
+/-- Under the R4 maximum-multiplicity alternatives, the paired elements are
+exactly the ambient set. -/
+theorem pairElements_eq_of_r4_saturation
+    (A : Finset ℕ) {nstar : ℕ}
+    (h_max_mult :
+      (¬ HasSelfPair A nstar ∧ 2 * (sumReprsFinset A nstar).card = A.card) ∨
+      (HasSelfPair A nstar ∧ 2 * (sumReprsFinset A nstar).card = A.card + 1)) :
+    pairElements A nstar = A := by
+  classical
+  have h_pe_sub : pairElements A nstar ⊆ A := pairElements_subset A nstar
+  rcases h_max_mult with ⟨h_no_self, h_mm⟩ | ⟨⟨c, hc, h2c⟩, h_mm⟩
+  · have h_pe_card : (pairElements A nstar).card =
+        2 * (sumReprsFinset A nstar).card :=
+      pairElements_card_no_self_pair A nstar h_no_self
+    exact Finset.eq_of_subset_of_card_le h_pe_sub (by omega)
+  · have h_pe_card : (pairElements A nstar).card + 1 =
+        2 * (sumReprsFinset A nstar).card :=
+      pairElements_card_with_self_pair A nstar c hc h2c
+    exact Finset.eq_of_subset_of_card_le h_pe_sub (by omega)
+
+/-- If the paired elements already exhaust `A`, then there are no extras. -/
+theorem extraElements_empty_of_pairElements_eq
+    {A : Finset ℕ} {nstar : ℕ}
+    (h_pair : pairElements A nstar = A) :
+    extraElements A nstar = ∅ := by
+  ext x
+  simp [extraElements, h_pair]
+
+/-- R4 saturation rules out extras outright.  This is the formal endpoint for
+the saturation branch of the maximality program. -/
+theorem extraElements_empty_of_r4_saturation
+    (A : Finset ℕ) {nstar : ℕ}
+    (h_max_mult :
+      (¬ HasSelfPair A nstar ∧ 2 * (sumReprsFinset A nstar).card = A.card) ∨
+      (HasSelfPair A nstar ∧ 2 * (sumReprsFinset A nstar).card = A.card + 1)) :
+    extraElements A nstar = ∅ := by
+  exact extraElements_empty_of_pairElements_eq
+    (pairElements_eq_of_r4_saturation A h_max_mult)
+
+/-- Zero R4 saturation defect rules out extras.  This is the defect-language
+version of `extraElements_empty_of_r4_saturation`. -/
+theorem extraElements_empty_of_r4SaturationDefect_zero
+    (A : Finset ℕ) {nstar : ℕ}
+    (hdef : r4SaturationDefect A nstar = 0) :
+    extraElements A nstar = ∅ := by
+  exact extraElements_empty_of_r4_saturation A
+    (r4_saturation_of_r4SaturationDefect_zero A hdef)
+
+/-- The R4 saturation defect vanishes exactly when there are no extras. -/
+theorem extraElements_empty_iff_r4SaturationDefect_zero
+    (A : Finset ℕ) {nstar : ℕ} :
+    extraElements A nstar = ∅ ↔ r4SaturationDefect A nstar = 0 := by
+  constructor
+  · intro hempty
+    have hExtra0 : extraDefect A nstar = 0 := by
+      simp [extraDefect, hempty]
+    rwa [← extraDefect_eq_r4SaturationDefect A]
+  · intro hdef
+    exact extraElements_empty_of_r4SaturationDefect_zero A hdef
+
+/-- Conditional stability form for cardinality extremizers: once the
+Erdős-Freud/R4 saturation defect is zero, a cardinality-maximal almost-Sidon
+set has no extras.  The cardinality-extremal hypothesis is included so this
+statement can be used directly in the finite extremizer pipeline. -/
+theorem cardinalityMaximal_extraElements_empty_of_r4SaturationDefect_zero
+    {A : Finset ℕ} {N nstar : ℕ}
+    (_hopt : IsCardinalityMaximalAlmostSidonInInterval A N)
+    (_h_exception : HasTwoSumReprs A nstar)
+    (hdef : r4SaturationDefect A nstar = 0) :
+    extraElements A nstar = ∅ := by
+  exact extraElements_empty_of_r4SaturationDefect_zero A hdef
 
 end AlmostSidonSets
