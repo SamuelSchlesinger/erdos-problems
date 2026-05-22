@@ -43,6 +43,9 @@ import Erdos.AlmostSidonSets.Statement
 import Erdos.AlmostSidonSets.Structure
 import Erdos.AlmostSidonSets.Construction
 import Erdos.AlmostSidonSets.ExplicitSeeds
+import Erdos.AlmostSidonSets.Rigidity
+import Erdos.AlmostSidonSets.UpperBound.SplitOptimization
+import Erdos.AlmostSidonSets.UpperBound.Sqrt2BoundConditional
 import Erdos.PrimaryPseudoperfect.Statement
 import Erdos.PrimaryPseudoperfect.Connections
 import Erdos.PrimaryPseudoperfect.Examples
