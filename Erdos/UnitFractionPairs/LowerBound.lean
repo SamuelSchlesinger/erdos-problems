@@ -431,4 +431,281 @@ theorem fivePow_powerOfTwo_pair_free {k l : ℕ} (_hk : 3 ≤ k) (hl : 1 ≤ l) 
     have hle : 5 * 2 ^ (k - l) + 1 ≤ 5 := Nat.le_of_dvd (by norm_num) hcancel5
     omega
 
+/-- Helper for `fivePow_pair_free_of_diff_ne_two`, assuming `k < l`. -/
+private theorem fivePow_pair_free_aux {k l : ℕ}
+    (h : k < l) (hlk_ne_two : l - k ≠ 2) :
+    ¬ IsUnitFractionPair (5 * 2 ^ k) (5 * 2 ^ l) := by
+  have hlk_pos : 1 ≤ l - k := by omega
+  unfold IsUnitFractionPair
+  intro hdvd
+  have hpow : 2 ^ l = 2 ^ k * 2 ^ (l - k) := by
+    rw [← pow_add]; congr 1; omega
+  have hsum_eq : 5 * 2 ^ k + 5 * 2 ^ l = 5 * 2 ^ k * (1 + 2 ^ (l - k)) := by
+    rw [hpow]; ring
+  have hprod_eq : 5 * 2 ^ k * (5 * 2 ^ l) = 5 * 2 ^ k * (5 * 2 ^ l) := rfl
+  rw [hsum_eq] at hdvd
+  -- Cancel 5·2^k from both sides.
+  have h_pos : 0 < 5 * 2 ^ k := by positivity
+  have hcancel : (1 + 2 ^ (l - k)) ∣ 5 * 2 ^ l :=
+    (Nat.mul_dvd_mul_iff_left h_pos).mp hdvd
+  -- 1 + 2^(l-k) is odd.
+  have hodd_sum : (1 + 2 ^ (l - k)) % 2 = 1 := by
+    have h2dvd : (2 : ℕ) ∣ 2 ^ (l - k) := dvd_pow_self 2 (by omega)
+    omega
+  have hcop : Nat.Coprime (1 + 2 ^ (l - k)) (2 ^ l) := by
+    refine Nat.Coprime.pow_right l ?_
+    rw [Nat.coprime_two_right, Nat.odd_iff]; exact hodd_sum
+  have hcancel5 : (1 + 2 ^ (l - k)) ∣ 5 :=
+    hcop.dvd_of_dvd_mul_right hcancel
+  -- 1 + 2^(l-k) ∣ 5 means 1 + 2^(l-k) ∈ {1, 5}, so 2^(l-k) ∈ {0, 4}.
+  -- l - k ≥ 1 rules out 0; 2^(l-k) = 4 means l - k = 2.
+  have h2pow_pos : 1 ≤ 2 ^ (l - k) := Nat.one_le_iff_ne_zero.mpr
+    (Nat.pos_iff_ne_zero.mp (Nat.two_pow_pos _))
+  have hle : 1 + 2 ^ (l - k) ≤ 5 := Nat.le_of_dvd (by norm_num) hcancel5
+  -- 1 + 2^(l-k) divides 5. The odd divisors of 5 are 1 and 5.
+  -- 1 + 2^(l-k) ≥ 3 (since 2^(l-k) ≥ 2 for l > k), so must equal 5.
+  have h2le : 2 ≤ 2 ^ (l - k) := by
+    calc (2 : ℕ) = 2 ^ 1 := by ring
+      _ ≤ 2 ^ (l - k) := Nat.pow_le_pow_right (by norm_num) hlk_pos
+  have heq5 : 1 + 2 ^ (l - k) = 5 := by
+    -- divisors of 5 in [3, 5]: only 5.
+    have : (1 + 2 ^ (l - k)) = 1 ∨ (1 + 2 ^ (l - k)) = 5 := by
+      have h5 : Nat.Prime 5 := by decide
+      rcases h5.eq_one_or_self_of_dvd _ hcancel5 with h | h
+      · exact Or.inl h
+      · exact Or.inr h
+    rcases this with h | h
+    · omega
+    · exact h
+  -- So 2^(l-k) = 4 = 2^2, hence l - k = 2.
+  have : 2 ^ (l - k) = 4 := by omega
+  have : l - k = 2 := by
+    have h4 : (4 : ℕ) = 2 ^ 2 := by norm_num
+    rw [h4] at this
+    exact Nat.pow_right_injective (by norm_num) this
+  exact hlk_ne_two this
+
+/-- For `k ≠ l` with `|k - l| ≠ 2`, the pair `(5·2^k, 5·2^l)` is not a
+unit-fraction pair. The only internal `m = 5` conflict shape is exponents
+differing by exactly 2. -/
+theorem fivePow_pair_free_of_diff_ne_two {k l : ℕ} (hkl : k ≠ l)
+    (hdiff_k : l + 2 ≠ k) (hdiff_l : k + 2 ≠ l) :
+    ¬ IsUnitFractionPair (5 * 2 ^ k) (5 * 2 ^ l) := by
+  rcases lt_or_gt_of_ne hkl with hlt | hgt
+  · -- k < l: direct.
+    apply fivePow_pair_free_aux hlt
+    intro heq
+    apply hdiff_l; omega
+  · -- k > l: convert via commutativity.
+    intro hpair
+    have hpair' : IsUnitFractionPair (5 * 2 ^ l) (5 * 2 ^ k) := by
+      unfold IsUnitFractionPair at hpair ⊢
+      have heq_sum : 5 * 2 ^ l + 5 * 2 ^ k = 5 * 2 ^ k + 5 * 2 ^ l := by ring
+      have heq_prod : 5 * 2 ^ l * (5 * 2 ^ k) = 5 * 2 ^ k * (5 * 2 ^ l) := by ring
+      rw [heq_sum, heq_prod]; exact hpair
+    apply fivePow_pair_free_aux hgt _ hpair'
+    intro heq
+    apply hdiff_k; omega
+
+/-! ### Construction with `m = 5` alternating-exponent family. -/
+
+/-- The `m = 5` family with exponents `k ≡ 3 (mod 4)`. Any two distinct
+exponents in this set differ by a multiple of 4, hence never by exactly 2,
+so the family is internally pair-free. -/
+def m5FamilyIn (N : ℕ) : Finset ℕ :=
+  ((Finset.Icc 0 (Nat.log 2 N)).filter (fun k => k % 4 = 3 ∧ 5 * 2 ^ k ≤ N)).image
+    (fun k => 5 * 2 ^ k)
+
+/-- The extended construction: odd numbers ∪ powers of 2 ∪ the m=5
+alternating family. -/
+def oddPlusPowersOfTwoPlusM5 (N : ℕ) : Finset ℕ :=
+  oddPlusPowersOfTwo N ∪ m5FamilyIn N
+
+/-- Every element of `m5FamilyIn N` has exponent `≥ 3` (the smallest `k`
+with `k % 4 = 3` is `k = 3`). -/
+private lemma m5FamilyIn_exp_ge_three {k : ℕ} (hk_mod : k % 4 = 3) : 3 ≤ k := by
+  omega
+
+/-- Members of `m5FamilyIn N` are exactly `5·2^k` for `k ≡ 3 (mod 4)`
+with `k ≥ 3` and `5·2^k ≤ N`. -/
+private lemma mem_m5FamilyIn_iff {N n : ℕ} :
+    n ∈ m5FamilyIn N ↔
+      ∃ k : ℕ, k % 4 = 3 ∧ 5 * 2 ^ k ≤ N ∧ n = 5 * 2 ^ k := by
+  unfold m5FamilyIn
+  simp only [Finset.mem_image, Finset.mem_filter, Finset.mem_Icc]
+  constructor
+  · rintro ⟨k, ⟨⟨_, _⟩, hk_mod, hk_bound⟩, hkn⟩
+    exact ⟨k, hk_mod, hk_bound, hkn.symm⟩
+  · rintro ⟨k, hk_mod, hk_bound, hkn⟩
+    refine ⟨k, ⟨⟨Nat.zero_le _, ?_⟩, hk_mod, hk_bound⟩, hkn.symm⟩
+    have hk_ge : 3 ≤ k := m5FamilyIn_exp_ge_three hk_mod
+    have hN_pos : 0 < N := by
+      have h2k_ge : 8 ≤ 2 ^ k := by
+        calc (8 : ℕ) = 2 ^ 3 := by norm_num
+          _ ≤ 2 ^ k := Nat.pow_le_pow_right (by norm_num) hk_ge
+      omega
+    have h2k_le : 2 ^ k ≤ N := by
+      have h2pos : 0 < 2 ^ k := Nat.two_pow_pos _
+      linarith
+    exact (Nat.le_log_iff_pow_le (by norm_num : 1 < 2) hN_pos.ne').mpr h2k_le
+
+/-- The m=5 family is internally pair-free: any two distinct exponents
+in residue class 3 mod 4 differ by a multiple of 4, hence never by exactly 2. -/
+theorem pairFree_m5FamilyIn (N : ℕ) : PairFree (m5FamilyIn N) := by
+  intro a ha b hb hab hpair
+  rw [mem_m5FamilyIn_iff] at ha hb
+  obtain ⟨ka, ha_mod, _, ha_eq⟩ := ha
+  obtain ⟨kb, hb_mod, _, hb_eq⟩ := hb
+  have hka_ne_kb : ka ≠ kb := by
+    intro heq
+    apply hab
+    rw [ha_eq, hb_eq, heq]
+  -- ka, kb ≡ 3 mod 4, so ka - kb is a multiple of 4. Hence ≠ 2.
+  have hdiff_k : kb + 2 ≠ ka := by intro h; omega
+  have hdiff_l : ka + 2 ≠ kb := by intro h; omega
+  rw [ha_eq, hb_eq] at hpair
+  exact fivePow_pair_free_of_diff_ne_two hka_ne_kb hdiff_k hdiff_l hpair
+
+/-- Pair-freeness of the extended construction. -/
+theorem pairFree_oddPlusPowersOfTwoPlusM5 (N : ℕ) :
+    PairFree (oddPlusPowersOfTwoPlusM5 N) := by
+  intro a ha b hb hab hpair
+  simp only [oddPlusPowersOfTwoPlusM5, Finset.mem_union] at ha hb
+  rcases ha with ha_oddpow | ha_m5
+  · rcases hb with hb_oddpow | hb_m5
+    · -- Both in oddPlusPowersOfTwo.
+      exact pairFree_oddPlusPowersOfTwo N a ha_oddpow b hb_oddpow hab hpair
+    · -- a ∈ oddPlusPowersOfTwo, b ∈ m5Family.
+      rw [mem_m5FamilyIn_iff] at hb_m5
+      obtain ⟨kb, hb_mod, _, hb_eq⟩ := hb_m5
+      have hkb_ge : 3 ≤ kb := m5FamilyIn_exp_ge_three hb_mod
+      simp only [oddPlusPowersOfTwo, oddNumbersIn, powersOfTwoIn,
+        Finset.mem_union, Finset.mem_filter, Finset.mem_Icc,
+        Finset.mem_image] at ha_oddpow
+      rcases ha_oddpow with ⟨ha_range, ha_odd⟩ | ⟨ka, ⟨hka_pos, _⟩, hka_eq⟩
+      · -- a odd, b = 5·2^kb. Use fivePow_odd_pair_free.
+        have ha_pos : 0 < a := by have := ha_range.1; omega
+        rw [hb_eq] at hpair
+        exact fivePow_odd_pair_free ha_pos ha_odd hkb_ge hpair
+      · -- a = 2^ka, b = 5·2^kb. Use fivePow_powerOfTwo_pair_free (swap).
+        rw [← hka_eq, hb_eq] at hpair
+        have hpair' : IsUnitFractionPair (5 * 2 ^ kb) (2 ^ ka) := by
+          unfold IsUnitFractionPair at hpair ⊢
+          have heq_sum : 5 * 2 ^ kb + 2 ^ ka = 2 ^ ka + 5 * 2 ^ kb := by ring
+          have heq_prod : 5 * 2 ^ kb * 2 ^ ka = 2 ^ ka * (5 * 2 ^ kb) := by ring
+          rw [heq_sum, heq_prod]; exact hpair
+        exact fivePow_powerOfTwo_pair_free hkb_ge hka_pos hpair'
+  · rcases hb with hb_oddpow | hb_m5
+    · -- a ∈ m5Family, b ∈ oddPlusPowersOfTwo: symmetric.
+      rw [mem_m5FamilyIn_iff] at ha_m5
+      obtain ⟨ka, ha_mod, _, ha_eq⟩ := ha_m5
+      have hka_ge : 3 ≤ ka := m5FamilyIn_exp_ge_three ha_mod
+      simp only [oddPlusPowersOfTwo, oddNumbersIn, powersOfTwoIn,
+        Finset.mem_union, Finset.mem_filter, Finset.mem_Icc,
+        Finset.mem_image] at hb_oddpow
+      rcases hb_oddpow with ⟨hb_range, hb_odd⟩ | ⟨kb, ⟨hkb_pos, _⟩, hkb_eq⟩
+      · have hb_pos : 0 < b := by have := hb_range.1; omega
+        rw [ha_eq] at hpair
+        have hpair' : IsUnitFractionPair b (5 * 2 ^ ka) := by
+          unfold IsUnitFractionPair at hpair ⊢
+          have heq_sum : b + 5 * 2 ^ ka = 5 * 2 ^ ka + b := by ring
+          have heq_prod : b * (5 * 2 ^ ka) = 5 * 2 ^ ka * b := by ring
+          rw [heq_sum, heq_prod]; exact hpair
+        exact fivePow_odd_pair_free hb_pos hb_odd hka_ge hpair'
+      · rw [ha_eq, ← hkb_eq] at hpair
+        exact fivePow_powerOfTwo_pair_free hka_ge hkb_pos hpair
+    · -- Both in m5Family.
+      exact pairFree_m5FamilyIn N a ha_m5 b hb_m5 hab hpair
+
+/-! ### Cardinality of the extended construction. -/
+
+/-- The m=5 family is disjoint from the odd-plus-powers-of-2 set:
+elements `5·2^k` with `k ≥ 3` are even (so not odd) and not pure powers
+of 2 (since `5 ∤ 2^j` for any `j`). -/
+theorem disjoint_oddPlusPowersOfTwo_m5 (N : ℕ) :
+    Disjoint (oddPlusPowersOfTwo N) (m5FamilyIn N) := by
+  rw [Finset.disjoint_left]
+  intro n hn_op hn_m5
+  rw [mem_m5FamilyIn_iff] at hn_m5
+  obtain ⟨k, hk_mod, _, hk_eq⟩ := hn_m5
+  have hk_ge : 3 ≤ k := m5FamilyIn_exp_ge_three hk_mod
+  simp only [oddPlusPowersOfTwo, oddNumbersIn, powersOfTwoIn,
+    Finset.mem_union, Finset.mem_filter, Finset.mem_Icc,
+    Finset.mem_image] at hn_op
+  rcases hn_op with ⟨_, hn_odd⟩ | ⟨j, ⟨hj_pos, _⟩, hj_eq⟩
+  · -- n odd but n = 5·2^k is even.
+    have h2dvd : (2 : ℕ) ∣ n := by
+      rw [hk_eq]
+      have h2 : (2 : ℕ) ∣ 2 ^ k := dvd_pow_self 2 (by omega : k ≠ 0)
+      exact h2.mul_left 5
+    omega
+  · -- n = 2^j and n = 5·2^k, so 5·2^k = 2^j ⇒ 5 ∣ 2^j, impossible.
+    have heq : 2 ^ j = 5 * 2 ^ k := by rw [hj_eq, hk_eq]
+    have h5dvd : (5 : ℕ) ∣ 2 ^ j := by
+      rw [heq]; exact Dvd.intro (2 ^ k) rfl
+    have hcop : Nat.Coprime 5 (2 ^ j) := by
+      refine Nat.Coprime.pow_right j ?_; decide
+    have : (5 : ℕ) = 1 := by
+      have := Nat.gcd_eq_left h5dvd
+      rw [hcop] at this; omega
+    omega
+
+/-- Cardinality of the m=5 family. -/
+theorem card_m5FamilyIn (N : ℕ) :
+    (m5FamilyIn N).card =
+      ((Finset.Icc 0 (Nat.log 2 N)).filter
+        (fun k => k % 4 = 3 ∧ 5 * 2 ^ k ≤ N)).card := by
+  unfold m5FamilyIn
+  rw [Finset.card_image_of_injOn]
+  intro a _ b _ hab
+  exact Nat.pow_right_injective (le_refl 2) (by
+    have h5_pos : 0 < (5 : ℕ) := by norm_num
+    have heq : 5 * 2 ^ a = 5 * 2 ^ b := hab
+    exact (Nat.mul_left_cancel h5_pos heq))
+
+/-- Cardinality of the extended construction. -/
+theorem card_oddPlusPowersOfTwoPlusM5 (N : ℕ) :
+    (oddPlusPowersOfTwoPlusM5 N).card =
+      (N + 1) / 2 + Nat.log 2 N +
+        ((Finset.Icc 0 (Nat.log 2 N)).filter
+          (fun k => k % 4 = 3 ∧ 5 * 2 ^ k ≤ N)).card := by
+  unfold oddPlusPowersOfTwoPlusM5
+  rw [Finset.card_union_of_disjoint (disjoint_oddPlusPowersOfTwo_m5 N),
+    card_oddPlusPowersOfTwo, card_m5FamilyIn]
+
+/-- The extended construction lies in `[1, N]`. -/
+theorem oddPlusPowersOfTwoPlusM5_subset_Icc (N : ℕ) :
+    oddPlusPowersOfTwoPlusM5 N ⊆ Finset.Icc 1 N := by
+  intro n hn
+  rcases Finset.mem_union.mp hn with hn_op | hn_m5
+  · exact oddPlusPowersOfTwo_subset_Icc N hn_op
+  · rw [mem_m5FamilyIn_iff] at hn_m5
+    obtain ⟨k, hk_mod, hk_le, hk_eq⟩ := hn_m5
+    have hk_ge : 3 ≤ k := m5FamilyIn_exp_ge_three hk_mod
+    rw [Finset.mem_Icc, hk_eq]
+    refine ⟨?_, ?_⟩
+    · have : 8 ≤ 2 ^ k := by
+        calc (8 : ℕ) = 2 ^ 3 := by norm_num
+          _ ≤ 2 ^ k := Nat.pow_le_pow_right (by norm_num) hk_ge
+      omega
+    · -- 5·2^k ≤ N follows from the family's defining filter.
+      exact hk_le
+
+/-- **Further-improved lower bound for #327.** The maximum size of a
+pair-free subset of `[1, N]` is at least
+`(N + 1) / 2 + ⌊log₂ N⌋ + |{k ≤ ⌊log₂ N⌋ : k ≡ 3 (mod 4), 5·2^k ≤ N}|`.
+
+For `N ≥ 40` the extra m=5 term contributes at least one element; in
+general it contributes `Θ(log N)` more elements on top of the
+`(N + 1)/2 + ⌊log₂ N⌋` bound from `exists_pairFree_card_ge`. -/
+theorem exists_pairFree_card_ge_v2 (N : ℕ) :
+    ∃ A : Finset ℕ, A ⊆ Finset.Icc 1 N ∧ PairFree A ∧
+      A.card = (N + 1) / 2 + Nat.log 2 N +
+        ((Finset.Icc 0 (Nat.log 2 N)).filter
+          (fun k => k % 4 = 3 ∧ 5 * 2 ^ k ≤ N)).card := by
+  exact ⟨oddPlusPowersOfTwoPlusM5 N,
+    oddPlusPowersOfTwoPlusM5_subset_Icc N,
+    pairFree_oddPlusPowersOfTwoPlusM5 N,
+    card_oddPlusPowersOfTwoPlusM5 N⟩
+
 end UnitFractionPairs
