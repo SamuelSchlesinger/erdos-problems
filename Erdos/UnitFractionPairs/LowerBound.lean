@@ -275,23 +275,160 @@ theorem exists_pairFree_card_ge (N : ℕ) :
 
 /-! ### Pushing further: the `m = 5` family.
 
-Beyond powers of 2 we can also add evens `5 · 2^k` for `k ≥ 3`. Each
-such element is pair-free with all odd numbers and with all powers of 2,
-but two elements `5 · 2^k` and `5 · 2^{k+2}` form a forbidden pair
-(`5·2^k + 5·2^{k+2} = 25·2^k` divides `25 · 2^{2k+2}`). The largest
-sub-family with no two exponents differing by exactly 2 has size
-`Θ(log(N / 5))` — so this approach adds another `Θ(log N)` elements,
-giving total `(N + 1)/2 + (3/2)·⌊log₂ N⌋ + O(1)`. We do not formalise
-this extension here.
+The set `T := {2^k · m : k ≥ 1, m odd, m ≤ 2^k}` of *odd-conflict-free*
+even numbers has cardinality `Θ(√N)` in `[1, N]`. After pruning internal
+conflicts, one could hope to extract a pair-free subset of `T` of
+comparable size, giving a polynomial improvement past `N/2`.
 
-More ambitiously, the entire family
-`T := {2^k · m : k ≥ 1, m odd, m ≤ 2^k}` is odd-conflict-free and has
-cardinality `Θ(√N)` in `[1, N]`. After pruning internal conflicts (which
-have a rich case structure depending on the odd part `m`), one could
-hope to extract a pair-free subset of size `Θ(√N)`, giving a genuine
-polynomial improvement over the folklore `N/2`. The Lean proofs for the
-cross-`m` conflict analysis require a Bezout-style identity
-`gcd(d, ab) ∣ gcd(d, a) · gcd(d, b)` whose Mathlib counterpart we have
-not yet identified; we leave this as the natural follow-up direction. -/
+We formalise the first non-trivial slice, `m = 5`, here, proving that
+each `5 · 2^k` (`k ≥ 3`) is pair-free with every odd number. The
+internal `m = 5` conflict structure (`(5·2^k, 5·2^{k+2})` is the only
+forbidden pair shape) and the cross-`m` analysis are left as the
+natural follow-up direction. -/
+
+/-- For odd `a > 0` and `k ≥ 3`, the pair `(a, 5·2^k)` is not a unit
+fraction pair.
+
+The proof uses the Bezout-style identity
+`gcd(d, a · b) ∣ gcd(d, a) · gcd(d, b)` (`gcd_mul_dvd_mul_gcd` in any
+GCD monoid). Setting `d = a + 5·2^k`, both `gcd(d, a)` and `gcd(d, 5·2^k)`
+equal `gcd(5, a)` (since `a` is odd, hence coprime to `2^k`), and
+`gcd(5, a) ∈ {1, 5}`. So `d ≤ 25`, contradicting `d ≥ 41` for `k ≥ 3`. -/
+theorem fivePow_odd_pair_free {a k : ℕ} (ha : 0 < a) (hodd : a % 2 = 1)
+    (hk : 3 ≤ k) : ¬ IsUnitFractionPair a (5 * 2 ^ k) := by
+  unfold IsUnitFractionPair
+  intro hdvd
+  have hgcd_a2k : Nat.gcd a (2 ^ k) = 1 := by
+    refine Nat.Coprime.pow_right k ?_
+    rw [Nat.coprime_two_right, Nat.odd_iff]; exact hodd
+  -- `gcd(5·2^k, a) = gcd(5, a)` since `gcd(2^k, a) = 1`.
+  have hgcd_a_5pow : Nat.gcd (5 * 2 ^ k) a = Nat.gcd 5 a := by
+    apply Nat.dvd_antisymm
+    · -- gcd(5·2^k, a) ∣ gcd(5, a) · gcd(2^k, a) = gcd(5, a).
+      have h : Nat.gcd a (5 * 2 ^ k) ∣ Nat.gcd a 5 * Nat.gcd a (2 ^ k) :=
+        gcd_mul_dvd_mul_gcd a 5 (2 ^ k)
+      rw [show Nat.gcd a (2 ^ k) = 1 from hgcd_a2k] at h
+      rw [Nat.mul_one] at h
+      rw [Nat.gcd_comm (5 * 2 ^ k) a, Nat.gcd_comm 5 a]
+      exact h
+    · refine Nat.dvd_gcd ?_ (Nat.gcd_dvd_right _ _)
+      exact (Nat.gcd_dvd_left _ _).trans ⟨2 ^ k, rfl⟩
+  -- `gcd(a + 5·2^k, a) = gcd(5·2^k, a) = gcd(5, a)`.
+  have hg1 : Nat.gcd (a + 5 * 2 ^ k) a = Nat.gcd 5 a := by
+    rw [Nat.add_comm, Nat.gcd_add_self_left]; exact hgcd_a_5pow
+  -- `gcd(a + 5·2^k, 5·2^k) = gcd(a, 5·2^k) = gcd(a, 5)`.
+  have hgcd_a_5pow' : Nat.gcd a (5 * 2 ^ k) = Nat.gcd a 5 := by
+    rw [Nat.gcd_comm a (5 * 2 ^ k), hgcd_a_5pow, Nat.gcd_comm]
+  have hg2 : Nat.gcd (a + 5 * 2 ^ k) (5 * 2 ^ k) = Nat.gcd a 5 := by
+    rw [Nat.gcd_add_self_left]; exact hgcd_a_5pow'
+  -- Bezout-style: `gcd(d, a · (5·2^k)) ∣ gcd(d, a) · gcd(d, 5·2^k)`.
+  set d := a + 5 * 2 ^ k with hd_def
+  have hbez : d.gcd (a * (5 * 2 ^ k)) ∣ d.gcd a * d.gcd (5 * 2 ^ k) :=
+    gcd_mul_dvd_mul_gcd d a (5 * 2 ^ k)
+  rw [hg1, hg2] at hbez
+  -- `d ∣ a · (5·2^k)` so `gcd(d, …) = d`.
+  have hgcd_eq : d.gcd (a * (5 * 2 ^ k)) = d := Nat.gcd_eq_left hdvd
+  rw [hgcd_eq] at hbez
+  -- `gcd 5 a = gcd a 5`.
+  rw [show Nat.gcd 5 a = Nat.gcd a 5 from Nat.gcd_comm _ _] at hbez
+  -- `gcd(a, 5) ∈ {1, 5}`, so the product is at most 25.
+  set g := Nat.gcd a 5 with hg_def
+  have hg_dvd5 : g ∣ 5 := Nat.gcd_dvd_right _ _
+  have hg_le : g ≤ 5 := Nat.le_of_dvd (by norm_num) hg_dvd5
+  have h2k_ge : (8 : ℕ) ≤ 2 ^ k := by
+    calc (8 : ℕ) = 2 ^ 3 := by norm_num
+      _ ≤ 2 ^ k := Nat.pow_le_pow_right (by norm_num) hk
+  have hd_ge : 41 ≤ d := by omega
+  have hg2_pos : 0 < g * g := by
+    have hg_pos : 0 < g := Nat.gcd_pos_of_pos_left _ ha
+    positivity
+  have hd_le : d ≤ g * g := Nat.le_of_dvd hg2_pos hbez
+  nlinarith
+
+/-- For `k ≥ 3` and `l ≥ 1`, the pair `(5·2^k, 2^l)` is not a unit
+fraction pair. -/
+theorem fivePow_powerOfTwo_pair_free {k l : ℕ} (_hk : 3 ≤ k) (hl : 1 ≤ l) :
+    ¬ IsUnitFractionPair (5 * 2 ^ k) (2 ^ l) := by
+  unfold IsUnitFractionPair
+  intro hdvd
+  rcases lt_trichotomy k l with hkl | hkl | hkl
+  · -- k < l. Sum factors as 2^k (5 + 2^(l-k)) with odd factor 5 + 2^(l-k) ≥ 7.
+    have hpow : 2 ^ l = 2 ^ k * 2 ^ (l - k) := by
+      rw [← pow_add]; congr 1; omega
+    have hsum_eq : 5 * 2 ^ k + 2 ^ l = 2 ^ k * (5 + 2 ^ (l - k)) := by
+      rw [hpow]; ring
+    have hprod_eq : 5 * 2 ^ k * 2 ^ l = 2 ^ k * (5 * 2 ^ l) := by ring
+    rw [hsum_eq, hprod_eq] at hdvd
+    have h2k_pos : 0 < (2 : ℕ) ^ k := Nat.two_pow_pos _
+    have hcancel : (5 + 2 ^ (l - k)) ∣ 5 * 2 ^ l :=
+      (Nat.mul_dvd_mul_iff_left h2k_pos).mp hdvd
+    have hlk_pos : 1 ≤ l - k := by omega
+    have hodd_sum : (5 + 2 ^ (l - k)) % 2 = 1 := by
+      have h2dvd : (2 : ℕ) ∣ 2 ^ (l - k) := dvd_pow_self 2 (by omega)
+      omega
+    have hcop : Nat.Coprime (5 + 2 ^ (l - k)) (2 ^ l) := by
+      refine Nat.Coprime.pow_right l ?_
+      rw [Nat.coprime_two_right, Nat.odd_iff]; exact hodd_sum
+    have hcancel5 : (5 + 2 ^ (l - k)) ∣ 5 :=
+      hcop.dvd_of_dvd_mul_right hcancel
+    have h2le : 2 ≤ 2 ^ (l - k) := by
+      calc (2 : ℕ) = 2 ^ 1 := by ring
+        _ ≤ 2 ^ (l - k) := Nat.pow_le_pow_right (by norm_num) hlk_pos
+    have hge : 7 ≤ 5 + 2 ^ (l - k) := by omega
+    have hle : 5 + 2 ^ (l - k) ≤ 5 := Nat.le_of_dvd (by norm_num) hcancel5
+    omega
+  · -- k = l. Sum = 2^k · 6 = 6·2^k; product = 5·2^{2k}. (6·2^k) | 5·2^{2k} iff 3 | 5·2^k.
+    subst hkl
+    have hsum_eq : 5 * 2 ^ k + 2 ^ k = 6 * 2 ^ k := by ring
+    have hprod_eq : 5 * 2 ^ k * 2 ^ k = 5 * 2 ^ (2 * k) := by
+      rw [two_mul, pow_add]; ring
+    rw [hsum_eq, hprod_eq] at hdvd
+    -- 6 · 2^k ∣ 5 · 2^{2k}. Divide by 2^k: 6 ∣ 5 · 2^k. 3 ∣ 5·2^k. Contradiction.
+    have h2k_pos : 0 < (2 : ℕ) ^ k := Nat.two_pow_pos _
+    have hcancel : (6 : ℕ) ∣ 5 * 2 ^ k := by
+      -- Rewrite `5 * 2^{2k}` as `2^k * (5 * 2^k)` to cancel.
+      have hreq : 5 * 2 ^ (2 * k) = 2 ^ k * (5 * 2 ^ k) := by
+        rw [show (2 * k) = k + k from by ring, pow_add]; ring
+      rw [hreq] at hdvd
+      have hcancel' : 2 ^ k * 6 ∣ 2 ^ k * (5 * 2 ^ k) := by
+        rw [Nat.mul_comm (2 ^ k) 6]; exact hdvd
+      exact (Nat.mul_dvd_mul_iff_left h2k_pos).mp hcancel'
+    have h3dvd : (3 : ℕ) ∣ 5 * 2 ^ k := dvd_trans (by norm_num : (3 : ℕ) ∣ 6) hcancel
+    have hcop3 : Nat.Coprime 3 (5 * 2 ^ k) := by
+      have h35 : Nat.Coprime 3 5 := by decide
+      have h32 : Nat.Coprime 3 (2 ^ k) := by
+        refine Nat.Coprime.pow_right k ?_; decide
+      exact h35.mul_right h32
+    -- A coprime divisor must be 1.
+    have h3eq1 : (3 : ℕ) = 1 := by
+      have hgcd_eq : Nat.gcd 3 (5 * 2 ^ k) = 3 := Nat.gcd_eq_left h3dvd
+      rw [hcop3] at hgcd_eq
+      omega
+    omega
+  · -- k > l. Sum = 2^l(5·2^(k-l) + 1); odd factor 5·2^(k-l) + 1 ≥ 11 > 5.
+    have hpow : 2 ^ k = 2 ^ l * 2 ^ (k - l) := by
+      rw [← pow_add]; congr 1; omega
+    have hsum_eq : 5 * 2 ^ k + 2 ^ l = 2 ^ l * (5 * 2 ^ (k - l) + 1) := by
+      rw [hpow]; ring
+    have hprod_eq : 5 * 2 ^ k * 2 ^ l = 2 ^ l * (5 * 2 ^ k) := by ring
+    rw [hsum_eq, hprod_eq] at hdvd
+    have h2l_pos : 0 < (2 : ℕ) ^ l := Nat.two_pow_pos _
+    have hcancel : (5 * 2 ^ (k - l) + 1) ∣ 5 * 2 ^ k :=
+      (Nat.mul_dvd_mul_iff_left h2l_pos).mp hdvd
+    have hkl_pos : 1 ≤ k - l := by omega
+    have hodd_sum : (5 * 2 ^ (k - l) + 1) % 2 = 1 := by
+      have h2dvd : (2 : ℕ) ∣ 2 ^ (k - l) := dvd_pow_self 2 (by omega)
+      omega
+    have hcop : Nat.Coprime (5 * 2 ^ (k - l) + 1) (2 ^ k) := by
+      refine Nat.Coprime.pow_right k ?_
+      rw [Nat.coprime_two_right, Nat.odd_iff]; exact hodd_sum
+    have hcancel5 : (5 * 2 ^ (k - l) + 1) ∣ 5 :=
+      hcop.dvd_of_dvd_mul_right hcancel
+    have h2le : 2 ≤ 2 ^ (k - l) := by
+      calc (2 : ℕ) = 2 ^ 1 := by ring
+        _ ≤ 2 ^ (k - l) := Nat.pow_le_pow_right (by norm_num) hkl_pos
+    have hge : 11 ≤ 5 * 2 ^ (k - l) + 1 := by omega
+    have hle : 5 * 2 ^ (k - l) + 1 ≤ 5 := Nat.le_of_dvd (by norm_num) hcancel5
+    omega
 
 end UnitFractionPairs
