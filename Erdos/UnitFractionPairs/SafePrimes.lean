@@ -933,4 +933,223 @@ theorem exists_pairFree_card_ge_elevenThirteen (N : ℕ) :
     pairFree_oddPlusPowersOfTwoPlusElevenPlusThirteen N,
     card_oddPlusPowersOfTwoPlusElevenPlusThirteen N⟩
 
+/-! ### Abstraction: arbitrary compatible safe-prime sets.
+
+The pattern `oddPlusPowersOfTwo ∪ ⋃_{p ∈ P} F_p` is pair-free for any
+`Finset P` of odd primes satisfying:
+
+* each `p ∈ P` is non-Fermat and non-Mersenne,
+* for any two distinct `p, q ∈ P`, the sum `p + q` is not a power of `2`.
+
+This abstracts the explicit `elevenFamily` / `thirteenFamily` instances. -/
+
+/-- The compatibility conditions on a `Finset` of safe primes. -/
+structure SafePrimeSet (P : Finset ℕ) : Prop where
+  prime : ∀ p ∈ P, Nat.Prime p
+  odd : ∀ p ∈ P, p % 2 = 1
+  not_fermat : ∀ p ∈ P, ∀ d : ℕ, 1 ≤ d → 1 + 2 ^ d ≠ p
+  not_mersenne : ∀ p ∈ P, ∀ d : ℕ, 1 ≤ d → p + 1 ≠ 2 ^ d
+  pairwise_sum : ∀ p ∈ P, ∀ q ∈ P, p ≠ q → ∀ d : ℕ, p + q ≠ 2 ^ d
+
+/-- The union of safe-prime families for all `p ∈ P`. -/
+def safePrimeSetFamily (P : Finset ℕ) (N : ℕ) : Finset ℕ :=
+  P.biUnion (fun p =>
+    ((Finset.Icc 1 (Nat.log 2 N)).filter (fun α => p ≤ 2 ^ α ∧ 2 ^ α * p ≤ N)).image
+      (fun α => 2 ^ α * p))
+
+private lemma mem_safePrimeSetFamily_iff {P : Finset ℕ} {N n : ℕ} :
+    n ∈ safePrimeSetFamily P N ↔
+      ∃ p ∈ P, ∃ α : ℕ, 1 ≤ α ∧ α ≤ Nat.log 2 N ∧
+        p ≤ 2 ^ α ∧ 2 ^ α * p ≤ N ∧ n = 2 ^ α * p := by
+  unfold safePrimeSetFamily
+  simp only [Finset.mem_biUnion, Finset.mem_image, Finset.mem_filter, Finset.mem_Icc]
+  constructor
+  · rintro ⟨p, hp, α, ⟨⟨hα1, hα2⟩, hp_le, hbound⟩, hαp⟩
+    exact ⟨p, hp, α, hα1, hα2, hp_le, hbound, hαp.symm⟩
+  · rintro ⟨p, hp, α, hα1, hα2, hp_le, hbound, hαp⟩
+    exact ⟨p, hp, α, ⟨⟨hα1, hα2⟩, hp_le, hbound⟩, hαp.symm⟩
+
+/-- The safe-prime-set family is internally pair-free. -/
+theorem pairFree_safePrimeSetFamily {P : Finset ℕ} (hP : SafePrimeSet P) (N : ℕ) :
+    PairFree (safePrimeSetFamily P N) := by
+  intro a ha b hb hab hpair
+  rw [mem_safePrimeSetFamily_iff] at ha hb
+  obtain ⟨p, hp, α, _, _, _, _, ha_eq⟩ := ha
+  obtain ⟨q, hq, β, _, _, _, _, hb_eq⟩ := hb
+  by_cases hpq : p = q
+  · -- Same prime: internal case.
+    subst hpq
+    have hαβ : α ≠ β := by
+      intro heq; apply hab; rw [ha_eq, hb_eq, heq]
+    rw [ha_eq, hb_eq] at hpair
+    exact safePrime_internal_pair_free (hP.prime p hp)
+      (fun d hd => hP.not_fermat p hp d hd) hαβ hpair
+  · -- Distinct primes: cross case.
+    rw [ha_eq, hb_eq] at hpair
+    exact safePrime_cross_pair_free (hP.prime p hp) (hP.prime q hq)
+      (hP.odd p hp) (hP.odd q hq) hpq
+      (fun d => hP.pairwise_sum p hp q hq hpq d) hpair
+
+/-- The safe-prime-set family is pair-free with all odd numbers. -/
+theorem pairFree_oddNumbers_safePrimeSetFamily {P : Finset ℕ}
+    (hP : SafePrimeSet P) (N : ℕ) :
+    ∀ a ∈ oddNumbersIn N, ∀ b ∈ safePrimeSetFamily P N,
+      a ≠ b → ¬ IsUnitFractionPair a b := by
+  intro a ha b hb hab hpair
+  rw [mem_safePrimeSetFamily_iff] at hb
+  obtain ⟨p, hp, α, _, _, hp_le, _, hb_eq⟩ := hb
+  simp only [oddNumbersIn, Finset.mem_filter, Finset.mem_Icc] at ha
+  have ha_pos : 0 < a := by have := ha.1.1; omega
+  rw [hb_eq] at hpair
+  exact safePrime_odd_pair_free (hP.prime p hp) (hP.odd p hp)
+    hp_le ha_pos ha.2 hpair
+
+/-- The safe-prime-set family is pair-free with all powers of 2. -/
+theorem pairFree_powersOfTwo_safePrimeSetFamily {P : Finset ℕ}
+    (hP : SafePrimeSet P) (N : ℕ) :
+    ∀ a ∈ powersOfTwoIn N, ∀ b ∈ safePrimeSetFamily P N,
+      a ≠ b → ¬ IsUnitFractionPair a b := by
+  intro a ha b hb hab hpair
+  rw [mem_safePrimeSetFamily_iff] at hb
+  obtain ⟨p, hp, α, _, _, hp_le, _, hb_eq⟩ := hb
+  simp only [powersOfTwoIn, Finset.mem_image, Finset.mem_Icc] at ha
+  obtain ⟨γ, ⟨hγ_pos, _⟩, hγ_eq⟩ := ha
+  rw [← hγ_eq, hb_eq] at hpair
+  have hpair' : IsUnitFractionPair (2 ^ α * p) (2 ^ γ) := by
+    unfold IsUnitFractionPair at hpair ⊢
+    have heq_sum : 2 ^ α * p + 2 ^ γ = 2 ^ γ + 2 ^ α * p := by ring
+    have heq_prod : 2 ^ α * p * 2 ^ γ = 2 ^ γ * (2 ^ α * p) := by ring
+    rw [heq_sum, heq_prod]; exact hpair
+  exact safePrime_powerOfTwo_pair_free (hP.prime p hp) (hP.odd p hp)
+    (fun d hd => hP.not_mersenne p hp d hd) hp_le hγ_pos hpair'
+
+/-- **The full safe-prime construction.** -/
+def oddPlusPowersOfTwoPlusSafePrimeSet (P : Finset ℕ) (N : ℕ) : Finset ℕ :=
+  oddPlusPowersOfTwo N ∪ safePrimeSetFamily P N
+
+/-- Pair-freeness of the full safe-prime construction. -/
+theorem pairFree_oddPlusPowersOfTwoPlusSafePrimeSet {P : Finset ℕ}
+    (hP : SafePrimeSet P) (N : ℕ) :
+    PairFree (oddPlusPowersOfTwoPlusSafePrimeSet P N) := by
+  intro a ha b hb hab hpair
+  simp only [oddPlusPowersOfTwoPlusSafePrimeSet, Finset.mem_union] at ha hb
+  rcases ha with ha_op | ha_sp
+  · rcases hb with hb_op | hb_sp
+    · exact pairFree_oddPlusPowersOfTwo N a ha_op b hb_op hab hpair
+    · -- a ∈ oddPlusPowersOfTwo, b ∈ safePrimeSetFamily.
+      simp only [oddPlusPowersOfTwo, Finset.mem_union] at ha_op
+      rcases ha_op with ha_odd | ha_pow
+      · exact pairFree_oddNumbers_safePrimeSetFamily hP N a ha_odd b hb_sp hab hpair
+      · exact pairFree_powersOfTwo_safePrimeSetFamily hP N a ha_pow b hb_sp hab hpair
+  · rcases hb with hb_op | hb_sp
+    · -- a ∈ safePrimeSetFamily, b ∈ oddPlusPowersOfTwo: symmetric.
+      simp only [oddPlusPowersOfTwo, Finset.mem_union] at hb_op
+      have hpair' : IsUnitFractionPair b a := by
+        unfold IsUnitFractionPair at hpair ⊢
+        rw [Nat.add_comm, Nat.mul_comm]; exact hpair
+      rcases hb_op with hb_odd | hb_pow
+      · exact pairFree_oddNumbers_safePrimeSetFamily hP N b hb_odd a ha_sp hab.symm hpair'
+      · exact pairFree_powersOfTwo_safePrimeSetFamily hP N b hb_pow a ha_sp hab.symm hpair'
+    · exact pairFree_safePrimeSetFamily hP N a ha_sp b hb_sp hab hpair
+
+/-- The full construction lies in `[1, N]`. -/
+theorem oddPlusPowersOfTwoPlusSafePrimeSet_subset_Icc {P : Finset ℕ}
+    (hP : SafePrimeSet P) (N : ℕ) :
+    oddPlusPowersOfTwoPlusSafePrimeSet P N ⊆ Finset.Icc 1 N := by
+  intro n hn
+  rcases Finset.mem_union.mp hn with hn_op | hn_sp
+  · exact oddPlusPowersOfTwo_subset_Icc N hn_op
+  · rw [mem_safePrimeSetFamily_iff] at hn_sp
+    obtain ⟨p, hp, α, hα_pos, _, _, hbound, hn_eq⟩ := hn_sp
+    rw [Finset.mem_Icc, hn_eq]
+    refine ⟨?_, hbound⟩
+    have hp_pos : 0 < p := (hP.prime p hp).pos
+    have h2α_pos : 0 < 2 ^ α := Nat.two_pow_pos _
+    have : 0 < 2 ^ α * p := Nat.mul_pos h2α_pos hp_pos
+    omega
+
+/-- **Generalized improved lower bound for #327.** For any compatible
+finset `P` of safe primes, the construction
+`oddPlusPowersOfTwo ∪ ⋃_{p ∈ P} F_p` is pair-free in `[1, N]`. -/
+theorem exists_pairFree_safePrimeSet {P : Finset ℕ}
+    (hP : SafePrimeSet P) (N : ℕ) :
+    ∃ A : Finset ℕ, A ⊆ Finset.Icc 1 N ∧ PairFree A := by
+  exact ⟨oddPlusPowersOfTwoPlusSafePrimeSet P N,
+    oddPlusPowersOfTwoPlusSafePrimeSet_subset_Icc hP N,
+    pairFree_oddPlusPowersOfTwoPlusSafePrimeSet hP N⟩
+
+/-! ### Explicit `SafePrimeSet {11, 13, 23, 29}` instance.
+
+A concrete set of four pairwise-compatible safe primes — meaning each
+`p` is non-Fermat and non-Mersenne, and every pair `(p, q)` has
+`p + q` not a power of `2`. Verifications by `decide`. -/
+
+/-- Sums of distinct pairs from `{11, 13, 23, 29}`: `24, 34, 36, 40, 42, 52`.
+None is a power of 2 — each has a small odd prime factor (`3, 17, 9, 5, 21, 13`).
+We verify all six via the standard reduction "`2^d = N → N's odd factor divides 1`". -/
+private lemma sum_not_pow2 (N : ℕ) (q : ℕ) (hq_dvd : q ∣ N) (hq_prime : Nat.Prime q)
+    (hq_odd : q ≠ 2) : ∀ d : ℕ, N ≠ 2 ^ d := by
+  intro d h
+  have hq_dvd_pow : q ∣ 2 ^ d := by rw [← h]; exact hq_dvd
+  have hcop : Nat.Coprime q (2 ^ d) := by
+    refine Nat.Coprime.pow_right d ?_
+    refine (Nat.coprime_primes hq_prime (by decide : Nat.Prime 2)).mpr ?_
+    exact hq_odd
+  have : q = 1 := by
+    have hg : Nat.gcd q (2 ^ d) = q := Nat.gcd_eq_left hq_dvd_pow
+    rw [hcop] at hg; omega
+  exact hq_prime.one_lt.ne' this
+
+/-- The set `{11, 13, 23, 29}` is a valid safe-prime set. -/
+theorem safePrimeSet_eleven_thirteen_twentythree_twentynine :
+    SafePrimeSet ({11, 13, 23, 29} : Finset ℕ) := by
+  refine ⟨?_, ?_, ?_, ?_, ?_⟩
+  -- prime
+  · intro p hp
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hp
+    rcases hp with rfl | rfl | rfl | rfl <;> decide
+  -- odd
+  · intro p hp
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hp
+    rcases hp with rfl | rfl | rfl | rfl <;> decide
+  -- not_fermat: for each p, no d ≥ 1 has 1 + 2^d = p.
+  · intro p hp d hd_pos heq
+    -- 2^d = p - 1; check that p - 1 is never a power of 2 for these primes.
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hp
+    rcases hp with rfl | rfl | rfl | rfl
+    · -- p = 11: 2^d = 10 = 2·5; 5 ∣ 10, 5 prime, 5 ≠ 2.
+      exact sum_not_pow2 10 5 (by norm_num) (by decide) (by decide) d (by omega)
+    · -- p = 13: 2^d = 12 = 4·3; 3 ∣ 12.
+      exact sum_not_pow2 12 3 (by norm_num) (by decide) (by decide) d (by omega)
+    · -- p = 23: 2^d = 22 = 2·11; 11 ∣ 22.
+      exact sum_not_pow2 22 11 (by norm_num) (by decide) (by decide) d (by omega)
+    · -- p = 29: 2^d = 28 = 4·7; 7 ∣ 28.
+      exact sum_not_pow2 28 7 (by norm_num) (by decide) (by decide) d (by omega)
+  -- not_mersenne: for each p, no d ≥ 1 has p + 1 = 2^d.
+  · intro p hp d hd_pos heq
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hp
+    rcases hp with rfl | rfl | rfl | rfl
+    · exact sum_not_pow2 12 3 (by norm_num) (by decide) (by decide) d
+        (by show (12 : ℕ) = 2 ^ d; exact heq)
+    · exact sum_not_pow2 14 7 (by norm_num) (by decide) (by decide) d
+        (by show (14 : ℕ) = 2 ^ d; exact heq)
+    · exact sum_not_pow2 24 3 (by norm_num) (by decide) (by decide) d
+        (by show (24 : ℕ) = 2 ^ d; exact heq)
+    · exact sum_not_pow2 30 5 (by norm_num) (by decide) (by decide) d
+        (by show (30 : ℕ) = 2 ^ d; exact heq)
+  -- pairwise_sum: for each pair (p, q) with p ≠ q in {11,13,23,29}, p + q not power of 2.
+  · intro p hp q hq hpq d heq
+    -- Six pairs: (11,13)→24, (11,23)→34, (11,29)→40, (13,23)→36, (13,29)→42, (23,29)→52.
+    -- Each has a small odd prime factor.
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hp hq
+    rcases hp with rfl | rfl | rfl | rfl <;> rcases hq with rfl | rfl | rfl | rfl <;>
+      first
+      | (exact (hpq rfl).elim)
+      | (exact sum_not_pow2 24 3 (by norm_num) (by decide) (by decide) d heq)
+      | (exact sum_not_pow2 34 17 (by norm_num) (by decide) (by decide) d heq)
+      | (exact sum_not_pow2 40 5 (by norm_num) (by decide) (by decide) d heq)
+      | (exact sum_not_pow2 36 3 (by norm_num) (by decide) (by decide) d heq)
+      | (exact sum_not_pow2 42 3 (by norm_num) (by decide) (by decide) d heq)
+      | (exact sum_not_pow2 52 13 (by norm_num) (by decide) (by decide) d heq)
+
 end UnitFractionPairs
