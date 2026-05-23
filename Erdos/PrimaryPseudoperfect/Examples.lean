@@ -113,4 +113,44 @@ theorem pseudoperfect_fortyTwo : WeirdNumbers.Pseudoperfect 42 :=
 theorem pseudoperfect_eighteenOhSix : WeirdNumbers.Pseudoperfect 1806 :=
   primaryPseudoperfect_pseudoperfect primaryPseudoperfect_eighteenOhSix (by omega)
 
+/-! ### The next known primary pseudoperfect number: `47058`
+
+Unlike `2 → 6 → 42 → 1806`, the next primary pseudoperfect number does **not**
+come from `succ_prime_extension`: `1807 = 13 · 139` is composite, so `1806`
+cannot be extended by `m + 1`. The intermediate values `66 = 2·3·11`,
+`1518 = 2·3·11·23` are **not** themselves primary pseudoperfect (the
+reciprocal identity fails: `1/2 + 1/3 + 1/11 + 1/66 = 31/33 ≠ 1`), so the
+coprime-product extension lemma cannot be applied step-by-step.
+
+Instead, `47058 = 2 · 3 · 11 · 23 · 31` is verified directly: the
+reciprocal identity
+`1/2 + 1/3 + 1/11 + 1/23 + 1/31 = 47057/47058 = 1 - 1/47058`
+closes by `norm_num`. -/
+
+/-- Witness for `47058 = 2 · 3 · 11 · 23 · 31` verified directly. -/
+theorem fortySevenThousandFiftyEight_witness :
+    PrimeReciprocalWitness 47058 ({2, 3, 11, 23, 31} : Finset ℕ) := by
+  refine ⟨?_, ?_, ?_⟩
+  · intro p hp
+    rcases Finset.mem_insert.mp hp with rfl | hp
+    · exact (by decide : Nat.Prime 2)
+    rcases Finset.mem_insert.mp hp with rfl | hp
+    · exact (by decide : Nat.Prime 3)
+    rcases Finset.mem_insert.mp hp with rfl | hp
+    · exact (by decide : Nat.Prime 11)
+    rcases Finset.mem_insert.mp hp with rfl | hp
+    · exact (by decide : Nat.Prime 23)
+    have : p = 31 := by simpa using hp
+    exact this ▸ (by decide : Nat.Prime 31)
+  · decide
+  · norm_num
+
+/-- `47058` is primary pseudoperfect, with prime witness `{2, 3, 11, 23, 31}`. -/
+theorem isPrimaryPseudoperfect_47058 : IsPrimaryPseudoperfect 47058 :=
+  ⟨by omega, {2, 3, 11, 23, 31}, fortySevenThousandFiftyEight_witness⟩
+
+/-- `47058` is pseudoperfect. -/
+theorem pseudoperfect_47058 : WeirdNumbers.Pseudoperfect 47058 :=
+  primaryPseudoperfect_pseudoperfect isPrimaryPseudoperfect_47058 (by omega)
+
 end PrimaryPseudoperfect
