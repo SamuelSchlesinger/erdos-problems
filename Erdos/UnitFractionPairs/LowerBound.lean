@@ -273,4 +273,25 @@ theorem exists_pairFree_card_ge (N : ℕ) :
     pairFree_oddPlusPowersOfTwo N,
     card_oddPlusPowersOfTwo N⟩
 
+/-! ### Pushing further: the `m = 5` family.
+
+Beyond powers of 2 we can also add evens `5 · 2^k` for `k ≥ 3`. Each
+such element is pair-free with all odd numbers and with all powers of 2,
+but two elements `5 · 2^k` and `5 · 2^{k+2}` form a forbidden pair
+(`5·2^k + 5·2^{k+2} = 25·2^k` divides `25 · 2^{2k+2}`). The largest
+sub-family with no two exponents differing by exactly 2 has size
+`Θ(log(N / 5))` — so this approach adds another `Θ(log N)` elements,
+giving total `(N + 1)/2 + (3/2)·⌊log₂ N⌋ + O(1)`. We do not formalise
+this extension here.
+
+More ambitiously, the entire family
+`T := {2^k · m : k ≥ 1, m odd, m ≤ 2^k}` is odd-conflict-free and has
+cardinality `Θ(√N)` in `[1, N]`. After pruning internal conflicts (which
+have a rich case structure depending on the odd part `m`), one could
+hope to extract a pair-free subset of size `Θ(√N)`, giving a genuine
+polynomial improvement over the folklore `N/2`. The Lean proofs for the
+cross-`m` conflict analysis require a Bezout-style identity
+`gcd(d, ab) ∣ gcd(d, a) · gcd(d, b)` whose Mathlib counterpart we have
+not yet identified; we leave this as the natural follow-up direction. -/
+
 end UnitFractionPairs
