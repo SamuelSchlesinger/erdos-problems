@@ -63,6 +63,7 @@ import Erdos.DisjointEqualUnions.Elementary
 import Erdos.ConsecutivePowerful.Statement
 import Erdos.ConsecutivePowerful.Modular
 import Erdos.ConsecutivePowerful.Search
+import Erdos.ConsecutivePowerful.AbcConditional
 import Erdos.AlmostSidonSets.Statement
 import Erdos.AlmostSidonSets.Structure
 import Erdos.AlmostSidonSets.Construction
