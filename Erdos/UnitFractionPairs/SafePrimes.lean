@@ -1100,6 +1100,159 @@ private lemma sum_not_pow2 (N : ℕ) (q : ℕ) (hq_dvd : q ∣ N) (hq_prime : Na
     rw [hcop] at hg; omega
   exact hq_prime.one_lt.ne' this
 
+/-! ### Generic safe-prime set: all safe primes up to `K`.
+
+For any bound `K`, the set of "doubly-safe primes ≤ K, greedy-compatible
+from below" is decidable and forms a `SafePrimeSet`. This avoids hardcoding
+specific primes: the construction works uniformly in `K`.
+
+The key trick is the greedy-from-below definition. A prime `p` is in the
+set iff it is doubly safe (non-Fermat, non-Mersenne) AND for every smaller
+prime `q < p` that is also doubly safe, `p + q` is not a power of 2. This
+breaks the circular reference of "pairwise compatible within the set" by
+referencing only the smaller candidates.
+
+Pairwise compatibility within the resulting set then follows: if `p, q` are
+both included and `q < p`, then by `p`'s inclusion check, `p + q` is not a
+power of 2 (since `q` itself is doubly safe). -/
+
+/-- Predicate: `p` is a base-safe prime, meaning ≥ 11, prime, odd,
+non-Fermat, and non-Mersenne. The bounds on the inner `d` quantifiers
+are derived from `p` itself. -/
+def IsBaseSafePrime (p : ℕ) : Prop :=
+  Nat.Prime p ∧ p % 2 = 1 ∧ 11 ≤ p ∧
+    (∀ d ∈ Finset.Ioc 0 (Nat.log 2 (p + 1)), 1 + 2 ^ d ≠ p) ∧
+    (∀ d ∈ Finset.Ioc 0 (Nat.log 2 (p + 2)), p + 1 ≠ 2 ^ d)
+
+instance (p : ℕ) : Decidable (IsBaseSafePrime p) := by
+  unfold IsBaseSafePrime; infer_instance
+
+/-- Decidable membership predicate for `safePrimesUpTo K`. -/
+def InSafePrimesUpTo (p : ℕ) : Prop :=
+  IsBaseSafePrime p ∧
+    ∀ q ∈ Finset.range p, IsBaseSafePrime q →
+      ∀ d ∈ Finset.Ioc 0 (Nat.log 2 (p + q + 1)), p + q ≠ 2 ^ d
+
+instance (p : ℕ) : Decidable (InSafePrimesUpTo p) := by
+  unfold InSafePrimesUpTo; infer_instance
+
+/-- The set of doubly-safe primes ≤ `K`, greedy-filtered so that no two
+have a power-of-2 sum. -/
+def safePrimesUpTo (K : ℕ) : Finset ℕ :=
+  (Finset.range (K + 1)).filter InSafePrimesUpTo
+
+/-! ### Three small extensions: `1 + 2^d ≠ p`, `p + 1 ≠ 2^d`, and
+`p + q ≠ 2^d` for *all* `d ≥ 1`, from the *bounded* versions. -/
+
+/-- For `p ≥ 2` and `d` large enough, `1 + 2^d > p`. So the bounded check
+suffices for the full quantifier. -/
+private lemma not_fermat_from_bounded {p : ℕ} (hp : 2 ≤ p)
+    (h : ∀ d ∈ Finset.Ioc 0 (Nat.log 2 (p + 1)), 1 + 2 ^ d ≠ p) :
+    ∀ d : ℕ, 1 ≤ d → 1 + 2 ^ d ≠ p := by
+  intro d hd_pos
+  by_cases hd_le : d ≤ Nat.log 2 (p + 1)
+  · exact h d (Finset.mem_Ioc.mpr ⟨hd_pos, hd_le⟩)
+  · push_neg at hd_le
+    intro heq
+    -- 2^d > 2^(log 2 (p+1)) ≥ ... actually we use: d > log 2 (p+1) ⇒ 2^d > p+1 ≥ p+1.
+    have hN_pos : 0 < p + 1 := by omega
+    have h2d_gt : p + 1 < 2 ^ d :=
+      (Nat.log_lt_iff_lt_pow (by norm_num : 1 < 2) hN_pos.ne').mp hd_le
+    omega
+
+private lemma not_mersenne_from_bounded {p : ℕ} (hp : 2 ≤ p)
+    (h : ∀ d ∈ Finset.Ioc 0 (Nat.log 2 (p + 2)), p + 1 ≠ 2 ^ d) :
+    ∀ d : ℕ, 1 ≤ d → p + 1 ≠ 2 ^ d := by
+  intro d hd_pos
+  by_cases hd_le : d ≤ Nat.log 2 (p + 2)
+  · exact h d (Finset.mem_Ioc.mpr ⟨hd_pos, hd_le⟩)
+  · push_neg at hd_le
+    intro heq
+    have hN_pos : 0 < p + 2 := by omega
+    have h2d_gt : p + 2 < 2 ^ d :=
+      (Nat.log_lt_iff_lt_pow (by norm_num : 1 < 2) hN_pos.ne').mp hd_le
+    omega
+
+private lemma sum_not_pow2_from_bounded {p q : ℕ} (hpq : 2 ≤ p + q)
+    (h : ∀ d ∈ Finset.Ioc 0 (Nat.log 2 (p + q + 1)), p + q ≠ 2 ^ d) :
+    ∀ d : ℕ, p + q ≠ 2 ^ d := by
+  intro d
+  by_cases hd_pos : 1 ≤ d
+  · by_cases hd_le : d ≤ Nat.log 2 (p + q + 1)
+    · exact h d (Finset.mem_Ioc.mpr ⟨hd_pos, hd_le⟩)
+    · push_neg at hd_le
+      intro heq
+      have hN_pos : 0 < p + q + 1 := by omega
+      have h2d_gt : p + q + 1 < 2 ^ d :=
+        (Nat.log_lt_iff_lt_pow (by norm_num : 1 < 2) hN_pos.ne').mp hd_le
+      omega
+  · push_neg at hd_pos
+    interval_cases d
+    intro heq; simp at heq; omega
+
+/-- **The headline theorem**: `safePrimesUpTo K` is a `SafePrimeSet`,
+for any bound `K`. -/
+theorem safePrimeSet_safePrimesUpTo (K : ℕ) :
+    SafePrimeSet (safePrimesUpTo K) := by
+  refine ⟨?_, ?_, ?_, ?_, ?_⟩
+  -- prime
+  · intro p hp
+    simp only [safePrimesUpTo, Finset.mem_filter, InSafePrimesUpTo,
+      IsBaseSafePrime] at hp
+    exact hp.2.1.1
+  -- odd
+  · intro p hp
+    simp only [safePrimesUpTo, Finset.mem_filter, InSafePrimesUpTo,
+      IsBaseSafePrime] at hp
+    exact hp.2.1.2.1
+  -- not_fermat
+  · intro p hp d hd
+    simp only [safePrimesUpTo, Finset.mem_filter, InSafePrimesUpTo,
+      IsBaseSafePrime] at hp
+    have hp_ge : 11 ≤ p := hp.2.1.2.2.1
+    apply not_fermat_from_bounded (by omega : 2 ≤ p) hp.2.1.2.2.2.1 d hd
+  -- not_mersenne
+  · intro p hp d hd
+    simp only [safePrimesUpTo, Finset.mem_filter, InSafePrimesUpTo,
+      IsBaseSafePrime] at hp
+    have hp_ge : 11 ≤ p := hp.2.1.2.2.1
+    apply not_mersenne_from_bounded (by omega : 2 ≤ p) hp.2.1.2.2.2.2 d hd
+  -- pairwise_sum
+  · intro p hp q hq hpq d
+    simp only [safePrimesUpTo, Finset.mem_filter, InSafePrimesUpTo] at hp hq
+    have hp_base := hp.2.1
+    have hq_base := hq.2.1
+    have hp_ge : 11 ≤ p := hp_base.2.2.1
+    have hq_ge : 11 ≤ q := hq_base.2.2.1
+    -- WLOG q < p.
+    rcases lt_or_gt_of_ne hpq with h | h
+    · -- p < q: by q's inclusion, q + p ≠ 2^d ⇒ p + q ≠ 2^d.
+      have hp_mem : p ∈ Finset.range q := Finset.mem_range.mpr h
+      have h_qp := hq.2.2 p hp_mem hp_base
+      have : ∀ d, q + p ≠ 2 ^ d :=
+        sum_not_pow2_from_bounded (by omega : 2 ≤ q + p) h_qp
+      have := this d
+      rw [Nat.add_comm] at this
+      exact this
+    · -- q < p: by p's inclusion, p + q ≠ 2^d.
+      have hq_mem : q ∈ Finset.range p := Finset.mem_range.mpr h
+      have h_pq := hp.2.2 q hq_mem hq_base
+      exact sum_not_pow2_from_bounded (by omega : 2 ≤ p + q) h_pq d
+
+/-- **The universal construction**: for any `K, N`, the set
+`oddPlusPowersOfTwo N ∪ safePrimeSetFamily (safePrimesUpTo K) N` is a
+pair-free subset of `[1, N]`. -/
+theorem exists_pairFree_universal (K N : ℕ) :
+    ∃ A : Finset ℕ, A ⊆ Finset.Icc 1 N ∧ PairFree A := by
+  exact exists_pairFree_safePrimeSet (safePrimeSet_safePrimesUpTo K) N
+
+/-- Reality check: for `K = 30`, the safe-prime set is exactly
+`{11, 13, 23, 29}` (the four explicit primes from earlier). -/
+example : safePrimesUpTo 30 = {11, 13, 23, 29} := by decide
+
+/-- For `K = 50`, the set extends to `{11, 13, 23, 29, 37, 43, 47}`. -/
+example : safePrimesUpTo 50 = {11, 13, 23, 29, 37, 43, 47} := by decide
+
 /-- The set `{11, 13, 23, 29}` is a valid safe-prime set. -/
 theorem safePrimeSet_eleven_thirteen_twentythree_twentynine :
     SafePrimeSet ({11, 13, 23, 29} : Finset ℕ) := by
