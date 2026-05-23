@@ -1246,6 +1246,137 @@ theorem exists_pairFree_universal (K N : ℕ) :
     ∃ A : Finset ℕ, A ⊆ Finset.Icc 1 N ∧ PairFree A := by
   exact exists_pairFree_safePrimeSet (safePrimeSet_safePrimesUpTo K) N
 
+/-! ### Quantitative bound: cardinality of the universal construction. -/
+
+/-- For distinct primes `p, q` in a safe-prime set, the families `F_p`
+and `F_q` are disjoint: `2^α · p = 2^β · q` forces `α = β` (taking
+2-adic valuations) and then `p = q`. -/
+private lemma disjoint_F_F {P : Finset ℕ} (hP : SafePrimeSet P)
+    {p q : ℕ} (hp : p ∈ P) (hq : q ∈ P) (hpq : p ≠ q) (N : ℕ) :
+    Disjoint
+      (((Finset.Icc 1 (Nat.log 2 N)).filter
+          (fun α => p ≤ 2 ^ α ∧ 2 ^ α * p ≤ N)).image (fun α => 2 ^ α * p))
+      (((Finset.Icc 1 (Nat.log 2 N)).filter
+          (fun α => q ≤ 2 ^ α ∧ 2 ^ α * q ≤ N)).image (fun α => 2 ^ α * q)) := by
+  rw [Finset.disjoint_left]
+  intro n hnp hnq
+  simp only [Finset.mem_image, Finset.mem_filter] at hnp hnq
+  obtain ⟨α, _, hα_eq⟩ := hnp
+  obtain ⟨β, _, hβ_eq⟩ := hnq
+  have heq : 2 ^ α * p = 2 ^ β * q := by rw [hα_eq, hβ_eq]
+  have hp_odd : p % 2 = 1 := hP.odd p hp
+  have hq_odd : q % 2 = 1 := hP.odd q hq
+  -- α = β by comparing 2-adic valuations.
+  have hαβ : α = β := by
+    rcases lt_trichotomy α β with h | h | h
+    · -- α < β: 2^α p = 2^β q ⇒ p = 2^{β-α} q ⇒ p even, contradiction.
+      have hpow : 2 ^ β = 2 ^ α * 2 ^ (β - α) := by
+        rw [← pow_add]; congr 1; omega
+      rw [hpow, Nat.mul_assoc] at heq
+      have h2α_pos : 0 < (2 : ℕ) ^ α := Nat.two_pow_pos _
+      have hp_eq : p = 2 ^ (β - α) * q := Nat.eq_of_mul_eq_mul_left h2α_pos heq
+      have h2_dvd_p : (2 : ℕ) ∣ p := by
+        rw [hp_eq]; exact (dvd_pow_self 2 (by omega : β - α ≠ 0)).mul_right q
+      omega
+    · exact h
+    · have hpow : 2 ^ α = 2 ^ β * 2 ^ (α - β) := by
+        rw [← pow_add]; congr 1; omega
+      rw [hpow, Nat.mul_assoc] at heq
+      have h2β_pos : 0 < (2 : ℕ) ^ β := Nat.two_pow_pos _
+      have hq_eq : 2 ^ (α - β) * p = q := Nat.eq_of_mul_eq_mul_left h2β_pos heq
+      have h2_dvd_q : (2 : ℕ) ∣ q := by
+        rw [← hq_eq]; exact (dvd_pow_self 2 (by omega : α - β ≠ 0)).mul_right p
+      omega
+  subst hαβ
+  have h2α_pos : 0 < (2 : ℕ) ^ α := Nat.two_pow_pos _
+  exact hpq (Nat.eq_of_mul_eq_mul_left h2α_pos heq)
+
+/-- The map `α ↦ 2^α · p` is injective for `p > 0`. -/
+private lemma card_F_p {P : Finset ℕ} (hP : SafePrimeSet P)
+    {p : ℕ} (hp : p ∈ P) (N : ℕ) :
+    (((Finset.Icc 1 (Nat.log 2 N)).filter
+        (fun α => p ≤ 2 ^ α ∧ 2 ^ α * p ≤ N)).image (fun α => 2 ^ α * p)).card =
+      ((Finset.Icc 1 (Nat.log 2 N)).filter
+        (fun α => p ≤ 2 ^ α ∧ 2 ^ α * p ≤ N)).card := by
+  rw [Finset.card_image_of_injOn]
+  intro a _ b _ hab
+  have hp_pos : 0 < p := (hP.prime p hp).pos
+  exact Nat.pow_right_injective (le_refl 2) (Nat.mul_right_cancel hp_pos hab)
+
+/-- **Cardinality of the safe-prime-set family**: the sum over `p ∈ P`
+of `|F_p|`. -/
+theorem card_safePrimeSetFamily {P : Finset ℕ} (hP : SafePrimeSet P) (N : ℕ) :
+    (safePrimeSetFamily P N).card =
+      ∑ p ∈ P, ((Finset.Icc 1 (Nat.log 2 N)).filter
+        (fun α => p ≤ 2 ^ α ∧ 2 ^ α * p ≤ N)).card := by
+  unfold safePrimeSetFamily
+  rw [Finset.card_biUnion]
+  · refine Finset.sum_congr rfl (fun p hp => ?_)
+    exact card_F_p hP hp N
+  · intro p hp q hq hpq
+    exact disjoint_F_F hP hp hq hpq N
+
+/-- The safe-prime-set family is disjoint from `oddPlusPowersOfTwo`. -/
+theorem disjoint_oddPlusPowersOfTwo_safePrimeSetFamily {P : Finset ℕ}
+    (hP : SafePrimeSet P) (N : ℕ) :
+    Disjoint (oddPlusPowersOfTwo N) (safePrimeSetFamily P N) := by
+  rw [Finset.disjoint_left]
+  intro n hn_op hn_sp
+  rw [mem_safePrimeSetFamily_iff] at hn_sp
+  obtain ⟨p, hp, α, hα_pos, _, _, _, hn_eq⟩ := hn_sp
+  have hp_prime := hP.prime p hp
+  have hp_odd := hP.odd p hp
+  simp only [oddPlusPowersOfTwo, oddNumbersIn, powersOfTwoIn,
+    Finset.mem_union, Finset.mem_filter, Finset.mem_Icc, Finset.mem_image] at hn_op
+  rcases hn_op with ⟨_, hn_odd⟩ | ⟨j, ⟨hj_pos, _⟩, hj_eq⟩
+  · have h2dvd : (2 : ℕ) ∣ n := by
+      rw [hn_eq]
+      exact (dvd_pow_self 2 (by omega : α ≠ 0)).mul_right p
+    omega
+  · have heq : 2 ^ j = 2 ^ α * p := by rw [hj_eq, hn_eq]
+    have hp_dvd : p ∣ 2 ^ j := by rw [heq]; exact Dvd.intro (2 ^ α) (by ring)
+    have hcop : Nat.Coprime p (2 ^ j) := by
+      refine Nat.Coprime.pow_right j ?_
+      exact (Nat.coprime_two_right (n := p)).mpr (Nat.odd_iff.mpr hp_odd)
+    have : p ≤ 1 := by
+      have hg : Nat.gcd p (2 ^ j) = p := Nat.gcd_eq_left hp_dvd
+      rw [hcop] at hg; omega
+    have := hp_prime.two_le; omega
+
+/-- **Cardinality of the full universal construction**. -/
+theorem card_oddPlusPowersOfTwoPlusSafePrimeSet {P : Finset ℕ}
+    (hP : SafePrimeSet P) (N : ℕ) :
+    (oddPlusPowersOfTwoPlusSafePrimeSet P N).card =
+      (N + 1) / 2 + Nat.log 2 N +
+        ∑ p ∈ P, ((Finset.Icc 1 (Nat.log 2 N)).filter
+          (fun α => p ≤ 2 ^ α ∧ 2 ^ α * p ≤ N)).card := by
+  unfold oddPlusPowersOfTwoPlusSafePrimeSet
+  rw [Finset.card_union_of_disjoint
+    (disjoint_oddPlusPowersOfTwo_safePrimeSetFamily hP N),
+    card_oddPlusPowersOfTwo, card_safePrimeSetFamily hP]
+
+/-- **Quantitative universal lower bound for #327.** For any `K, N`:
+
+  `f(N) ≥ (N + 1) / 2 + ⌊log₂ N⌋ +
+            ∑_{p ∈ safePrimesUpTo K} |{α ∈ [1, ⌊log₂ N⌋] : p ≤ 2^α ∧ 2^α · p ≤ N}|`.
+
+As `K, N → ∞` with `K = √N`, the sum grows like `Θ(√N / log N)` by the
+prime number theorem (after accounting for the Goldbach-sparse
+power-of-2 sums that the greedy filter excludes), giving a polynomial
+improvement past `N/2`. -/
+theorem exists_pairFree_quantitative (K N : ℕ) :
+    ∃ A : Finset ℕ, A ⊆ Finset.Icc 1 N ∧ PairFree A ∧
+      A.card = (N + 1) / 2 + Nat.log 2 N +
+        ∑ p ∈ safePrimesUpTo K,
+          ((Finset.Icc 1 (Nat.log 2 N)).filter
+            (fun α => p ≤ 2 ^ α ∧ 2 ^ α * p ≤ N)).card :=
+  ⟨oddPlusPowersOfTwoPlusSafePrimeSet (safePrimesUpTo K) N,
+    oddPlusPowersOfTwoPlusSafePrimeSet_subset_Icc
+      (safePrimeSet_safePrimesUpTo K) N,
+    pairFree_oddPlusPowersOfTwoPlusSafePrimeSet
+      (safePrimeSet_safePrimesUpTo K) N,
+    card_oddPlusPowersOfTwoPlusSafePrimeSet (safePrimeSet_safePrimesUpTo K) N⟩
+
 /-- Reality check: for `K = 30`, the safe-prime set is exactly
 `{11, 13, 23, 29}` (the four explicit primes from earlier). -/
 example : safePrimesUpTo 30 = {11, 13, 23, 29} := by decide
