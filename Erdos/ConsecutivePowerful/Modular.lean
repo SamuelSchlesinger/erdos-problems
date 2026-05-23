@@ -124,4 +124,30 @@ theorem consecutive_powerful_triple_mod_thirtysix {n : ℕ}
     consecutive_powerful_triple_mod_nine htriple
   omega
 
+/-- **Second combined residue obstruction.**
+
+Any hypothetical triple of consecutive powerful numbers must start in one of
+the thirteen residue classes
+`7, 11, 23, 27, 31, 47, 51, 67, 71, 75, 87, 91, 99` modulo `100`. This is the
+Chinese remainder combination of the mod-`4` obstruction (start `≡ 3 mod 4`)
+with the thirteen allowed residue classes modulo `25` from the prime-`5`
+obstruction.
+
+Since `gcd(4, 25) = 1`, CRT gives exactly `1 · 13 = 13` admissible residues
+modulo `100`, a sieve of density `13/100`, sharper than the previous
+`3/36 = 1/12 ≈ 8.33/100`. -/
+theorem consecutive_powerful_triple_mod_hundred {n : ℕ}
+    (htriple : ConsecutivePowerfulTriple n) :
+    n % 100 = 7 ∨ n % 100 = 11 ∨ n % 100 = 23 ∨ n % 100 = 27 ∨
+      n % 100 = 31 ∨ n % 100 = 47 ∨ n % 100 = 51 ∨ n % 100 = 67 ∨
+      n % 100 = 71 ∨ n % 100 = 75 ∨ n % 100 = 87 ∨ n % 100 = 91 ∨
+      n % 100 = 99 := by
+  have h4 : n % 4 = 3 := consecutive_powerful_triple_mod_four htriple
+  have h25 : n % 25 = 0 ∨ n % 25 = 1 ∨ n % 25 = 2 ∨ n % 25 = 6 ∨
+      n % 25 = 7 ∨ n % 25 = 11 ∨ n % 25 = 12 ∨ n % 25 = 16 ∨
+      n % 25 = 17 ∨ n % 25 = 21 ∨ n % 25 = 22 ∨ n % 25 = 23 ∨
+      n % 25 = 24 :=
+    consecutive_powerful_triple_mod_twentyfive htriple
+  omega
+
 end ConsecutivePowerful
