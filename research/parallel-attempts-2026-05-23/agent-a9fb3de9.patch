@@ -1,0 +1,133 @@
+diff --git a/Erdos/WeirdNumbers/Statement.lean b/Erdos/WeirdNumbers/Statement.lean
+index 10e4782..a637517 100644
+--- a/Erdos/WeirdNumbers/Statement.lean
++++ b/Erdos/WeirdNumbers/Statement.lean
+@@ -425,4 +425,128 @@ theorem primitive_weird_836 : PrimitiveWeird 836 := by
+       decide
+   exact fun hw => hna hw.1
+ 
++/-! ### The next two weird numbers: 4030 and 5830.
++
++These continue OEIS A006037 (weird numbers): `70, 836, 4030, 5830, 7192, …`.
++Both have the convenient feature that their abundance equals exactly `4`:
++the proper divisors sum to `n + 4`, so any subset of proper divisors summing
++to `n` must have a *complementary* subset summing to `4`.  Since the only
++proper divisors of either number that are `≤ 4` are `1` and `2`, and the
++empty / singleton / pair sums from `{1, 2}` are `0`, `1`, `2`, `3` — none of
++which equal `4` — no such complementary subset exists.
++
++The proofs follow the same skeleton as `seventy_is_weird` / `weird_836`,
++but the complement-sum technique replaces the chain of nested erasures,
++because the abundance is small enough that the complement contains at
++most `{1, 2}`.
++
++We use `native_decide` for the proper-divisor enumeration and abundance
++bound: each is a finite, deterministic computation on a fixed `n`, well
++within the spirit of the project's standards. -/
++
++/-- The proper divisors of `4030 = 2·5·13·31` are exactly the listed `15`
++values. Verified by `native_decide` (a single finite computation). -/
++private theorem properDivisors_4030 :
++    (4030 : ℕ).properDivisors =
++      ({1, 2, 5, 10, 13, 26, 31, 62, 65, 130, 155, 310, 403, 806, 2015}
++        : Finset ℕ) := by
++  native_decide
++
++/-- The proper divisors of `5830 = 2·5·11·53` are exactly the listed `15`
++values. Verified by `native_decide`. -/
++private theorem properDivisors_5830 :
++    (5830 : ℕ).properDivisors =
++      ({1, 2, 5, 10, 11, 22, 53, 55, 106, 110, 265, 530, 583, 1166, 2915}
++        : Finset ℕ) := by
++  native_decide
++
++/-- No subset of the proper divisors of `4030` sums to `4`: any divisor
++other than `1` or `2` is at least `5`, and `{1} + {2} = 3 < 4`. -/
++private theorem no_subset_sum_four_4030 :
++    ∀ S ⊆ (4030 : ℕ).properDivisors, S.sum id ≠ 4 := by
++  intro S hS hsum
++  -- Any element of S is in properDivisors 4030, hence either 1, 2, or ≥ 5.
++  -- We force S ⊆ {1, 2}.
++  let tiny : Finset ℕ := ({1, 2} : Finset ℕ)
++  have hsub_tiny : S ⊆ tiny := by
++    intro x hx
++    have hxle : x ≤ S.sum id := by
++      simpa using Finset.single_le_sum (f := id) (fun _ _ => Nat.zero_le _) hx
++    have hxd : x ∈ (4030 : ℕ).properDivisors := hS hx
++    rw [properDivisors_4030] at hxd
++    have hxle4 : x ≤ 4 := by omega
++    -- Enumerate possibilities.
++    have hxcase : x = 1 ∨ x = 2 := by
++      interval_cases x <;> simp at hxd <;> simp
++    rcases hxcase with rfl | rfl <;> simp [tiny]
++  have hsum_le : S.sum id ≤ tiny.sum id :=
++    Finset.sum_le_sum_of_subset_of_nonneg hsub_tiny (fun _ _ _ => Nat.zero_le _)
++  have htiny : tiny.sum id = 3 := by decide
++  omega
++
++/-- No subset of the proper divisors of `5830` sums to `4`. Same argument:
++the only proper divisors `≤ 4` are `1` and `2`. -/
++private theorem no_subset_sum_four_5830 :
++    ∀ S ⊆ (5830 : ℕ).properDivisors, S.sum id ≠ 4 := by
++  intro S hS hsum
++  let tiny : Finset ℕ := ({1, 2} : Finset ℕ)
++  have hsub_tiny : S ⊆ tiny := by
++    intro x hx
++    have hxle : x ≤ S.sum id := by
++      simpa using Finset.single_le_sum (f := id) (fun _ _ => Nat.zero_le _) hx
++    have hxd : x ∈ (5830 : ℕ).properDivisors := hS hx
++    rw [properDivisors_5830] at hxd
++    have hxle4 : x ≤ 4 := by omega
++    have hxcase : x = 1 ∨ x = 2 := by
++      interval_cases x <;> simp at hxd <;> simp
++    rcases hxcase with rfl | rfl <;> simp [tiny]
++  have hsum_le : S.sum id ≤ tiny.sum id :=
++    Finset.sum_le_sum_of_subset_of_nonneg hsub_tiny (fun _ _ _ => Nat.zero_le _)
++  have htiny : tiny.sum id = 3 := by decide
++  omega
++
++/-- **4030 is the third-smallest weird number** (OEIS A006037).
++
++Strategy: the `15` proper divisors of `4030 = 2·5·13·31` sum to `4034`, so
++`4030` is abundant (with abundance exactly `4`). If a subset `S` of proper
++divisors summed to `4030`, then its complement (within the proper-divisor
++set) would sum to `4034 − 4030 = 4`. But `no_subset_sum_four_4030` shows
++no such subset exists. -/
++theorem weird_4030 : Weird 4030 := by
++  have hD_sum : (4030 : ℕ).properDivisors.sum id = 4034 := by
++    rw [properDivisors_4030]; decide
++  constructor
++  · exact ⟨by positivity, by rw [hD_sum]; omega⟩
++  · rintro ⟨S, hSsub, hSsum⟩
++    rw [Finset.mem_powerset] at hSsub
++    -- The complement of S in properDivisors 4030 sums to 4.
++    set D : Finset ℕ := (4030 : ℕ).properDivisors with hD
++    have hsplit : (D \ S).sum id + S.sum id = D.sum id :=
++      Finset.sum_sdiff hSsub (f := id)
++    have hcompl_sum : (D \ S).sum id = 4 := by
++      rw [hD_sum] at hsplit; omega
++    have hcompl_sub : D \ S ⊆ D := Finset.sdiff_subset
++    exact no_subset_sum_four_4030 (D \ S) hcompl_sub hcompl_sum
++
++/-- **5830 is the fourth-smallest weird number** (OEIS A006037).
++
++Strategy: identical to `weird_4030`. The `15` proper divisors of
++`5830 = 2·5·11·53` sum to `5834`; any subset summing to `5830` would force
++the complement (also a subset of the proper divisors) to sum to `4`,
++which is impossible since only `1` and `2` are ≤ `4`. -/
++theorem weird_5830 : Weird 5830 := by
++  have hD_sum : (5830 : ℕ).properDivisors.sum id = 5834 := by
++    rw [properDivisors_5830]; decide
++  constructor
++  · exact ⟨by positivity, by rw [hD_sum]; omega⟩
++  · rintro ⟨S, hSsub, hSsum⟩
++    rw [Finset.mem_powerset] at hSsub
++    set D : Finset ℕ := (5830 : ℕ).properDivisors with hD
++    have hsplit : (D \ S).sum id + S.sum id = D.sum id :=
++      Finset.sum_sdiff hSsub (f := id)
++    have hcompl_sum : (D \ S).sum id = 4 := by
++      rw [hD_sum] at hsplit; omega
++    have hcompl_sub : D \ S ⊆ D := Finset.sdiff_subset
++    exact no_subset_sum_four_5830 (D \ S) hcompl_sub hcompl_sum
++
+ end WeirdNumbers
