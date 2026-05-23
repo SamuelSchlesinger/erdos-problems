@@ -136,4 +136,58 @@ theorem primaryPseudoperfect_not_weird {m : ℕ}
   · intro hw
     exact hw.2 hp
 
+/-- **General coprime-product extension of a prime-reciprocal witness.**
+
+If `P` is a prime-reciprocal data (primes and product) for `m`, and `d` is a
+prime not dividing `m`, then to obtain a witness for `m * d` by adjoining `d`
+it suffices to verify the unit-sum equation algebraically.
+
+This generalizes `succ_prime_extension`, which is the special case `d = m + 1`
+where the unit-sum identity holds automatically. For a general coprime `d`,
+the unit-sum identity is a genuine numerical condition that the caller must
+verify (typically via `norm_num`). -/
+theorem extend_witness_via_coprime_product {m d : ℕ} {P : Finset ℕ}
+    (_hm : 2 ≤ m) (hprimes : ∀ p ∈ P, Nat.Prime p)
+    (hprod : (∏ p ∈ P, p) = m)
+    (hd : Nat.Prime d) (hdm : ¬ d ∣ m)
+    (hsum : (∑ p ∈ P, (1 : ℚ) / p) + 1 / d = 1 - 1 / ((m * d : ℕ) : ℚ)) :
+    PrimeReciprocalWitness (m * d) (insert d P) := by
+  have hnotin : d ∉ P := by
+    intro hdP
+    have : d ∣ ∏ p ∈ P, p :=
+      Finset.dvd_prod_of_mem (s := P) (a := d) (f := fun x : ℕ => x) hdP
+    exact hdm (by simpa [hprod] using this)
+  refine ⟨?_, ?_, ?_⟩
+  · intro p hp
+    rcases Finset.mem_insert.mp hp with rfl | hpP
+    · exact hd
+    · exact hprimes p hpP
+  · rw [Finset.prod_insert hnotin, hprod, Nat.mul_comm]
+  · rw [Finset.sum_insert hnotin]
+    linarith [hsum]
+
+/-- **General coprime-product extension to a primary pseudoperfect number.**
+
+Given a primary pseudoperfect `m`, a prime `d` coprime to `m`, and the
+algebraic identity certifying that the extended sum equals `1 - 1/(m*d)`,
+the product `m * d` is also primary pseudoperfect.
+
+The hypothesis `h_sum` packages the required arithmetic: for the existing
+witness `P` of `m`, the augmented sum `(∑_{p ∈ P} 1/p) + 1/d` must equal
+`1 - 1/(m*d)`. This is the natural extension condition; when `d = m + 1`
+it reduces to `succ_prime_extension`. -/
+theorem extend_via_coprime_product {m d : ℕ}
+    (hm : IsPrimaryPseudoperfect m)
+    (hd : Nat.Prime d) (hdm : ¬ d ∣ m)
+    (h_sum : ∃ P : Finset ℕ, PrimeReciprocalWitness m P ∧
+       (∑ p ∈ P, (1 : ℚ) / p) + 1 / d = 1 - 1 / ((m * d : ℕ) : ℚ)) :
+    IsPrimaryPseudoperfect (m * d) := by
+  rcases hm with ⟨hm2, _⟩
+  rcases h_sum with ⟨P, ⟨hprimes, hprod, _⟩, hsumeq⟩
+  have hd2 : 2 ≤ d := hd.two_le
+  refine ⟨?_, insert d P, ?_⟩
+  · have : 2 * 2 ≤ m * d := Nat.mul_le_mul hm2 hd2
+    omega
+  · exact extend_witness_via_coprime_product hm2 hprimes hprod hd hdm hsumeq
+
 end PrimaryPseudoperfect

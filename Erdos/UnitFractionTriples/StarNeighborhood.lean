@@ -484,4 +484,41 @@ theorem triple_free_combined_upper_bound (N : ℕ) (A : Finset ℕ)
   -- Combine with omega
   omega
 
+/-! ### `Ioc 0 N` packaging of the quantitative star bound
+
+The star upper bound `A.card + 2|D| ≤ N` works equally well for `A ⊆ Ioc 0 N`
+since `Finset.Ioc 0 N = Finset.Icc 1 N` for `N ≥ 1` (and trivially when `N = 0`).
+We also restate `D` as `(Ioc 0 (N/12)).filter (Nat.Coprime · 6)` so that the
+indexing of valid stars matches the natural "0 < d ∧ 12d ≤ N" range. -/
+
+/-- `Finset.Ioc 0 N = Finset.Icc 1 N` for natural numbers. -/
+private theorem Ioc_zero_eq_Icc_one (N : ℕ) :
+    Finset.Ioc 0 N = Finset.Icc 1 N := by
+  ext x; simp [Finset.mem_Ioc, Finset.mem_Icc]; omega
+
+/-- **Quantitative star-neighborhood bound (`Ioc 0 N` form).**
+
+For any triple-free `A ⊆ {1, …, N}` (written as `Ioc 0 N`), each `d` with
+`gcd(d,6) = 1` and `12d ≤ N` forces `A` to omit at least 2 of the 5 star
+points `{2d, 3d, 4d, 6d, 12d}`. Since the stars for distinct such `d` are
+pairwise disjoint subsets of `{1, …, N}`, summing the omissions gives
+
+    A.card + 2·|{d ∈ (0, N/12] : gcd(d,6) = 1}| ≤ N.
+
+Hence triple-free subsets of `{1, …, N}` have density at most
+`1 - 2·(1/3)·(1/12) = 17/18`. -/
+theorem triple_free_star_neighborhood_quantitative_bound
+    (N : ℕ) (A : Finset ℕ)
+    (hA : A ⊆ Finset.Ioc 0 N) (hA_triple_free : TripleFree A) :
+    A.card + 2 * ((Finset.Ioc 0 (N / 12)).filter (Nat.Coprime · 6)).card ≤ N := by
+  -- Rewrite both Ioc's as Icc's and apply the existing bound.
+  have hA' : A ⊆ Finset.Icc 1 N := by
+    rw [← Ioc_zero_eq_Icc_one N]; exact hA
+  have hfilter :
+      ((Finset.Ioc 0 (N / 12)).filter (Nat.Coprime · 6)).card =
+        ((Finset.Icc 1 (N / 12)).filter (Nat.Coprime · 6)).card := by
+    rw [Ioc_zero_eq_Icc_one (N / 12)]
+  rw [hfilter]
+  exact triple_free_star_upper_bound N A hA_triple_free hA'
+
 end UnitFractionTriples
