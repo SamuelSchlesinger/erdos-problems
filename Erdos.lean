@@ -88,6 +88,7 @@ import Erdos.SidonSumsets.Obstructions
 import Erdos.UnitFractionPairs.Statement
 import Erdos.UnitFractionPairs.Classification
 import Erdos.UnitFractionPairs.Density
+import Erdos.UnitFractionPairs.LowerBound
 import Erdos.UnitFractionPairs.UpperBound
 import Erdos.UnitFractionPairs.UpperHalf
 import Erdos.UnitFractionPairs.VanDoorn
