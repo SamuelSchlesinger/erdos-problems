@@ -72,6 +72,7 @@ import Erdos.AlmostSidonSets.Rigidity
 import Erdos.AlmostSidonSets.Maximality
 import Erdos.AlmostSidonSets.UpperBound.SplitOptimization
 import Erdos.AlmostSidonSets.UpperBound.Sqrt2BoundConditional
+import Erdos.AlmostSidonSets.UpperBound.SidonInterval
 import Erdos.PrimaryPseudoperfect.Statement
 import Erdos.PrimaryPseudoperfect.Connections
 import Erdos.PrimaryPseudoperfect.Examples
