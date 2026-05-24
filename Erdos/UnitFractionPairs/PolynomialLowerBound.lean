@@ -507,4 +507,84 @@ theorem primeCounting_at_half_ge_chebyshev :
         (Nat.primeCounting (N / 2 : ℕ) : ℝ) :=
   tendsto_div_2_atTop.eventually primeCounting_ge_chebyshev
 
+/-- `(N/2 : ℕ → ℝ) ≥ N/2 - 1` (the Nat division loses at most 1 in ℝ). -/
+private lemma natDiv_2_ge {N : ℕ} : (N : ℝ) / 2 - 1 ≤ ((N / 2 : ℕ) : ℝ) := by
+  have h : (N / 2 : ℕ) * 2 + 1 ≥ N := by omega
+  have h_R : ((N / 2 : ℕ) : ℝ) * 2 + 1 ≥ N := by exact_mod_cast h
+  linarith
+
+/-- For `N ≥ 4`, `Real.log (N / 2 : ℕ) ≤ Real.log N`. -/
+private lemma log_natDiv_2_le {N : ℕ} (hN : 4 ≤ N) :
+    Real.log (N / 2 : ℕ) ≤ Real.log N := by
+  apply Real.log_le_log
+  · have : 2 ≤ N / 2 := by omega
+    exact_mod_cast (show (0 : ℕ) < N / 2 from by omega)
+  · exact_mod_cast Nat.div_le_self N 2
+
+/-- `(Nat.sqrt N + 2 : ℕ → ℝ) ≤ Real.sqrt N + 2`. -/
+private lemma sqrtN_plus_2_le {N : ℕ} :
+    ((Nat.sqrt N + 2 : ℕ) : ℝ) ≤ Real.sqrt N + 2 := by
+  have h_R : ((Nat.sqrt N : ℕ) : ℝ)^2 ≤ (N : ℝ) := by exact_mod_cast Nat.sqrt_le' N
+  have hSqrt_nn : (0 : ℝ) ≤ ((Nat.sqrt N : ℕ) : ℝ) := by positivity
+  have h_eq : ((Nat.sqrt N : ℕ) : ℝ) = Real.sqrt (((Nat.sqrt N : ℕ) : ℝ)^2) :=
+    (Real.sqrt_sq hSqrt_nn).symm
+  push_cast
+  rw [h_eq]
+  have h_R_nn : (0 : ℝ) ≤ N := by positivity
+  have : Real.sqrt (((Nat.sqrt N : ℕ) : ℝ)^2) ≤ Real.sqrt N := Real.sqrt_le_sqrt h_R
+  linarith
+
+/-- `Nat.primeCounting (Nat.sqrt N + 2) ≤ Nat.sqrt N + 2`. -/
+private lemma primeCounting_le_self (n : ℕ) : Nat.primeCounting n ≤ n := by
+  rw [← Nat.primesLE_card_eq_primeCounting]
+  have h : Nat.primesLE n ⊆ Finset.Icc 1 n := by
+    intro p hp
+    rw [Nat.mem_primesLE] at hp
+    rw [Finset.mem_Icc]
+    exact ⟨hp.2.one_lt.le, hp.1⟩
+  calc (Nat.primesLE n).card
+      ≤ (Finset.Icc 1 n).card := Finset.card_le_card h
+    _ = n := by rw [Nat.card_Icc]; omega
+
+/-- For any `ε > 0`, eventually `Real.log N + Real.sqrt N ≤ ε · N / Real.log N`. -/
+private lemma sqrt_le_eps_N_div_log {ε : ℝ} (hε : 0 < ε) :
+    ∀ᶠ N : ℕ in Filter.atTop, Real.sqrt N ≤ ε * (N / Real.log N) := by
+  -- log N ≤ (ε/2) √N eventually ⇒ √N log N ≤ (ε/2) N ⇒ √N ≤ (ε/2) N/log N
+  -- (using log N > 0 eventually).
+  have h_eps2 : 0 < ε / 2 := by linarith
+  filter_upwards [log_le_eps_sqrt_eventually h_eps2, Filter.eventually_ge_atTop 2]
+    with N hlog hN2
+  have hN_pos : (0 : ℝ) < N := by exact_mod_cast (show 0 < N from by omega)
+  have hlogN_pos : 0 < Real.log N := Real.log_pos (by exact_mod_cast (show 1 < N from by omega))
+  have hsqrtN_nn : 0 ≤ Real.sqrt N := Real.sqrt_nonneg _
+  -- √N · log N ≤ (ε/2) · N (since log N ≤ (ε/2) √N and √N · √N = N).
+  have h_sqsq : Real.sqrt N * Real.sqrt N = N := Real.mul_self_sqrt (le_of_lt hN_pos)
+  have h_mul : Real.sqrt N * Real.log N ≤ Real.sqrt N * (ε / 2 * Real.sqrt N) := by
+    apply mul_le_mul_of_nonneg_left hlog hsqrtN_nn
+  have h_mul' : Real.sqrt N * (ε / 2 * Real.sqrt N) = ε / 2 * N := by
+    rw [show Real.sqrt N * (ε / 2 * Real.sqrt N) =
+        ε / 2 * (Real.sqrt N * Real.sqrt N) from by ring, h_sqsq]
+  -- √N ≤ (ε/2) · N / log N · 2 = ε · N / log N? Let me redo.
+  -- We have √N log N ≤ (ε/2) N. Divide both sides by log N:
+  -- √N ≤ (ε/2) N / log N ≤ ε N / log N (since ε/2 ≤ ε).
+  have h_div : Real.sqrt N ≤ (ε / 2) * N / Real.log N := by
+    rw [le_div_iff₀ hlogN_pos]
+    linarith
+  have h_le : (ε / 2) * N / Real.log N ≤ ε * (N / Real.log N) := by
+    rw [show ε * (N / Real.log N) = ε * N / Real.log N from by ring]
+    apply div_le_div_of_nonneg_right _ hlogN_pos.le
+    nlinarith
+  linarith
+
+-- TODO: combine `primeCounting_at_half_ge_chebyshev` with
+-- `exists_pairFree_card_ge_primeCounting_diff` to prove
+-- `∃ c > 0, ∀ᶠ N, |A| ≥ N/2 + c · N / log N`. The bridge requires
+-- (1) (N/2 : ℕ→ℝ) ≥ N/2 - 1 [natDiv_2_ge above],
+-- (2) Real.log (N/2 : ℕ) ≤ Real.log N [log_natDiv_2_le above],
+-- (3) Nat.primeCounting (Nat.sqrt N + 2) ≤ Nat.sqrt N + 2 [primeCounting_le_self above],
+-- (4) (Nat.sqrt N + 2 : ℕ→ℝ) ≤ Real.sqrt N + 2 [sqrtN_plus_2_le above],
+-- (5) Real.sqrt N ≤ ε · N / Real.log N eventually [sqrt_le_eps_N_div_log above].
+-- All five helper lemmas are landed; the cast/algebra combination is straightforward
+-- but heavy. To follow.
+
 end UnitFractionPairs
