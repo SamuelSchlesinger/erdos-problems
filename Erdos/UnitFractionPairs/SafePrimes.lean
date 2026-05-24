@@ -1436,4 +1436,100 @@ theorem safePrimeSet_eleven_thirteen_twentythree_twentynine :
       | (exact sum_not_pow2 42 3 (by norm_num) (by decide) (by decide) d heq)
       | (exact sum_not_pow2 52 13 (by norm_num) (by decide) (by decide) d heq)
 
+/-! ### Reducing the safe-prime sum to a prime count.
+
+The headline `exists_pairFree_quantitative` bound carries the inner sum
+`∑_{p ∈ safePrimesUpTo K} |{α ∈ [1, ⌊log₂ N⌋] : p ≤ 2^α ∧ 2^α · p ≤ N}|`.
+For the polynomial-improvement application we only need a one-element-per-prime
+witness: for each safe prime `p ≤ K` and any `N ≥ 2 K²`, the choice
+`α := ⌊log₂ p⌋ + 1` lies in the filter set, so the inner sum is `≥ |P|`. This
+turns the Chebyshev question into a *prime count*: bound `|safePrimesUpTo K|`
+from below by `Ω(K / log K)`. -/
+
+/-- For `p ≥ 1` and `N ≥ 2 p²`, the choice `α := ⌊log₂ p⌋ + 1` is a valid
+witness in the inner filter: `1 ≤ α ≤ ⌊log₂ N⌋`, `p ≤ 2^α`, and `2^α · p ≤ N`. -/
+private lemma inner_filter_witness {p N : ℕ} (hp : 1 ≤ p) (hN : 2 * p ^ 2 ≤ N) :
+    (Nat.log 2 p + 1) ∈
+      ((Finset.Icc 1 (Nat.log 2 N)).filter
+        (fun α => p ≤ 2 ^ α ∧ 2 ^ α * p ≤ N)) := by
+  -- Two key inequalities about `2 ^ (Nat.log 2 p + 1)`.
+  have hp_lt : p < 2 ^ (Nat.log 2 p + 1) :=
+    Nat.lt_pow_succ_log_self (by norm_num : 1 < 2) p
+  have h2p_le : 2 ^ (Nat.log 2 p + 1) ≤ 2 * p := by
+    rw [pow_succ, Nat.mul_comm]
+    exact Nat.mul_le_mul_left 2 (Nat.pow_log_le_self 2 (by omega : p ≠ 0))
+  -- `2^α · p ≤ 2 p²` and `2 p² ≤ N` give `2^α · p ≤ N`.
+  have h2αp_le_N : 2 ^ (Nat.log 2 p + 1) * p ≤ N := by
+    calc 2 ^ (Nat.log 2 p + 1) * p
+        ≤ 2 * p * p := Nat.mul_le_mul_right p h2p_le
+      _ = 2 * p ^ 2 := by ring
+      _ ≤ N := hN
+  -- `2^α ≤ N` since `p ≥ 1`, so `2^α ≤ 2^α · p ≤ N`.
+  have h2α_le_N : 2 ^ (Nat.log 2 p + 1) ≤ N :=
+    le_trans (Nat.le_mul_of_pos_right _ hp) h2αp_le_N
+  -- Hence `α ≤ Nat.log 2 N` via `Nat.log_mono_right` applied to `2^α ≤ N`.
+  have hα_le : Nat.log 2 p + 1 ≤ Nat.log 2 N := by
+    have := Nat.log_mono_right (b := 2) h2α_le_N
+    rwa [Nat.log_pow (by norm_num : 1 < 2)] at this
+  refine Finset.mem_filter.mpr ⟨Finset.mem_Icc.mpr ⟨by omega, hα_le⟩, ?_, h2αp_le_N⟩
+  exact hp_lt.le
+
+/-- **Lower bound on the inner filter cardinality**: for any safe prime
+`p ∈ P` (so `p ≥ 11`) and `N ≥ 2 p²`, the inner Finset is non-empty. -/
+theorem one_le_inner_card {P : Finset ℕ} (hP : SafePrimeSet P)
+    {p : ℕ} (hp : p ∈ P) {N : ℕ} (hN : 2 * p ^ 2 ≤ N) :
+    1 ≤ ((Finset.Icc 1 (Nat.log 2 N)).filter
+        (fun α => p ≤ 2 ^ α ∧ 2 ^ α * p ≤ N)).card := by
+  have hp_pos : 1 ≤ p := (hP.prime p hp).one_lt.le
+  exact Finset.card_pos.mpr ⟨_, inner_filter_witness hp_pos hN⟩
+
+/-- **Reduction to a prime count**: if every `p ∈ P` satisfies `2 p² ≤ N`,
+then the inner sum is `≥ |P|`. Combined with `exists_pairFree_quantitative`,
+this turns the polynomial-improvement question into a Chebyshev-style bound
+on `|safePrimesUpTo K|`. -/
+theorem card_safePrimeSetFamily_ge_card {P : Finset ℕ} (hP : SafePrimeSet P)
+    {N : ℕ} (hN : ∀ p ∈ P, 2 * p ^ 2 ≤ N) :
+    P.card ≤ (safePrimeSetFamily P N).card := by
+  rw [card_safePrimeSetFamily hP]
+  calc P.card = ∑ _ ∈ P, 1 := by rw [Finset.sum_const, smul_eq_mul, Nat.mul_one]
+    _ ≤ _ := Finset.sum_le_sum (fun p hp => one_le_inner_card hP hp (hN p hp))
+
+/-- **Chebyshev-reduced lower bound (abstract)**: for any `SafePrimeSet P` whose
+elements are bounded by `K`, with `2 K² ≤ N`, we have
+`f(N) ≥ (N + 1) / 2 + ⌊log₂ N⌋ + |P|`. This is the form that turns the
+polynomial-improvement question into a Chebyshev-style count of `|P|`. -/
+theorem exists_pairFree_card_ge_abstract {P : Finset ℕ} (hP : SafePrimeSet P)
+    {K N : ℕ} (hP_le_K : ∀ p ∈ P, p ≤ K) (hKN : 2 * K ^ 2 ≤ N) :
+    ∃ A : Finset ℕ, A ⊆ Finset.Icc 1 N ∧ PairFree A ∧
+      (N + 1) / 2 + Nat.log 2 N + P.card ≤ A.card := by
+  refine ⟨oddPlusPowersOfTwoPlusSafePrimeSet P N,
+    oddPlusPowersOfTwoPlusSafePrimeSet_subset_Icc hP N,
+    pairFree_oddPlusPowersOfTwoPlusSafePrimeSet hP N, ?_⟩
+  rw [card_oddPlusPowersOfTwoPlusSafePrimeSet hP N]
+  have h_bound : ∀ p ∈ P, 2 * p ^ 2 ≤ N := by
+    intro p hp
+    have hp_le_K : p ≤ K := hP_le_K p hp
+    have hp2 : p ^ 2 ≤ K ^ 2 := Nat.pow_le_pow_left hp_le_K 2
+    calc 2 * p ^ 2 ≤ 2 * K ^ 2 := Nat.mul_le_mul_left 2 hp2
+      _ ≤ N := hKN
+  have key : P.card ≤
+      ∑ p ∈ P, ((Finset.Icc 1 (Nat.log 2 N)).filter
+        (fun α => p ≤ 2 ^ α ∧ 2 ^ α * p ≤ N)).card := by
+    calc P.card
+        = ∑ _ ∈ P, 1 := by rw [Finset.sum_const, smul_eq_mul, Nat.mul_one]
+      _ ≤ _ := Finset.sum_le_sum (fun p hp =>
+          one_le_inner_card hP hp (h_bound p hp))
+  omega
+
+/-- Specialisation to `safePrimesUpTo K`: `f(N) ≥ (N+1)/2 + ⌊log₂ N⌋ +
+|safePrimesUpTo K|` when `2 K² ≤ N`. -/
+theorem exists_pairFree_card_ge_safePrimeCount {K N : ℕ} (hKN : 2 * K ^ 2 ≤ N) :
+    ∃ A : Finset ℕ, A ⊆ Finset.Icc 1 N ∧ PairFree A ∧
+      (N + 1) / 2 + Nat.log 2 N + (safePrimesUpTo K).card ≤ A.card := by
+  refine exists_pairFree_card_ge_abstract (safePrimeSet_safePrimesUpTo K)
+    (fun p hp => ?_) hKN
+  have : p ∈ Finset.range (K + 1) :=
+    (Finset.mem_filter.mp (show p ∈ (Finset.range (K + 1)).filter _ from hp)).1
+  exact Nat.lt_succ_iff.mp (Finset.mem_range.mp this)
+
 end UnitFractionPairs

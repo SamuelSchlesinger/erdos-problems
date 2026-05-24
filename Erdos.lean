@@ -86,6 +86,7 @@ import Erdos.SidonSumsets.Stability
 import Erdos.SidonSumsets.FastGrowth
 import Erdos.SidonSumsets.Obstructions
 import Erdos.UnitFractionPairs.Statement
+import Erdos.UnitFractionPairs.Chebyshev
 import Erdos.UnitFractionPairs.Classification
 import Erdos.UnitFractionPairs.Density
 import Erdos.UnitFractionPairs.LowerBound
