@@ -35,6 +35,7 @@ import Erdos.UlamPrimeRecurrence.Statement
 import Erdos.UlamPrimeRecurrence.Elementary
 import Erdos.PropertyBBounds.Statement
 import Erdos.PropertyBBounds.Elementary
+import Erdos.PropertyBBounds.LowerBound
 import Erdos.ChvatalConjecture.Statement
 import Erdos.ChvatalConjecture.Elementary
 import Erdos.InverseGoldbach.Statement
