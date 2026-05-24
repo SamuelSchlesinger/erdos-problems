@@ -94,6 +94,7 @@ import Erdos.UnitFractionPairs.LowerBound
 import Erdos.UnitFractionPairs.PolynomialLowerBound
 import Erdos.UnitFractionPairs.SafePrimes
 import Erdos.UnitFractionPairs.UpperBound
+import Erdos.UnitFractionPairs.UpperBoundImprovement
 import Erdos.UnitFractionPairs.UpperHalf
 import Erdos.UnitFractionPairs.VanDoorn
 import Erdos.UnitFractionTriples.Statement
