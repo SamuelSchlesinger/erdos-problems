@@ -167,16 +167,81 @@ theorem new_S_disjoint {m a : ℕ} (hm : 0 < m) (ha : 0 < a)
 
 /-! ### Cross-disjointness with `T`-family `{4a, 12a}`.
 
-Similar argument: setting `6m = 4a` ⟹ `a = 3m/2` requires `2 ∣ m`,
-giving `a = 3·(m/2)`. Then `v₃(a) = 1 + v₃(m/2)`. For VDParam, `v₃(a)`
-even, so `v₃(m/2)` odd. But NewParam needs `v₃(m)` odd, and (since `m`
-even has `v₃(m) = v₃(m/2)`), `v₃(m/2)` odd → consistent. So just v₃
-parity doesn't kill T case immediately.
+For any of the 4 cases `6m = 4a`, `6m = 12a`, `30m = 4a`, `30m = 12a`,
+we must have `2 ∣ m`. Write `m = 2k`; then `a = ck` for some `c ∈ {3, 1,
+15, 5}`, all coprime to 2. Hence `v₂(a) = v₂(k)`, and `VDParam` requires
+`3 ∣ v₂(a) = v₂(k)`, i.e., `v₂(k) ≡ 0 (mod 3)`.
 
-The full argument uses the `v₂ mod 3` constraint too. Details omitted
-here — the key insight is that the T-pair vertices have signature
-`(2, 0)` and `(2, 1)`, while our pair vertices have signature in
-`{(0, 0), (1, 0)}`. The `v₂ mod 3` mismatch forces disjointness. -/
+But `v₂(m) = v₂(2k) = 1 + v₂(k)`, and `NewParam m` requires `v₂(m) ≢ 1
+(mod 3)`. Combined: `v₂(k) ≢ 0 (mod 3)`. Contradiction. -/
+
+/-- For nonzero `k, m` with `k` coprime to 2, `v₂(k·m) = v₂(m)`. -/
+private lemma v2_mul_of_coprime2 {k m : ℕ} (hk : k ≠ 0) (hm : m ≠ 0)
+    (hcop : ¬ (2 : ℕ) ∣ k) : padicValNat 2 (k * m) = padicValNat 2 m := by
+  rw [padicValNat.mul hk hm]
+  rw [padicValNat.eq_zero_of_not_dvd hcop, Nat.zero_add]
+
+/-- For nonzero `m`, `v₂(2m) = 1 + v₂(m)`. -/
+private lemma v2_two_mul (m : ℕ) (hm : m ≠ 0) :
+    padicValNat 2 (2 * m) = 1 + padicValNat 2 m := by
+  rw [padicValNat.mul (by norm_num : (2 : ℕ) ≠ 0) hm]
+  rw [padicValNat.self (by norm_num : 1 < 2)]
+
+/-- **Cross-disjointness with the `T`-family.** For `m, a` both positive,
+if `NewParam m` (so `v₂(m) ≢ 1 (mod 3)`) and `VDParam a` (so `3 ∣ v₂(a)`),
+then `{6m, 30m} ∩ {4a, 12a} = ∅`. -/
+theorem new_T_disjoint {m a : ℕ} (hm : 0 < m) (ha : 0 < a)
+    (hNew : NewParam m) (hVD : VDParam a) :
+    Disjoint ({6 * m, 30 * m} : Finset ℕ) {4 * a, 12 * a} := by
+  obtain ⟨hm2, _⟩ := hNew  -- v₂(m) mod 3 ≠ 1
+  obtain ⟨ha2, _⟩ := hVD   -- 3 ∣ v₂(a)
+  rw [Finset.disjoint_left]
+  intro x hx_new hx_T
+  simp only [Finset.mem_insert, Finset.mem_singleton] at hx_new hx_T
+  -- Each case: derive `2 ∣ m`, set `m = 2k`, derive `a = c·k` for `c` coprime to 2,
+  -- giving `v₂(a) = v₂(k)`. Then `3 ∣ v₂(k)`, hence `v₂(m) = 1 + v₂(k) ≡ 1 (mod 3)`,
+  -- contradicting `NewParam`.
+  rcases hx_new with rfl | rfl <;> rcases hx_T with h | h
+  · -- 6m = 4a ⟹ 3m = 2a ⟹ 2 | 3m ⟹ 2 | m. m = 2k, a = 3k.
+    have h2m : 2 ∣ m := by
+      have : 2 ∣ 3 * m := ⟨a, by omega⟩
+      exact (Nat.Coprime.dvd_of_dvd_mul_left (show Nat.Coprime 2 3 by decide) this)
+    obtain ⟨k, rfl⟩ := h2m
+    have hk_pos : 0 < k := by omega
+    have ha_eq : a = 3 * k := by omega
+    rw [ha_eq, v2_mul_of_coprime2 (k := 3) (m := k) (by norm_num) (by omega)
+      (by norm_num : ¬ (2 : ℕ) ∣ 3)] at ha2
+    -- v₂(m) = v₂(2k) = 1 + v₂(k). NewParam: v₂(m) ≢ 1 mod 3. So v₂(k) ≢ 0 mod 3.
+    rw [v2_two_mul k (by omega)] at hm2
+    -- 3 ∣ v₂(k) means v₂(k) = 0 mod 3. So 1 + v₂(k) ≡ 1 mod 3.
+    omega
+  · -- 6m = 12a ⟹ m = 2a.
+    have h2m : 2 ∣ m := ⟨a, by omega⟩
+    obtain ⟨k, rfl⟩ := h2m
+    have ha_eq : a = k := by omega
+    rw [ha_eq] at ha2
+    rw [v2_two_mul k (by omega)] at hm2
+    omega
+  · -- 30m = 4a ⟹ 15m = 2a ⟹ 2 | 15m ⟹ 2 | m. m = 2k, a = 15k.
+    have h2m : 2 ∣ m := by
+      have : 2 ∣ 15 * m := ⟨a, by omega⟩
+      exact (Nat.Coprime.dvd_of_dvd_mul_left (show Nat.Coprime 2 15 by decide) this)
+    obtain ⟨k, rfl⟩ := h2m
+    have ha_eq : a = 15 * k := by omega
+    rw [ha_eq, v2_mul_of_coprime2 (k := 15) (m := k) (by norm_num) (by omega)
+      (by norm_num : ¬ (2 : ℕ) ∣ 15)] at ha2
+    rw [v2_two_mul k (by omega)] at hm2
+    omega
+  · -- 30m = 12a ⟹ 5m = 2a ⟹ 2 | 5m ⟹ 2 | m. m = 2k, a = 5k.
+    have h2m : 2 ∣ m := by
+      have : 2 ∣ 5 * m := ⟨a, by omega⟩
+      exact (Nat.Coprime.dvd_of_dvd_mul_left (show Nat.Coprime 2 5 by decide) this)
+    obtain ⟨k, rfl⟩ := h2m
+    have ha_eq : a = 5 * k := by omega
+    rw [ha_eq, v2_mul_of_coprime2 (k := 5) (m := k) (by norm_num) (by omega)
+      (by norm_num : ¬ (2 : ℕ) ∣ 5)] at ha2
+    rw [v2_two_mul k (by omega)] at hm2
+    omega
 
 /-! ### Cardinality bound (sketch).
 
