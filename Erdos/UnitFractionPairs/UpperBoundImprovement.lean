@@ -47,6 +47,7 @@ formalization of the bound is a larger undertaking.
 -/
 
 import Erdos.UnitFractionPairs.Classification
+import Erdos.UnitFractionPairs.PairGadgets
 import Erdos.UnitFractionPairs.VanDoorn
 
 namespace UnitFractionPairs
@@ -243,27 +244,149 @@ theorem new_T_disjoint {m a : ℕ} (hm : 0 < m) (ha : 0 < a)
     rw [v2_two_mul k (by omega)] at hm2
     omega
 
-/-! ### Cardinality bound (sketch).
+/-! ### Three-family packing bound.
 
-For `m` with `NewParam m` and `Nat.Coprime m 5`, the pair `(6m, 30m)` is
-disjoint from any `(6m', 30m')` with `m' ≠ m` also satisfying the same
-conditions, and is disjoint from every S- and T-pair.
+The S/T/U-pair helpers below are thin wrappers around the generic
+`pair_card_eq_two`, `pair_subset_Icc`, and `pair_inter_card_le_one_of_pair`
+from `Erdos/UnitFractionPairs/PairGadgets.lean`. -/
 
-The density of `NewParam ∩ coprime-to-5` is `(5/28) · (4/5) = 1/7`, giving
-`N / 210` disjoint pairs for `30m ≤ N`, hence `≥ N/210` forced exclusions
-beyond what S, T already capture.
+private theorem s_pair_card_eq_two {a : ℕ} (ha : 0 < a) :
+    ({3 * a, 6 * a} : Finset ℕ).card = 2 := pair_card_eq_two (by omega)
 
-The full formalization combining this with `vd_two_family_bound`
-(`VanDoorn.lean`) requires:
+private theorem t_pair_card_eq_two {a : ℕ} (ha : 0 < a) :
+    ({4 * a, 12 * a} : Finset ℕ).card = 2 := pair_card_eq_two (by omega)
 
-1. **`pairs_disjoint_new_family`**: `(6m₁, 30m₁) ∩ (6m₂, 30m₂) = ∅` for
-   distinct `m₁, m₂` both satisfying `NewParam ∧ coprime-to-5`.
-2. **`pairs_cross_disjoint_S_T_new`**: `(6m, 30m) ∩ (S-pair) = ∅` and
-   `(6m, 30m) ∩ (T-pair) = ∅` for all valid `m`.
-3. **Three-family packing lemma**: extends `vd_two_family_bound` to handle
-   the three pair families simultaneously.
+private theorem s_pair_subset_Icc {a N : ℕ} (ha : 0 < a) (h6 : 6 * a ≤ N) :
+    ({3 * a, 6 * a} : Finset ℕ) ⊆ Finset.Icc 1 N :=
+  pair_subset_Icc (by omega) (by omega) (by omega) (by omega)
 
-These are sizeable but mechanical proofs paralleling the existing
-`VanDoorn.lean` structure. -/
+private theorem t_pair_subset_Icc {a N : ℕ} (ha : 0 < a) (h12 : 12 * a ≤ N) :
+    ({4 * a, 12 * a} : Finset ℕ) ⊆ Finset.Icc 1 N :=
+  pair_subset_Icc (by omega) (by omega) (by omega) (by omega)
+
+private theorem s_pair_inter_card_le_one {A : Finset ℕ} (hA : PairFree A)
+    {a : ℕ} (ha : 0 < a) :
+    (({3 * a, 6 * a} : Finset ℕ) ∩ A).card ≤ 1 :=
+  pair_inter_card_le_one_of_pair hA (pair_3m_6m a) (by omega)
+
+private theorem t_pair_inter_card_le_one {A : Finset ℕ} (hA : PairFree A)
+    {a : ℕ} (ha : 0 < a) :
+    (({4 * a, 12 * a} : Finset ℕ) ∩ A).card ≤ 1 :=
+  pair_inter_card_le_one_of_pair hA (pair_4m_12m a) (by omega)
+
+private theorem u_pair_card_eq_two {m : ℕ} (hm : 0 < m) :
+    ({6 * m, 30 * m} : Finset ℕ).card = 2 := pair_card_eq_two (by omega)
+
+private theorem u_pair_subset_Icc {m N : ℕ} (hm : 0 < m) (h30 : 30 * m ≤ N) :
+    ({6 * m, 30 * m} : Finset ℕ) ⊆ Finset.Icc 1 N :=
+  pair_subset_Icc (by omega) (by omega) (by omega) (by omega)
+
+private theorem u_pair_inter_card_le_one {A : Finset ℕ} (hA : PairFree A)
+    {m : ℕ} (hm : 0 < m) :
+    (({6 * m, 30 * m} : Finset ℕ) ∩ A).card ≤ 1 :=
+  pair_inter_card_le_one_of_pair hA (pair_6m_30m m) (by omega)
+
+/-- **Three-family upper bound**: for every pair-free `A ⊆ [1, N]`,
+
+  `|A| + |D_S| + |D_T| + |D_U| ≤ N`,
+
+where:
+- `D_S = {a ∈ [1, N/6] : VDParam a}` (van Doorn S-family parameters)
+- `D_T = {a ∈ [1, N/12] : VDParam a}` (van Doorn T-family parameters)
+- `D_U = {m ∈ [1, N/30] : NewParam m ∧ Coprime m 5}` (new U-family parameters)
+
+Each `|D_X|` is `Θ(N)` (with proportionality from the density of the
+parameter predicate). By the density calculations, `|D_S| ≈ N/14`,
+`|D_T| ≈ N/28`, `|D_U| ≈ N/210`, giving the asymptotic bound
+
+  `f(N) ≤ N · (1 - 1/14 - 1/28 - 1/210) = N · 373/420 ≈ 0.8881 N`,
+
+a small but real improvement over van Doorn's `25/28 ≈ 0.8929`. -/
+theorem three_family_pair_upper_bound (N : ℕ) (A : Finset ℕ)
+    (hA : PairFree A) (hAN : A ⊆ Finset.Icc 1 N) :
+    A.card + ((Finset.Icc 1 (N / 6)).filter VDParam).card
+           + ((Finset.Icc 1 (N / 12)).filter VDParam).card
+           + ((Finset.Icc 1 (N / 30)).filter
+               (fun m => NewParam m ∧ Nat.Coprime m 5)).card ≤ N := by
+  set D_S := (Finset.Icc 1 (N / 6)).filter VDParam with hDS_def
+  set D_T := (Finset.Icc 1 (N / 12)).filter VDParam with hDT_def
+  set D_U := (Finset.Icc 1 (N / 30)).filter (fun m => NewParam m ∧ Nat.Coprime m 5)
+    with hDU_def
+  let s_pair : ℕ → Finset ℕ := fun a => {3*a, 6*a}
+  let t_pair : ℕ → Finset ℕ := fun a => {4*a, 12*a}
+  let u_pair : ℕ → Finset ℕ := fun m => {6*m, 30*m}
+  -- Member properties
+  have hDS_mem : ∀ a ∈ D_S, 0 < a ∧ VDParam a ∧ 6 * a ≤ N := by
+    intro a ha; simp only [hDS_def, Finset.mem_filter, Finset.mem_Icc] at ha
+    exact ⟨by omega, ha.2, by omega⟩
+  have hDT_mem : ∀ a ∈ D_T, 0 < a ∧ VDParam a ∧ 12 * a ≤ N := by
+    intro a ha; simp only [hDT_def, Finset.mem_filter, Finset.mem_Icc] at ha
+    exact ⟨by omega, ha.2, by omega⟩
+  have hDU_mem : ∀ m ∈ D_U, 0 < m ∧ NewParam m ∧ Nat.Coprime m 5 ∧ 30 * m ≤ N := by
+    intro m hm; simp only [hDU_def, Finset.mem_filter, Finset.mem_Icc] at hm
+    exact ⟨by omega, hm.2.1, hm.2.2, by omega⟩
+  -- Apply three_family_bound
+  have h := PackingBound.three_family_bound N A D_S D_T D_U s_pair t_pair u_pair
+    2 1 2 1 2 1
+    (by omega) (by omega) (by omega) hAN
+    -- S-family pairwise disjoint
+    (fun a₁ ha₁ a₂ ha₂ hne =>
+      vd_s_pairs_disjoint (hDS_mem a₁ (Finset.mem_coe.mp ha₁)).1
+        (hDS_mem a₂ (Finset.mem_coe.mp ha₂)).1 hne
+        (hDS_mem a₁ (Finset.mem_coe.mp ha₁)).2.1
+        (hDS_mem a₂ (Finset.mem_coe.mp ha₂)).2.1)
+    -- S-family cardinality
+    (fun a ha => s_pair_card_eq_two (hDS_mem a ha).1)
+    -- S-family intersection bound
+    (fun a ha => s_pair_inter_card_le_one hA (hDS_mem a ha).1)
+    -- S-family ⊆ Icc
+    (Finset.biUnion_subset.mpr fun a ha =>
+      s_pair_subset_Icc (hDS_mem a ha).1 (hDS_mem a ha).2.2)
+    -- T-family pairwise disjoint
+    (fun a₁ ha₁ a₂ ha₂ hne =>
+      vd_t_pairs_disjoint (hDT_mem a₁ (Finset.mem_coe.mp ha₁)).1
+        (hDT_mem a₂ (Finset.mem_coe.mp ha₂)).1 hne
+        (hDT_mem a₁ (Finset.mem_coe.mp ha₁)).2.1
+        (hDT_mem a₂ (Finset.mem_coe.mp ha₂)).2.1)
+    -- T-family cardinality
+    (fun a ha => t_pair_card_eq_two (hDT_mem a ha).1)
+    -- T-family intersection bound
+    (fun a ha => t_pair_inter_card_le_one hA (hDT_mem a ha).1)
+    -- T-family ⊆ Icc
+    (Finset.biUnion_subset.mpr fun a ha =>
+      t_pair_subset_Icc (hDT_mem a ha).1 (hDT_mem a ha).2.2)
+    -- U-family pairwise disjoint (uses new_pairs_disjoint_coprime5)
+    (fun m₁ hm₁ m₂ hm₂ hne =>
+      new_pairs_disjoint_coprime5 hne
+        (hDU_mem m₁ (Finset.mem_coe.mp hm₁)).2.2.1
+        (hDU_mem m₂ (Finset.mem_coe.mp hm₂)).2.2.1)
+    -- U-family cardinality
+    (fun m hm => u_pair_card_eq_two (hDU_mem m hm).1)
+    -- U-family intersection bound
+    (fun m hm => u_pair_inter_card_le_one hA (hDU_mem m hm).1)
+    -- U-family ⊆ Icc
+    (Finset.biUnion_subset.mpr fun m hm =>
+      u_pair_subset_Icc (hDU_mem m hm).1 (hDU_mem m hm).2.2.2)
+    -- S vs T cross-disjointness
+    (by
+      rw [Finset.disjoint_biUnion_left]
+      intro a₁ ha₁; rw [Finset.disjoint_biUnion_right]; intro a₂ ha₂
+      exact vd_s_t_cross_disjoint (hDS_mem a₁ ha₁).1 (hDT_mem a₂ ha₂).1
+        (hDS_mem a₁ ha₁).2.1 (hDT_mem a₂ ha₂).2.1)
+    -- S vs U cross-disjointness (uses new_S_disjoint, swapped)
+    (by
+      rw [Finset.disjoint_biUnion_left]
+      intro a ha; rw [Finset.disjoint_biUnion_right]; intro m hm
+      -- new_S_disjoint gives U disjoint with S; we need S with U.
+      exact (new_S_disjoint (hDU_mem m hm).1 (hDS_mem a ha).1
+        (hDU_mem m hm).2.1 (hDS_mem a ha).2.1).symm)
+    -- T vs U cross-disjointness (uses new_T_disjoint, swapped)
+    (by
+      rw [Finset.disjoint_biUnion_left]
+      intro a ha; rw [Finset.disjoint_biUnion_right]; intro m hm
+      exact (new_T_disjoint (hDU_mem m hm).1 (hDT_mem a ha).1
+        (hDU_mem m hm).2.1 (hDT_mem a ha).2.1).symm)
+  -- three_family_bound gives A.card + |D_S| + |D_T| + |D_U| ≤ N
+  omega
 
 end UnitFractionPairs

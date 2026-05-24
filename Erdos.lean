@@ -91,6 +91,7 @@ import Erdos.UnitFractionPairs.Classification
 import Erdos.UnitFractionPairs.Density
 import Erdos.UnitFractionPairs.LargePrimeDoubles
 import Erdos.UnitFractionPairs.LowerBound
+import Erdos.UnitFractionPairs.PairGadgets
 import Erdos.UnitFractionPairs.PolynomialLowerBound
 import Erdos.UnitFractionPairs.SafePrimes
 import Erdos.UnitFractionPairs.UpperBound
