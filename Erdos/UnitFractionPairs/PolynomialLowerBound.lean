@@ -25,6 +25,7 @@ Plugging `K = ⌊√(N / 2)⌋` gives the polynomial improvement past `N / 2`.
 -/
 
 import Erdos.UnitFractionPairs.Chebyshev
+import Erdos.UnitFractionPairs.LargePrimeDoubles
 
 open Filter Asymptotics
 
@@ -475,5 +476,35 @@ theorem exists_pairFree_polynomial_improvement :
     field_simp; ring
   rw [h_split, div_le_iff₀ (by norm_num : (0 : ℝ) < 2)]
   linarith
+
+/-! ### Improved headline: `f(N) ≥ N/2 + Ω(N / log N)` via large-prime doubles.
+
+The `LargePrimeDoubles.lean` construction provides a *direct* family
+`{2p : p prime, p > √N, 2p ≤ N}` which contributes Θ(N / log N) elements
+(vs the Θ(√N / log N) from the safe-prime construction).
+
+Combined with `primeCounting_ge_chebyshev` applied at `K = N/2`, this
+yields a strictly better lower bound `f(N) ≥ N/2 + Ω(N / log N)` — a
+√N times improvement over `exists_pairFree_polynomial_improvement`.
+
+The composition (Real-valued cast + algebra) is symbolically heavy; the
+key structural pieces are already in `LargePrimeDoubles.lean`
+(`exists_pairFree_card_ge_primeCounting_diff`) and `primeCounting_ge_chebyshev`
+above. The detailed asymptotic is left for follow-up. -/
+
+/-- `Nat.div_2` tends to infinity as N → ∞. (Useful when composing
+`primeCounting_ge_chebyshev` at K = N/2.) -/
+theorem tendsto_div_2_atTop :
+    Filter.Tendsto (fun N : ℕ => N / 2) Filter.atTop Filter.atTop := by
+  refine Filter.tendsto_atTop_atTop.mpr (fun M => ?_)
+  refine ⟨2 * M, fun N hN => ?_⟩
+  omega
+
+/-- Specialisation of `primeCounting_ge_chebyshev` at `K = N / 2`. -/
+theorem primeCounting_at_half_ge_chebyshev :
+    ∀ᶠ N : ℕ in Filter.atTop,
+      ((N / 2 : ℕ) : ℝ) * Real.log 2 / (2 * Real.log (N / 2 : ℕ)) ≤
+        (Nat.primeCounting (N / 2 : ℕ) : ℝ) :=
+  tendsto_div_2_atTop.eventually primeCounting_ge_chebyshev
 
 end UnitFractionPairs

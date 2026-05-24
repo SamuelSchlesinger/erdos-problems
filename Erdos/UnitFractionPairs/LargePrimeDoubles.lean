@@ -335,4 +335,77 @@ example : largePrimeIndex 40 = ({11, 13, 17, 19} : Finset ℕ) := by decide
 /-- At `N = 40`, the combined construction has card `20 + 5 + 4 = 29`. -/
 example : (oddPlusPowersOfTwoPlusLargePrimes 40).card = 29 := by decide
 
+/-! ### `|largePrimeIndex N|` lower bound via `Nat.primeCounting`.
+
+The set `largePrimeIndex N` contains all primes `p` in the dyadic interval
+`(Nat.sqrt N + 2, N/2]`, since for `p ≥ Nat.sqrt N + 3` we have
+`p(p-2) ≥ (Nat.sqrt N + 1)² + something > N`. This gives the structural bound
+
+  `Nat.primeCounting (N/2) ≤ |largePrimeIndex N| + Nat.primeCounting (Nat.sqrt N + 2)`,
+
+reducing the asymptotic question to standard Chebyshev bounds on `π`. -/
+
+/-- For `p ≥ Nat.sqrt N + 3`, we have `N < p · (p - 2)`. -/
+private lemma N_lt_p_mul_p_sub_two {N p : ℕ} (hp : Nat.sqrt N + 3 ≤ p) :
+    N < p * (p - 2) := by
+  -- (Nat.sqrt N + 1)² > N, so (Nat.sqrt N)² + 2 Nat.sqrt N + 1 > N,
+  -- so (Nat.sqrt N)² + 2 Nat.sqrt N ≥ N.
+  have h1 : N < (Nat.sqrt N + 1) ^ 2 := Nat.lt_succ_sqrt' N
+  have h_lb : (Nat.sqrt N + 3) * (Nat.sqrt N + 1) =
+      (Nat.sqrt N + 1) ^ 2 + 2 * (Nat.sqrt N + 1) := by ring
+  have h2 : (Nat.sqrt N + 1) ^ 2 + 2 * (Nat.sqrt N + 1) > N := by
+    have : (Nat.sqrt N + 1) ^ 2 > N := h1
+    omega
+  have h3 : (Nat.sqrt N + 3) * (Nat.sqrt N + 1) > N := by rw [h_lb]; exact h2
+  have h4 : (Nat.sqrt N + 3) * (Nat.sqrt N + 1) ≤ p * (p - 2) := by
+    have hp_ge3 : 3 ≤ p := by omega
+    have hp_sub : Nat.sqrt N + 1 ≤ p - 2 := by omega
+    exact Nat.mul_le_mul hp hp_sub
+  omega
+
+/-- `Nat.primeCounting (N/2) ≤ |largePrimeIndex N| + Nat.primeCounting (Nat.sqrt N + 2)`.
+
+Every prime `p ≤ N/2` is either small (`≤ Nat.sqrt N + 2`, counted by
+`primeCounting (Nat.sqrt N + 2)`) or large (`p ≥ Nat.sqrt N + 3 ≥ 3`, so
+`2 < p ≤ N/2` and `p(p-2) > N`, i.e., `p ∈ largePrimeIndex N`). -/
+theorem primeCounting_le_largePrimeIndex (N : ℕ) :
+    Nat.primeCounting (N / 2) ≤
+      (largePrimeIndex N).card + Nat.primeCounting (Nat.sqrt N + 2) := by
+  -- Use `primesLE` characterization.
+  rw [← Nat.primesLE_card_eq_primeCounting, ← Nat.primesLE_card_eq_primeCounting]
+  -- Show `primesLE (N/2) ⊆ largePrimeIndex N ∪ primesLE (sqrt N + 2)`.
+  have h_sub : Nat.primesLE (N / 2) ⊆ largePrimeIndex N ∪ Nat.primesLE (Nat.sqrt N + 2) := by
+    intro p hp
+    rw [Nat.mem_primesLE] at hp
+    obtain ⟨hp_le, hp_prime⟩ := hp
+    by_cases hp_small : p ≤ Nat.sqrt N + 2
+    · refine Finset.mem_union_right _ ?_
+      rw [Nat.mem_primesLE]
+      exact ⟨hp_small, hp_prime⟩
+    · push_neg at hp_small
+      refine Finset.mem_union_left _ ?_
+      simp only [largePrimeIndex, Finset.mem_filter, Finset.mem_Ioc]
+      refine ⟨⟨?_, hp_le⟩, hp_prime, ?_⟩
+      · -- 2 < p (since p ≥ Nat.sqrt N + 3 ≥ 3)
+        omega
+      · exact N_lt_p_mul_p_sub_two (by omega : Nat.sqrt N + 3 ≤ p)
+  calc (Nat.primesLE (N / 2)).card
+      ≤ (largePrimeIndex N ∪ Nat.primesLE (Nat.sqrt N + 2)).card :=
+        Finset.card_le_card h_sub
+    _ ≤ (largePrimeIndex N).card + (Nat.primesLE (Nat.sqrt N + 2)).card :=
+        Finset.card_union_le _ _
+
+/-- **Asymptotic lower bound via `Nat.primeCounting`**: for every `N`,
+`f(N) ≥ (N+1)/2 + ⌊log₂ N⌋ + π(N/2) - π(Nat.sqrt N + 2)`. Combined with
+Chebyshev's `π(N/2) ≥ Ω(N/log N)` and the trivial `π(Nat.sqrt N + 2) ≤
+Nat.sqrt N + 2 = O(√N)`, this gives `f(N) ≥ N/2 + Ω(N/log N)`. -/
+theorem exists_pairFree_card_ge_primeCounting_diff (N : ℕ) :
+    ∃ A : Finset ℕ, A ⊆ Finset.Icc 1 N ∧ PairFree A ∧
+      (N + 1) / 2 + Nat.log 2 N + Nat.primeCounting (N / 2) ≤
+        A.card + Nat.primeCounting (Nat.sqrt N + 2) := by
+  obtain ⟨A, hAsub, hApf, hAcard⟩ := exists_pairFree_card_ge_largePrime N
+  refine ⟨A, hAsub, hApf, ?_⟩
+  have := primeCounting_le_largePrimeIndex N
+  omega
+
 end UnitFractionPairs
