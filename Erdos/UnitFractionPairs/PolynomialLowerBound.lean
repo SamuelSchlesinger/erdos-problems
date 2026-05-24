@@ -161,4 +161,42 @@ theorem two_mul_sqrt_div_2_sq_le (N : ℕ) : 2 * (Nat.sqrt (N / 2)) ^ 2 ≤ N :=
   have h2 : 2 * (N / 2) ≤ N := Nat.mul_div_le N 2
   linarith [Nat.mul_le_mul_left 2 h]
 
+/-! ### Concrete `√(N / 2)` headline. -/
+
+/-- **Concrete polynomial-improvement bound** (Nat form): substituting
+`K = Nat.sqrt (N / 2)` into `exists_pairFree_card_ge_primeCounting` gives
+an unconditional inequality involving `π(Nat.sqrt (N / 2))`.
+
+  `2 · ((N + 1) / 2 + ⌊log₂ N⌋) + π(⌊√(N/2)⌋) ≤
+     2 · |A| + 4 + ⌊log₂(⌊√(N/2)⌋ + 1)⌋ + ⌊log₂(⌊√(N/2)⌋ + 2)⌋`.
+
+By `tendsto_sqrt_div_2_atTop` and `primeCounting_ge_chebyshev`, the third
+term on the left grows as `Ω(√N / log N)` and asymptotically dominates the
+log terms on the right — the polynomial improvement past `N / 2`. -/
+theorem exists_pairFree_card_ge_at_sqrt (N : ℕ) :
+    ∃ A : Finset ℕ, A ⊆ Finset.Icc 1 N ∧ PairFree A ∧
+      2 * ((N + 1) / 2 + Nat.log 2 N) +
+          Nat.primeCounting (Nat.sqrt (N / 2)) ≤
+        2 * A.card + 4 + Nat.log 2 (Nat.sqrt (N / 2) + 1) +
+          Nat.log 2 (Nat.sqrt (N / 2) + 2) :=
+  exists_pairFree_card_ge_primeCounting (two_mul_sqrt_div_2_sq_le N)
+
+/-- **Asymptotic polynomial-improvement bound at `K = Nat.sqrt (N / 2)`**:
+combining `exists_pairFree_card_ge_at_sqrt` with the asymptotic
+`primeCounting_ge_chebyshev` at `K = Nat.sqrt (N / 2)` (valid eventually
+by `tendsto_sqrt_div_2_atTop`), we obtain that for all sufficiently large
+`N`, the structural bound is enhanced by
+
+  `(Nat.sqrt (N / 2) : ℝ) · log 2 / (2 · log (Nat.sqrt (N / 2)))`,
+
+i.e., a `Ω(√N / log N)` term. The fully real-valued, constant-extracted
+form (`∃ c > 0, ∀ᶠ N, |A| ≥ N/2 + c · √N / log N`) is one cast-and-bound
+manipulation away. -/
+theorem primeCounting_at_sqrt_ge_chebyshev :
+    ∀ᶠ N : ℕ in Filter.atTop,
+      (Nat.sqrt (N / 2) : ℝ) * Real.log 2 /
+          (2 * Real.log (Nat.sqrt (N / 2))) ≤
+        (Nat.primeCounting (Nat.sqrt (N / 2)) : ℝ) :=
+  tendsto_sqrt_div_2_atTop.eventually primeCounting_ge_chebyshev
+
 end UnitFractionPairs
