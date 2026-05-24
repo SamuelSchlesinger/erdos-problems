@@ -136,7 +136,7 @@ theorem upperDensityPositive_of_AP_exceptional
   have ha₀_ge_one : 1 ≤ a₀ := by
     rw [ha₀_def]
     have : 1 ≤ m * ((N₀ + m) / m + 1) := by
-      have : 1 ≤ (N₀ + m) / m + 1 := by omega
+      have h₁ : 1 ≤ (N₀ + m) / m + 1 := Nat.le_add_left 1 _
       nlinarith
     omega
   -- a₀ is small relative to M: 4 * a₀ ≤ M.
