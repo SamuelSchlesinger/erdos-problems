@@ -1,6 +1,7 @@
 import Erdos.Common.GapCounts
 import Erdos.Common.PackingBound
 import Erdos.Common.ParityOptimality
+import Erdos.Common.ThickSequences
 import Erdos.Common.ValSignature
 import Erdos.Common.WeightedPacking
 import Erdos.ErdosMoser.Statement
@@ -24,6 +25,7 @@ import Erdos.PracticalNumbers.Statement
 import Erdos.PracticalNumbers.Elementary
 import Erdos.ResidueAvoidingDensity.Statement
 import Erdos.ResidueAvoidingDensity.Elementary
+import Erdos.ResidueAvoidingDensity.ThickBridge
 import Erdos.CliqueFreeIndependence.Statement
 import Erdos.CliqueFreeIndependence.Elementary
 import Erdos.RegularInducedSubgraphs.Statement
