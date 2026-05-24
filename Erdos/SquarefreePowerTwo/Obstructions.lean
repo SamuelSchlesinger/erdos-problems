@@ -49,31 +49,25 @@ is the *constructive* direction: any squarefree witness `q := n - 2^k` produces
 a representation. -/
 theorem hasSquarefreePowerTwoRepresentation_of_squarefree_sub_pow_two
     {n k : ℕ} (hk : 2 ^ k ≤ n) (hsf : Squarefree (n - 2 ^ k)) :
-    HasSquarefreePowerTwoRepresentation n := by
-  refine ⟨n - 2 ^ k, k, hsf, ?_⟩
-  omega
+    HasSquarefreePowerTwoRepresentation n :=
+  ⟨n - 2 ^ k, k, hsf, by omega⟩
 
 /-- If `n` is representable, then there exists `k` with `2 ^ k ≤ n` and
 `n - 2 ^ k` squarefree. The exponent `k` need not be unique. -/
 theorem exists_pow_two_sub_squarefree_of_representable {n : ℕ}
     (h : HasSquarefreePowerTwoRepresentation n) :
     ∃ k : ℕ, 2 ^ k ≤ n ∧ Squarefree (n - 2 ^ k) := by
-  rcases h with ⟨q, k, hq, hsum⟩
-  refine ⟨k, ?_, ?_⟩
-  · omega
-  · have : n - 2 ^ k = q := by omega
-    rw [this]; exact hq
+  obtain ⟨q, k, hq, hsum⟩ := h
+  exact ⟨k, by omega, by rwa [show n - 2 ^ k = q by omega]⟩
 
 /-- Constructive characterization of representability: a positive `n` is
 representable iff there exists an exponent `k` with `2 ^ k ≤ n` whose
 complement `n - 2 ^ k` is squarefree. -/
 theorem hasSquarefreePowerTwoRepresentation_iff_exists_squarefree_sub :
     ∀ {n : ℕ}, HasSquarefreePowerTwoRepresentation n ↔
-      ∃ k : ℕ, 2 ^ k ≤ n ∧ Squarefree (n - 2 ^ k) := by
-  intro n
-  refine ⟨exists_pow_two_sub_squarefree_of_representable, ?_⟩
-  rintro ⟨k, hk, hsf⟩
-  exact hasSquarefreePowerTwoRepresentation_of_squarefree_sub_pow_two hk hsf
+      ∃ k : ℕ, 2 ^ k ≤ n ∧ Squarefree (n - 2 ^ k) :=
+  fun {_} => ⟨exists_pow_two_sub_squarefree_of_representable,
+    fun ⟨_, hk, hsf⟩ => hasSquarefreePowerTwoRepresentation_of_squarefree_sub_pow_two hk hsf⟩
 
 /-! ## The exceptional set -/
 
@@ -116,13 +110,8 @@ theorem not_eventuallyOddRepresentable_iff_exceptional_unbounded :
     ¬ EventuallyOddRepresentable ↔ ∀ N : ℕ, ∃ n : ℕ, N ≤ n ∧ IsExceptional n := by
   rw [eventuallyOddRepresentable_iff_exceptional_bounded]
   push Not
-  constructor
-  · intro h N
-    obtain ⟨n, hex, hge⟩ := h N
-    exact ⟨n, by omega, hex⟩
-  · intro h N
-    obtain ⟨n, hge, hex⟩ := h N
-    exact ⟨n, hex, by omega⟩
+  exact ⟨fun h N => (h N).imp fun _ ⟨hex, hge⟩ => ⟨by omega, hex⟩,
+    fun h N => (h N).imp fun _ ⟨hge, hex⟩ => ⟨hex, by omega⟩⟩
 
 /-! ## Prime-square obstructions (the basic CRT block) -/
 
@@ -160,9 +149,7 @@ theorem not_representable_of_all_prime_sq_obstruction {n : ℕ}
   obtain ⟨k, hk, hsf⟩ := exists_pow_two_sub_squarefree_of_representable hrep
   rcases h k hk with heq | ⟨p, hp, hdvd⟩
   · -- `n = 2 ^ k`, so `n - 2 ^ k = 0`, which is not squarefree.
-    have h0 : n - 2 ^ k = 0 := by omega
-    rw [h0] at hsf
-    exact not_squarefree_zero hsf
+    exact not_squarefree_zero (by rwa [show n - 2 ^ k = 0 by omega] at hsf)
   · exact not_squarefree_of_prime_sq_dvd hp hdvd hsf
 
 /-- A contrapositive packaging useful for the eventual conjecture: if the
@@ -187,93 +174,70 @@ theorem hasSquarefreePowerTwoRepresentation_of_not_all_obstruction {n : ℕ}
     have : ¬ ∀ x : ℕ, Nat.Prime x → ¬ x * x ∣ (n - 2 ^ k) := fun H =>
       hnotsf (Nat.squarefree_iff_prime_squarefree.mpr H)
     push Not at this
-    obtain ⟨p, hp, hdvd⟩ := this
-    exact ⟨p, hp, hdvd⟩
+    exact this
 
 /-! ## Additional small witnesses (extending `Elementary.lean`) -/
 
 /-- `9 = 1 + 2 ^ 3`. -/
 theorem hasSquarefreePowerTwoRepresentation_nine :
-    HasSquarefreePowerTwoRepresentation 9 := by
-  refine ⟨1, 3, ?_, ?_⟩ <;> norm_num
+    HasSquarefreePowerTwoRepresentation 9 :=
+  ⟨1, 3, by norm_num, by norm_num⟩
 
 /-- `11 = 3 + 2 ^ 3`. -/
 theorem hasSquarefreePowerTwoRepresentation_eleven :
-    HasSquarefreePowerTwoRepresentation 11 := by
-  refine ⟨3, 3, ?_, ?_⟩
-  · exact (show Nat.Prime 3 by norm_num).squarefree
-  · norm_num
+    HasSquarefreePowerTwoRepresentation 11 :=
+  ⟨3, 3, (by norm_num : Nat.Prime 3).squarefree, by norm_num⟩
 
 /-- `13 = 5 + 2 ^ 3`. -/
 theorem hasSquarefreePowerTwoRepresentation_thirteen :
-    HasSquarefreePowerTwoRepresentation 13 := by
-  refine ⟨5, 3, ?_, ?_⟩
-  · exact (show Nat.Prime 5 by norm_num).squarefree
-  · norm_num
+    HasSquarefreePowerTwoRepresentation 13 :=
+  ⟨5, 3, (by norm_num : Nat.Prime 5).squarefree, by norm_num⟩
 
 /-- `15 = 7 + 2 ^ 3`. -/
 theorem hasSquarefreePowerTwoRepresentation_fifteen :
-    HasSquarefreePowerTwoRepresentation 15 := by
-  refine ⟨7, 3, ?_, ?_⟩
-  · exact (show Nat.Prime 7 by norm_num).squarefree
-  · norm_num
+    HasSquarefreePowerTwoRepresentation 15 :=
+  ⟨7, 3, (by norm_num : Nat.Prime 7).squarefree, by norm_num⟩
 
 /-- `17 = 1 + 2 ^ 4`. -/
 theorem hasSquarefreePowerTwoRepresentation_seventeen :
-    HasSquarefreePowerTwoRepresentation 17 := by
-  refine ⟨1, 4, ?_, ?_⟩ <;> norm_num
+    HasSquarefreePowerTwoRepresentation 17 :=
+  ⟨1, 4, by norm_num, by norm_num⟩
 
 /-- `19 = 3 + 2 ^ 4`. -/
 theorem hasSquarefreePowerTwoRepresentation_nineteen :
-    HasSquarefreePowerTwoRepresentation 19 := by
-  refine ⟨3, 4, ?_, ?_⟩
-  · exact (show Nat.Prime 3 by norm_num).squarefree
-  · norm_num
+    HasSquarefreePowerTwoRepresentation 19 :=
+  ⟨3, 4, (by norm_num : Nat.Prime 3).squarefree, by norm_num⟩
 
 /-- `21 = 5 + 2 ^ 4`. -/
 theorem hasSquarefreePowerTwoRepresentation_twentyone :
-    HasSquarefreePowerTwoRepresentation 21 := by
-  refine ⟨5, 4, ?_, ?_⟩
-  · exact (show Nat.Prime 5 by norm_num).squarefree
-  · norm_num
+    HasSquarefreePowerTwoRepresentation 21 :=
+  ⟨5, 4, (by norm_num : Nat.Prime 5).squarefree, by norm_num⟩
 
 /-- `23 = 7 + 2 ^ 4`. -/
 theorem hasSquarefreePowerTwoRepresentation_twentythree :
-    HasSquarefreePowerTwoRepresentation 23 := by
-  refine ⟨7, 4, ?_, ?_⟩
-  · exact (show Nat.Prime 7 by norm_num).squarefree
-  · norm_num
+    HasSquarefreePowerTwoRepresentation 23 :=
+  ⟨7, 4, (by norm_num : Nat.Prime 7).squarefree, by norm_num⟩
 
 /-- `25 = 17 + 2 ^ 3`. -/
 theorem hasSquarefreePowerTwoRepresentation_twentyfive :
-    HasSquarefreePowerTwoRepresentation 25 := by
-  refine ⟨17, 3, ?_, ?_⟩
-  · exact (show Nat.Prime 17 by norm_num).squarefree
-  · norm_num
+    HasSquarefreePowerTwoRepresentation 25 :=
+  ⟨17, 3, (by norm_num : Nat.Prime 17).squarefree, by norm_num⟩
 
 /-- `27 = 19 + 2 ^ 3`. -/
 theorem hasSquarefreePowerTwoRepresentation_twentyseven :
-    HasSquarefreePowerTwoRepresentation 27 := by
-  refine ⟨19, 3, ?_, ?_⟩
-  · exact (show Nat.Prime 19 by norm_num).squarefree
-  · norm_num
+    HasSquarefreePowerTwoRepresentation 27 :=
+  ⟨19, 3, (by norm_num : Nat.Prime 19).squarefree, by norm_num⟩
 
 /-- `29 = 13 + 2 ^ 4`. -/
 theorem hasSquarefreePowerTwoRepresentation_twentynine :
-    HasSquarefreePowerTwoRepresentation 29 := by
-  refine ⟨13, 4, ?_, ?_⟩
-  · exact (show Nat.Prime 13 by norm_num).squarefree
-  · norm_num
+    HasSquarefreePowerTwoRepresentation 29 :=
+  ⟨13, 4, (by norm_num : Nat.Prime 13).squarefree, by norm_num⟩
 
 /-- `31 = 15 + 2 ^ 4`. Note `15 = 3 * 5` is squarefree. -/
 theorem hasSquarefreePowerTwoRepresentation_thirtyone :
-    HasSquarefreePowerTwoRepresentation 31 := by
-  refine ⟨15, 4, ?_, ?_⟩
-  · -- 15 = 3 * 5, both squarefree distinct primes.
-    rw [show (15 : ℕ) = 3 * 5 from rfl]
-    refine (Nat.squarefree_mul (by decide)).mpr ⟨?_, ?_⟩
-    · exact (show Nat.Prime 3 by norm_num).squarefree
-    · exact (show Nat.Prime 5 by norm_num).squarefree
-  · norm_num
+    HasSquarefreePowerTwoRepresentation 31 :=
+  ⟨15, 4, (Nat.squarefree_mul (by decide)).mpr
+    ⟨(by norm_num : Nat.Prime 3).squarefree, (by norm_num : Nat.Prime 5).squarefree⟩,
+   by norm_num⟩
 
 end SquarefreePowerTwo

@@ -100,13 +100,8 @@ multiples of each `A i`. -/
 theorem multiplesOf_eq_iUnion {ι : Type*} (A : ι → ℕ) :
     MultiplesOf A = ⋃ i, Set.range fun n : ℕ => n * A i := by
   ext m
-  classical
   simp only [MultiplesOf, Set.mem_range, Set.mem_iUnion, Prod.exists]
-  constructor
-  · rintro ⟨n, i, hni⟩
-    exact ⟨i, n, hni⟩
-  · rintro ⟨i, n, hni⟩
-    exact ⟨n, i, hni⟩
+  tauto
 
 /-- The shifted multiples set is the indexed union of multiples of each
 `A i + k`. -/
@@ -118,11 +113,8 @@ theorem shiftedMultiplesOf_eq_iUnion {ι : Type*} (A : ι → ℕ) (k : ℕ) :
 This lets one always assume `0 ∈ MultiplesOf A` when the index type is
 inhabited. -/
 theorem zero_mem_multiplesOf {ι : Type*} [Nonempty ι] (A : ι → ℕ) :
-    (0 : ℕ) ∈ MultiplesOf A := by
-  classical
-  inhabit ι
-  refine ⟨(0, default), ?_⟩
-  simp
+    (0 : ℕ) ∈ MultiplesOf A :=
+  ⟨(0, Classical.arbitrary _), by simp⟩
 
 /-- Every element `A i` itself is a multiple of `A i`: take `n = 1`. -/
 theorem self_mem_multiplesOf {ι : Type*} (A : ι → ℕ) (i : ι) :
@@ -139,14 +131,13 @@ theorem multiplesOf_subset_of_range_subset
     MultiplesOf B ⊆ MultiplesOf A := by
   rintro m ⟨⟨n, j⟩, rfl⟩
   obtain ⟨i, hi⟩ := h j
-  refine ⟨(n, i), ?_⟩
-  simp [hi]
+  exact ⟨(n, i), by simp [hi]⟩
 
 /-- A reindexing of a sequence has the same multiples set. -/
 theorem multiplesOf_reindex {ι ι' : Type*} (A : ι → ℕ) (e : ι' → ι)
     (he : Function.Surjective e) :
     MultiplesOf (A ∘ e) = MultiplesOf A := by
-  apply Set.eq_of_subset_of_subset
+  refine Set.Subset.antisymm ?_ ?_
   · rintro m ⟨⟨n, j⟩, rfl⟩
     exact ⟨(n, e j), rfl⟩
   · rintro m ⟨⟨n, i⟩, rfl⟩
@@ -161,5 +152,14 @@ theorem not_isThick_of_finite {ι : Type*} [Finite ι] (A : ι → ℕ) :
     ¬ IsThick A := by
   intro h
   exact h Summable.of_finite
+
+/-! ### Sanity checks -/
+
+/-- Any finite indexed sequence is non-thick (degenerate case). -/
+example : ¬ IsThick (fun _ : Fin 5 => 7) := not_isThick_of_finite _
+
+/-- The identity sequence `n ↦ n` on `ℕ` is thick: its reciprocals are the
+divergent harmonic series. -/
+example : IsThick (fun n : ℕ => n) := Real.not_summable_one_div_natCast
 
 end Erdos.Common

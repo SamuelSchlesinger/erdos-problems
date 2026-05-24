@@ -43,15 +43,7 @@ theorem not_satisfiesConstraint_iff_mem_forbiddenSet
     {S : ResidueSystem} {i n : ℕ} :
     ¬ S.SatisfiesConstraint i n ↔ n ∈ S.forbiddenSet i := by
   unfold SatisfiesConstraint forbiddenSet
-  constructor
-  · intro h
-    refine ⟨?_, ?_⟩
-    · exact Nat.le_of_not_lt fun hlt => h (Or.inl hlt)
-    · exact not_not.mp fun hne => h (Or.inr hne)
-  · rintro ⟨h₁, h₂⟩ h
-    rcases h with h | h
-    · exact (Nat.lt_irrefl _ (lt_of_lt_of_le h h₁))
-    · exact h h₂
+  simp only [Set.mem_setOf_eq, not_or, not_lt, not_not]
 
 /-- The avoided set is the complement of the union of all forbidden sets:
 `A = ℕ \ ⋃ i, forbiddenSet S i`. This is the geometric reformulation of
@@ -60,14 +52,8 @@ progressions. -/
 theorem avoidedSet_eq_compl_iUnion_forbiddenSet (S : ResidueSystem) :
     S.avoidedSet = (⋃ i, S.forbiddenSet i)ᶜ := by
   ext n
-  classical
   simp only [mem_avoidedSet_iff, Set.mem_compl_iff, Set.mem_iUnion, not_exists]
-  constructor
-  · intro hn i hni
-    exact (not_satisfiesConstraint_iff_mem_forbiddenSet.mpr hni) (hn i)
-  · intro hn i
-    by_contra hsat
-    exact hn i ((not_satisfiesConstraint_iff_mem_forbiddenSet.mp) hsat)
+  exact forall_congr' fun _ => iff_not_comm.mp not_satisfiesConstraint_iff_mem_forbiddenSet.symm
 
 /-- Equivalent intersection form of the previous lemma: the avoided set is the
 intersection of the complements of the forbidden sets. -/
@@ -116,16 +102,7 @@ theorem forbiddenSet_of_residue_zero (S : ResidueSystem) (i : ℕ)
     S.forbiddenSet i =
       {n | S.modulus i ≤ n ∧ S.modulus i ∣ n} := by
   ext n
-  unfold forbiddenSet
-  classical
-  simp only [Set.mem_setOf_eq, h_res, Nat.ModEq, Nat.zero_mod]
-  constructor
-  · rintro ⟨h_ge, h_mod⟩
-    refine ⟨h_ge, ?_⟩
-    rwa [Nat.dvd_iff_mod_eq_zero]
-  · rintro ⟨h_ge, h_dvd⟩
-    refine ⟨h_ge, ?_⟩
-    rwa [← Nat.dvd_iff_mod_eq_zero]
+  simp [forbiddenSet, h_res, Nat.ModEq, Nat.zero_mod, ← Nat.dvd_iff_mod_eq_zero]
 
 /-! ### Finite-index avoidance is intersection of complements -/
 
@@ -137,15 +114,10 @@ is out of scope for this file — we only record the structural identity). -/
 theorem avoidedSetOn_finite_eq_iInter (S : ResidueSystem) (I : Finset ℕ) :
     S.avoidedSetOn (↑I : Set ℕ) = ⋂ i ∈ I, (S.forbiddenSet i)ᶜ := by
   ext n
-  classical
   simp only [mem_avoidedSetOn_iff, AvoidsOn, Finset.mem_coe,
     Set.mem_iInter, Set.mem_compl_iff]
-  constructor
-  · intro hn i hi hmem
-    exact (not_satisfiesConstraint_iff_mem_forbiddenSet.mpr hmem) (hn i hi)
-  · intro hn i hi
-    by_contra hsat
-    exact hn i hi (not_satisfiesConstraint_iff_mem_forbiddenSet.mp hsat)
+  exact forall_congr' fun _ => forall_congr' fun _ =>
+    iff_not_comm.mp not_satisfiesConstraint_iff_mem_forbiddenSet.symm
 
 end ResidueSystem
 end ResidueAvoidingDensity

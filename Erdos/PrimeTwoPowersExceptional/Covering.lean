@@ -44,24 +44,14 @@ def apFinset (a m L : ℕ) : Finset ℕ :=
 
 lemma apFinset_card {a m L : ℕ} (hm : 1 ≤ m) :
     (apFinset a m L).card = L := by
-  unfold apFinset
-  have hinj : Function.Injective (fun k => a + k * m) := by
-    intro x y hxy
-    dsimp only at hxy
-    have hxym : x * m = y * m := by omega
-    exact Nat.eq_of_mul_eq_mul_right (by omega) hxym
-  rw [Finset.card_image_of_injective _ hinj, Finset.card_range]
+  have hinj : Function.Injective (fun k => a + k * m) := fun x y hxy => by
+    simp only at hxy
+    exact Nat.eq_of_mul_eq_mul_right hm (by omega)
+  rw [apFinset, Finset.card_image_of_injective _ hinj, Finset.card_range]
 
 lemma apFinset_mem {a m L n : ℕ} :
     n ∈ apFinset a m L ↔ ∃ k < L, n = a + k * m := by
-  constructor
-  · intro hn
-    rcases Finset.mem_image.mp hn with ⟨k, hk, heq⟩
-    refine ⟨k, Finset.mem_range.mp hk, ?_⟩
-    simpa using heq.symm
-  · rintro ⟨k, hkL, heq⟩
-    refine Finset.mem_image.mpr ⟨k, Finset.mem_range.mpr hkL, ?_⟩
-    simpa using heq.symm
+  simp [apFinset, Finset.mem_image, Finset.mem_range, eq_comm]
 
 /-!
 ## The conditional density theorem
@@ -103,42 +93,23 @@ theorem upperDensityPositive_of_AP_exceptional
   -- Concretely: a₀ = a + m * ((N₀ + m) / m + 1). This satisfies a₀ ≥ N₀ + 1 ≥ N₀
   -- and a₀ ≡ a (mod m), and a₀ ≤ a + N₀ + 2m.
   set a₀ : ℕ := a + m * ((N₀ + m) / m + 1) with ha₀_def
+  have h_eq : (N₀ + m) / m = N₀ / m + 1 := by
+    have : N₀ + m = N₀ + 1 * m := by ring
+    rw [this, Nat.add_mul_div_right _ _ hm_pos]
+  have h_div_le : m * (N₀ / m) ≤ N₀ := by
+    have h := Nat.div_mul_le_self N₀ m; nlinarith
+  have h_div_gt : N₀ < m * (N₀ / m) + m := by
+    have := Nat.div_add_mod N₀ m
+    have := Nat.mod_lt N₀ hm_pos
+    omega
   have ha₀_lt_bound : a₀ ≤ a + N₀ + 2 * m := by
-    rw [ha₀_def]
-    -- (N₀ + m) / m ≤ N₀ / m + 1  (since (N₀+m)/m = N₀/m + 1 exactly)
-    have h_eq : (N₀ + m) / m = N₀ / m + 1 := by
-      have : N₀ + m = N₀ + 1 * m := by ring
-      rw [this, Nat.add_mul_div_right _ _ hm_pos]
-    rw [h_eq]
-    -- So a₀ = a + m * (N₀ / m + 2) = a + m * (N₀ / m) + 2m.
-    have h_step : m * (N₀ / m + 1 + 1) = m * (N₀ / m) + 2 * m := by ring
-    rw [h_step]
-    have h_div : m * (N₀ / m) ≤ N₀ := by
-      have h := Nat.div_mul_le_self N₀ m
-      have : N₀ / m * m = m * (N₀ / m) := by ring
-      linarith
-    omega
+    rw [ha₀_def, h_eq]; nlinarith
   have ha₀_ge_N₀ : N₀ ≤ a₀ := by
-    rw [ha₀_def]
-    have h_eq : (N₀ + m) / m = N₀ / m + 1 := by
-      have : N₀ + m = N₀ + 1 * m := by ring
-      rw [this, Nat.add_mul_div_right _ _ hm_pos]
-    rw [h_eq]
-    have h_step : m * (N₀ / m + 1 + 1) = m * (N₀ / m) + 2 * m := by ring
-    rw [h_step]
-    have h_div : N₀ < m * (N₀ / m) + m := by
-      have hmod := Nat.mod_lt N₀ hm_pos
-      have hdm := Nat.div_add_mod N₀ m
-      omega
-    omega
+    rw [ha₀_def, h_eq]; nlinarith
   have ha₀_mod : a₀ % m = a % m := by
     rw [ha₀_def, Nat.add_mul_mod_self_left]
   have ha₀_ge_one : 1 ≤ a₀ := by
-    rw [ha₀_def]
-    have : 1 ≤ m * ((N₀ + m) / m + 1) := by
-      have h₁ : 1 ≤ (N₀ + m) / m + 1 := Nat.le_add_left 1 _
-      nlinarith
-    omega
+    rw [ha₀_def]; nlinarith [Nat.le_add_left 1 ((N₀ + m) / m)]
   -- a₀ is small relative to M: 4 * a₀ ≤ M.
   have ha₀_quarter : 4 * a₀ ≤ M := by
     have h_le : 4 * a₀ ≤ 4 * (a + N₀ + 2 * m) := by
@@ -186,24 +157,12 @@ theorem upperDensityPositive_of_AP_exceptional
   have hS_card : S.card = L := apFinset_card hm
   -- Lower bound L.
   have hL_lb : 3 * M ≤ 4 * m * L := by
-    -- L = (M - a₀)/m + 1, so m * L ≥ m + m * ((M - a₀)/m) ≥ m + (M - a₀ - (m - 1))
-    --   ≥ M - a₀ + 1 ≥ M - a₀.
-    -- Then 4 * m * L ≥ 4 * (M - a₀) ≥ 4M - 4a₀ ≥ 4M - M = 3M.
     have h_div_mod : M - a₀ = m * ((M - a₀) / m) + (M - a₀) % m :=
       (Nat.div_add_mod (M - a₀) m).symm
     have hmod_lt : (M - a₀) % m < m := Nat.mod_lt _ hm_pos
-    have h_mL : m * ((M - a₀) / m) ≥ M - a₀ - (m - 1) := by omega
-    have h_mL2 : m * L ≥ M - a₀ + 1 := by
-      have hLexp : m * L = m * ((M - a₀) / m) + m := by
-        rw [hL_def]; ring
-      rw [hLexp]; omega
-    have h_4mL : 4 * m * L ≥ 4 * (M - a₀) + 4 := by
-      have : 4 * (m * L) = 4 * m * L := by ring
-      have h : 4 * (m * L) ≥ 4 * (M - a₀ + 1) := Nat.mul_le_mul_left 4 h_mL2
-      omega
-    have h4MA : 4 * (M - a₀) ≥ 3 * M := by
-      have : 4 * a₀ ≤ M := ha₀_quarter
-      omega
+    have hLexp : m * L = m * ((M - a₀) / m) + m := by rw [hL_def]; ring
+    have hq := ha₀_quarter
+    have h4mL : 4 * m * L = 4 * (m * L) := by ring
     omega
   -- Now translate to reals.
   have hLcard : (L : ℝ) ≤ ((exceptionalSet ∩ Set.Icc 1 M).ncard : ℝ) := by
@@ -213,14 +172,8 @@ theorem upperDensityPositive_of_AP_exceptional
   unfold countUpTo
   have hMR_pos : (0 : ℝ) < M := by exact_mod_cast hM_pos
   have hmR_pos : (0 : ℝ) < m := by exact_mod_cast hm_pos
-  -- The inequality `1/(4m) ≤ count/M` is equivalent to `M ≤ 4m * count`.
-  -- We have `3M ≤ 4mL` (hL_lb) and `L ≤ count` (hLcard), giving `M ≤ 3M ≤ 4mL ≤ 4m*count`.
   have h_4mL_real : (3 : ℝ) * M ≤ 4 * m * L := by exact_mod_cast hL_lb
-  have hLcount := hLcard
-  have h_4mC : (3 : ℝ) * M ≤ 4 * m * ((exceptionalSet ∩ Set.Icc 1 M).ncard : ℝ) := by
-    have hmul := mul_le_mul_of_nonneg_left hLcount (by positivity : (0:ℝ) ≤ 4 * m)
-    linarith
   rw [div_le_div_iff₀ (by positivity) hMR_pos, one_mul]
-  nlinarith [hMR_pos, h_4mC]
+  nlinarith [mul_le_mul_of_nonneg_left hLcard (by positivity : (0:ℝ) ≤ 4 * m)]
 
 end PrimeTwoPowersExceptional

@@ -169,6 +169,18 @@ theorem mod_four_obstruction {m k : ℕ} (hsol : IsSolution m k) :
   have hparity' : m % 2 = (m / 2) % 2 := by omega
   exact mod4_of_parity m hparity'
 
+/-- Auxiliary lemma: if `a^M = 1` in a monoid and `k = M * t + R`, then `a^k = a^R`. -/
+private lemma pow_mul_add_of_pow_eq_one {M : Type*} [Monoid M] (a : M) (m t r : ℕ)
+    (hm : a ^ m = 1) : a ^ (m * t + r) = a ^ r := by
+  rw [pow_add, pow_mul, hm, one_pow, one_mul]
+
+/-- Auxiliary lemma: given `m % n = r` with `m = r + n * (m / n)`, cast to `ZMod n` equals `r`. -/
+private lemma zmod_natCast_of_mod {n : ℕ} [NeZero n] (m r : ℕ) (h : m % n = r) :
+    (m : ZMod n) = (r : ZMod n) := by
+  conv_lhs => rw [← Nat.mod_add_div m n, h]
+  push_cast
+  simp [ZMod.natCast_self]
+
 private lemma zmod3_pow_eq_self_of_odd (a : ZMod 3) {k : ℕ} (hkodd : Odd k) :
     a ^ k = a := by
   rcases hkodd with ⟨t, rfl⟩
@@ -177,13 +189,7 @@ private lemma zmod3_pow_eq_self_of_odd (a : ZMod 3) {k : ℕ} (hkodd : Odd k) :
     rw [pow_succ, mul_zero]
   · show (1 : ZMod 3) ^ (2 * t + 1) = 1
     exact one_pow _
-  · have hsq : ((2 : ZMod 3) ^ 2) = 1 := by decide
-    calc
-      (2 : ZMod 3) ^ (2 * t + 1) = ((2 : ZMod 3) ^ (2 * t)) * (2 : ZMod 3) := by
-        rw [pow_add, pow_one]
-      _ = (((2 : ZMod 3) ^ 2) ^ t) * (2 : ZMod 3) := by
-        rw [pow_mul]
-      _ = 2 := by simp [hsq]
+  · simpa using pow_mul_add_of_pow_eq_one (2 : ZMod 3) 2 t 1 (by decide)
 
 private lemma powerSum_cast_zmod3_of_odd (m k : ℕ) (hkodd : Odd k) :
     ((powerSum m k : ℕ) : ZMod 3) = ∑ i ∈ Finset.range m, (i : ZMod 3) := by
@@ -258,36 +264,15 @@ theorem mod_three_obstruction_of_odd {m k : ℕ} (hsol : IsSolution m k) (hkodd 
 
 private lemma zmod5_pow_eq_self_of_mod_four_eq_one (a : ZMod 5) {k : ℕ}
     (hk : k % 4 = 1) : a ^ k = a := by
-  have hk' : ∃ t : ℕ, k = 4 * t + 1 := by
-    refine ⟨k / 4, ?_⟩
-    omega
-  rcases hk' with ⟨t, rfl⟩
+  obtain ⟨t, rfl⟩ : ∃ t : ℕ, k = 4 * t + 1 := ⟨k / 4, by omega⟩
   fin_cases a
   · show (0 : ZMod 5) ^ (4 * t + 1) = 0
     rw [pow_succ, mul_zero]
   · show (1 : ZMod 5) ^ (4 * t + 1) = 1
     exact one_pow _
-  · have h4 : ((2 : ZMod 5) ^ 4) = 1 := by decide
-    calc
-      (2 : ZMod 5) ^ (4 * t + 1) = ((2 : ZMod 5) ^ (4 * t)) * (2 : ZMod 5) := by
-        rw [pow_add, pow_one]
-      _ = (((2 : ZMod 5) ^ 4) ^ t) * (2 : ZMod 5) := by
-        rw [pow_mul]
-      _ = 2 := by simp [h4]
-  · have h4 : ((3 : ZMod 5) ^ 4) = 1 := by decide
-    calc
-      (3 : ZMod 5) ^ (4 * t + 1) = ((3 : ZMod 5) ^ (4 * t)) * (3 : ZMod 5) := by
-        rw [pow_add, pow_one]
-      _ = (((3 : ZMod 5) ^ 4) ^ t) * (3 : ZMod 5) := by
-        rw [pow_mul]
-      _ = 3 := by simp [h4]
-  · have h4 : ((4 : ZMod 5) ^ 4) = 1 := by decide
-    calc
-      (4 : ZMod 5) ^ (4 * t + 1) = ((4 : ZMod 5) ^ (4 * t)) * (4 : ZMod 5) := by
-        rw [pow_add, pow_one]
-      _ = (((4 : ZMod 5) ^ 4) ^ t) * (4 : ZMod 5) := by
-        rw [pow_mul]
-      _ = 4 := by simp [h4]
+  · simpa using pow_mul_add_of_pow_eq_one (2 : ZMod 5) 4 t 1 (by decide)
+  · simpa using pow_mul_add_of_pow_eq_one (3 : ZMod 5) 4 t 1 (by decide)
+  · simpa using pow_mul_add_of_pow_eq_one (4 : ZMod 5) 4 t 1 (by decide)
 
 private lemma powerSum_cast_zmod5_of_mod_four_eq_one (m k : ℕ) (hk : k % 4 = 1) :
     ((powerSum m k : ℕ) : ZMod 5) = ∑ i ∈ Finset.range m, (i : ZMod 5) := by
@@ -328,57 +313,11 @@ private lemma mod5_of_triangular_eq (m : ℕ) (hmpos : 0 < m)
       _ = (m : ZMod 5) * ((m : ZMod 5) - 1) := by simp [Nat.cast_sub hm1]
   have hm5lt : m % 5 < 5 := Nat.mod_lt _ (by decide)
   interval_cases hm5 : m % 5
-  · left
-    rfl
-  · exfalso
-    have hm : m = 1 + 5 * (m / 5) := by
-      simpa [hm5] using (Nat.mod_add_div m 5).symm
-    have h5cast : ((5 * (m / 5) : ℕ) : ZMod 5) = 0 :=
-      (ZMod.natCast_eq_zero_iff (5 * (m / 5)) 5).2 (dvd_mul_right 5 _)
-    have hmcast : (m : ZMod 5) = 1 := by
-      rw [hm]
-      calc
-        (((1 + 5 * (m / 5) : ℕ) : ZMod 5)) = (1 : ZMod 5) + ((5 * (m / 5) : ℕ) : ZMod 5) := by
-          simp
-        _ = 1 := by simp [h5cast]
-    have hcontr : ((2 : ℕ) : ZMod 5) * 1 = (1 : ZMod 5) * (1 - 1) := by
-      simpa [hmcast] using hEq2
-    have h20 : ((2 : ℕ) : ZMod 5) ≠ 0 := by decide
-    exact h20 hcontr
-  · exfalso
-    have hm : m = 2 + 5 * (m / 5) := by
-      simpa [hm5] using (Nat.mod_add_div m 5).symm
-    have h5cast : ((5 * (m / 5) : ℕ) : ZMod 5) = 0 :=
-      (ZMod.natCast_eq_zero_iff (5 * (m / 5)) 5).2 (dvd_mul_right 5 _)
-    have hmcast : (m : ZMod 5) = 2 := by
-      rw [hm]
-      calc
-        (((2 + 5 * (m / 5) : ℕ) : ZMod 5)) = (2 : ZMod 5) + ((5 * (m / 5) : ℕ) : ZMod 5) := by
-          simp
-        _ = 2 := by simp [h5cast]
-    have hcontr : ((2 : ℕ) : ZMod 5) * 2 = (2 : ZMod 5) * (2 - 1) := by
-      simpa [hmcast] using hEq2
-    have h42 : ((4 : ℕ) : ZMod 5) ≠ 2 := by decide
-    simpa [Nat.cast_mul] using h42 hcontr
-  · right
-    rfl
-  · exfalso
-    have hm : m = 4 + 5 * (m / 5) := by
-      simpa [hm5] using (Nat.mod_add_div m 5).symm
-    have h5cast : ((5 * (m / 5) : ℕ) : ZMod 5) = 0 :=
-      (ZMod.natCast_eq_zero_iff (5 * (m / 5)) 5).2 (dvd_mul_right 5 _)
-    have hmcast : (m : ZMod 5) = 4 := by
-      rw [hm]
-      calc
-        (((4 + 5 * (m / 5) : ℕ) : ZMod 5)) = (4 : ZMod 5) + ((5 * (m / 5) : ℕ) : ZMod 5) := by
-          simp
-        _ = 4 := by simp [h5cast]
-    have hcontr : ((2 : ℕ) : ZMod 5) * 4 = (4 : ZMod 5) * (4 - 1) := by
-      simpa [hmcast] using hEq2
-    have h31 : ((3 : ℕ) : ZMod 5) ≠ 2 := by decide
-    have hcontr' : ((3 : ℕ) : ZMod 5) = 2 := by
-      simpa [Nat.cast_mul] using hcontr
-    exact h31 hcontr'
+  · left; rfl
+  · exfalso; rw [zmod_natCast_of_mod m 1 hm5] at hEq2; revert hEq2; decide
+  · exfalso; rw [zmod_natCast_of_mod m 2 hm5] at hEq2; revert hEq2; decide
+  · right; rfl
+  · exfalso; rw [zmod_natCast_of_mod m 4 hm5] at hEq2; revert hEq2; decide
 
 /-- **Mod-5 obstruction for exponents `k ≡ 1 (mod 4)`.**
 
@@ -446,36 +385,15 @@ private lemma sum_range_cube_nat (m : ℕ) :
 
 private lemma zmod5_pow_eq_cube_of_mod_four_eq_three (a : ZMod 5) {k : ℕ}
     (hk : k % 4 = 3) : a ^ k = a ^ 3 := by
-  have hk' : ∃ t : ℕ, k = 4 * t + 3 := by
-    refine ⟨k / 4, ?_⟩
-    omega
-  rcases hk' with ⟨t, rfl⟩
+  obtain ⟨t, rfl⟩ : ∃ t : ℕ, k = 4 * t + 3 := ⟨k / 4, by omega⟩
   fin_cases a
   · show (0 : ZMod 5) ^ (4 * t + 3) = (0 : ZMod 5) ^ 3
     rw [pow_succ, mul_zero]; decide
   · show (1 : ZMod 5) ^ (4 * t + 3) = (1 : ZMod 5) ^ 3
     rw [one_pow, one_pow]
-  · have h4 : ((2 : ZMod 5) ^ 4) = 1 := by decide
-    calc
-      (2 : ZMod 5) ^ (4 * t + 3) = ((2 : ZMod 5) ^ (4 * t)) * ((2 : ZMod 5) ^ 3) := by
-        rw [pow_add]
-      _ = (((2 : ZMod 5) ^ 4) ^ t) * ((2 : ZMod 5) ^ 3) := by
-        rw [pow_mul]
-      _ = (2 : ZMod 5) ^ 3 := by simp [h4]
-  · have h4 : ((3 : ZMod 5) ^ 4) = 1 := by decide
-    calc
-      (3 : ZMod 5) ^ (4 * t + 3) = ((3 : ZMod 5) ^ (4 * t)) * ((3 : ZMod 5) ^ 3) := by
-        rw [pow_add]
-      _ = (((3 : ZMod 5) ^ 4) ^ t) * ((3 : ZMod 5) ^ 3) := by
-        rw [pow_mul]
-      _ = (3 : ZMod 5) ^ 3 := by simp [h4]
-  · have h4 : ((4 : ZMod 5) ^ 4) = 1 := by decide
-    calc
-      (4 : ZMod 5) ^ (4 * t + 3) = ((4 : ZMod 5) ^ (4 * t)) * ((4 : ZMod 5) ^ 3) := by
-        rw [pow_add]
-      _ = (((4 : ZMod 5) ^ 4) ^ t) * ((4 : ZMod 5) ^ 3) := by
-        rw [pow_mul]
-      _ = (4 : ZMod 5) ^ 3 := by simp [h4]
+  · exact pow_mul_add_of_pow_eq_one (2 : ZMod 5) 4 t 3 (by decide)
+  · exact pow_mul_add_of_pow_eq_one (3 : ZMod 5) 4 t 3 (by decide)
+  · exact pow_mul_add_of_pow_eq_one (4 : ZMod 5) 4 t 3 (by decide)
 
 private lemma powerSum_cast_zmod5_of_mod_four_eq_three (m k : ℕ) (hk : k % 4 = 3) :
     ((powerSum m k : ℕ) : ZMod 5) = ∑ i ∈ Finset.range m, (i : ZMod 5) ^ 3 := by
@@ -502,58 +420,10 @@ private lemma mod5_zero_of_poly (m : ℕ)
   have hm5lt : m % 5 < 5 := Nat.mod_lt _ (by decide)
   interval_cases hm5 : m % 5
   · rfl
-  · exfalso
-    have hm : m = 1 + 5 * (m / 5) := by simpa [hm5] using (Nat.mod_add_div m 5).symm
-    have h5cast : ((5 * (m / 5) : ℕ) : ZMod 5) = 0 :=
-      (ZMod.natCast_eq_zero_iff (5 * (m / 5)) 5).2 (dvd_mul_right 5 _)
-    have hmcast : (m : ZMod 5) = 1 := by
-      rw [hm]
-      calc
-        (((1 + 5 * (m / 5) : ℕ) : ZMod 5)) = (1 : ZMod 5) + ((5 * (m / 5) : ℕ) : ZMod 5) := by
-          simp
-        _ = 1 := by simp [h5cast]
-    rw [hmcast] at hpoly
-    have h10 : ((1 : ZMod 5) ^ 2) * (((1 : ZMod 5) ^ 2) - (1 : ZMod 5) + 1) ≠ 0 := by decide
-    exact h10 hpoly
-  · exfalso
-    have hm : m = 2 + 5 * (m / 5) := by simpa [hm5] using (Nat.mod_add_div m 5).symm
-    have h5cast : ((5 * (m / 5) : ℕ) : ZMod 5) = 0 :=
-      (ZMod.natCast_eq_zero_iff (5 * (m / 5)) 5).2 (dvd_mul_right 5 _)
-    have hmcast : (m : ZMod 5) = 2 := by
-      rw [hm]
-      calc
-        (((2 + 5 * (m / 5) : ℕ) : ZMod 5)) = (2 : ZMod 5) + ((5 * (m / 5) : ℕ) : ZMod 5) := by
-          simp
-        _ = 2 := by simp [h5cast]
-    rw [hmcast] at hpoly
-    have h20 : ((2 : ZMod 5) ^ 2) * (((2 : ZMod 5) ^ 2) - (2 : ZMod 5) + 1) ≠ 0 := by decide
-    exact h20 hpoly
-  · exfalso
-    have hm : m = 3 + 5 * (m / 5) := by simpa [hm5] using (Nat.mod_add_div m 5).symm
-    have h5cast : ((5 * (m / 5) : ℕ) : ZMod 5) = 0 :=
-      (ZMod.natCast_eq_zero_iff (5 * (m / 5)) 5).2 (dvd_mul_right 5 _)
-    have hmcast : (m : ZMod 5) = 3 := by
-      rw [hm]
-      calc
-        (((3 + 5 * (m / 5) : ℕ) : ZMod 5)) = (3 : ZMod 5) + ((5 * (m / 5) : ℕ) : ZMod 5) := by
-          simp
-        _ = 3 := by simp [h5cast]
-    rw [hmcast] at hpoly
-    have h30 : ((3 : ZMod 5) ^ 2) * (((3 : ZMod 5) ^ 2) - (3 : ZMod 5) + 1) ≠ 0 := by decide
-    exact h30 hpoly
-  · exfalso
-    have hm : m = 4 + 5 * (m / 5) := by simpa [hm5] using (Nat.mod_add_div m 5).symm
-    have h5cast : ((5 * (m / 5) : ℕ) : ZMod 5) = 0 :=
-      (ZMod.natCast_eq_zero_iff (5 * (m / 5)) 5).2 (dvd_mul_right 5 _)
-    have hmcast : (m : ZMod 5) = 4 := by
-      rw [hm]
-      calc
-        (((4 + 5 * (m / 5) : ℕ) : ZMod 5)) = (4 : ZMod 5) + ((5 * (m / 5) : ℕ) : ZMod 5) := by
-          simp
-        _ = 4 := by simp [h5cast]
-    rw [hmcast] at hpoly
-    have h40 : ((4 : ZMod 5) ^ 2) * (((4 : ZMod 5) ^ 2) - (4 : ZMod 5) + 1) ≠ 0 := by decide
-    exact h40 hpoly
+  · exfalso; rw [zmod_natCast_of_mod m 1 hm5] at hpoly; revert hpoly; decide
+  · exfalso; rw [zmod_natCast_of_mod m 2 hm5] at hpoly; revert hpoly; decide
+  · exfalso; rw [zmod_natCast_of_mod m 3 hm5] at hpoly; revert hpoly; decide
+  · exfalso; rw [zmod_natCast_of_mod m 4 hm5] at hpoly; revert hpoly; decide
 
 /-- **Mod-5 obstruction for exponents `k ≡ 3 (mod 4)`.**
 
@@ -671,36 +541,15 @@ private lemma six_mul_sum_range_sq_nat (m : ℕ) :
 
 private lemma zmod5_pow_eq_sq_of_mod_four_eq_two (a : ZMod 5) {k : ℕ}
     (hk : k % 4 = 2) : a ^ k = a ^ 2 := by
-  have hk' : ∃ t : ℕ, k = 4 * t + 2 := by
-    refine ⟨k / 4, ?_⟩
-    omega
-  rcases hk' with ⟨t, rfl⟩
+  obtain ⟨t, rfl⟩ : ∃ t : ℕ, k = 4 * t + 2 := ⟨k / 4, by omega⟩
   fin_cases a
   · show (0 : ZMod 5) ^ (4 * t + 2) = (0 : ZMod 5) ^ 2
     rw [pow_succ, mul_zero]; decide
   · show (1 : ZMod 5) ^ (4 * t + 2) = (1 : ZMod 5) ^ 2
     rw [one_pow, one_pow]
-  · have h4 : ((2 : ZMod 5) ^ 4) = 1 := by decide
-    calc
-      (2 : ZMod 5) ^ (4 * t + 2) = ((2 : ZMod 5) ^ (4 * t)) * ((2 : ZMod 5) ^ 2) := by
-        rw [pow_add]
-      _ = (((2 : ZMod 5) ^ 4) ^ t) * ((2 : ZMod 5) ^ 2) := by
-        rw [pow_mul]
-      _ = (2 : ZMod 5) ^ 2 := by simp [h4]
-  · have h4 : ((3 : ZMod 5) ^ 4) = 1 := by decide
-    calc
-      (3 : ZMod 5) ^ (4 * t + 2) = ((3 : ZMod 5) ^ (4 * t)) * ((3 : ZMod 5) ^ 2) := by
-        rw [pow_add]
-      _ = (((3 : ZMod 5) ^ 4) ^ t) * ((3 : ZMod 5) ^ 2) := by
-        rw [pow_mul]
-      _ = (3 : ZMod 5) ^ 2 := by simp [h4]
-  · have h4 : ((4 : ZMod 5) ^ 4) = 1 := by decide
-    calc
-      (4 : ZMod 5) ^ (4 * t + 2) = ((4 : ZMod 5) ^ (4 * t)) * ((4 : ZMod 5) ^ 2) := by
-        rw [pow_add]
-      _ = (((4 : ZMod 5) ^ 4) ^ t) * ((4 : ZMod 5) ^ 2) := by
-        rw [pow_mul]
-      _ = (4 : ZMod 5) ^ 2 := by simp [h4]
+  · exact pow_mul_add_of_pow_eq_one (2 : ZMod 5) 4 t 2 (by decide)
+  · exact pow_mul_add_of_pow_eq_one (3 : ZMod 5) 4 t 2 (by decide)
+  · exact pow_mul_add_of_pow_eq_one (4 : ZMod 5) 4 t 2 (by decide)
 
 private lemma powerSum_cast_zmod5_of_mod_four_eq_two (m k : ℕ) (hk : k % 4 = 2) :
     ((powerSum m k : ℕ) : ZMod 5) = ∑ i ∈ Finset.range m, (i : ZMod 5) ^ 2 := by
@@ -720,62 +569,10 @@ private lemma mod5_zero_of_even_poly (m : ℕ)
   have hm5lt : m % 5 < 5 := Nat.mod_lt _ (by decide)
   interval_cases hm5 : m % 5
   · rfl
-  · exfalso
-    have hm : m = 1 + 5 * (m / 5) := by
-      simpa [hm5] using (Nat.mod_add_div m 5).symm
-    have h5cast : ((5 * (m / 5) : ℕ) : ZMod 5) = 0 :=
-      (ZMod.natCast_eq_zero_iff (5 * (m / 5)) 5).2 (dvd_mul_right 5 _)
-    have hmcast : (m : ZMod 5) = 1 := by
-      rw [hm]
-      calc
-        (((1 + 5 * (m / 5) : ℕ) : ZMod 5)) = (1 : ZMod 5) + ((5 * (m / 5) : ℕ) : ZMod 5) := by
-          simp
-        _ = 1 := by simp [h5cast]
-    rw [hmcast] at hpoly
-    have h10 : (1 : ZMod 5) * (2 * (1 : ZMod 5) ^ 2 - 4 * (1 : ZMod 5) + 1) ≠ 0 := by decide
-    exact h10 hpoly
-  · exfalso
-    have hm : m = 2 + 5 * (m / 5) := by
-      simpa [hm5] using (Nat.mod_add_div m 5).symm
-    have h5cast : ((5 * (m / 5) : ℕ) : ZMod 5) = 0 :=
-      (ZMod.natCast_eq_zero_iff (5 * (m / 5)) 5).2 (dvd_mul_right 5 _)
-    have hmcast : (m : ZMod 5) = 2 := by
-      rw [hm]
-      calc
-        (((2 + 5 * (m / 5) : ℕ) : ZMod 5)) = (2 : ZMod 5) + ((5 * (m / 5) : ℕ) : ZMod 5) := by
-          simp
-        _ = 2 := by simp [h5cast]
-    rw [hmcast] at hpoly
-    have h20 : (2 : ZMod 5) * (2 * (2 : ZMod 5) ^ 2 - 4 * (2 : ZMod 5) + 1) ≠ 0 := by decide
-    exact h20 hpoly
-  · exfalso
-    have hm : m = 3 + 5 * (m / 5) := by
-      simpa [hm5] using (Nat.mod_add_div m 5).symm
-    have h5cast : ((5 * (m / 5) : ℕ) : ZMod 5) = 0 :=
-      (ZMod.natCast_eq_zero_iff (5 * (m / 5)) 5).2 (dvd_mul_right 5 _)
-    have hmcast : (m : ZMod 5) = 3 := by
-      rw [hm]
-      calc
-        (((3 + 5 * (m / 5) : ℕ) : ZMod 5)) = (3 : ZMod 5) + ((5 * (m / 5) : ℕ) : ZMod 5) := by
-          simp
-        _ = 3 := by simp [h5cast]
-    rw [hmcast] at hpoly
-    have h30 : (3 : ZMod 5) * (2 * (3 : ZMod 5) ^ 2 - 4 * (3 : ZMod 5) + 1) ≠ 0 := by decide
-    exact h30 hpoly
-  · exfalso
-    have hm : m = 4 + 5 * (m / 5) := by
-      simpa [hm5] using (Nat.mod_add_div m 5).symm
-    have h5cast : ((5 * (m / 5) : ℕ) : ZMod 5) = 0 :=
-      (ZMod.natCast_eq_zero_iff (5 * (m / 5)) 5).2 (dvd_mul_right 5 _)
-    have hmcast : (m : ZMod 5) = 4 := by
-      rw [hm]
-      calc
-        (((4 + 5 * (m / 5) : ℕ) : ZMod 5)) = (4 : ZMod 5) + ((5 * (m / 5) : ℕ) : ZMod 5) := by
-          simp
-        _ = 4 := by simp [h5cast]
-    rw [hmcast] at hpoly
-    have h40 : (4 : ZMod 5) * (2 * (4 : ZMod 5) ^ 2 - 4 * (4 : ZMod 5) + 1) ≠ 0 := by decide
-    exact h40 hpoly
+  · exfalso; rw [zmod_natCast_of_mod m 1 hm5] at hpoly; revert hpoly; decide
+  · exfalso; rw [zmod_natCast_of_mod m 2 hm5] at hpoly; revert hpoly; decide
+  · exfalso; rw [zmod_natCast_of_mod m 3 hm5] at hpoly; revert hpoly; decide
+  · exfalso; rw [zmod_natCast_of_mod m 4 hm5] at hpoly; revert hpoly; decide
 
 /-- **Even mod-5 obstruction for `k ≡ 2 (mod 4)`.**
 
@@ -905,50 +702,17 @@ theorem mod_twenty_obstruction_of_mod_four_eq_two {m k : ℕ}
 
 private lemma zmod7_pow_eq_sq_of_mod_six_eq_two (a : ZMod 7) {k : ℕ}
     (hk : k % 6 = 2) : a ^ k = a ^ 2 := by
-  have hk' : ∃ t : ℕ, k = 6 * t + 2 := by
-    refine ⟨k / 6, ?_⟩
-    omega
-  rcases hk' with ⟨t, rfl⟩
+  obtain ⟨t, rfl⟩ : ∃ t : ℕ, k = 6 * t + 2 := ⟨k / 6, by omega⟩
   fin_cases a
   · show (0 : ZMod 7) ^ (6 * t + 2) = (0 : ZMod 7) ^ 2
     rw [pow_succ, mul_zero]; decide
   · show (1 : ZMod 7) ^ (6 * t + 2) = (1 : ZMod 7) ^ 2
     rw [one_pow, one_pow]
-  · have h6 : ((2 : ZMod 7) ^ 6) = 1 := by decide
-    calc
-      (2 : ZMod 7) ^ (6 * t + 2) = ((2 : ZMod 7) ^ (6 * t)) * ((2 : ZMod 7) ^ 2) := by
-        rw [pow_add]
-      _ = (((2 : ZMod 7) ^ 6) ^ t) * ((2 : ZMod 7) ^ 2) := by
-        rw [pow_mul]
-      _ = (2 : ZMod 7) ^ 2 := by simp [h6]
-  · have h6 : ((3 : ZMod 7) ^ 6) = 1 := by decide
-    calc
-      (3 : ZMod 7) ^ (6 * t + 2) = ((3 : ZMod 7) ^ (6 * t)) * ((3 : ZMod 7) ^ 2) := by
-        rw [pow_add]
-      _ = (((3 : ZMod 7) ^ 6) ^ t) * ((3 : ZMod 7) ^ 2) := by
-        rw [pow_mul]
-      _ = (3 : ZMod 7) ^ 2 := by simp [h6]
-  · have h6 : ((4 : ZMod 7) ^ 6) = 1 := by decide
-    calc
-      (4 : ZMod 7) ^ (6 * t + 2) = ((4 : ZMod 7) ^ (6 * t)) * ((4 : ZMod 7) ^ 2) := by
-        rw [pow_add]
-      _ = (((4 : ZMod 7) ^ 6) ^ t) * ((4 : ZMod 7) ^ 2) := by
-        rw [pow_mul]
-      _ = (4 : ZMod 7) ^ 2 := by simp [h6]
-  · have h6 : ((5 : ZMod 7) ^ 6) = 1 := by decide
-    calc
-      (5 : ZMod 7) ^ (6 * t + 2) = ((5 : ZMod 7) ^ (6 * t)) * ((5 : ZMod 7) ^ 2) := by
-        rw [pow_add]
-      _ = (((5 : ZMod 7) ^ 6) ^ t) * ((5 : ZMod 7) ^ 2) := by
-        rw [pow_mul]
-      _ = (5 : ZMod 7) ^ 2 := by simp [h6]
-  · have h6 : ((6 : ZMod 7) ^ 6) = 1 := by decide
-    calc
-      (6 : ZMod 7) ^ (6 * t + 2) = ((6 : ZMod 7) ^ (6 * t)) * ((6 : ZMod 7) ^ 2) := by
-        rw [pow_add]
-      _ = (((6 : ZMod 7) ^ 6) ^ t) * ((6 : ZMod 7) ^ 2) := by
-        rw [pow_mul]
-      _ = (6 : ZMod 7) ^ 2 := by simp [h6]
+  · exact pow_mul_add_of_pow_eq_one (2 : ZMod 7) 6 t 2 (by decide)
+  · exact pow_mul_add_of_pow_eq_one (3 : ZMod 7) 6 t 2 (by decide)
+  · exact pow_mul_add_of_pow_eq_one (4 : ZMod 7) 6 t 2 (by decide)
+  · exact pow_mul_add_of_pow_eq_one (5 : ZMod 7) 6 t 2 (by decide)
+  · exact pow_mul_add_of_pow_eq_one (6 : ZMod 7) 6 t 2 (by decide)
 
 private lemma powerSum_cast_zmod7_of_mod_six_eq_two (m k : ℕ) (hk : k % 6 = 2) :
     ((powerSum m k : ℕ) : ZMod 7) = ∑ i ∈ Finset.range m, (i : ZMod 7) ^ 2 := by
@@ -968,90 +732,12 @@ private lemma mod7_zero_of_even_poly (m : ℕ)
   have hm7lt : m % 7 < 7 := Nat.mod_lt _ (by decide)
   interval_cases hm7 : m % 7
   · rfl
-  · exfalso
-    have hm : m = 1 + 7 * (m / 7) := by
-      simpa [hm7] using (Nat.mod_add_div m 7).symm
-    have h7cast : ((7 * (m / 7) : ℕ) : ZMod 7) = 0 :=
-      (ZMod.natCast_eq_zero_iff (7 * (m / 7)) 7).2 (dvd_mul_right 7 _)
-    have hmcast : (m : ZMod 7) = 1 := by
-      rw [hm]
-      calc
-        (((1 + 7 * (m / 7) : ℕ) : ZMod 7)) = (1 : ZMod 7) + ((7 * (m / 7) : ℕ) : ZMod 7) := by
-          simp
-        _ = 1 := by simp [h7cast]
-    rw [hmcast] at hpoly
-    have h10 : (1 : ZMod 7) * (2 * (1 : ZMod 7) ^ 2 - 2 * (1 : ZMod 7) + 1) ≠ 0 := by decide
-    exact h10 hpoly
-  · exfalso
-    have hm : m = 2 + 7 * (m / 7) := by
-      simpa [hm7] using (Nat.mod_add_div m 7).symm
-    have h7cast : ((7 * (m / 7) : ℕ) : ZMod 7) = 0 :=
-      (ZMod.natCast_eq_zero_iff (7 * (m / 7)) 7).2 (dvd_mul_right 7 _)
-    have hmcast : (m : ZMod 7) = 2 := by
-      rw [hm]
-      calc
-        (((2 + 7 * (m / 7) : ℕ) : ZMod 7)) = (2 : ZMod 7) + ((7 * (m / 7) : ℕ) : ZMod 7) := by
-          simp
-        _ = 2 := by simp [h7cast]
-    rw [hmcast] at hpoly
-    have h20 : (2 : ZMod 7) * (2 * (2 : ZMod 7) ^ 2 - 2 * (2 : ZMod 7) + 1) ≠ 0 := by decide
-    exact h20 hpoly
-  · exfalso
-    have hm : m = 3 + 7 * (m / 7) := by
-      simpa [hm7] using (Nat.mod_add_div m 7).symm
-    have h7cast : ((7 * (m / 7) : ℕ) : ZMod 7) = 0 :=
-      (ZMod.natCast_eq_zero_iff (7 * (m / 7)) 7).2 (dvd_mul_right 7 _)
-    have hmcast : (m : ZMod 7) = 3 := by
-      rw [hm]
-      calc
-        (((3 + 7 * (m / 7) : ℕ) : ZMod 7)) = (3 : ZMod 7) + ((7 * (m / 7) : ℕ) : ZMod 7) := by
-          simp
-        _ = 3 := by simp [h7cast]
-    rw [hmcast] at hpoly
-    have h30 : (3 : ZMod 7) * (2 * (3 : ZMod 7) ^ 2 - 2 * (3 : ZMod 7) + 1) ≠ 0 := by decide
-    exact h30 hpoly
-  · exfalso
-    have hm : m = 4 + 7 * (m / 7) := by
-      simpa [hm7] using (Nat.mod_add_div m 7).symm
-    have h7cast : ((7 * (m / 7) : ℕ) : ZMod 7) = 0 :=
-      (ZMod.natCast_eq_zero_iff (7 * (m / 7)) 7).2 (dvd_mul_right 7 _)
-    have hmcast : (m : ZMod 7) = 4 := by
-      rw [hm]
-      calc
-        (((4 + 7 * (m / 7) : ℕ) : ZMod 7)) = (4 : ZMod 7) + ((7 * (m / 7) : ℕ) : ZMod 7) := by
-          simp
-        _ = 4 := by simp [h7cast]
-    rw [hmcast] at hpoly
-    have h40 : (4 : ZMod 7) * (2 * (4 : ZMod 7) ^ 2 - 2 * (4 : ZMod 7) + 1) ≠ 0 := by decide
-    exact h40 hpoly
-  · exfalso
-    have hm : m = 5 + 7 * (m / 7) := by
-      simpa [hm7] using (Nat.mod_add_div m 7).symm
-    have h7cast : ((7 * (m / 7) : ℕ) : ZMod 7) = 0 :=
-      (ZMod.natCast_eq_zero_iff (7 * (m / 7)) 7).2 (dvd_mul_right 7 _)
-    have hmcast : (m : ZMod 7) = 5 := by
-      rw [hm]
-      calc
-        (((5 + 7 * (m / 7) : ℕ) : ZMod 7)) = (5 : ZMod 7) + ((7 * (m / 7) : ℕ) : ZMod 7) := by
-          simp
-        _ = 5 := by simp [h7cast]
-    rw [hmcast] at hpoly
-    have h50 : (5 : ZMod 7) * (2 * (5 : ZMod 7) ^ 2 - 2 * (5 : ZMod 7) + 1) ≠ 0 := by decide
-    exact h50 hpoly
-  · exfalso
-    have hm : m = 6 + 7 * (m / 7) := by
-      simpa [hm7] using (Nat.mod_add_div m 7).symm
-    have h7cast : ((7 * (m / 7) : ℕ) : ZMod 7) = 0 :=
-      (ZMod.natCast_eq_zero_iff (7 * (m / 7)) 7).2 (dvd_mul_right 7 _)
-    have hmcast : (m : ZMod 7) = 6 := by
-      rw [hm]
-      calc
-        (((6 + 7 * (m / 7) : ℕ) : ZMod 7)) = (6 : ZMod 7) + ((7 * (m / 7) : ℕ) : ZMod 7) := by
-          simp
-        _ = 6 := by simp [h7cast]
-    rw [hmcast] at hpoly
-    have h60 : (6 : ZMod 7) * (2 * (6 : ZMod 7) ^ 2 - 2 * (6 : ZMod 7) + 1) ≠ 0 := by decide
-    exact h60 hpoly
+  · exfalso; rw [zmod_natCast_of_mod m 1 hm7] at hpoly; revert hpoly; decide
+  · exfalso; rw [zmod_natCast_of_mod m 2 hm7] at hpoly; revert hpoly; decide
+  · exfalso; rw [zmod_natCast_of_mod m 3 hm7] at hpoly; revert hpoly; decide
+  · exfalso; rw [zmod_natCast_of_mod m 4 hm7] at hpoly; revert hpoly; decide
+  · exfalso; rw [zmod_natCast_of_mod m 5 hm7] at hpoly; revert hpoly; decide
+  · exfalso; rw [zmod_natCast_of_mod m 6 hm7] at hpoly; revert hpoly; decide
 
 /-- **Even mod-7 obstruction for `k ≡ 2 (mod 6)`.**
 

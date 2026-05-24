@@ -16,6 +16,8 @@ replacing the `native_decide` proof.
 -/
 import Erdos.WeirdNumbers.OddWeird
 
+set_option linter.style.header false
+
 namespace WeirdNumbers
 
 /-! ### σ bounds for proper divisors of 2pq -/

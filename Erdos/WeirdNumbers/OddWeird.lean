@@ -15,6 +15,8 @@ These are steps toward Erdős's $10 question: do odd weird numbers exist?
 -/
 import Erdos.WeirdNumbers.Statement
 
+set_option linter.style.header false
+
 namespace WeirdNumbers
 
 /-! ### Prime powers are deficient -/

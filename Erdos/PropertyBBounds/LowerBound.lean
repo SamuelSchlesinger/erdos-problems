@@ -47,22 +47,7 @@ edges. -/
 lemma propertyBWitness_iff_monoEdges_empty {α : Type*} [Fintype α] [DecidableEq α]
     {H : Finset (Finset α)} {S : Finset α} :
     PropertyBWitness H S ↔ monoEdges H S = ∅ := by
-  unfold PropertyBWitness monoEdges
-  constructor
-  · intro hS
-    rw [Finset.filter_eq_empty_iff]
-    intro e he hor
-    rcases hor with h1 | h2
-    · exact (hS e he).1 h1
-    · exact (hS e he).2 h2
-  · intro hempty e he
-    refine ⟨?_, ?_⟩ <;> intro hcontra
-    · have : e ∈ H.filter (fun e => e ⊆ S ∨ e ⊆ Sᶜ) :=
-        Finset.mem_filter.mpr ⟨he, Or.inl hcontra⟩
-      rw [hempty] at this; exact Finset.notMem_empty _ this
-    · have : e ∈ H.filter (fun e => e ⊆ S ∨ e ⊆ Sᶜ) :=
-        Finset.mem_filter.mpr ⟨he, Or.inr hcontra⟩
-      rw [hempty] at this; exact Finset.notMem_empty _ this
+  simp [PropertyBWitness, monoEdges, Finset.filter_eq_empty_iff, not_or]
 
 /-- The set of 2-colorings (subsets of the vertex universe). -/
 abbrev colorings (α : Type*) [Fintype α] [DecidableEq α] :
@@ -84,41 +69,24 @@ lemma card_filter_superset {α : Type*} [Fintype α] [DecidableEq α]
   set f : Finset α → Finset α := fun S => S \ e with hf_def
   have hinj : Set.InjOn f ↑((colorings α).filter (fun S => e ⊆ S)) := by
     intro S₁ hS₁ S₂ hS₂ hfeq
-    simp only [Finset.coe_filter, Finset.mem_coe, Finset.mem_powerset,
-      Set.mem_setOf_eq, colorings] at hS₁ hS₂
-    have h1 : e ⊆ S₁ := hS₁.2
-    have h2 : e ⊆ S₂ := hS₂.2
-    have eq1 : S₁ = S₁ \ e ∪ e := (Finset.sdiff_union_of_subset h1).symm
-    have eq2 : S₂ = S₂ \ e ∪ e := (Finset.sdiff_union_of_subset h2).symm
+    simp only [Finset.coe_filter, Set.mem_setOf_eq] at hS₁ hS₂
+    have eq1 : S₁ = S₁ \ e ∪ e := (Finset.sdiff_union_of_subset hS₁.2).symm
+    have eq2 : S₂ = S₂ \ e ∪ e := (Finset.sdiff_union_of_subset hS₂.2).symm
     rw [eq1, eq2]; simp only [hf_def] at hfeq; rw [hfeq]
   have himage : ((colorings α).filter (fun S => e ⊆ S)).image f = eᶜ.powerset := by
     ext T
     simp only [Finset.mem_image, Finset.mem_filter, Finset.mem_powerset,
       colorings, Finset.subset_univ, true_and, hf_def]
-    constructor
-    · rintro ⟨S, heS, rfl⟩
-      intro x hx
+    refine ⟨?_, fun hT => ⟨T ∪ e, Finset.subset_union_right, ?_⟩⟩
+    · rintro ⟨S, _, rfl⟩ x hx
       simp only [Finset.mem_sdiff, Finset.mem_compl] at hx ⊢
       exact hx.2
-    · intro hT
-      refine ⟨T ∪ e, Finset.subset_union_right, ?_⟩
-      ext x
+    · ext x
       simp only [Finset.mem_sdiff, Finset.mem_union]
-      constructor
-      · rintro ⟨hxor, hxe⟩
-        rcases hxor with hxT | hxe'
-        · exact hxT
-        · exact (hxe hxe').elim
-      · intro hxT
-        have hxe : x ∉ e := by
-          have := hT hxT
-          simp only [Finset.mem_compl] at this
-          exact this
-        exact ⟨Or.inl hxT, hxe⟩
-  have hcard : ((colorings α).filter (fun S => e ⊆ S)).card =
-      (((colorings α).filter (fun S => e ⊆ S)).image f).card :=
-    (Finset.card_image_of_injOn hinj).symm
-  rw [hcard, himage, Finset.card_powerset, Finset.card_compl]
+      refine ⟨fun ⟨hxor, hxe⟩ => hxor.resolve_right (fun h => hxe h), fun hxT => ?_⟩
+      have hxe : x ∉ e := fun h => (Finset.mem_compl.mp (hT hxT)) h
+      exact ⟨Or.inl hxT, hxe⟩
+  rw [← Finset.card_image_of_injOn hinj, himage, Finset.card_powerset, Finset.card_compl]
 
 /-- The number of `S ⊆ univ` with `e ⊆ Sᶜ` equals `2^{|α| - |e|}`. Direct
 calculation: `e ⊆ Sᶜ ↔ S ⊆ eᶜ`, and the subsets of `eᶜ` form its powerset. -/
@@ -130,20 +98,7 @@ lemma card_filter_subset_compl {α : Type*} [Fintype α] [DecidableEq α]
   have h_eq : (colorings α).filter (fun S => e ⊆ Sᶜ) = eᶜ.powerset := by
     ext S
     simp only [Finset.mem_filter, Finset.mem_powerset, colorings, Finset.subset_univ,
-      true_and]
-    constructor
-    · intro hSub x hxS
-      by_contra hxnec
-      simp only [Finset.mem_compl, not_not] at hxnec
-      have hxSc : x ∈ Sᶜ := hSub hxnec
-      simp only [Finset.mem_compl] at hxSc
-      exact hxSc hxS
-    · intro hScompl x hxe
-      simp only [Finset.mem_compl]
-      intro hxS
-      have : x ∈ eᶜ := hScompl hxS
-      simp only [Finset.mem_compl] at this
-      exact this hxe
+      true_and, Finset.subset_compl_comm]
   rw [h_eq, Finset.card_powerset, Finset.card_compl]
 
 /-- For an `n`-uniform edge `e` with `n ≥ 1`, the number of 2-colorings making
@@ -153,24 +108,13 @@ lemma card_monochromatic_for_edge {α : Type*} [Fintype α] [DecidableEq α]
     ((colorings α).filter (fun S => e ⊆ S ∨ e ⊆ Sᶜ)).card =
       2 * 2 ^ (Fintype.card α - n) := by
   classical
+  rcases Finset.card_pos.mp (by omega : 0 < e.card) with ⟨x, hx⟩
   have hdisj : Disjoint ((colorings α).filter (fun S => e ⊆ S))
                         ((colorings α).filter (fun S => e ⊆ Sᶜ)) := by
     rw [Finset.disjoint_filter]
     intro S _ hSsub hSsubc
-    have hne : e.Nonempty := by
-      rw [← Finset.card_pos]; omega
-    rcases hne with ⟨x, hx⟩
-    have hxS : x ∈ S := hSsub hx
-    have hxSc : x ∈ Sᶜ := hSsubc hx
-    simp only [Finset.mem_compl] at hxSc
-    exact hxSc hxS
-  have hunion : (colorings α).filter (fun S => e ⊆ S ∨ e ⊆ Sᶜ) =
-      (colorings α).filter (fun S => e ⊆ S) ∪
-        (colorings α).filter (fun S => e ⊆ Sᶜ) := by
-    ext S
-    simp only [Finset.mem_filter, Finset.mem_union]
-    tauto
-  rw [hunion, Finset.card_union_of_disjoint hdisj,
+    exact absurd (hSsub hx) (by simpa using hSsubc hx)
+  rw [Finset.filter_or, Finset.card_union_of_disjoint hdisj,
       card_filter_superset e, card_filter_subset_compl e, he, two_mul]
 
 /-! ### Double counting -/
@@ -182,26 +126,13 @@ lemma sum_monoEdges_card_eq {α : Type*} [Fintype α] [DecidableEq α]
     ∑ S ∈ colorings α, (monoEdges H S).card =
       H.card * (2 * 2 ^ (Fintype.card α - n)) := by
   classical
-  -- Rewrite (filter (mono S) H).card as ∑ e ∈ H, indicator.
-  have h1 : ∀ S ∈ colorings α, (monoEdges H S).card =
-      ∑ e ∈ H, if (e ⊆ S ∨ e ⊆ Sᶜ) then (1 : ℕ) else 0 := by
-    intro S _
-    unfold monoEdges
-    exact Finset.card_filter (fun e => e ⊆ S ∨ e ⊆ Sᶜ) H
-  rw [Finset.sum_congr rfl h1]
-  -- Swap summation order.
+  simp_rw [monoEdges, Finset.card_filter]
   rw [Finset.sum_comm]
-  -- For each e ∈ H, the inner sum equals (count of S making e mono).
   have h2 : ∀ e ∈ H,
       ∑ S ∈ colorings α, (if (e ⊆ S ∨ e ⊆ Sᶜ) then (1 : ℕ) else 0) =
         2 * 2 ^ (Fintype.card α - n) := by
     intro e he
-    have hcard : e.card = n := hH e he
-    have := card_monochromatic_for_edge (α := α) hn e hcard
-    rw [← this]
-    unfold colorings
-    exact (Finset.card_filter (fun S => e ⊆ S ∨ e ⊆ Sᶜ)
-            ((Finset.univ : Finset α).powerset)).symm
+    rw [← card_monochromatic_for_edge (α := α) hn e (hH e he), ← Finset.card_filter]
   rw [Finset.sum_congr rfl h2, Finset.sum_const, smul_eq_mul]
 
 /-! ### The lower-bound theorem -/
@@ -218,27 +149,19 @@ theorem exists_propertyBWitness_of_few_edges
   -- Suppose otherwise: every coloring has ≥ 1 monochromatic edge.
   by_contra hcontra
   unfold HasPropertyB at hcontra; push_neg at hcontra
-  have hge : ∀ S ∈ colorings α, 1 ≤ (monoEdges H S).card := by
-    intro S _
-    have hnotwit := hcontra S
-    rw [propertyBWitness_iff_monoEdges_empty] at hnotwit
-    by_contra hlt
-    push_neg at hlt
-    have : (monoEdges H S).card = 0 := by omega
-    exact hnotwit (Finset.card_eq_zero.mp this)
+  have hge : ∀ S ∈ colorings α, 1 ≤ (monoEdges H S).card := fun S _ =>
+    Nat.one_le_iff_ne_zero.mpr fun h =>
+      hcontra S ((propertyBWitness_iff_monoEdges_empty).mpr (Finset.card_eq_zero.mp h))
   have hsum_ge : (colorings α).card ≤ ∑ S ∈ colorings α, (monoEdges H S).card := by
-    have := Finset.card_eq_sum_ones (colorings α)
-    rw [this]
+    rw [Finset.card_eq_sum_ones]
     exact Finset.sum_le_sum hge
   rw [sum_monoEdges_card_eq hn hH, card_colorings] at hsum_ge
   -- Now: 2^v ≤ |H| * 2 * 2^(v - n), with v - n ≥ 0.
   -- I.e. 2^v ≤ 2 * |H| * 2^(v - n) < 2^n * 2^(v - n) = 2^v, contradiction.
   set v := Fintype.card α
-  have hpow : 2 ^ v = 2 ^ n * 2 ^ (v - n) := by
-    rw [← pow_add]; congr 1; omega
+  have hpow : 2 ^ v = 2 ^ n * 2 ^ (v - n) := by rw [← pow_add]; congr 1; omega
+  have hpos : 0 < 2 ^ (v - n) := pow_pos (by norm_num) _
   have hineq : H.card * (2 * 2 ^ (v - n)) < 2 ^ n * 2 ^ (v - n) := by
-    have hpos : 0 < 2 ^ (v - n) := pow_pos (by norm_num) _
-    have := hsmall
     calc H.card * (2 * 2 ^ (v - n))
         = (2 * H.card) * 2 ^ (v - n) := by ring
       _ < 2 ^ n * 2 ^ (v - n) := Nat.mul_lt_mul_of_pos_right hsmall hpos
