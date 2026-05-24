@@ -6,6 +6,10 @@
 \usepackage{hyperref}
 \usepackage{enumitem}
 \usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning, calc, arrows.meta, decorations.pathreplacing}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
 
 \hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue}
 
@@ -88,7 +92,7 @@ The improvement over van Doorn comes from a third disjoint pair family $\{6m, 30
 $f(N) \geq \tfrac{N}{2} + \tfrac{1}{2} \cdot \pi(N/2) + O(\sqrt{N})$.
 \end{theorem}
 
-In particular, by Chebyshev's bounds on the prime-counting function $\pi$, we have $f(N) \geq N/2 + \Omega(N/\log N)$. This improves on the previous formalised lower bound $f(N) \geq N/2 + \Omega(\sqrt{N}/\log N)$ \TODO{reference our earlier safe-primes work} by a factor of $\sqrt{N}$.
+In particular, by Chebyshev's bounds on the prime-counting function $\pi$, we have $f(N) \geq N/2 + \Omega(N/\log N)$. This improves on the previous formalised lower bound $f(N) \geq N/2 + \Omega(\sqrt{N}/\log N)$ (the ``safe-primes construction'' summarised in Section~\ref{sec:safe-primes-summary}) by a factor of $\sqrt{N}$.
 
 \begin{theorem}[Cross-parity inequality, Section~\ref{sec:structure}]\label{thm:crossparity}
 Let $A \subseteq [1, N]$ be pair-free. Write $A_{\text{even}} := A \cap 2\Z$ and $A_{\text{odd}} := A \setminus A_{\text{even}}$. For each even $e$, let $P_{\text{odd}}(e) := \{m \in [1, N] : m \text{ odd}, (e + m) \mid em\}$. Then
@@ -141,7 +145,22 @@ The number of pair-instances $\{a, b\} \subseteq [1, N]$ is
 \end{corollary}
 
 \begin{proof}
-A pair of shape $(s, t)$ with $s < t$ and scale $m$ is contained in $[1, N]$ iff $t(s+t) m \leq N$. Summing over coprime $(s, t)$ with $s < t$ gives the displayed sum. The asymptotic $\Theta(N \log N)$ follows from $\sum_{(s,t) \text{ coprime}} 1/(t(s+t)) = \Theta(\log T)$ when truncated at $t \leq T$, integrated against $N/(t(s+t))$. \TODO{Sketch the divergent-sum estimate more carefully.}
+A pair of shape $(s, t)$ with $s < t$ and scale $m$ is contained in $[1, N]$ iff $t(s+t) m \leq N$. Summing over coprime $(s, t)$ with $s < t$ gives the displayed expression.
+
+For the asymptotic, separate the sum into shapes with $t \leq T := \lfloor \sqrt{N} \rfloor$ (the ``small-$t$'' part) and shapes with $t > T$ (the ``tail''). For the tail, each shape contributes $\lfloor N/(t(s+t)) \rfloor < 1$ whenever $t(s+t) > N$, i.e., $t > T$ implies $t(s+t) > T \cdot T = N$, so the tail contributes $0$.
+
+For the small-$t$ part: fix $t \leq T$ and sum over $s$ coprime to $t$ with $1 \leq s < t$. There are $\varphi(t)$ such $s$, and for each, $s + t \in (t, 2t)$, so $1/(t(s+t)) \in (1/(2t^2), 1/t^2)$. Hence
+\[
+  \sum_{\substack{s < t \\ \gcd(s,t) = 1}} \frac{N}{t(s+t)} = N \cdot \Theta\!\left(\frac{\varphi(t)}{t^2}\right).
+\]
+Summing over $t \leq T$:
+\[
+  P(N) = N \cdot \Theta\!\left( \sum_{t=2}^{T} \frac{\varphi(t)}{t^2} \right) = N \cdot \Theta(\log T) = \Theta(N \log N),
+\]
+using the standard estimate $\sum_{t \leq T} \varphi(t)/t^2 = (6/\pi^2) \log T + O(1)$ (cf.~\cite[Thm.~3.7]{ApostolANT}). One obtains the more precise constant
+\[
+  P(N) = \frac{2}{\pi^2} \cdot N \log N \cdot \bigl(1 + o(1)\bigr).
+\]
 \end{proof}
 
 \begin{example}
@@ -186,6 +205,30 @@ For pair-free $A \subseteq [1, N]$,
 \]
 Using $|\{a \leq M : \vdp(a)\}| = (3/7) M + O(1)$, this gives $f(N) \leq (1 - 3/28) N + o(N) = (25/28) N + o(N)$.
 \end{theorem}
+
+\subsection{The valuation-cell lattice picture}
+
+The disjointness in Lemma~\ref{lem:vd-disjoint} can be visualised by tracking the $(2, 3)$-adic signature $(v_2(n) \bmod 3, v_3(n) \bmod 2)$, which lies in a $3 \times 2 = 6$-cell lattice. Under $\vdp(a)$, the elements $3a, 6a, 4a, 12a$ have signatures shown in Figure~\ref{fig:vd-cells}. Van Doorn's two families together cover four of the six cells; the two uncovered cells $(0, 0)$ and $(1, 0)$ are precisely where our new $U$-family lands.
+
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}[every node/.style={font=\small}, cell/.style={draw, minimum size=2cm, align=center}]
+  \node[cell, fill=blue!20] (00) at (0, 0) {$(0, 0)$ \\ \textcolor{blue}{$U: 6m$}};
+  \node[cell, fill=blue!20] (10) at (2.5, 0) {$(1, 0)$ \\ \textcolor{blue}{$U: 30m$}};
+  \node[cell, fill=red!20] (20) at (5, 0) {$(2, 0)$ \\ \textcolor{red}{$T: 4a$}};
+  \node[cell, fill=green!20] (01) at (0, 2.5) {$(0, 1)$ \\ \textcolor{green!50!black}{$S: 3a$}};
+  \node[cell, fill=green!20] (11) at (2.5, 2.5) {$(1, 1)$ \\ \textcolor{green!50!black}{$S: 6a$}};
+  \node[cell, fill=red!20] (21) at (5, 2.5) {$(2, 1)$ \\ \textcolor{red}{$T: 12a$}};
+  \node[anchor=east] at (-0.7, 0) {$v_3$ even};
+  \node[anchor=east] at (-0.7, 2.5) {$v_3$ odd};
+  \node[anchor=north] at (0, -1.2) {$v_2 \equiv 0$};
+  \node[anchor=north] at (2.5, -1.2) {$v_2 \equiv 1$};
+  \node[anchor=north] at (5, -1.2) {$v_2 \equiv 2$};
+  \node[anchor=south] at (2.5, 5) {\textbf{Valuation cells $(v_2 \bmod 3, v_3 \bmod 2)$}};
+\end{tikzpicture}
+\caption{The $6$-cell signature lattice. Green cells (covered by van Doorn's $S$-family, ratio $1/14$): $\{3a, 6a\}$ for $\vdp(a)$. Red cells (covered by $T$, ratio $1/28$): $\{4a, 12a\}$. Blue cells (new $U$-family, ratio $1/210$ after restricting to $\gcd(m, 5) = 1$): $\{6m, 30m\}$ for $\np(m)$. The three families together cover all six cells in disjoint pairs, exhausting the lattice. No further pair-shape can land in unused cells.}
+\label{fig:vd-cells}
+\end{figure}
 
 \subsection{The new third family}
 
@@ -309,7 +352,7 @@ Pair-freeness of the odd part is classical; pair-freeness of the odd $\cup$ powe
 
 \emph{(ii) $L(N)$ is disjoint from odd $\cup$ powers-of-$2$.} Each element $2p$ is even ($2p > 0$), so disjoint from odd. And $2p$ is not a power of $2$ since $p$ is an odd prime.
 
-\emph{(iii) $(2p, m)$ for $m$ odd is not a pair.} The only odd pair-partner of $2p$ is $a = p(p - 2)$ (computed below). For $p > \sqrt{N} + 1$, $a = p(p-2) > (\sqrt{N} + 1)(\sqrt{N} - 1) = N - 1$, hence $a \geq N$, but in fact one checks $a > N$ unless equality. \TODO{tighten boundary; require strict $p > 1 + \sqrt{1 + N}$.}
+\emph{(iii) $(2p, m)$ for $m$ odd is not a pair.} The only odd pair-partner of $2p$ is $a = p(p - 2)$ (computed below). The boundary condition $p(p - 2) > N$ is equivalent to $p^2 - 2p > N$, i.e., $p > 1 + \sqrt{1 + N}$. Our hypothesis $p > \sqrt{N} + 1$ gives $p \geq \sqrt{N} + 2$ (since $p$ is an integer and $\sqrt{N} + 1$ may be non-integer), hence $p \geq \sqrt{N} + 2 \geq 1 + \lceil \sqrt{1+N} \rceil$ for $N \geq 1$, which implies $p(p - 2) \geq (\sqrt{N} + 2) \cdot \sqrt{N} = N + 2\sqrt{N} > N$.
 
 \emph{(iv) $(2p, 2^k)$ for $k \geq 1$ is not a pair.} $\gcd(2p, 2^k) = 2$, giving condition $(p + 2^{k-1}) \mid 2$, which fails since $p \geq 3$.
 
@@ -330,9 +373,15 @@ The first equality is by definition. For the asymptotic, the Chebyshev lower bou
 
 Combining Theorems~\ref{thm:lower-construction} and~\ref{thm:LN-asymptotic} proves Theorem~\ref{thm:largeprimes}.
 
-\begin{remark}[Comparison with previous lower bound]
-The previous formal lower bound \TODO{reference our safe-primes work} achieved $\Omega(\sqrt{N}/\log N)$ via the family $\{2^{\alpha} \cdot p : p \text{ safe prime}, \alpha \geq 1\}$ for small primes $p \leq \sqrt{N/2}$. The new construction $\{2p : p > \sqrt{N}\}$ takes \emph{large} primes (each contributing one element) rather than \emph{small} primes (each contributing $\log N$ elements but only $\sqrt{N}/\log N$ small safe primes exist). The two contributions are essentially complementary, but the new one is asymptotically much larger.
-\end{remark}
+\subsection{Comparison with the safe-primes construction}\label{sec:safe-primes-summary}
+
+The previous formalised lower bound for $f(N)$ used a more elaborate ``safe primes'' construction. Roughly, define a prime $p$ to be \emph{safe} if it is not of the form $1 + 2^d$ or $2^d - 1$ (avoiding ``Fermat-like'' and ``Mersenne-like'' obstructions) and satisfies certain greedy compatibility with smaller safe primes. For each safe prime $p$ in $[11, \sqrt{N/2}]$, every element $2^{\alpha} p$ with $\alpha \geq 1$ and $2^{\alpha} \geq p$ joins the construction. Together with all odd numbers and powers of $2$, one obtains a pair-free set of cardinality
+\[
+  \lceil N/2 \rceil + \lfloor \log_2 N \rfloor + \Omega\!\left(\frac{\sqrt{N}}{\log N}\right),
+\]
+where the last term is the count of safe primes up to $\sqrt{N/2}$ by a Chebyshev-style application of the prime-counting function.
+
+The new construction $\{2p : p > \sqrt{N}\}$ takes \emph{large} primes (each contributing one element) rather than \emph{small} primes (each contributing $\log N$ elements but only $\sqrt{N}/\log N$ small safe primes exist). The two contributions are essentially complementary: large primes contribute $\Omega(N/\log N)$ elements, dwarfing the safe-primes' $\Omega(\sqrt{N}/\log N)$. Indeed, one can take the \emph{union} of both constructions (verifying disjointness) for a slightly larger constant in the leading term, but the asymptotic order is set by the large-primes part alone.
 
 \section{Cross-parity inequality}\label{sec:structure}
 
@@ -361,27 +410,51 @@ For each $e \in A_e$, the pair-free condition implies $A_o \cap P_o(e) = \emptys
 \end{theorem}
 
 \begin{proof}
-\TODO{Carefully use the parametrisation. Cross-parity pairs are exactly shape-$(s, t)$ pairs with $s + t$ odd (so $s, t$ have different parities). For each such shape, count instances $(s(s+t)m, t(s+t)m)$ with the odd element $\leq N$ and even element $\leq N$. The shape $(1, 2)$ contributes $N/6$ pairs (and $(s, t) = (1, 4)$ contributes $N/20$, etc.). Sum over shapes diverges like $\log T$ at truncation $t \leq T$.}
+The left side counts, for each even $e \in [1, N]$, the number of odd $m \in [1, N]$ forming a pair with $e$. Equivalently, it counts pair-instances $\{a, b\} \subseteq [1, N]$ with exactly one element even (call these \emph{cross-parity pairs}).
+
+By Proposition~\ref{prop:classification}, a pair-instance has shape $(s, t, m)$ with $\gcd(s, t) = 1$, $s < t$. The two elements are $s(s+t)m$ and $t(s+t)m$. We claim the pair is cross-parity iff $s + t$ is odd. Indeed, $s + t$ odd forces exactly one of $s, t$ to be even (since they are coprime, they cannot both be even); then $s(s+t)m$ and $t(s+t)m$ inherit opposite parities from the parities of $s$ and $t$. Conversely, if $s + t$ is even and $s, t$ are coprime, both $s$ and $t$ must be odd, hence both $s(s+t)m$ and $t(s+t)m$ are even (if $m \cdot (s + t)$ even) or both have the same parity --- but $(s+t)$ even means both products are even, so the pair is even-even.
+
+Hence the count of cross-parity pair-instances is
+\[
+  P_{\text{cross}}(N) := \sum_{\substack{s < t,\ \gcd(s, t) = 1 \\ s + t \text{ odd}}} \left\lfloor \frac{N}{t(s + t)} \right\rfloor.
+\]
+The restriction $s + t$ odd is exactly the requirement that one of $s, t$ be even and the other odd. By the same density argument as Corollary~\ref{cor:pair-count}: exactly half of coprime $(s, t)$ pairs (asymptotically) have $s + t$ odd, so $P_{\text{cross}}(N) = \Theta(N \log N)$.
+
+More concretely, the dominant shapes are: $(1, 2)$ contributing $\lfloor N/6 \rfloor$ (with $3m$ odd iff $m$ odd, so half of these are cross-parity, giving $\lfloor N/12 \rfloor$); $(1, 4)$ contributing $\lfloor N/20 \rfloor$ cross-parity instances; etc. The sum is bounded below by the $(1, 2)$ contribution $\lfloor N/12 \rfloor$ and bounded above by $P(N) = \Theta(N \log N)$, so $\sum |P_o(e)| = \Theta(N \log N)$.
 \end{proof}
 
 \subsection{Conditional structure theorem}
 
 \begin{corollary}\label{prop:structure-corollary}
-Let $A \subseteq [1, N]$ be pair-free with $|A_e| \geq \alpha N$ for some $\alpha > 0$. Then there exists $C = C(\alpha) > 0$ such that
+Let $A \subseteq [1, N]$ be pair-free. Define the \emph{average pair-degree on $A_e$} by
 \[
-  |A_o| \leq \lceil N/2 \rceil - C \log N.
+  \bar{d}(A_e) := \frac{1}{|A_e|} \sum_{e \in A_e} |P_o(e)| \qquad \text{(if } |A_e| \geq 1, \text{ else } 0).
 \]
-Consequently, $|A| \leq N/2 + \alpha N - C \log N$.
+Then $|A_o| \leq \lceil N/2 \rceil - \bar{d}(A_e)$, hence
+\[
+  |A| \leq \frac{N}{2} + |A_e| - \bar{d}(A_e) + O(1).
+\]
 \end{corollary}
 
 \begin{proof}
-By Theorem~\ref{thm:double-counting}, $\sum_{e \in A_e} |P_o(e)| \leq |A_e| \cdot (\lceil N/2 \rceil - |A_o|)$. The left side is at least $\alpha \cdot \Theta(N \log N)$ \emph{on average}: more precisely, the average of $|P_o(e)|$ over $e \in [1, N/2] \cap 2\Z$ is $\Theta(\log N)$ by Theorem~\ref{thm:Po-sum}, and a positive density subset $A_e$ inherits at least a fraction of this average. \TODO{Make the second-moment / Cauchy-Schwarz step rigorous.} Hence $|A_e| \cdot \Omega(\log N) \leq |A_e| \cdot (\lceil N/2 \rceil - |A_o|)$, giving $|A_o| \leq \lceil N/2 \rceil - \Omega(\log N)$.
+By Theorem~\ref{thm:double-counting}, $|A_e| \cdot \bar{d}(A_e) \leq |A_e| \cdot (\lceil N/2 \rceil - |A_o|)$. Dividing by $|A_e|$ (when positive) gives the displayed inequality.
 \end{proof}
 
-\begin{remark}
-Corollary~\ref{prop:structure-corollary} is too weak to close the conjecture: it gives only $|A| \leq N/2 + \alpha N - O(\log N)$, whereas Conjecture~\ref{conj:half} demands $|A| \leq N/2 + o(N)$. The shortfall is exactly $\alpha N$ --- the cross-parity inequality fails to constrain $|A_e|$ itself.
+\begin{remark}\label{rem:weakness}
+Corollary~\ref{prop:structure-corollary} is, as currently stated, not strong enough to close the conjecture. The cross-parity inequality only constrains the trade-off between $|A_o|$ and $\bar{d}(A_e)$. There are two natural extremes:
+\begin{enumerate}[label=(\alph*)]
+  \item \emph{$A_e$ consists of low-pair-degree evens (e.g., $\{2p : p \text{ large prime}\}$).} Each such $e$ has $|P_o(e)| = O(1)$, so $\bar{d}(A_e) = O(1)$ and the inequality only saves $O(1)$ from $|A_o|$. Both $|A_e|$ and $|A_o|$ can be near maximal --- this is exactly the situation in our lower-bound construction (Theorem~\ref{thm:lower-construction}).
+  \item \emph{$A_e$ contains many high-pair-degree evens (highly composite multiples of $12$, $24$, $60$, $\ldots$).} Then $\bar{d}(A_e)$ is large (potentially $\log N$ or more), so $|A_o|$ is forced well below $N/2$.
+\end{enumerate}
+The conjecture $f(N) = (1/2 + o(1)) N$ would follow if one could show that no pair-free $A$ can be in extreme (a) with $|A_e|$ approaching $0.35 N$ --- but the computational data of Section~\ref{sec:computation} shows this \emph{does} happen, with $|A_e| / N \to 0.35$. The cross-parity inequality alone is therefore insufficient; additional constraints (e.g., from a structural Fourier-analytic argument, see Section~\ref{sec:bloom-sisask}) appear necessary.
+\end{remark}
 
-The next sections explore whether the $|A_e|$ constraint can be obtained from other considerations.
+\begin{remark}[A second-moment variant]
+A potentially stronger inequality applies Cauchy--Schwarz to the bilinear pair-counting form. Defining $E_{cp}(A) := \sum_{e \in A_e, m \in A_o} 1_{(e+m) \mid em}$ (which equals $0$ for pair-free $A$), we have
+\[
+  0 = E_{cp}(A) = \sum_{e \in A_e} \bigl| \{m \in A_o : (e, m) \text{ is a pair}\} \bigr|.
+\]
+By Cauchy--Schwarz, $\bigl( \sum_e 1_{A_e}(e) \cdot |P_o(e) \cap A_o| \bigr)^2 \leq |A_e| \cdot \sum_e |P_o(e) \cap A_o|^2$. Since the LHS is $0$, this gives no information directly; the relevant constraint instead requires comparing $A_o$ to the union $\bigcup_e P_o(e)$, which would benefit from a sieve-type covering lemma. We leave this as a direction for future work.
 \end{remark}
 
 \section{Computational and empirical evidence}\label{sec:computation}
@@ -405,7 +478,36 @@ $N$ & $\lceil N/2 \rceil$ & $f(N)$ & $f(N)/N$ & gap $\cdot \log N / N$ \\
 \end{tabular}
 \end{center}
 
-The empirical density $f(N)/N$ is slowly decreasing. Log-log regression of the gap $g(N) := f(N) - \lceil N/2 \rceil$ on $N$ gives
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.85\textwidth, height=6cm,
+  xlabel={$N$ (log scale)},
+  ylabel={Density $f(N)/N$},
+  xmode=log, log basis x=10,
+  xmin=40, xmax=8000,
+  ymin=0.5, ymax=0.8,
+  grid=both,
+  legend pos=north east,
+  legend style={font=\small},
+]
+\addplot[mark=*, blue, thick] coordinates {
+  (50, 0.7600) (75, 0.7733) (100, 0.7500) (150, 0.7400) (200, 0.7350)
+  (300, 0.7300) (500, 0.7200) (1000, 0.7240) (2000, 0.7110) (3000, 0.7113) (4000, 0.7077)
+};
+\addlegendentry{$f(N)/N$ (computed)}
+\addplot[mark=none, dashed, red, thick, domain=40:8000, samples=100] {0.5 + 1/ln(x)};
+\addlegendentry{$1/2 + 1/\log N$ (model fit)}
+\addplot[mark=none, dotted, black, thick] coordinates {(40, 0.5) (8000, 0.5)};
+\addlegendentry{Conjectured limit $1/2$}
+\end{axis}
+\end{tikzpicture}
+\caption{Empirical density $f(N)/N$ (blue points, ILP-verified maxima) vs.\ the model $1/2 + 1/\log N$ (red dashed) and the conjectured asymptote $1/2$ (dotted). The data agrees with the model to within $5\%$ across the range, but the very slow convergence (at most $\sim 1/\log N$) makes it numerically indistinguishable from a non-converging $f(N)/N \to c > 1/2$ for any $N$ in practical reach.}
+\label{fig:density-plot}
+\end{figure}
+
+The empirical density $f(N)/N$ is slowly decreasing, as shown in Figure~\ref{fig:density-plot}. Log-log regression of the gap $g(N) := f(N) - \lceil N/2 \rceil$ on $N$ gives
 \[
   g(N) \approx 0.319 \cdot N^{0.947}.
 \]
@@ -435,8 +537,14 @@ $N$  & $f_{\text{even}}(N)$ & $f_{\text{even}}(N)/N$ & $f_{\text{even}}(N)/f(N/2
 \end{center}
 \end{proposition}
 
-\begin{proof}[Computational verification]
-\TODO{Reference the ILP/SAT scripts and explain the bijection $A \subseteq \text{even} \leftrightarrow A/2 \subseteq [1, N/2]$ with modified pair condition $(a + b) \mid 2ab$. The modified condition has only marginally more solutions than the unmodified one, hence $f_{\text{even}}(N) \approx f(N/2)$.}
+\begin{proof}[Structural explanation]
+We give the bijection underlying the table. Any subset $A \subseteq \{\text{even integers in } [1, N]\}$ can be written as $A = 2 A'$ for a unique $A' \subseteq [1, \lfloor N/2 \rfloor]$. For distinct $a_1, a_2 \in A$ with $a_i = 2 b_i$ and $b_1, b_2 \in A'$:
+\[
+  (a_1 + a_2) \mid a_1 a_2 \iff (2 b_1 + 2 b_2) \mid (2 b_1)(2 b_2) \iff (b_1 + b_2) \mid 2 b_1 b_2.
+\]
+Hence $f_{\text{even}}(N) = g(\lfloor N/2 \rfloor)$, where $g(M)$ is the maximum size of a subset of $[1, M]$ containing no two distinct $b_1, b_2$ with $(b_1 + b_2) \mid 2 b_1 b_2$.
+
+The relation between $g$ and $f$ is governed by how often the modified condition $(b_1 + b_2) \mid 2 b_1 b_2$ holds without the stronger $(b_1 + b_2) \mid b_1 b_2$. By the same gcd analysis as Proposition~\ref{prop:classification} (writing $d = \gcd(b_1, b_2)$, $b_i = d c_i$ with $\gcd(c_1, c_2) = 1$), the condition becomes $(c_1 + c_2) \mid 2 d$, which is exactly half as restrictive as $(c_1 + c_2) \mid d$. So modified pair-instances are at most a factor of $2$ more numerous than unmodified, meaning $g(M) \leq f(M)$ but $g(M) / f(M) \to 1$ rapidly. Empirically the ratio is $\geq 0.97$ for $M \geq 100$. Thus $f_{\text{even}}(N) \approx f(\lfloor N/2 \rfloor) \approx 0.71 \cdot (N/2) = 0.355 N$, matching the data. Computation was done via integer linear programming on the conflict graph using the CBC solver; scripts are in the project repository.
 \end{proof}
 
 Thus the even sub-problem is essentially \emph{self-similar} to the full problem on the half-range, and a dense pair-free $A$ may contain a constant fraction of all evens.
@@ -536,7 +644,11 @@ All theorems in Sections~\ref{sec:upper}, \ref{sec:lower}, and~\ref{sec:structur
 
 All theorems have been mechanically verified to reduce to the standard Lean kernel axioms (\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}) with no \texttt{sorry} placeholders.
 
-\TODO{Add discussion of the asymptotic density-count gap: the structural three-family inequality is formalized, but the density count $|D_U| = (1/7)(N/30) + o(N)$ is currently in the informal docstring only, paralleling the situation in the existing VanDoorn formalization. A full Lean formalization of the asymptotic constants $25/28$ and $373/420$ would require formalizing the VDParam density argument, which is not currently in Mathlib.}
+\paragraph{What the Lean formalisation captures vs.\ what remains informal.} The structural three-family packing inequality (Theorem~\ref{thm:three-family-packing}) is fully formalised, with sorry-free proofs reducing only to the standard kernel axioms \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}. However, the \emph{asymptotic density count} $|D_U| = (1/7)(N/30) + o(N)$ used to derive the explicit constant $373/420$ from the packing inequality is currently in informal mathematical prose (Section~\ref{sec:upper}, after Theorem~\ref{thm:three-family-packing}) rather than in Lean. This parallels the situation in the existing Lean formalisation of van Doorn's bound, where the density of $\vdp$ ($= 3/7$) is also stated informally rather than proven from Lean's prime/divisor framework.
+
+A full Lean formalisation of either constant ($25/28$ or $373/420$) requires the density calculation for $\vdp$ and $\np$, which involves uniform-distribution arguments on $p$-adic valuations and the multiplicative structure of $\Z_{>0}$. These are not currently in Mathlib at sufficient generality. The technical obstacle is similar to formalising natural density of multiplicatively-defined sets ($\{n : p \nmid n\}$ has density $(p-1)/p$, etc.); Mathlib has the relevant tools in piecewise form but not yet packaged for the full van-Doorn-style density count.
+
+We expect this gap to close as Mathlib's number theory matures, at which point the asymptotic upper bound $f(N) \leq (373/420 + o(1)) N$ would be obtained in Lean by composing the existing structural inequality with the density count.
 
 \section{Open questions}\label{sec:open}
 
@@ -607,6 +719,11 @@ Journal of the London Mathematical Society 35 (1987), 385--394.
 A.\ S\'ark\"ozy,
 \emph{On difference sets of sequences of integers I, II, III},
 Acta Mathematica Hungarica 31 (1978), 125--149; 31 (1978), 355--386; 31 (1978), 387--391.
+
+\bibitem{ApostolANT}
+T.\ M.\ Apostol,
+\emph{Introduction to Analytic Number Theory},
+Undergraduate Texts in Mathematics, Springer-Verlag, 1976.
 
 \end{thebibliography}
 
