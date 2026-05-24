@@ -90,6 +90,7 @@ import Erdos.UnitFractionPairs.Chebyshev
 import Erdos.UnitFractionPairs.Classification
 import Erdos.UnitFractionPairs.Density
 import Erdos.UnitFractionPairs.LowerBound
+import Erdos.UnitFractionPairs.PolynomialLowerBound
 import Erdos.UnitFractionPairs.SafePrimes
 import Erdos.UnitFractionPairs.UpperBound
 import Erdos.UnitFractionPairs.UpperHalf
