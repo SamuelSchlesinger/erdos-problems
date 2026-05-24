@@ -173,8 +173,10 @@ private lemma zmod3_pow_eq_self_of_odd (a : ZMod 3) {k : ℕ} (hkodd : Odd k) :
     a ^ k = a := by
   rcases hkodd with ⟨t, rfl⟩
   fin_cases a
-  · simp
-  · simp
+  · show (0 : ZMod 3) ^ (2 * t + 1) = 0
+    rw [pow_succ, mul_zero]
+  · show (1 : ZMod 3) ^ (2 * t + 1) = 1
+    exact one_pow _
   · have hsq : ((2 : ZMod 3) ^ 2) = 1 := by decide
     calc
       (2 : ZMod 3) ^ (2 * t + 1) = ((2 : ZMod 3) ^ (2 * t)) * (2 : ZMod 3) := by
@@ -261,8 +263,10 @@ private lemma zmod5_pow_eq_self_of_mod_four_eq_one (a : ZMod 5) {k : ℕ}
     omega
   rcases hk' with ⟨t, rfl⟩
   fin_cases a
-  · simp
-  · simp
+  · show (0 : ZMod 5) ^ (4 * t + 1) = 0
+    rw [pow_succ, mul_zero]
+  · show (1 : ZMod 5) ^ (4 * t + 1) = 1
+    exact one_pow _
   · have h4 : ((2 : ZMod 5) ^ 4) = 1 := by decide
     calc
       (2 : ZMod 5) ^ (4 * t + 1) = ((2 : ZMod 5) ^ (4 * t)) * (2 : ZMod 5) := by
@@ -447,8 +451,10 @@ private lemma zmod5_pow_eq_cube_of_mod_four_eq_three (a : ZMod 5) {k : ℕ}
     omega
   rcases hk' with ⟨t, rfl⟩
   fin_cases a
-  · simp
-  · simp
+  · show (0 : ZMod 5) ^ (4 * t + 3) = (0 : ZMod 5) ^ 3
+    rw [pow_succ, mul_zero]; decide
+  · show (1 : ZMod 5) ^ (4 * t + 3) = (1 : ZMod 5) ^ 3
+    rw [one_pow, one_pow]
   · have h4 : ((2 : ZMod 5) ^ 4) = 1 := by decide
     calc
       (2 : ZMod 5) ^ (4 * t + 3) = ((2 : ZMod 5) ^ (4 * t)) * ((2 : ZMod 5) ^ 3) := by
@@ -670,8 +676,10 @@ private lemma zmod5_pow_eq_sq_of_mod_four_eq_two (a : ZMod 5) {k : ℕ}
     omega
   rcases hk' with ⟨t, rfl⟩
   fin_cases a
-  · simp
-  · simp
+  · show (0 : ZMod 5) ^ (4 * t + 2) = (0 : ZMod 5) ^ 2
+    rw [pow_succ, mul_zero]; decide
+  · show (1 : ZMod 5) ^ (4 * t + 2) = (1 : ZMod 5) ^ 2
+    rw [one_pow, one_pow]
   · have h4 : ((2 : ZMod 5) ^ 4) = 1 := by decide
     calc
       (2 : ZMod 5) ^ (4 * t + 2) = ((2 : ZMod 5) ^ (4 * t)) * ((2 : ZMod 5) ^ 2) := by
@@ -902,8 +910,10 @@ private lemma zmod7_pow_eq_sq_of_mod_six_eq_two (a : ZMod 7) {k : ℕ}
     omega
   rcases hk' with ⟨t, rfl⟩
   fin_cases a
-  · simp
-  · simp
+  · show (0 : ZMod 7) ^ (6 * t + 2) = (0 : ZMod 7) ^ 2
+    rw [pow_succ, mul_zero]; decide
+  · show (1 : ZMod 7) ^ (6 * t + 2) = (1 : ZMod 7) ^ 2
+    rw [one_pow, one_pow]
   · have h6 : ((2 : ZMod 7) ^ 6) = 1 := by decide
     calc
       (2 : ZMod 7) ^ (6 * t + 2) = ((2 : ZMod 7) ^ (6 * t)) * ((2 : ZMod 7) ^ 2) := by

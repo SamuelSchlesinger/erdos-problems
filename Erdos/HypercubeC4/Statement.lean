@@ -75,9 +75,7 @@ def hypercubeGraph (n : ℕ) : SimpleGraph (Vertex n) where
   symm := by
     intro x y hxy
     exact adjacent_symm hxy
-  loopless := by
-    intro x
-    exact adjacent_irrefl x
+  loopless := ⟨adjacent_irrefl⟩
 
 /-- A subgraph of the hypercube, represented by a simple graph whose edges are
 all hypercube edges. -/
