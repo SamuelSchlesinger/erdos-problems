@@ -19,6 +19,7 @@ import Erdos.PrimeBoundedTwoPowers.Statement
 import Erdos.PrimeBoundedTwoPowers.Elementary
 import Erdos.SquarefreePowerTwo.Statement
 import Erdos.SquarefreePowerTwo.Elementary
+import Erdos.SquarefreePowerTwo.Obstructions
 import Erdos.ClusterPrimes.Statement
 import Erdos.ClusterPrimes.Elementary
 import Erdos.PracticalNumbers.Statement
