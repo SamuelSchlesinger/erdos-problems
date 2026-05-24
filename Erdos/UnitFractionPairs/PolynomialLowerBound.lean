@@ -576,15 +576,95 @@ private lemma sqrt_le_eps_N_div_log {ε : ℝ} (hε : 0 < ε) :
     nlinarith
   linarith
 
--- TODO: combine `primeCounting_at_half_ge_chebyshev` with
--- `exists_pairFree_card_ge_primeCounting_diff` to prove
--- `∃ c > 0, ∀ᶠ N, |A| ≥ N/2 + c · N / log N`. The bridge requires
--- (1) (N/2 : ℕ→ℝ) ≥ N/2 - 1 [natDiv_2_ge above],
--- (2) Real.log (N/2 : ℕ) ≤ Real.log N [log_natDiv_2_le above],
--- (3) Nat.primeCounting (Nat.sqrt N + 2) ≤ Nat.sqrt N + 2 [primeCounting_le_self above],
--- (4) (Nat.sqrt N + 2 : ℕ→ℝ) ≤ Real.sqrt N + 2 [sqrtN_plus_2_le above],
--- (5) Real.sqrt N ≤ ε · N / Real.log N eventually [sqrt_le_eps_N_div_log above].
--- All five helper lemmas are landed; the cast/algebra combination is straightforward
--- but heavy. To follow.
+/-! ### Nat-side asymptotic via `largePrimeDoubles`. -/
+
+/-- `Nat.primeCounting (Nat.sqrt N + 2)` is eventually `≤ Nat.primeCounting (N / 2) / 2`.
+This is the key qualitative fact: as `N → ∞`, the "small-prime correction"
+`π(√N + 2) = O(√N)` becomes negligible compared to `π(N/2) ~ N/log N`. -/
+theorem primeCounting_sqrt_le_half_primeCounting_div_2 :
+    ∀ᶠ N : ℕ in Filter.atTop,
+      2 * Nat.primeCounting (Nat.sqrt N + 2) ≤ Nat.primeCounting (N / 2) := by
+  filter_upwards
+    [primeCounting_at_half_ge_chebyshev,
+     log_le_eps_sqrt_eventually (show (0 : ℝ) < Real.log 2 / 32 by positivity),
+     log_le_eps_id_eventually (show (0 : ℝ) < Real.log 2 / 64 by positivity),
+     Filter.eventually_ge_atTop 16]
+    with N h_cheb h_log_sqrt h_log_id hN16
+  have hN_pos : (0 : ℝ) < N := by exact_mod_cast (show 0 < N from by omega)
+  have hN_ge_16 : (16 : ℝ) ≤ N := by exact_mod_cast hN16
+  have hlogN_pos : 0 < Real.log N :=
+    Real.log_pos (by exact_mod_cast (show 1 < N from by omega))
+  have hsqrtN_nn : (0 : ℝ) ≤ Real.sqrt N := Real.sqrt_nonneg _
+  have hlog2_pos : (0 : ℝ) < Real.log 2 := Real.log_pos (by norm_num)
+  have hN2_pos : (0 : ℝ) < ((N / 2 : ℕ) : ℝ) := by
+    exact_mod_cast (show 0 < N / 2 from by omega)
+  have hlogN2_pos : 0 < Real.log (N / 2 : ℕ) := by
+    apply Real.log_pos
+    have : 2 ≤ N / 2 := by omega
+    exact_mod_cast this
+  have h_log_N2_le : Real.log (N / 2 : ℕ) ≤ Real.log N :=
+    log_natDiv_2_le (by omega : 4 ≤ N)
+  have h_natDiv : (N : ℝ) / 2 - 1 ≤ ((N / 2 : ℕ) : ℝ) := natDiv_2_ge
+  -- Bound 4 √N log N + 8 log N ≤ N log 2 / 4.
+  have h_4sqrt_log : 4 * Real.sqrt N * Real.log N ≤ (N : ℝ) * Real.log 2 / 8 := by
+    have h1 : Real.sqrt N * Real.log N ≤ Real.sqrt N * (Real.log 2 / 32 * Real.sqrt N) :=
+      mul_le_mul_of_nonneg_left h_log_sqrt hsqrtN_nn
+    have h2 : Real.sqrt N * (Real.log 2 / 32 * Real.sqrt N) = Real.log 2 / 32 * N := by
+      rw [show Real.sqrt N * (Real.log 2 / 32 * Real.sqrt N) =
+        Real.log 2 / 32 * (Real.sqrt N * Real.sqrt N) from by ring]
+      rw [Real.mul_self_sqrt (by linarith : (0 : ℝ) ≤ N)]
+    linarith
+  have h_8_log : 8 * Real.log N ≤ (N : ℝ) * Real.log 2 / 8 := by
+    have : Real.log N ≤ Real.log 2 / 64 * N := h_log_id
+    linarith
+  -- Combine into the target inequality.
+  have h_target : 2 * (Real.sqrt N + 2) * (2 * Real.log (N / 2 : ℕ)) ≤
+      ((N / 2 : ℕ) : ℝ) * Real.log 2 := by
+    calc 2 * (Real.sqrt N + 2) * (2 * Real.log (N / 2 : ℕ))
+        = 4 * (Real.sqrt N + 2) * Real.log (N / 2 : ℕ) := by ring
+      _ ≤ 4 * (Real.sqrt N + 2) * Real.log N := by
+          apply mul_le_mul_of_nonneg_left h_log_N2_le
+          positivity
+      _ = 4 * Real.sqrt N * Real.log N + 8 * Real.log N := by ring
+      _ ≤ (N : ℝ) * Real.log 2 / 8 + (N : ℝ) * Real.log 2 / 8 := by linarith
+      _ = (N : ℝ) * Real.log 2 / 4 := by ring
+      _ ≤ ((N : ℝ) / 2 - 1) * Real.log 2 := by nlinarith [hlog2_pos]
+      _ ≤ ((N / 2 : ℕ) : ℝ) * Real.log 2 := by
+          apply mul_le_mul_of_nonneg_right h_natDiv (le_of_lt hlog2_pos)
+  have h_two_sqrt_le : 2 * (Real.sqrt N + 2) ≤
+      ((N / 2 : ℕ) : ℝ) * Real.log 2 / (2 * Real.log (N / 2 : ℕ)) := by
+    rw [le_div_iff₀ (by linarith : (0 : ℝ) < 2 * Real.log (N / 2 : ℕ))]
+    linarith
+  have h_pi_sqrt_R : ((Nat.primeCounting (Nat.sqrt N + 2) : ℕ) : ℝ) ≤
+      Real.sqrt N + 2 := by
+    calc ((Nat.primeCounting (Nat.sqrt N + 2) : ℕ) : ℝ)
+        ≤ ((Nat.sqrt N + 2 : ℕ) : ℝ) := by
+          exact_mod_cast primeCounting_le_self (Nat.sqrt N + 2)
+      _ ≤ Real.sqrt N + 2 := sqrtN_plus_2_le
+  have h_R : (2 * Nat.primeCounting (Nat.sqrt N + 2) : ℝ) ≤
+      (Nat.primeCounting (N / 2) : ℝ) := by
+    push_cast
+    calc 2 * (Nat.primeCounting (Nat.sqrt N + 2) : ℝ)
+        ≤ 2 * (Real.sqrt N + 2) := by linarith
+      _ ≤ ((N / 2 : ℕ) : ℝ) * Real.log 2 / (2 * Real.log (N / 2 : ℕ)) := h_two_sqrt_le
+      _ ≤ (Nat.primeCounting (N / 2) : ℝ) := h_cheb
+  exact_mod_cast h_R
+
+/-- **Nat-side polynomial improvement headline**: for all sufficiently large
+`N`, there is a pair-free `A ⊆ [1, N]` with
+`|A| ≥ (N + 1) / 2 + Nat.primeCounting (N / 2) / 2`.
+
+This is a clean Nat-side statement of the lower bound improvement.
+By PNT-like estimates, `Nat.primeCounting (N / 2) ~ N / (2 log N)`,
+so this is asymptotically `f(N) ≥ N / 2 + Ω(N / log N)`. -/
+theorem exists_pairFree_polynomial_improvement_nat :
+    ∀ᶠ N : ℕ in Filter.atTop, ∃ A : Finset ℕ,
+      A ⊆ Finset.Icc 1 N ∧ PairFree A ∧
+        (N + 1) / 2 + Nat.primeCounting (N / 2) / 2 ≤ A.card := by
+  filter_upwards [primeCounting_sqrt_le_half_primeCounting_div_2]
+    with N h_pi_le
+  obtain ⟨A, hAsub, hApf, hAcard⟩ := exists_pairFree_card_ge_primeCounting_diff N
+  refine ⟨A, hAsub, hApf, ?_⟩
+  omega
 
 end UnitFractionPairs
