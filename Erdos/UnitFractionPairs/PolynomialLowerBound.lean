@@ -129,4 +129,36 @@ theorem primeCounting_ge_chebyshev :
   rw [div_le_iff₀ (by linarith : (0 : ℝ) < 2 * Real.log K)]
   linarith
 
+/-! ### Sqrt-based substitution: `K = Nat.sqrt (N / 2)`.
+
+The natural choice `K := Nat.sqrt (N / 2)` automatically satisfies `2 K² ≤ N`
+required by `exists_pairFree_card_ge_primeCounting`, and tends to infinity as
+`N → ∞`, so `primeCounting_ge_chebyshev` applies at `K` for `N` large enough.
+
+The final polynomial-improvement headline,
+
+  `∀ᶠ N in atTop, ∃ A ⊆ [1, N] pair-free, A.card ≥ N/2 + c · √N / log N`
+
+then follows by plugging the structural bound through this substitution and
+chasing the `K ≥ √N / 2`, `log K ≤ log N / 2` estimates. We package the two
+substitution-level lemmas here so the next iteration can compose them with
+`primeCounting_ge_chebyshev` and `exists_pairFree_card_ge_primeCounting`. -/
+
+/-- `Nat.sqrt (N / 2)` tends to infinity as `N → ∞`. -/
+theorem tendsto_sqrt_div_2_atTop :
+    Filter.Tendsto (fun N : ℕ => Nat.sqrt (N / 2)) Filter.atTop Filter.atTop := by
+  refine Filter.tendsto_atTop_atTop.mpr (fun M => ?_)
+  refine ⟨2 * (M + 1) ^ 2, fun N hN => ?_⟩
+  have hM : (M + 1) ^ 2 ≤ N / 2 := by omega
+  have h := Nat.sqrt_le_sqrt hM
+  rw [Nat.sqrt_eq'] at h
+  omega
+
+/-- For any `N : ℕ`, `2 · (Nat.sqrt (N / 2))² ≤ N`. This is the side-condition
+for plugging `K = Nat.sqrt (N / 2)` into `exists_pairFree_card_ge_primeCounting`. -/
+theorem two_mul_sqrt_div_2_sq_le (N : ℕ) : 2 * (Nat.sqrt (N / 2)) ^ 2 ≤ N := by
+  have h : (Nat.sqrt (N / 2)) ^ 2 ≤ N / 2 := Nat.sqrt_le' _
+  have h2 : 2 * (N / 2) ≤ N := Nat.mul_div_le N 2
+  linarith [Nat.mul_le_mul_left 2 h]
+
 end UnitFractionPairs
