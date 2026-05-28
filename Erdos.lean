@@ -49,8 +49,10 @@ import Erdos.TotientValueRatio.Elementary
 import Erdos.MersenneDivisorSums.Statement
 import Erdos.MersenneDivisorSums.Elementary
 import Erdos.MersenneDivisorSums.DivisibilityLowerBound
+import Erdos.MersenneDivisorSums.HarmonicLowerBound
 import Erdos.PrimeGapHarmonic.Statement
 import Erdos.PrimeGapHarmonic.Elementary
+import Erdos.PrimeGapHarmonic.UpperBound
 import Erdos.DistinctDistances.Statement
 import Erdos.DistinctDistances.Elementary
 import Erdos.PlanePairColorings.Statement
@@ -81,6 +83,7 @@ import Erdos.AlmostSidonSets.UpperBound.SidonInterval
 import Erdos.PrimaryPseudoperfect.Statement
 import Erdos.PrimaryPseudoperfect.Connections
 import Erdos.PrimaryPseudoperfect.Examples
+import Erdos.PrimaryPseudoperfect.Squarefree
 import Erdos.MaximalSidonSets.Statement
 import Erdos.MaximalSidonSets.Existence
 import Erdos.MaximalSidonSets.ExplicitSeeds

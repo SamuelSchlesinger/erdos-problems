@@ -651,13 +651,23 @@ relevant.
 - **Concrete examples**: ✓ **DONE** (`PrimaryPseudoperfect/Examples.lean`).
   Formalized examples `2`, `6`, `42`, and `1806`.
 
+### Ideas Tried (continued)
+
+- **Squarefree reformulation**: ✓ **DONE** (`PrimaryPseudoperfect/Squarefree.lean`).
+  The main theorem `isPrimaryPseudoperfect_iff_squarefree_form` proves that
+  our witness-based definition is equivalent to the literature definition
+  `m ≥ 2 ∧ Squarefree m ∧ ∑_{p ∈ primeFactors m} 1/p + 1/m = 1`. The proof
+  uses `Finset.squarefree_prod_of_pairwise_isCoprime` (with `Nat.coprime_primes`
+  giving pairwise coprimality of distinct primes) for squarefreeness, and
+  `Nat.prod_primeFactors_invOn_squarefree` to identify the witness `Finset`
+  with `m.primeFactors`. The structural helper
+  `squarefree_and_eq_primeFactors_of_prod_eq` is exported so any future witness
+  manipulation can avoid re-deriving the prime-factor identification.
+
 ### Ideas To Try
 
 - **Import more known examples**: `47058`, `2214502422`, and beyond from the
   current known list. This is straightforward and gives a larger verified testbed.
-- **Squarefree reformulation**: show our witness-based definition is equivalent
-  to the standard squarefree divisor equation
-  `∑_{p|m} 1/p + 1/m = 1`.
 - **Graph-theoretic bridge**: connect the prime-reciprocal equation to the
   "perfectly weighted graph" viewpoint from Butske-Jaje-Mayernik.
 - **Successor-prime chain diagnostics**: characterize when the elementary
@@ -1023,10 +1033,18 @@ of the same order would settle the conjecture via `f` being regularly varying.
 
 ### Ideas To Try
 
-- **Explicit `n H_n` lower bound**: combine the divisor-injection bound with the
-  Dirichlet hyperbola identity `∑_{k≤n} τ(k) = ∑_{d≤n} ⌊n/d⌋`. Gives an
-  unconditional `f(n) ≥ n H_n − n`-style lower bound in closed form, ready to
-  feed into the doubling-ratio question.
+- **Explicit `n · H_n − n` lower bound**: ✓ **DONE**
+  (`MersenneDivisorSums/HarmonicLowerBound.lean`). Combining the divisor-injection
+  bound `f(n) ≥ ∑_{k=1}^{n} τ(k)` with Dirichlet's hyperbola identity
+  `∑_{k=1}^{n} τ(k) = ∑_{d=1}^{n} ⌊n/d⌋` (via Mathlib's
+  `ArithmeticFunction.sum_Ioc_sigma0_eq_sum_div`) and the per-term real bound
+  `⌊n/d⌋ > (n : ℝ)/d − 1`, the file proves the closed-form real inequality
+  `(f n : ℝ) ≥ n · H_n − n`, both as an explicit sum
+  `n_mul_harmonic_sub_n_le_mersenneDivisorSum` and packaged with Mathlib's
+  `harmonic n : ℚ` (`n_mul_harmonic_sub_n_le_mersenneDivisorSum'`). Combined
+  with `log_add_one_le_harmonic`, this gives an unconditional
+  `n · log(n+1) − n` lower bound — `Θ(n log n)` — strictly improving the
+  previous `f(n) ≥ 2n − 1` from `Elementary.lean`.
 - **Upper bound via τ(m) ≤ m^{o(1)}**: use Wigert's bound to show `f(n)` grows
   at most like `n · 2^n · n^{o(1)}` trivially, but more usefully `f(2n)/f(n)` is
   bounded by a constant if the elementary `n log n` lower bound can be matched
@@ -1037,6 +1055,62 @@ of the same order would settle the conjecture via `f` being regularly varying.
 - **Doubling-ratio boundedness**: even without convergence, prove `f(2n)/f(n)`
   is bounded above and below by absolute constants. This is weaker than
   convergence but already structurally meaningful for #893.
+
+---
+
+## Problem #950: Reciprocal Sums Over Prime Gaps
+
+### Papers & Techniques
+
+| Paper | Key Contribution |
+|-------|-----------------|
+| Erdős (problem reference) | Original conjectures: `liminf f(n) = 1`, `limsup f(n) = ∞`, `f(n) = o(log log n)` |
+| de Bruijn–Erdős–Turán 1948 | Average behaviour: `∑_{n ≤ x} f(n) ∼ x`, equivalently `∑_{n ≤ x} f(n)² ∼ x` |
+
+Here `f(n) = ∑_{p < n} 1/(n - p)` where the sum is over primes below `n`.
+The conjecture says the *typical* prime-gap reciprocal sum is `1`, but the
+*peaks* are unbounded.
+
+### Ideas Tried
+
+- **Elementary positivity infrastructure**: ✓ **DONE** (`Elementary.lean`).
+  Nonnegativity of every summand and the full sum, exact values
+  `f(0) = f(1) = f(2) = 0`, `f(3) = 1`, the one-term lower bound
+  `inv_sub_prime_le_gapReciprocalSum` from any prime `p < n`, and the
+  positivity `0 < f(n)` for every `n > 2`.
+- **Pointwise upper bound `f(n) ≤ H_{n-1}`**: ✓ **DONE**
+  (`UpperBound.lean`, `gapReciprocalSum_le_truncated_harmonic`). The gap
+  values `{n - p : p prime, p < n}` are distinct positive integers in
+  `[1, n - 1]`, so their reciprocal sum is dominated by the truncated
+  harmonic sum `∑_{k=1}^{n-1} 1/k`. The proof reindexes via `Finset.sum_image`
+  on the injection `p ↦ n - p` and then applies
+  `sum_le_sum_of_subset_of_nonneg`.
+- **Per-prime lower bound and limsup ≥ 1**: ✓ **DONE** (`UpperBound.lean`,
+  `one_le_gapReciprocalSum_succ_of_prime`,
+  `exists_ge_one_gapReciprocalSum_above`). For every prime `p`,
+  `f(p + 1) ≥ 1` (the `q = p` term contributes exactly `1/((p+1)-p) = 1`).
+  Combined with `Nat.exists_infinite_primes`, this gives
+  `∀ N, ∃ n ≥ N, f(n) ≥ 1`, a first partial step toward Erdős's
+  `limsup f(n) = ∞`.
+
+### Ideas To Try
+
+- **`limsup f(n) ≥ k` for every fixed `k`**: tighten the per-prime lower
+  bound by counting contributions from the `k` primes nearest to `n`. The
+  natural target is the family `n = p_j + 1` with `p_j` ranging over twin
+  prime upper members (or, more elementarily, the next prime after `p_j` is
+  close), forcing several gap-1, gap-2, …, contributions simultaneously.
+  **Formalizable: YES, with mild prime-gap input.**
+- **Average bound `∑_{n ≤ x} f(n) ≤ x · H_{x-1}`**: a clean swap of summation
+  order gives `∑_{n ≤ x} f(n) = ∑_{p < x} H_{x - p - 1}`, immediately bounded
+  by `π(x) · H_{x-1}`. The asymptotic `∼ x` of de Bruijn–Erdős–Turán needs
+  PNT-grade input, but the elementary `≤ x · H_{x-1}` is immediate.
+  **Formalizable: YES, elementary.**
+- **`liminf f(n) ≤ 1` via prime-gap intervals**: if `[p, p+G)` contains no
+  prime then `f(p+1)` is close to `1` (only the term from `p` contributes
+  meaningfully). Existence of arbitrarily large prime gaps in Mathlib gives
+  this with a tail estimate. **Formalizable: MEDIUM, depends on the
+  available prime-gap infrastructure in Mathlib.**
 
 ---
 
@@ -1170,6 +1244,10 @@ their blueprint approach (dependency graphs, modular proof structure) is a good 
 | — | Multiplier-fiber reduction (#301 fiber reformulation + #470 bridge) | #301 | **DONE** ✓ |
 | — | Parity optimality (odd uniquely optimal for #302/#327; neither for #301) | #327, #302, #301 | **DONE** ✓ |
 | — | Divisor-injection lower bound `f(n) ≥ ∑ τ(k)` and `f(n) ≥ 2n − 1` | #893 | **DONE** ✓ |
+| — | Closed-form harmonic lower bound `f(n) ≥ n · H_n − n` (via Dirichlet hyperbola) | #893 | **DONE** ✓ |
+| — | Pointwise upper bound `f(n) ≤ H_{n-1}` for the prime-gap reciprocal sum | #950 | **DONE** ✓ |
+| — | Per-prime lower bound `f(p+1) ≥ 1` and limsup ≥ 1 | #950 | **DONE** ✓ |
+| — | Squarefree reformulation equivalence for primary pseudoperfect numbers | #313 | **DONE** ✓ |
 
 ### Active Queue (ranked by impact × feasibility)
 
@@ -1259,6 +1337,10 @@ or **Known** (formalization of a published result or folklore).
 | Infinitely many weird numbers | Benkoski & Erdős (1974) | `WeirdNumbers/Structure.lean` |
 | #242 → #302 bridge | Elementary algebra | `ErdosStraus/TripleBridge.lean` |
 | SumFree → TripleFree | Trivial | `UnitFractionSets/Connections.lean` |
+| Closed-form `n · H_n − n` lower bound for `f(n) = ∑ τ(2^k − 1)` | Classical (Dirichlet hyperbola + divisor injection) | `MersenneDivisorSums/HarmonicLowerBound.lean` |
+| Pointwise upper bound `f(n) ≤ H_{n-1}` for the prime-gap reciprocal sum | Classical (injection on gaps) | `PrimeGapHarmonic/UpperBound.lean` |
+| Per-prime lower bound `f(p+1) ≥ 1` and infinitude of `f ≥ 1` | Elementary | `PrimeGapHarmonic/UpperBound.lean` |
+| Squarefree reformulation `isPrimaryPseudoperfect_iff_squarefree_form` | Standard (literature definition) | `PrimaryPseudoperfect/Squarefree.lean` |
 
 **Maintaining this table**: When a new theorem is proved, add it here and
 classify it. When a result previously marked "Novel" or "Possibly novel"
