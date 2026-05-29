@@ -141,3 +141,4 @@ import Erdos.PermutationMonotoneAP.VanDerCorput
 import Erdos.PermutationMonotoneAP.Construction
 import Erdos.PermutationMonotoneAP.Reflection
 import Erdos.PermutationMonotoneAP.Descent
+import Erdos.PermutationMonotoneAP.Dyadic
