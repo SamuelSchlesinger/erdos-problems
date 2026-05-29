@@ -1114,6 +1114,59 @@ The conjecture says the *typical* prime-gap reciprocal sum is `1`, but the
 
 ---
 
+## Problems #195, #196, #197: Monotone APs in Permutations of ℤ/ℕ
+
+A *monotone k-term AP* in a permutation (sequence) is `k` values forming an
+arithmetic progression that appear in monotone order of position. #195: the
+largest `k` with every permutation of ℤ containing a monotone `k`-AP (known
+`3 ≤ k* ≤ 4`). #196: must every permutation of ℕ contain a monotone 4-AP?
+#197 (Erdős–Graham): can ℕ be partitioned into two sets, each enumerable to
+avoid monotone 3-APs?
+
+### Papers & Techniques
+
+| Paper | Key Contribution |
+|-------|-----------------|
+| Davis–Entringer–Graham–Simmons 1977 [DEGS77] | Every permutation of ℕ has a monotone 3-AP; ℕ avoids monotone 5-APs; doubly-infinite avoids 4-APs |
+| LeSaulnier–Vijay 2010 [LV10] | α(3)≥1/2, β(3)≥1/4, α(4)=1; #197 is NO if α(3)+β(3)<1; conjectures α(3)=1/2, β(3)=1/4 (couldn't show β(3)<1) |
+| Geneson 2019 [Ge19] | Permutations of ℤ avoiding monotone 6-APs; lists #197 open |
+| Adenwalla 2024 [Ad24] | ℤ avoids monotone 5-APs; ℕ avoids 4-APs with diff not divisible by 2^k; β_{ℤ⁺}(4)=1 |
+
+**The open content.** #195/#196 hinge on the 4-AP question (barrier: differences
+divisible by high powers of 2 — a 2-adic/order-type obstruction). #197 reduces to
+proving a density UPPER bound `α(3)+β(3)<1` — no nontrivial upper bound is known.
+
+### Ideas Tried
+
+- **Framework + base case (first formalization of the cluster)**: ✓ **DONE**
+  (`Erdos/PermutationMonotoneAP/`). `Statement.lean`: `HasMonotoneAP`, `IsFree`,
+  `Erdos196`, `Erdos197`. **DEGS base case** `hasMonotoneAP_three`: every
+  permutation of ℕ has a monotone 3-AP (clean: first term `a`, first larger term
+  `f k`, then `2(f k)−a` occurs later).
+- **Structural necessary condition**: ✓ **DONE** (`Forcing.lean`).
+  `not_isFree_three_of_containsAP`: a 3-free set contains no infinite AP
+  (direct DEGS-style forcing on the AP elements).
+- **Density reduction (the precise #197 target)**: ✓ **DONE** (`Density.lean`).
+  Natural density layer (`upperDensity`, `lowerDensity` via `Set.ncard` and
+  limsup/liminf); `upperDensity_add_lowerDensity_compl` (general `d̄(A)+d_(Aᶜ)=1`);
+  `not_erdos197_of_density_bounds`: if `∀ 3-free S, upperDensity S ≤ uA` and
+  `≤ uB` for lower, with `uA+uB<1`, then `¬Erdos197`.
+- **Van der Corput engine**: ✓ **DONE** (`VanDerCorput.lean`).
+  `vdc_middle_not_between`: the reverse-binary order makes every 3-AP middle
+  extreme (no monotone 3-AP). Clean 2-adic proof. The within-block scrambler for
+  positive-density 3-free constructions (vdc itself is a dense, not ω, order).
+
+### Ideas To Try
+
+- **Positive-density 3-free construction** (LV's `T` using vdc-ordered blocks) →
+  formalize `α(3) ≥ 1/2`, `β(3) ≥ 1/4` lower bounds. Substantial (needs the
+  union-of-blocks enumeration `ℕ ≃ S`).
+- **Density upper bounds** (`α(3) ≤ 1/2`, `β(3) < 1`, or `α(3)+β(3)<1`) — the
+  open content; needs additive-combinatorial control of collisions
+  (see `research/permutation-monotone-ap/notes.md` Attack Log). HARD.
+
+---
+
 ## Cross-Cutting Observations
 
 ### The 1/2 Barrier

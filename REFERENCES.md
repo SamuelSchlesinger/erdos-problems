@@ -229,3 +229,32 @@ Citation keys match doc-comments in the Lean source.
 - **[vD]** van Doorn, W. "Upper bound f(N) ≤ (25/28+o(1))N." Same
   construction works for both #301 and #327. Contribution at
   [erdosproblems.com](https://www.erdosproblems.com/301).
+
+---
+
+## Problems #195, #196, #197: Monotone Arithmetic Progressions in Permutations
+
+- **[DEGS77]** Davis, J. A., Entringer, R. C., Graham, R. L. & Simmons, G. J.
+  (1977). "On permutations containing no long arithmetic progressions."
+  Acta Arith. 34, 81–90. Every permutation of ℕ contains a monotone 3-AP;
+  permutations of ℕ avoiding monotone 5-APs exist; doubly-infinite permutations
+  avoiding monotone 4-APs exist.
+
+- **[LV10]** LeSaulnier, T. D. & Vijay, S. (2010). "On permutations avoiding
+  arithmetic progressions." [arXiv:1004.1740](https://arxiv.org/abs/1004.1740).
+  Defines α(k), β(k) (sup upper/lower density of k-free sets); proves
+  α(3) ≥ 1/2, β(3) ≥ 1/4, α(4) = 1, β(4) ≥ 1/3; observes the Erdős–Graham
+  partition problem (#197) is negative if α(3)+β(3) < 1; conjectures α(3)=1/2,
+  β(3)=1/4 (could not even show β(3) < 1).
+
+- **[Ge19]** Geneson, J. (2019). "Forbidden arithmetic progressions in
+  permutations of subsets of the integers." Discrete Math.
+  [arXiv:1803.06334](https://arxiv.org/abs/1803.06334). Permutations of ℤ
+  avoiding monotone 6-APs; lists the partition problem (#197) as open.
+
+- **[Ad24]** Adenwalla, S. (2024). "Avoiding monotone arithmetic progressions
+  in permutations of integers." Discrete Math.
+  [arXiv:2211.04451](https://arxiv.org/abs/2211.04451). Permutations of ℤ
+  avoiding monotone 5-APs; for each k, permutations of ℕ avoiding monotone
+  4-APs with common difference not divisible by 2^k; β_{ℤ⁺}(4)=1. The 4-AP
+  avoidance question for ℕ and ℤ (#195/#196) remains open.

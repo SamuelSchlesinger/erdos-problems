@@ -134,3 +134,10 @@ import Erdos.WeirdNumbers.OddWeirdFourFactors
 import Erdos.WeirdNumbers.PrimitiveWeird
 import Erdos.WeirdNumbers.EgyptianBridge
 import Erdos.WeirdNumbers.DivisorEgyptianFree
+import Erdos.PermutationMonotoneAP.Statement
+import Erdos.PermutationMonotoneAP.Forcing
+import Erdos.PermutationMonotoneAP.Density
+import Erdos.PermutationMonotoneAP.VanDerCorput
+import Erdos.PermutationMonotoneAP.Construction
+import Erdos.PermutationMonotoneAP.Reflection
+import Erdos.PermutationMonotoneAP.Descent
