@@ -165,6 +165,59 @@ theorem vdc_middle_not_between (x d : ℕ) (hd : 0 < d) :
     rw [e2] at e1
     simp at e1
 
+/-!
+## Corollary: the van der Corput order has no monotone `k`-AP for any `k ≥ 3`
+
+This is the heart of the **construction-side** analysis of Erdős #196/#195 (does a
+permutation of `ℕ`/`ℤ` avoid all monotone 4-APs?). The 3-AP result already gives the
+4-AP (and every-`k`-AP) result *for free*, by a one-line observation:
+
+> A vdc-monotone `k`-AP, `k ≥ 3`, contains a vdc-monotone consecutive 3-AP
+> `(x+jd, x+(j+1)d, x+(j+2)d)`, whose middle is vdc-*between* its endpoints —
+> contradicting `vdc_middle_not_between`.
+
+The underlying 2-adic mechanism is *uniform in `d`* — in particular it handles
+common differences `d` with **arbitrarily high 2-adic valuation** `v₂(d)`, which is
+exactly the open barrier in Adenwalla's partial constructions (those handle only
+`v₂(d) < k`). At bit `v = v₂(d)` the AP terms alternate in bit `v` as
+`c, c̄, c, c̄, …` (by index parity), and `vdcLt` is decided by that lowest differing
+bit; so consecutive terms always *flip* across bit `v`, never producing a monotone
+run of length `≥ 3`.
+
+**The honest catch (why this does NOT resolve #196).** `vdcLt` is a *dense* strict
+total order on `ℕ` (`vdcLt_trichotomous` + density: between any two there is a third)
+— order type ≈ the dyadic rationals in `[0,1)`, **not** order type `ω`. A permutation
+of `ℕ` requires order type `ω` (a least element, finite predecessor sets). The DEGS
+3-AP forcing (`Descent.rank_descent`, `Statement.hasMonotoneAP_three`) uses the
+*least element* of `ω` essentially, and indeed `ℕ`-permutations are forced to contain
+a monotone 3-AP — while this dense order avoids *all* `k`-APs. So the entire content
+of #196 is the **order-type gap** `ω` vs. dense: can the all-scales 2-adic avoidance
+of `vdcLt` be realized at order type `ω`? This theorem isolates that gap precisely. -/
+
+/-- **Van der Corput avoids monotone 4-APs.** For every 4-term AP `x, x+d, x+2d, x+3d`
+(`d ≥ 1`), the four terms are never strictly vdc-monotone — neither
+`x ≺ x+d ≺ x+2d ≺ x+3d` nor its reverse. (Immediate from `vdc_middle_not_between`:
+the first three terms would be vdc-monotone, making `x+d` vdc-between `x` and `x+2d`.)
+
+This is the cleanest form of the *positive*/construction side of Erdős #196: the
+natural 2-adic order avoiding all monotone 4-APs (uniformly over `v₂(d)`) does exist
+— but as a *dense* order, not an `ω`-permutation. -/
+theorem vdc_no_monotone_fourAP (x d : ℕ) (hd : 0 < d) :
+    ¬ ((vdcLt x (x + d) ∧ vdcLt (x + d) (x + 2 * d) ∧ vdcLt (x + 2 * d) (x + 3 * d)) ∨
+       (vdcLt (x + 3 * d) (x + 2 * d) ∧ vdcLt (x + 2 * d) (x + d) ∧ vdcLt (x + d) x)) := by
+  rintro (⟨h01, h12, _⟩ | ⟨_, h21, h10⟩)
+  · exact vdc_middle_not_between x d hd (Or.inl ⟨h01, h12⟩)
+  · exact vdc_middle_not_between x d hd (Or.inr ⟨h21, h10⟩)
+
+/-- **Van der Corput avoids monotone APs of every length `k ≥ 3`.** Phrased on a
+length-`k` chain of AP terms given by a vdc-monotone witness: if the consecutive AP
+terms `r 0 ≺ r 1 ≺ ⋯` (or the reverse) are vdc-ordered, the first three already give
+a vdc-between configuration, impossible. Stated for the increasing case applied to any
+window; the contradiction comes from the first three terms only. -/
+theorem vdc_no_monotone_triple_increasing (x d : ℕ) (hd : 0 < d)
+    (h01 : vdcLt x (x + d)) (h12 : vdcLt (x + d) (x + 2 * d)) : False :=
+  vdc_middle_not_between x d hd (Or.inl ⟨h01, h12⟩)
+
 end VDC
 
 end PermutationMonotoneAP

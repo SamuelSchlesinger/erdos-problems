@@ -657,6 +657,49 @@ NET (whole investigation): α(3)≥1/4 constructed+formalized; β(3)<1 reduced t
 the first ω-essential consequence. The remaining gap (α≤1/2, β<1) is a genuine global-ω-order-type problem
 with no known tool — a natural, honest stopping point. ~21 theorems, all axiom-clean.
 
+## PROBING LOG 13 (2026-05-29) — PIVOT to #196/#195 (the 4-AP question); 2^k-divisible case fan-out
+
+New target (after consolidating #197 work): the 4-AP question. #196: does a permutation of ℕ avoiding
+monotone 4-APs exist? (Believed YES.) Adenwalla 2022 builds one avoiding 4-APs of difference NOT divisible
+by 2^k (each fixed k); the OPEN barrier is differences with unbounded v₂(d) — the 2^k-divisible case.
+
+★ CLEAN REFRAMING (recovered from Phase-1 fan-out; the key clarification) ★
+View a permutation as a LINEAR ORDER (well-order, type ω) on ℕ. "Avoid monotone 4-AP" = no value-4-AP is
+order-monotone.
+- **A 4-AP-free order EXISTS densely**: the vdc/bit-reversal DENSE order has NO monotone 3-AP
+  (`vdc_middle_not_between`), hence NO monotone k-AP for ANY k≥3 (a monotone 4-AP contains a monotone 3-AP).
+  [This resolves a Phase-1 agent contradiction: vdc DOES avoid 4-APs; the "vdc fails for 4-APs" claim was wrong.]
+- So **the ONLY obstruction to #196 is realizing a 4-AP-free order as TYPE ω** (vdc is dense — infinite
+  descending chains 2,4,8,…). SLACK vs #197: a type-ω 4-AP-free order MAY contain monotone 3-APs (3-AP-free
+  ω is impossible by DEGS; 4-AP-free ω is the open question).
+- **DEGS (type ω, proven)**: doubly-exponential blocks B_k=[s_k, s_k+2^(2^k)−1], vdc within, avoids monotone
+  5-APs. Interval-block methods have a PROVABLE **5-FLOOR** ("1+2+2": ≤2 AP-terms per vdc block + cross-block
+  count caps longest monotone AP at 5). To reach 4 you MUST go beyond interval blocks.
+
+★ THE 2-ADIC REDUCTION (heart of the barrier) ★
+A monotone 4-AP v,v+d,v+2d,v+3d with 2^k|d lies in ONE residue class mod 2^k (all ≡v) and rescales (/2^k)
+to an ODD-difference 4-AP. So: an order avoids ALL monotone 4-APs IFF every residue class mod 2^j (rescaled)
+avoids ODD-difference monotone 4-APs, for all j. ⟹ #196 reduces to a SELF-SIMILAR (2-adic) order avoiding
+odd-difference 4-APs at all scales at once. Adenwalla = bounded v₂ (finitely many scales) via a residue-mod-2
+INTERLEAVING; the BARRIER: the even-class descent loses the interleaving. Odd-d 4-APs alternate parity
+(terms 0,2 one parity; 1,3 the other) — the interleaving must scramble that.
+
+FORMALIZABLE WINS (recovered; being banked in Phase 2):
+- The project's self-similarity machinery is **k-GENERIC** (not 3-specific): the function-level affine
+  invariance `HasMonotoneAP (c + a·g) k ↔ HasMonotoneAP g k` (fwd all k; bwd needs k≥2) re-proves
+  subset/affine/apRestrict for any k. Self-similarity "costs nothing in k".
+- The dyadic 4-AP reduction (residue-class containment + odd rescale). Cleanest target: `IsFree (univ) 4`
+  (= `Erdos196Avoidable` = `¬Erdos196`).
+- DEGS-5 is formalizable by swapping LV widths q_k → 2^(2^k) in Construction.lean + the 1+2+2 counting lemma
+  (would be the first formalization of DEGS's 5-AP construction).
+
+PROCESS NOTE: Phase-1 workflow lost its structured output (schema-forced output choked after long runs; the
+numerics agent self-deadlocked polling background jobs). Phase-2 fix: plain-text returns, synchronous
+time-boxed numerics. Findings above recovered from agent transcripts.
+
+CRUX for Phase 2: build a type-ω, 2-adically self-similar order on ℕ avoiding monotone 4-APs (break the
+interval-block 5-floor using the 3-AP slack) — or prove the all-scales self-similar fixed point is obstructed.
+
 ## NEXT IDEAS
 - **Finish the construction enumeration** (cnt bijection + rank bijection + IsFree + density).
   The within-block vdc-rank bijection is the crux; prove directly (filter-subset + card) to
@@ -719,3 +762,246 @@ object is a BESPOKE 2-ADIC INVERSE THEOREM: "a bijective rank S->N avoiding the 
 3-APs must be a 2-adic (bit-reversal-graded) order", which DOES NOT EXIST in the literature and would
 have to be invented. Even granting it, the density-1/2 conclusion needs the omega-truncation argument
 that the RL fails to supply cleanly (see negative finding). Net viability of Attack A as stated: LOW-MODERATE.
+
+## PROBING LOG 14 (2026-05-29) — #196/#195 IMPOSSIBILITY ATTACK: calibrated refutation; YES is the right bet
+
+Phase: attack the OPPOSITE direction (is every type-ω order FORCED to contain a monotone 4-AP?),
+exploiting the all-scales 2-adic reduction. Verified everything synchronously (no `timeout` binary on
+this macOS; used in-Python wall-clock guards, bounded N). Sources re-read in full: Adenwalla 2211.04451
+(extracted to /tmp/adenwalla.txt) and LeSaulnier–Vijay 1004.1740 (/tmp/lv.txt).
+
+★ LITERATURE RE-CONFIRMED ★ #196/#195 (length-4) OPEN as of Adenwalla 2024 (his Question 1 verbatim:
+"Do there exist permutations of the positive integers or the integers that avoid 4-APs? ... it seems
+some new techniques will need to be applied"). DEGS built a DOUBLY-INFINITE (type ℤ-ish, two-sided)
+4-AP-free perm of ℕ — NOT type ω. So the order-type obstruction is the genuine, acknowledged content.
+
+★ EXACT LV ODD-DIFFERENCE CONSTRUCTION (the base case) — REBUILT & VERIFIED (/tmp/lv_exact.py, lv_verify.py) ★
+σᵢ = 3AP-free perm of the 2ⁱ consecutive EVENS {(4ⁱ+2)/3, …, (4ⁱ⁺¹−4)/3};
+πᵢ = 3AP-free perm of the 2^{i−1} consecutive ODDS {(4ⁱ+2)/6, …, (4ⁱ⁺¹−6)/6};
+order = σ₁π₁σ₂π₂σ₃π₃⋯  (TYPE ω — finite blocks listed in order). KEY INVARIANT (verified 0 violations
+/ 444k samples): if odd x precedes even y then 2x−y<0. ⟹ NO odd-difference monotone 4-AP (longest
+odd-d monotone AP = 3, measured; 0 odd-d 4-APs for all start<2000). So ODD-d 4-AP-avoidance IS
+ACHIEVABLE IN TYPE ω. THIS IS DECISIVE for the diagonal question (below).
+
+★ THE DIAGONAL FORCING HAS NO FOUNDATION (the main impossibility finding) ★ /tmp/diagonal_logic.py
+Geneson's Thm 5 (proven): every perm of ℕ has a 3-AP with diff divisible by k, for all k. Its engine is
+the SELF-REDUCTION: the multiples-of-k subsequence /k is a perm of ℕ ⟹ has a 3-AP (DEGS base) ⟹ pulls
+back. Trying the SAME for 4-APs: "multiples-of-k /k is a perm of ℕ ⟹ has a 4-AP" — but "every perm of ℕ
+has a 4-AP" IS #196. **CIRCULAR.** The 3-AP diagonal bites only because DEGS (3-AP forcing) is a THEOREM.
+The 4-AP diagonal would need a base case "every type-ω order has an ODD-d 4-AP" — and that base case is
+**FALSE** (LV above). So there is NO seed for an all-scales diagonal forcing. The all-scales 2-adic
+reduction is SELF-REFERENTIAL for 4-APs (#196 ⟺ #196 one scale down), not an independent obstruction.
+
+★ THE 2^k BARRIER, MADE PRECISE (/tmp/barrier_analysis.py) ★ Adenwalla Thm 4 (n=2^k): residue-mod-2^k
+INTER-class interleaving kills 4-APs with d not divisible by 2^k. The remaining (d divisible by 2^k)
+4-APs live in ONE residue class mod 2^k; rescaling that class /2^k, the INDUCED order is a plain
+interval-block order (the inter-class interleaving is GONE) — which has the 5-floor (measured 5–6, NOT
+≤3). To break the next scale you must interleave by parity WITHIN each class = use n=2^{k+1}, a globally
+different construction (different scaling/residue count). The k-constructions are mutually incompatible;
+a single value n has ONE rank. THIS is "the even-class descent loses the interleaving", confirmed.
+
+★ LV IS NOT SELF-SIMILAR (/tmp/selfsim_test.py, verify_4ap.py) ★ LV's order restricted to EVENS,
+rescaled /2, HAS an odd-d monotone 4-AP: explicitly the evens 2,4,6,8 have LV-ranks 0,1,3,5 (strictly
+increasing) = a monotone 4-AP of (original) difference 2. LV only ever promised ODD-d avoidance; the
+even-class descent fails. So LV alone does NOT solve #196 — exact failure exhibited.
+
+★ WHY 3-AP-free ω is IMPOSSIBLE but 4-AP-free ω is OPEN — the order-type distinction (/tmp/omega_distinction.py
++ adversarial.py, with a SELF-CORRECTION) ★ Let a = rank-min (rank 0), orbit Oₑ={a+iₑ}.
+- 3-AP-free: Oₑ must avoid monotone 3-APs in BOTH directions; T(x)=2x−a gives a SINGLE strictly
+  rank-descending chain a→2a... wait, descends — no infinite descent in ω ⟹ contradiction (DEGS /
+  Descent.lean's `no_infinite_doubling_orbit`). Cap = 2, AND a single monotone chain.
+- 4-AP-free: Oₑ must avoid monotone 4-APs ⟹ longest monotone run ≤ 3, in EITHER direction. ADVERSARIAL
+  CORRECTION (caught an overclaim of mine): I first said "only the increasing direction is banned from
+  a"; but the orbit minus a must ALSO be 4-AP-free among itself, so pure descent (decreasing 4-run) is
+  ALSO banned. The honest statement: the orbit just has to be a 4-AP-free SUB-ORDER = the SAME problem
+  recursed one scale down (self-similar). The cap is 3 (with slack: 3-runs allowed) and the descent can
+  RESET — so there is NO infinite-descent contradiction. The DEGS potential (rank descent) that kills
+  3-AP-free ω structurally FAILS for 4-AP-free ω, for this precise reason. No Ramsey/Erdős–Szekeres
+  forcing either: an infinite increasing(value,rank) subsequence can be AP-free (e.g. powers of 2).
+
+★ "DRIFT IS FORCED" — a clean PROVEN lemma (Sub-claim A, /tmp/drift.py) ★ If an order has BOUNDED
+displacement (|rank(n)−n| ≤ C for all n), then for any AP with common difference d > 2C the terms are
+placed in value-order = strictly increasing rank = MONOTONE, giving arbitrarily long monotone APs.
+⟹ ANY 4-AP-free type-ω order MUST have UNBOUNDED displacement. (Verified: C=4 order has longest mono
+AP = 75, all from d=4.) This is the rigorous quantification of "type ω forces drift" — but it is
+NECESSARY-only: unbounded (yet finite-per-element) displacement is exactly what Adenwalla-window
+avoiders have (displacement growing with the window's k), and whether a SINGLE coherent ω profile
+realizes all scales is the open content. Drift does NOT force a 4-AP; it forces unbounded drift.
+
+★ KÖNIG-TREE STATUS (re-confirmed) ★ Finite all-scales 4-AP avoiders of [1,N] EXIST for every N
+(Adenwalla Thm 4 with 2^k > N/3 ⟹ on [1,N] every d<2^k is "not divisible by 2^k" ⟹ ALL 4-APs avoided
+on the window). [My ad-hoc single-interval Adenwalla code gave 5–6 because it doesn't faithfully
+reproduce his OVERLAPPING [aⁱ,aⁱ⁺ⁿ) interleaving — the THEOREM is what guarantees the window avoiders.]
+So #196 is EXACTLY the 3-AP situation: avoiders exist at every finite level (a finitely-branching tree
+⟹ an avoiding LINEAR ORDER exists by König), and the entire question is whether the order type can be ω.
+For 3-APs the answer is NO (DEGS forcing). For 4-APs the forcing mechanism PROVABLY does not transfer.
+
+═══ HONEST VERDICT (task part 3) ═══
+1. Is there a forcing that every type-ω order has a monotone 4-AP? — NO viable one found, and a precise
+   reason it should NOT exist: (a) the all-scales diagonal is self-referential (needs an odd-d 4-AP
+   base case that LV REFUTES); (b) the rank-descent potential that kills 3-AP-free ω only caps the
+   orbit at 3 with resettable slack for 4-APs (no infinite descent); (c) no Ramsey/E–S forcing (sparse
+   increasing sets are AP-free). Every forcing fragment that WORKS for 3-APs has a concrete 4-AP escape.
+2. Drift: type ω FORCES unbounded displacement (PROVEN, clean). It does NOT force a 4-AP — unbounded
+   finite displacement is consistent with avoidance (Adenwalla windows realize it per-scale).
+3. Does Adenwalla make YES overwhelmingly likely? — YES, this is the calibrated bet. Adenwalla covers
+   every BOUNDED band of scales (d not divisible by 2^k, ANY k) in type ω; the ONLY gap is gluing all
+   k simultaneously, an order-type/phase-coherence problem with NO impossibility obstruction (the two
+   candidate obstructions — diagonal forcing and rank-descent — both PROVABLY fail for 4-APs). The
+   problem is "wearing additive clothing": it is a Π⁰-style coherence/realizability question, the SAME
+   flavor as 3-APs but with the unique forcing lever removed. Believed answer YES (#195 k*=3) is well
+   supported; impossibility is REFUTED at the level of every known forcing tool. Not closed (the
+   coherent all-scales ω construction is genuinely unbuilt), but the weight of evidence is firmly YES.
+
+CONSTRUCTION TARGET (most promising, for a future YES attempt): a single ω order whose restriction to
+every residue class mod 2^j, rescaled, is AGAIN such an order AND parity-splits (LV-invariant) at its
+top scale — i.e. a TRUE self-similar fixed point of the LV mechanism, with the block scalings chosen so
+the per-scale geometric layouts are mutually compatible (the phase-coherence the 2-adic reduction needs).
+The obstruction to naive recursion: full recursion = sort by v₂(n) = ∞-many ∞-classes concatenated = NOT
+ω (same wall as vdc). The 3-AP SLACK (3-runs allowed at each scale) is the room that vdc/DEGS-5 don't use
+— a working construction must spend exactly the slack to keep displacement finite-per-element at all
+scales. This is the precise crux; unbuilt here, but un-obstructed.
+
+## ★ PROBING LOG 16 (2026-05-29) — ADENWALLA 2^k MECHANISM RECONSTRUCTED; the all-scales diagonal CONFLICT pinned ★
+
+Task: extend Adenwalla (bounded v₂) to ALL scales (the actual #196/#195 4-AP question), or find the precise
+two-scale conflict. READ the actual paper (arXiv:2211.04451 v7, /tmp/adenwalla.txt) — Theorem 4 reconstructed
+& VERIFIED numerically (/tmp/adenwalla_thm4b.py: 0 violations for n=2 AND n=4, ~5000 values each).
+
+ADENWALLA THEOREM 4 (exact). For n=2^k, a≥3: blocks Xᵢʲ = a 3-AP-free perm of {x≡j mod n : x∈[aⁱ,aⁱ⁺¹)}.
+S = perm of [1,n] avoiding 3-APs MOD n (exists iff n=2^k; the vdc/bit-reversal residue order works). Listing R:
+initial row of n blocks (octave 0, residues in S-order), then rows t=1,2,…; row t lists blocks
+(octave e = tn−p, residue Sₚ) for p=0..n−1 — a DESCENDING octave staircase (e: tn,tn−1,…,(t−1)n+1) paired
+against the residue order S. PROOF that R breaks every 4-AP with d≢0 mod n: REACH BOUND — for an increasing
+4-AP m₁<m₂<m₃<m₄, m₄ = m₁+3d < 3m₂ (since m₁≥1), and m₂∈octave e₂ ⟹ m₄<3·aᵉ²⁺¹≤aᵉ²⁺² ⟹ **m₂,m₃,m₄ sit in at
+most 2 consecutive octaves {e₂,e₂+1}** (m₁ free, lower); RESIDUE ARGUMENT — the staircase forces the residues
+of m₂,m₃,m₄ to appear in increasing S-index l₁<l₂<l₃; d≢0 mod n ⟹ 3 distinct residues forming an AP mod n;
+S avoids 3-APs mod n ⟹ contradiction. ∎
+
+(1) THE RESOURCE CONSUMED PER SCALE k: a 3-AP-free-mod-2^k residue order S_{2^k} COUPLED to a descending
+octave staircase of ROW-LENGTH 2^k. R_{2^k} breaks ALL scales 0,1,…,k−1 at once (verified v₂(d)<k ⟹ broken).
+So low scales are NOT the problem — one big modulus does them all; the diagonal only needs modulus→∞ as VALUES
+grow, to catch ever-higher scales.
+
+(2) DIAGONAL ATTEMPT + THE EXACT CONFLICT. Two assets are genuinely compatible:
+   - FACT 1 (verified): "all evens before all odds" breaks EVERY odd-difference AP of length ≥3 (odd-d AP
+     alternates parity p,1−p,p,1−p ⟹ ranks low,high,low,high — never monotone). This is the v₂=0 breaker.
+   - FACT 2 (verified k=1..5): the vdc residue orders are NESTED — S_{2^{k+1}} restricted to even residues, /2,
+     EQUALS S_{2^k}. So the residue half of the staircase telescopes perfectly across scales. NO conflict there.
+   THE CONFLICT IS THE OCTAVE BACKBONE (FACT 3, verified):
+   - ω order-type REQUIRES the octave backbone to be (roughly) ASCENDING — each value finitely many
+     predecessors. A modulus-INDEPENDENT ascending octave order makes the construction LEAK cross-octave APs
+     at EVERY scale (/tmp/fixed_octave_order.py: 15 violations, scales 0,1,2 — e.g. (5,7,9,11) d=2 monotone),
+     because later AP terms land in higher octaves ⟹ ranks ascend ⟹ monotone. Within-octave scrambling can't
+     catch a cross-octave AP.
+   - Breaking scale k REQUIRES Adenwalla's octave↔residue COUPLING = a DESCENDING run of length 2^k. But a
+     single octave order cannot be a descending-run staircase for two different lengths: mod-2 gives octave
+     order [2,1,4,3,6,5,…] (runs of 2), mod-4 gives [4,3,2,1,8,7,6,5,…] (runs of 4). These DISAGREE — mod-2
+     puts octave 1 BEFORE 3 (different runs [2,1],[4,3]); mod-4 puts 3 BEFORE 1 (same run [4,3,2,1]).
+     12 such clashes on octaves 1..8. Confirmed at the integer level: Adenwalla R₈ vs R₄ have 1640 order
+     inversions on shared values (/tmp/redesign_staircase.py), concentrated at far-apart octaves with equal
+     residue mod 4 — the row-grouping length, not the residue order, is what's irreconcilable.
+
+(3) NO CLEAN SELF-SIMILAR FIXED POINT (this session). Every consistent (modulus-stable, ω) variant LEAKS:
+   - telescoping modulus that doubles between octave-regimes with empty-octave GAPS (so reach-2 APs can't
+     straddle a doubling) STILL leaks (/tmp/final_creative.py, 407k values): residual violations are EXACTLY
+     at scales j ≥ k of each regime's fixed modulus 2^k. A finite regime of modulus 2^k breaks only scales <k;
+     any AP of scale j≥k living inside it survives. So a fixed modulus is never enough, and modulus→∞ re-invokes
+     the run-length conflict (the octave backbone can't change row-length coherently).
+   THE PRECISE TWO-SCALE CONFLICT (deliverable): scales k and k+1 demand octave row-lengths 2^k and 2^{k+1};
+   the corresponding descending-run octave orders DISAGREE on the relative order of octaves that lie in the same
+   2^{k+1}-run but different 2^k-runs (witness: octaves 1 vs 3 for k=1). Equivalently — the ONLY octave order
+   simultaneously presenting nested descending runs of EVERY length 2^k is the full bit-reversal (vdc) order on
+   the octave index, which is DENSE (not ω: a fixed octave has ∞-many vdc-predecessors). So: {ω order type} ∧
+   {Adenwalla residue-staircase mechanism at all scales} are INCOMPATIBLE on the octave backbone. This is the
+   2-adic barrier made precise — exactly the place Adenwalla's paper says "some new techniques will be needed."
+
+HONEST VERDICT: the natural diagonalization of Adenwalla's mechanism CANNOT close #196 — proven (numerically +
+structurally) to hit the run-length/ω conflict. This does NOT prove #196 is NO (the residue staircase is only
+ONE sufficient mechanism; FACT 1+2 show the residue side telescopes, so a NON-staircase octave coupling that is
+ω AND catches cross-octave APs at unbounded scale is not ruled out — it would have to abandon the
+"ascending-octave or descending-run" dichotomy, e.g. exploit the 3-AP slack). NEW ASSET for future: the vdc
+residue nesting (FACT 2) + the tight 2-octave reach (m₂,m₃,m₄ within 2 consecutive octaves) — these are the
+clean ingredients a future construction can build on. Scripts: /tmp/adenwalla_thm4b.py (Thm 4 verified),
+/tmp/fixed_octave_order.py (ω-backbone leaks), /tmp/redesign_staircase.py (R₄/R₈ inconsistent),
+/tmp/final_creative.py (telescope leaks at scale≥k), /tmp/consolidate.py (3 facts).
+DO-NOT-REPEAT: diagonalizing Adenwalla's descending-run staircase to all scales (pinned: run-length conflict
+vs ω). A YES needs a genuinely different octave-coupling that is ω and scale-unbounded.
+
+## PROBING LOG 15 (2026-05-29) — #196 CONSTRUCTION crux: SAT-based omega-feasibility (NEW, decisive numerics)
+
+Phase: build an explicit type-omega 2-adic self-similar order avoiding monotone 4-APs (or pin the
+obstruction). Synchronous numerics only (SIGALRM guards in /tmp/tlimit.py; no `timeout` binary on macOS).
+Framework /tmp/lib.py (key->order, longest-AP, has_4ap, omega rank-stability). SAT via pysat Glucose3
+(order vars b(u,w)=u-before-w + transitivity + 4-AP clauses both directions; cross-verified vs brute force
+/tmp/c41_verify_sat.py — encoding CORRECT).
+
+CONSTRUCTION FAMILIES TESTED (all FAIL to reach zero 4-APs while omega; abundant 4-APs at all v2 scales):
+- Differing-bit selectors (compare m,n at a chosen differing bit): ONLY min(=vdc, dense not-omega, 0 APs)
+  and max(=identity, omega, all APs) are TRANSITIVE. All "in-between" selectors (second-lowest,
+  highest-isolated) are NON-TRANSITIVE (1200+ violations N=32) — `sorted` artifacts, DEAD END. [/tmp/c9]
+- Fully-self-similar shuffles (order = fixed merge string s of two copies evens=2*O, odds=2*O+1):
+  EXHAUSTIVE over periodic s up to period 8 — ZERO are 4-AP-free (floor 4; best omega ones admit the
+  d=1 AP 0,1,2,3). Non-periodic s (Thue-Morse, ruler) WORSE (6-8). PROVEN-numerically floor: a single
+  fixed-merge self-similar order has longest-AP >= 4. [/tmp/c12,c13,c15]  DO-NOT-REPEAT: single fixed
+  merge string.
+- Scale-varying recursive merges (TM-shifted, vdc-level, biased-TM): biased-TM is omega (rank(1)=2 stable)
+  with the FEWEST odd-d 4-APs of any omega construction (~383 vs 5461 identity) but still NONZERO. [/tmp/c38]
+- Closed-form omega keys: Gray code / inverse-Gray (igray) cut odd-d 4-APs ~15x (363 on [0,512)) and is
+  omega — best closed form — but nonzero. msb-then-vdc-of-rest, lazy-bit-reversal, interleave: all nonzero
+  abundant. [/tmp/c19,c31]
+- Magnitude-band [2^k,2^{k+1}) + evens-first/vdc within: WORSE (7). Geometric ratio-2 bands bad. [/tmp/c5]
+- Doubly-exp interval blocks + vdc: 5-floor REconfirmed (witness d=2 = cross-block). Alternating reversal
+  -> longest-run 4 but still 427 odd-d 4-APs. Uniform tiling of any fixed within-block scramble: terrible
+  (lined-up blocks, AP=24). [/tmp/c3,c4,c14,c30]
+
+★ KEY NEW DECISIVE RESULTS (SAT, the real contribution of this log) ★
+1. FACT 1 reconfirmed: "all evens before all odds" kills odd-d (v2=0) monotone APs of length>=3 (longest
+   odd-d run = 2), BUT globally => rank(1)=N/2 -> infinity = NOT omega (= the vdc wall, c1). The razor:
+   evens-before-odds breaks odd-d 4-APs but destroys omega; the 3-AP SLACK (3-runs allowed) is the only room.
+2. ★ THE 2-ADIC/COMPACTNESS DISTINCTION MADE PRECISE (why #196 is genuinely open) ★ A 4-AP-free TOTAL
+   ORDER on N EXISTS by compactness/Konig (finite avoiders exist at every N: vdc-restricted-to-[0,N) is one,
+   verified). vdc itself is such an order. But TYPE-OMEGA is NOT a closed/finitary condition — so compactness
+   does NOT deliver an omega avoider. THIS is the entire content of #196. Confirmed: greedy "extend finite
+   order preserving relative order" CHAINS DIE (stuck at 24 though fresh [0,28) exists, c34) — paths in the
+   Konig tree can be finite; existence of an infinite (omega) path is exactly the open question.
+3. ★ DRIFT LEMMA quantified by SAT (min uniform max-displacement of a 4-AP-free order of [0,N)) ★:
+   N: 12 16 20 24 28 32 36 40   -> min-max-disp: 2 4 4 5 6 7 8 10. GROWS (confirms displacement->inf, the
+   drift lemma) at rate ~N/4-N/5 (roughly linear). Linear growth is FULLY CONSISTENT with type omega (finite
+   displacement per element); does NOT obstruct. [/tmp/c28b,c32]
+4. ★ OMEGA SURROGATE FEASIBLE TO N=64 (the most YES-leaning evidence) ★: a 4-AP-free order of [0,N) with
+   rank(v) <= 2v+6 for ALL v (= genuine type-omega profile, linear displacement) is FEASIBLE for every N
+   tested up to 64 (c40). Tighter: rank<=1.5v+4 ok to 40; rank<=1.3v+4 ok @32 fails @40; min linear slope
+   (add=6) crept 1.0(N<=32)->1.2(N=40) — borderline whether a clean LINEAR-displacement omega order exists
+   or displacement must be slightly super-linear. Either way an omega avoider is strongly plausible.
+5. ★ EMERGENT RELAXED SELF-SIMILARITY ★ The SAT omega-optimal orders are NOT exactly self-similar, but
+   their even-residues/2 and odd-residues/2 orders are NEARLY IDENTICAL 4-AP-free orders (e.g. both start
+   7,9,8,0... at N=48, c39). I.e. when FORCED omega, the solver spontaneously produces orders where both
+   residue classes rescale to (almost) the same 4-AP-free order — exactly the relaxed self-similarity the
+   2-adic reduction asks for. Encouraging for YES.
+
+VERDICT (this log): No explicit closed-form/simple-recursive omega 4-AP-free construction found (consistent
+with the literature; problem open). BUT three independent SAT probes (initial-segment placement always = m;
+omega surrogate rank<=2v+6 feasible to N=64; emergent relaxed self-similarity) all lean #196 = YES, with the
+honest caveat that finite-N feasibility cannot certify the infinite (omega) limit — the same compactness gap
+that IS the open problem. Best explicit omega candidate so far: inverse-Gray-code order (igray, 15x fewer
+odd-d 4-APs than identity, omega) — a good SEED for a future SAT-guided incremental construction.
+DO-NOT-REPEAT: single-fixed-merge self-similar shuffles (floor 4, exhaustively checked); non-transitive
+differing-bit selectors; uniform-tiled interval blocks. Scripts: /tmp/c*.py.
+
+## PROBING LOG 17 (2026-05-29) — direct (non-workflow) testbench; THE WALL confirmed by hand
+
+After the workflows, reproduced the landscape from scratch (own checker /tmp/ap4*.py). The recursive
+even/odd merge family makes the wall explicit (N=256):
+- `block` = recursive evens-first = **vdc**: 0 monotone 4-APs, longest monotone AP = 2 (no 3-AP either!),
+  but maxdisp ≈ N (value 1 deferred to ~N/2) ⟹ NOT type ω.
+- `even_first` interleave = identity (10795 4-APs).
+- Every ω-izing merge modification (`alt_pp`, `alt_level`, `reflect_odd`) reintroduces 4-APs, FLOORING at
+  longest monotone AP = 4 (alt_pp: 687 4-APs, maxdisp ≈ N/2).
+ONE-LINE WALL: the unique order with 0 monotone APs is vdc (recursive evens-first) = dense, NOT ω; every
+displacement-bounding (ω-izing) modification reintroduces monotone 4-APs (floor 4). The 3-AP slack is NOT
+enough within the natural merge/interval-block families. Displacement-bounded backtracking (rank≤2v+c) with
+greedy/urgency heuristics fails to find the SAT-certified N=64 witness (bad heuristic, not infeasibility) —
+the witness's structure resists a closed form. CONCLUSION: #196's explicit type-ω 0-4AP construction lies
+outside all natural self-similar/block families; it is the genuine open frontier (YES well-supported by the
+SAT evidence + no surviving forcing for NO). CONSOLIDATED here.

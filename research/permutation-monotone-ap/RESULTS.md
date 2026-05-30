@@ -34,6 +34,7 @@ densities. **#197 has answer NO if `α(3) + β(3) < 1`** (since a partition forc
 | `Construction.lean` | **`α(3) ≥ 1/4`**: a fully formalized positive-density 3-free set (the LV construction) |
 | `Reflection.lean` | the reflection leak at records; record values are 3-AP-free; **the conditional reduction of `β(3)<1`** |
 | `Descent.lean` | **rank descent** + **no infinite doubling orbit** — the first ω-essential consequence |
+| `Dyadic.lean` | **#196 layer**: k-generic affine invariance `HasMonotoneAP (c+a·g) k ↔ HasMonotoneAP g k`; the **dyadic 4-AP reduction** `isFree_four_dyadicRestrict`; `Erdos196Avoidable ↔ ¬Erdos196 ↔ IsFree univ 4`. Plus `vdc_no_monotone_fourAP` (vdc avoids 4-APs) in `VanDerCorput.lean` |
 
 ### Headline results
 
@@ -81,8 +82,30 @@ permuton / energy tool is structurally blind to this. A genuinely non-local tool
 Ramsey, or a global potential strong enough to see density — which rank descent is not) would
 be needed. This is, we believe, exactly why the problem has stood since 1977.
 
+## Problem #196 / #195 (the 4-AP question): reframing + barrier
+
+A separate sub-study (`Dyadic.lean` + `notes.md` PROBING LOGs 13–17) attacked the open 4-AP
+question via the `2ᵏ`-divisible case. Key outcomes:
+
+- **Clean reframing.** A monotone 4-AP with `2ᵏ | d` lies in one residue class mod `2ᵏ` and
+  rescales to an *odd*-difference 4-AP (`isFree_four_dyadicRestrict`). And the vdc/bit-reversal
+  *dense* order has **no** monotone AP of any length `≥ 3` (`vdc_no_monotone_fourAP`: no monotone
+  3-AP ⟹ no monotone 4-AP). So **#196 ⟺ realize a 4-AP-free order at order type ω** — the
+  obstruction is purely order-type, not additive. (`Erdos196Avoidable ↔ IsFree univ 4`.)
+- **The wall (numerically pinned).** The unique order killing all monotone APs is vdc
+  (recursive evens-first), which is *dense* (displacement `≈ N`, not ω). Every ω-izing
+  modification — interval blocks (DEGS), self-similar merges — reintroduces monotone 4-APs,
+  flooring at longest monotone AP `= 4`. DEGS reach 5-AP-avoidance (type ω); Adenwalla reach
+  4-AP-avoidance for differences of *bounded* `v₂`; the open content is *all scales at once*,
+  which requires a non-uniform/"fractal" coupling outside every natural family tried.
+- **Evidence for the answer.** Three independent SAT probes (initial-segment placement;
+  `rank(v) ≤ 2v+6` feasible to `N=64`; emergent relaxed self-similarity) plus the failure of
+  every forcing mechanism for NO point firmly to **#196 = YES / #195 `k* = 3`** — but no
+  explicit type-ω construction was found (it is the genuine 50-year frontier).
+
 ## Status
 
-- **Lower bounds**: `α(3) ≥ 1/4` formalized. (`β(3) ≥ 1/4` lower bound: the same construction.)
-- **Upper bounds / the conjectures (#195/#196/#197)**: **open**, frontier precisely mapped.
-- ~21 theorems, all axiom-clean; full project builds green.
+- **#197 lower bounds**: `α(3) ≥ 1/4` formalized.
+- **#197 upper bounds** (`α(3)≤1/2`, `β(3)<1`): **open**; `β(3)<1` reduced to a record-rank bound; barrier map shows it is a global ω-order-type problem.
+- **#196/#195**: **open**; reframed as "4-AP-free order of type ω", evidence for YES, the all-scales construction is the frontier.
+- ~24 theorems across 8 files, all axiom-clean; full project builds green.
