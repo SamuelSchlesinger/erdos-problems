@@ -35,6 +35,7 @@ densities. **#197 has answer NO if `α(3) + β(3) < 1`** (since a partition forc
 | `Reflection.lean` | the reflection leak at records; record values are 3-AP-free; **the conditional reduction of `β(3)<1`** |
 | `Descent.lean` | **rank descent** + **no infinite doubling orbit** — the first ω-essential consequence |
 | `Dyadic.lean` | **#196 layer**: k-generic affine invariance `HasMonotoneAP (c+a·g) k ↔ HasMonotoneAP g k`; the **dyadic 4-AP reduction** `isFree_four_dyadicRestrict`; `Erdos196Avoidable ↔ ¬Erdos196 ↔ IsFree univ 4`. Plus `vdc_no_monotone_fourAP` (vdc avoids 4-APs) in `VanDerCorput.lean` |
+| `Compactness.lean` | **#196 finitary bridge**: `exists_finiteFeasible_iff_avoidable` — a 4-AP-avoiding permutation of ℕ exists **iff** some uniform bound `f` makes every initial segment `[0,N)` 4-AP-free-orderable with `σ v ≤ f v` (König's lemma + rank-compression). Plus the **drift lemma** `unbounded_displacement_of_avoiding`: every 4-AP avoider has unbounded displacement (`f v − v → ∞`) |
 
 ### Headline results
 
@@ -92,6 +93,19 @@ question via the `2ᵏ`-divisible case. Key outcomes:
   *dense* order has **no** monotone AP of any length `≥ 3` (`vdc_no_monotone_fourAP`: no monotone
   3-AP ⟹ no monotone 4-AP). So **#196 ⟺ realize a 4-AP-free order at order type ω** — the
   obstruction is purely order-type, not additive. (`Erdos196Avoidable ↔ IsFree univ 4`.)
+- **The finitary bridge (`Compactness.lean`, NEW).** The order-type-ω requirement is now made
+  *construction-ready*: `exists_finiteFeasible_iff_avoidable` proves `Erdos196Avoidable` is
+  **equivalent** to a purely finitary statement — `∃ f, FiniteFeasible f`, i.e. a single uniform
+  displacement bound `f` under which every initial segment `[0,N)` admits an injective 4-AP-free
+  order with `σ v ≤ f v`. König's lemma threads the finite orders and rank-compression forces
+  order type ω; the reverse uses `f = g.symm`, so the reduction loses nothing. **Resolving #196
+  (NO direction, k\*=3) reduces to exhibiting one explicit `f` with `FiniteFeasible f`** — no
+  infinitary reasoning remains. The SAT evidence (PROBING LOG 15) suggests `f v = 2 v + 6`.
+- **Drift is forced (`Compactness.lean`, NEW).** `unbounded_displacement_of_avoiding`: any
+  4-AP avoider `g` has unbounded displacement — for every `C` some value sits `> C` from its
+  position. So the bridge's `f` must satisfy `f v − v → ∞` (it cannot be `id` or near-`id`) while
+  keeping each value at a finite position. This is the precise, formalized statement of the
+  ω-vs-additive tension a #196 construction must resolve (the on-paper Drift Lemma, now in Lean).
 - **The wall (numerically pinned).** The unique order killing all monotone APs is vdc
   (recursive evens-first), which is *dense* (displacement `≈ N`, not ω). Every ω-izing
   modification — interval blocks (DEGS), self-similar merges — reintroduces monotone 4-APs,
@@ -107,5 +121,8 @@ question via the `2ᵏ`-divisible case. Key outcomes:
 
 - **#197 lower bounds**: `α(3) ≥ 1/4` formalized.
 - **#197 upper bounds** (`α(3)≤1/2`, `β(3)<1`): **open**; `β(3)<1` reduced to a record-rank bound; barrier map shows it is a global ω-order-type problem.
-- **#196/#195**: **open**; reframed as "4-AP-free order of type ω", evidence for YES, the all-scales construction is the frontier.
-- ~24 theorems across 8 files, all axiom-clean; full project builds green.
+- **#196/#195**: **open**; reframed as "4-AP-free order of type ω". Now **construction-ready**:
+  `exists_finiteFeasible_iff_avoidable` reduces #196 (NO) to one explicit uniform bound `f` with
+  `FiniteFeasible f`; the drift lemma pins that `f` must diverge from `id`. Evidence for YES; the
+  all-scales construction (an explicit `FiniteFeasible f`) is the remaining frontier.
+- ~30 theorems across 9 files, all axiom-clean; full project builds green.

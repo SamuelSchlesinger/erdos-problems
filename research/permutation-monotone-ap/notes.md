@@ -1005,3 +1005,40 @@ greedy/urgency heuristics fails to find the SAT-certified N=64 witness (bad heur
 the witness's structure resists a closed form. CONCLUSION: #196's explicit type-ω 0-4AP construction lies
 outside all natural self-similar/block families; it is the genuine open frontier (YES well-supported by the
 SAT evidence + no surviving forcing for NO). CONSOLIDATED here.
+
+## PROBING LOG 18 (2026-05-30) — #196 COMPACTNESS BRIDGE completed to an iff + DRIFT LEMMA formalized
+
+Phase: consolidate the #196 reduction into a tight, formalized, construction-ready statement.
+Lean: `Erdos/PermutationMonotoneAP/Compactness.lean` (now built, axiom-clean: propext/Classical.choice/
+Quot.sound only).
+
+★ FINITARY CHARACTERISATION (the headline) ★ `exists_finiteFeasible_iff_avoidable`:
+  `Erdos196Avoidable ↔ ∃ f : ℕ→ℕ, FiniteFeasible f`,
+where `FiniteFeasible f := ∀ N, ∃ σ, InjOn σ [0,N) ∧ (∀ v<N, σ v ≤ f v) ∧ ¬HasMono4 σ N`. Forward
+direction (was already there): König's infinity lemma threads the finite bounded orders into a global
+σ : ℕ→ℕ, then σ-rank compresses it to a genuine permutation of order type ω inheriting 4-AP-freeness.
+REVERSE direction (added this session): given an avoider g, take f = g.symm; each [0,N) is ordered by
+g.symm itself (injective, meets the bound with equality, 4-AP-free since g is) — so the reduction is
+EXACT, no slack. NET: **#196 (NO / k*=3) ⟺ exhibit ONE explicit uniform bound f with FiniteFeasible f.**
+The infinitary/order-type content is fully discharged by the bridge; only a finitary construction remains.
+(SAT evidence from LOG 15: f(v)=2v+6 is the candidate — feasible to N=64.)
+
+★ DRIFT LEMMA, now in Lean ★ `unbounded_displacement_of_avoiding`: every 4-AP avoider g has UNBOUNDED
+displacement — ∀C ∃v, C < |g.symm v − v|. Proof (clean, reuses the new helper
+`hasMonotoneAP_four_of_positions`): if |g.symm v − v| ≤ C for all v, the AP 0,d,2d,3d with d=2C+1 has
+each term's position within C of its value and gap d>2C, so positions strictly ascend ⟹ a monotone
+4-AP. Contrapositive gives the result. CONSEQUENCE: the bridge's f must satisfy f(v)−v→∞ (cannot be id
+or near-id) while keeping each value at a FINITE position — the precise ω-vs-additive tension, formalized.
+
+Helper added & reused: `hasMonotoneAP_four_of_positions` (4 strictly-ascending positions whose g-values
+form an AP ⟹ HasMonotoneAP g 4); the sign of the AP is carried by d', so it serves both the increasing
+and decreasing cases of the reverse bridge AND the drift lemma.
+
+STATUS: #196 is now construction-ready in the repo. The remaining diff to a resolution is a single
+`FiniteFeasible f` term — i.e. the genuine open all-scales construction (LOGs 16/17 barrier stands: no
+NATURAL closed form realises it; the run-length/ω conflict in the Adenwalla staircase is the wall). No
+new construction attempted this session; the contribution is the tight finitary reduction + drift necessity.
+DO-NOT-REPEAT unchanged. NEXT options logged for the user: (a) formalize Adenwalla Thm 4 (bounded-v₂
+avoidance, the strongest KNOWN partial result — real, completable); (b) SAT-guided hunt for an explicit
+FiniteFeasible f (high-risk, = the open frontier); (c) formalize "finite avoiders exist unbounded" to
+isolate that the uniform bound is the entire difficulty.
