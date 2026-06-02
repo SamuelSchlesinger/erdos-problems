@@ -1042,3 +1042,272 @@ DO-NOT-REPEAT unchanged. NEXT options logged for the user: (a) formalize Adenwal
 avoidance, the strongest KNOWN partial result — real, completable); (b) SAT-guided hunt for an explicit
 FiniteFeasible f (high-risk, = the open frontier); (c) formalize "finite avoiders exist unbounded" to
 isolate that the uniform bound is the entire difficulty.
+
+## ★ PROBING LOG 19 (2026-05-30) — LITERATURE SETTLED + LeSaulnier–Vijay ODD-DIFFERENCE THEOREM FORMALIZED (explicit closed form) ★
+
+Phase: stop circling the recursive socket; settle the literature, formalize the strongest KNOWN
+partial result, and pin the open frontier precisely.
+
+### Literature (decisive, from the actual papers this session)
+- **Erdős #196 is GENUINELY OPEN** (erdosproblems.com/196; confirmed). The open content is *exactly*
+  avoiding monotone 4-APs over **all 2-adic valuations of the common difference simultaneously**.
+- **LeSaulnier–Vijay 2011** (arXiv:1004.1740, Thm 2): there IS a permutation of ℕ⁺ avoiding all monotone
+  4-APs with **odd** common difference. **Adenwalla** (arXiv:2211.04451, Thm 4): for each `k`, a
+  permutation avoiding 4-APs with difference **not divisible by 2^k**. So every FIXED 2-adic-valuation
+  bound is achievable; only the all-scales coupling is open. DEGS/Geneson/Adenwalla reach 5-AP avoidance
+  (type ω). 3-APs are unavoidable. 4 is the boundary.
+- **Consequence for the repo:** the `OddDiffSafe` socket in `Compactness.lean` is *exactly* the LV / n=2
+  layer of the dyadic recursion. The literature confirms the socket is FAITHFUL — it loses no slack:
+  the per-level odd-difference obligation is the (solved) LV layer, and the uniform-bound coupling across
+  all dyadic scales is the (open) frontier. The socket is neither too strong nor too weak.
+
+### The LV mechanism, distilled to ONE property
+LV's whole odd-difference argument rests on:
+> **Property (P):** whenever an odd value `x` appears before an even value `y`, then `y > 2x`.
+(P) ALONE kills every odd-difference monotone 4-AP (both directions), by pure arithmetic: the 4 terms of
+an odd-`d` AP alternate parity, so an adjacent odd-before-even pair exists; (P) turns monotonicity of the
+positions into `v < 0`. The internal order of LV's geometric blocks is IRRELEVANT — only (P) matters.
+
+### NEW: explicit closed-form realization (cleaner than LV's geometric blocks)
+The permutation (sequence `g n` = n-th value), in blocks of three:
+```
+g(3k) = 4k,   g(3k+1) = 4k+2,   g(3k+2) = 2k+1     →  0,2,1,4,6,3,8,10,5,12,14,7,…
+```
+with inverse (position function) `σ v = 3·(v/2)+2` (v odd), `3·(v/4)+(v%4)/2` (v even). Equivalently it is
+the order by the injective key `key(n)=2n` (n even) `/ 4n+1` (n odd): then odd-before-even ⟺ `4x+1<2y`
+⟺ `y>2x` = (P). Verified to N=6000: bijection, (P) holds, no odd-diff monotone 4-AP, `σ v ≤ 2v` (linear,
+type ω).
+
+### FORMALIZED (Lean, axiom-clean: propext/Classical.choice/Quot.sound only)
+`Erdos/PermutationMonotoneAP/OddDifference.lean` (built green; wired into `Erdos.lean`):
+- `oddAvoider : ℕ ≃ ℕ` — the explicit permutation above (`toFun`/`invFun` with omega-verified inverses).
+- `oddAvoiderInv_propP` — property (P).
+- `no_oddDiff_mono4` — the arithmetic core: (P) ⟹ no odd-difference monotone 4-AP (4-case parity analysis).
+- `HasMonotoneAPOddDiff` + `hasMonotoneAP_four_of_oddDiff` (odd-diff AP ⟹ AP, so `Erdos196Avoidable` ⟹ this).
+- **`exists_perm_no_oddDiff_mono4` : ∃ g : ℕ ≃ ℕ, ¬ HasMonotoneAPOddDiff (g)** — the LV theorem.
+- Bridge to the socket: **`oddDiffSafe_oddAvoiderInv (N) : OddDiffSafe oddAvoiderInv N`** for ALL N, with
+  `oddAvoiderInv_le : oddAvoiderInv v ≤ 2*v`. So the socket's single-scale `OddDiffSafe` + linear-bound
+  obligation is unconditionally, globally met; the residual difficulty is ONLY the recursive coupling.
+
+### The open frontier, pinned crisply (why the full problem resists)
+A 4-AP with `v2(d)=j` rescales (repo's `isFree_four_dyadicRestrict`) to an **odd**-difference 4-AP inside
+residue class `a mod 2^j`. So #196-avoidable ⟺ a single ω-order whose EVERY dyadic class (rescaled) is
+odd-difference-safe. The LV/(P) order solves the `j=0` class. To also solve `j=1` one needs property
+`(P_1)` on the rescaled even subsequence — but `(P_0)`'s order is *magnitude-primary*, which already fully
+commits the order within each parity class, leaving no freedom to install `(P_1)`. **The scales impose
+conflicting magnitude-orderings.** Computationally: nested-LV keys kill `v2 = 0,1` then leak at `v2 = 2`
+(exactly Adenwalla's bounded-`v2` phenomenon); self-similar single-merge-word orders (Thue–Morse, paper-
+folding, etc.) all retain small-`d` 4-APs. This is a precise restatement of the 50-year wall — NOT closed.
+(Avoidance ≠ property (P), so this conflict does NOT prove impossibility either; #196 stays open both ways.)
+
+STATUS: #196 unresolved (open). Delivered: the strongest KNOWN partial result (LV odd-difference)
+formalized via a clean explicit permutation, axiom-clean, plus a faithful bridge to the `Compactness.lean`
+socket. NEXT (real, completable): formalize Adenwalla Thm 4 (bounded-`v2`, general `k`) by nesting the
+(P)-key over the lowest `k` bits with geometric magnitude gaps. DO-NOT-REPEAT: single fixed merge word
+(fails small `d`); magnitude-primary keys cannot install higher-scale (P) (the all-scales conflict).
+
+## ★ PROBING LOG 20 (2026-05-30) — ADENWALLA Thm 4: clean recursive construction VERIFIED + dyadic reduction FORMALIZED ★
+
+Phase: go after Adenwalla's Theorem 4 (for each k, a permutation of ℕ avoiding monotone 4-APs with
+common difference NOT divisible by 2^k; k=1 = LV, done in LOG 19).
+
+### Clean recursive construction (verified k≤6)
+A 4-AP with v2(d)=j<k rescales (Dyadic.isFree_four_dyadicRestrict) to an ODD-difference 4-AP inside a
+dyadic subsequence at depth j. So it suffices to make every dyadic subsequence (down to depth k) a
+property-(P) order. Recursion:
+  O_0 = increasing;  O_k = (P)-MERGE of [evens ordered by O_{k-1} on v/2] and [odds ordered by O_{k-1}
+  on (v-1)/2], where the merge emits each odd u only AFTER all evens w≤2u ("deadline merge").
+Verified (/tmp/merge196/recmerge.py): O_k is a permutation, satisfies full (P), kills exactly all
+v2(d)<k monotone 4-APs (first survivor at d=2^k), linear-in-value displacement (ratio grows ~ with k).
+The deadline merge provably realizes the HasPMerge spec (verify_pmerge.py): even-child order = H,
+odd-child order = H, property (P). NOTE: O_k has NO clean closed form (unlike k=1) — the odd-residue
+values place linearly but even residues recurse; the merge is genuinely non-scalar (no single key K(n)
+can order evens both by H AND cross-compare to odds by value — that is the all-scales tension, here
+finite/bounded so resolvable, but not by a closed form).
+
+### FORMALIZED (Lean, OddDifference.lean, axiom-clean; full project builds green)
+The DYADIC REDUCTION — the mathematical core — is now formal and complete (no sorry):
+- `AvoidV2 σ k` := ∀ a d, 0<d → ¬(2^k ∣ d) → ¬ Mono4 σ a d   (avoid 4-APs, diff not div by 2^k).
+- `avoidV2_zero` — vacuous base (2^0=1 divides all d).
+- **`avoidV2_succ`** — THE REDUCTION: (σ kills odd-diff APs) ∧ AvoidV2 (evenChild σ) k ∧
+  AvoidV2 (oddChild σ) k ⟹ AvoidV2 σ (k+1). Proof: even-diff d=2q AP rescales via
+  `mono4_evenChild_iff`/`mono4_oddChild_iff` to a child AP with ¬(2^k∣q); odd-diff handled by (P).
+- `avoidV2_oddAvoiderInv_one` — the explicit LV order (LOG 19) realizes the base case k=1.
+- `mono4_iff_of_lt_iff` — Mono4 depends only on the induced strict order.
+- **`adenwalla_of_hasPMerge : HasPMerge → ∀ k, ∃ G, AvoidV2 G k`** — Adenwalla Thm 4 by induction on k,
+  CONDITIONAL on `HasPMerge` (∀ H, ∃ G with both dyadic children reproducing H's order + property (P)).
+  `HasPMerge` is exactly the deadline-merge spec, verified to be realizable.
+
+NET: Adenwalla's Theorem 4 is now CONSTRUCTION-READY — fully reduced (in Lean, axiom-clean) to the single
+lemma `HasPMerge`, i.e. an explicit type-ω bijection for the (verified) deadline merge. The remaining
+formal step is that merge bijection (no clean closed form ⟹ needs the deadline bookkeeping or an abstract
+locally-finite-poset → ω order-embedding; ~substantial, a clean next chunk). DO-NOT-REPEAT: clean scalar
+key for general k (provably impossible — evens can't be ordered by H AND value simultaneously); level-key
+works but via the residue/3-AP-mod-2^k argument (different, also substantial), NOT via property (P).
+
+---
+
+## 2026-05-30 — SLACK-GROWTH probe (ramsey/impossibility vector; #196 finite-feasibility)
+
+Question (compactness framing): avoidable ⟺ ∃ f with FiniteFeasible(f) (σ[v] ≤ f(v) ∀N). Test
+the sharpest fixed family f(v)=2v+C. Define wall(C) = largest N admitting a monotone-4-AP-free
+order of [0,N) with σ[v] ≤ 2v+C. Machine-verified (TWO independent solvers: z3 boolean ORDER
+encoding with PbLe deadline + pysat Cadical153 with seqcounter cardinality — they AGREE):
+
+  wall(0) = 44   (N=44 SAT witness saved; N=45,46,47,48 UNSAT)
+  wall(1) = 72   (N=72 SAT; N=73 UNSAT)  [z3-order took 155s on the N=73 UNSAT, pysat 50s]
+  wall(2) ≥ 80   (N=80 SAT verified; exact wall not pinned — SAT near wall is the slow part)
+
+⇒ needed_slack(N) := min{C : N ≤ wall(C)} is STRICTLY INCREASING and (each wall finite) UNBOUNDED.
+⇒ NO fixed affine f(v)=2v+C is finite-feasible. The avoider (if any) needs f growing faster than
+2v+O(1). Data consistent with wall(C) ≈ 28C+44 ⟹ needed_slack(N) ≈ (N−44)/28 — slow LINEAR growth
+(NOT bounded, but also NOT explosive). This neither proves nor disproves #196: a super-constant but
+e.g. linear-slack f (f(v)=2v+εN-ish, or f(v)=(2+δ)v, or f(v)=2v+c·log) is NOT ruled out and remains
+the live candidate for an avoider. So this is a NEUTRAL/structural result: it kills the "fixed 2v+C"
+hypothesis (SAT had found 2v+6 feasible to N=64, but that is NOT a uniform-over-N bound) and pins the
+required growth rate to between ω(1) and O(N) additive slack.
+
+Key correction to prior lore: σ[v] ≤ 2v (ZERO slack beyond doubling) is full-4-AP-free-feasible all
+the way to N=44 — the recmerge O_k displacement-ratio explosion (2→3.7→30→164→…) is a SUBOPTIMAL
+ARTIFACT of that construction, not a forced wall (z3/pysat find C=0 orders recmerge misses, e.g. the
+N=44 witness has 73 property-(P) violations — it does NOT use odds-before-evens).
+
+Scripts (re-runnable, ~1min): /tmp/merge196/vRAMSEY_FINAL.py (re-verifies all 5 facts via pysat),
+vRAMSEY_pysat_check.py (the CDCL order+cardinality encoding), vRAMSEY_sat.py (z3 order encoding),
+witness /tmp/merge196/vRAMSEY_witness_N44_C0.json.
+
+## ★ PROBING LOG 21 (2026-05-30) — SYSTEMATIC ADVERSARIAL FAN-OUT (29 agents): impossibility machine-closed, sharp dichotomy, the v2>=5 wall isolated ★
+
+Phase: ultracode multi-agent fan-out (14 attack vectors x adversarial verifier + synthesis), all claims
+machine-verified via a shared tested library /tmp/merge196/shared.py (fast monotone-4-AP detection +
+z3/CP-SAT feasibility). Decisive, honest map of Erdos #196.
+
+### Verdict: weakly YES-avoidable, NOT resolved. The open difficulty is now precisely isolated.
+
+IMPOSSIBILITY IS MACHINE-CLOSED (3 reproduced impossible-vectors): no finite forcing argument can work.
+The naive DEGS 3-AP->4-AP extension fails on the concrete avoider rank=(1,2,0,3,6,5,4) of [0,7) (4th
+term turns back). The forced-precedence digraph has ZERO edges forced in all 4-AP-free orders for
+N=5..9, and #(4-AP-free orders) grows super-exponentially (564,3336,22266,168864,1307470,11066766 for
+N=6..11; log2(#)/N rises 1.52->2.13). => any unavoidability proof MUST invoke the type-omega/uniform
+regime, not finite order/sign structure.
+
+SHARP DICHOTOMY (verified 5 ways: allscalesP, geonest, deadlimit, levelword, numtheory):
+- Orders avoiding ALL 4-APs (all-scales-(P) greedy; deadline diagonal O_{ceil log2 N}; vdC; Calkin-Wilf)
+  are NOT type-omega. Quantified: the all-scales (P) poset is ACYCLIC (N<=4096, mutually consistent)
+  and its greedy extension kills all 4-APs to N=16384, BUT the transitive forced down-set ds(3)/N->1/2
+  is a POSET INVARIANT (rank[3] >= |ds(3)| in EVERY linear extension; verified across 5 extensions),
+  so NO extension is type-omega. Identical failure mode to van der Corput.
+- Type-omega orders (bounded displacement) ALL leak at exactly (a,d,v2)=(0,2^j,j). The LV/(P) order
+  (rank[v]=3(v//2)+2 odd, 3(v//4)+(v%4)//2 even) kills all v2=0 with clean bound rank[v]<=1.5v+0.5;
+  first 4-AP (0,2,1). recmerge O_k kills v2<k but displacement ratio blows up 2,3.7,29.8,205.9,455,591.
+
+PROPERTY (P) IS SUFFICIENT-NOT-NECESSARY (refute-meta, reproduced): z3 found 2v+6-bounded 4-AP-free
+orders VIOLATING (P) in 84 (N=32) to 169 (N=40) places. => the divergence of all (P)-based
+constructions is an artifact of an over-strong strategy; a non-(P) avoider is not excluded. THE
+poset-invariant obstruction is a barrier to the (P) APPROACH, NOT to #196.
+
+THE WALL, isolated: a monotone 4-AP with v2(d)=j needs N>=3*2^j. ALL prior SAT stalled at N<=72 =>
+provably blind past v2=4 => only re-certified Adenwalla's bounded-k. The genuine open content (all
+scales) lives at N>=96 (v2=5), untested until now.
+
+### NEW CP-SAT data (ortools installed; /tmp/merge196/cpsat.py) — first probes into v2>=5:
+4-AP-free order with sigma[v]<=2v+C: SAT-clean at N=48(C=6), N=64(C>=12), N=96(C=40 in 2s; C<=20
+UNKNOWN/25s), N=128(C=40 UNKNOWN/45s). => minimal slack slack2(N) GROWS with N (consistent with
+"no fixed 2v+C works for all N"). Growth RATE = the decisive open quantity (log => YES plausible;
+fast/divergent-for-a-fixed-value => NO). Deep-phase workflow launched to pin it + chase 2 construction
+leads (non-(P) witness mining; position-unit deadline poset with bounded down-sets).
+
+### Lean status (scratch, not yet wired; project build green, 8621 jobs):
+adenwalla_of_hasPMerge + erdos196Avoidable_of_finiteFeasible axiom-clean (type-omega bijection DONE
+via rank/ncard). Agents added scratch/OmegaBijection.lean (exists_orderMatching_equiv, axiom-clean,
+reusable value->position omega-enumeration) and scratch/ScratchMerge.lean (noOddDiffMono4_of_pProperty
+axiom-clean; ONE sorry at line 165 = hasPMergedOrder). CAVEAT: HasPMerge's output is a per-k family,
+NOT one global omega-order; the right interface is "one injective sigma, finite down-sets, forall k
+AvoidV2 sigma k" feeding erdos196Avoidable_of_finiteFeasible. The all-scales coupling is upstream of
+the bijection. DO-NOT-REPEAT: value-magnitude (P) deadlines (force divergent down-sets); single fixed
+self-similar word; scalar key for general k; depth-grows-with-magnitude self-similar (limits to vdC).
+
+## ★ PROBING LOG 22 (2026-05-31) — DEEP v2>=5 PROBE (11 agents, CP-SAT + pysat Kissat/CaDiCaL): slack ladder pinned; solution isolated to its infinitary core ★
+
+Phase: deep-probe workflow into the v2>=5 wall (first time N>=96 reached) with proven UNSAT lower bounds.
+
+### slack2(N) PINNED (machine-proven UNSAT + verified SAT witnesses)
+slack2(N) := min over monotone-4-AP-free bijections of [0,N) of max_v (sigma[v]-2v) (= min C with a
+feasible sigma[v]<=2v+C order):
+```
+ N      32  40  44  48  64  80  84  88  96
+ slack2  0   0   0   1   1   2   2   2  {2,3}
+```
+- Jumps 0->1 in (44,46], 1->2 in (64,80]; UNSAT lower bounds reproduced on CaDiCaL195 AND Kissat404
+  (e.g. N=48 C=0 UNSAT 0.25s, N=64 C=0 UNSAT 0.49s — fast, genuine, NOT timeouts).
+- slack2(96)=2 or 3: C=3 SAT verified (witness wslacklaw_witness_N96_C3.json, 4-AP-free, max-excess=3);
+  C=2 sits EXACTLY at the SAT phase transition — UNKNOWN across CaDiCaL(38min)/Kissat(28min)/CP-SAT(901s).
+  The decisive open cell. (CP-SAT proven too weak here; pysat order-encoding is the authoritative prover.)
+- slack2 is PROVABLY non-constant + non-decreasing (= FiniteFeasible.mono). Growth law UNDETERMINED: log
+  fit (~1.5 log2 N) and shallow-linear (~0.04 N) are statistically indistinguishable on 3 distinct
+  values; both predict the 2->3 jump near N in [111,137].
+
+### Decisive interpretations (VERIFIED)
+- **FiniteFeasible(2v+0) and FiniteFeasible(2v+1) are FALSE** (slack2(46)>=1, slack2(80)=2). First hard
+  refinement of the candidate bound. (Machine-proven; NOT cheaply formalizable — UNSAT needs SAT-scale
+  search, decide over [0,46) orders is infeasible, native_decide banned.)
+- **FiniteFeasible(2v+6) is NEITHER proven nor refuted**: max proven slack2 = 2 <= 6, fully consistent
+  with the Lean target being TRUE. Refuting needs some N with slack2(N)>=7 (extrapolated N in [189,546]).
+- **The wall is barely touched**: v2=5 APs (d=32) need N>=97 (0 at N=96, 16 at N=112); d=16 (v2=4) is the
+  binding scale at N=96. So even N=96 mostly re-tests Adenwalla's regime; the genuine all-scales content
+  starts at N>=112 and is beyond current solver reach.
+- **minpos is degenerate (==0)**: each fixed value can individually be placed FIRST (min rank[3]=0 thru
+  N=96), and {0..11} pack into the first 12 positions at N=96 (excess 0). So front-crowding is an ARTIFACT
+  of the (P)/recmerge constructions, NOT of the problem. (Mild YES-evidence.) The binding is the JOINT
+  packing, attained at small values (v=1 or 4), not any single value diverging.
+
+### Constructions: ALL leak (verified)
+recmerge deadline-merge O_e (only all-scale order) avoids all 4-APs to N=16384 but rank[3]=2^(e-1)+e-1
+(exact closed form, verified N=256..8192) -> rank[3]/N->1/2 -> NOT type-omega. Position-unit relaxed
+poset (bounded ds(3)=3) CANNOT block APs (fails for all j,c tested). Bounded multiplicative odd-boost
+insufficient: B*(64)<=4 but B*(96)>10 (B=4,6,8,10 all genuine INFEASIBLE). Tight C=3 witnesses are
+adaptive non-self-similar packings (vdC-like front scramble per block) with NO clean closed form.
+
+### THE SOLUTION, ISOLATED
+Erdos196Avoidable <=> exists an infinite type-omega 4-AP-free permutation <=> exists uniform f with
+FiniteFeasible f (formalized iff). Finite SAT CANNOT settle this (needs the infinite object; can only
+refute specific f). Verified state: impossibility machine-closed at the finite level; every natural
+construction family exhausted; the governing quantity (joint front-packing slack over the 2v baseline)
+grows GLACIALLY (still <=3 at N=96), consistent with — but not proving — a uniform-f YES. Net lean:
+WEAKLY YES-AVOIDABLE, unresolved. A resolution requires genuinely INFINITARY methods (an explicit
+adaptive construction, or an infinitary impossibility argument) — the 50-year frontier, now boxed in
+precisely. DECISIVE OPEN COMPUTATION (if pursued): slack2(112,C=2) via cube-and-conquer/DRAT on an
+uncontended machine. Lean assets intact + axiom-clean: LV (k=1), Adenwalla reduction (avoidV2_succ,
+adenwalla_of_hasPMerge), compactness bridge. scratch/{OmegaBijection(reusable, clean), ScratchMerge
+(1 sorry = the per-k merge, NOT on the critical path since HasPMerge's per-k interface is mis-shaped)}.
+
+## ★ PROBING LOG 23 (2026-06-01) — QUANTIFIER-SWAP characterisation formalised; construction re-probe reproduces the wall (no advance) ★
+
+NEW LEAN (axiom-clean, builds green):
+- `mono4_free_iff_forall_avoidV2 (G)` : `(∀ a d, 0<d → ¬ Mono4 G a d) ↔ ∀ k, AvoidV2 G k`. For ONE fixed
+  order, killing every `2^k`-indivisible-diff 4-AP at all k = killing every 4-AP (any d>0 has `2^d ∤ d`,
+  so scale k=d suffices; no padicVal needed). Axioms: propext, Quot.sound only.
+- `forall_not_hasMono4_iff (G)` : `(∀ N, ¬ HasMono4 G N) ↔ (∀ a d, 0<d → ¬ Mono4 G a d)`.
+- **`erdos196Avoidable_iff_exists_injective_avoidV2_all`** : `Erdos196Avoidable ↔ ∃ G, Injective G ∧ ∀ k,
+  AvoidV2 G k`. Sets the open content next to `adenwalla_of_hasPMerge : HasPMerge → ∀ k, ∃ G, AvoidV2 G k`
+  — #196-NO is the SAME statement with the quantifiers swapped: `(∀ k ∃ G) ⟹ (∃ G ∀ k)`. The `Injective`
+  hypothesis is tight (constant G vacuously satisfies `∀k AvoidV2` but yields no permutation; the forward
+  map produces an injective witness). This is, to date, the cleanest Lean statement of "all scales at once".
+- Refactor: reverse-bridge core extracted as `not_hasMono4_symm_of_avoiding` (reused by the iff above +
+  `exists_finiteFeasible_of_erdos196Avoidable`, −25 LOC of duplication).
+- Housekeeping: socket tower wrapped in two labelled `section ConstructionTargets` blocks (purely
+  organisational, names still global); RESULTS.md overclaims fixed ("exactly the LV layer" → heuristic;
+  "Adenwalla verified realizable / checked to k=6" → external SAT, HasPMerge unproved in Lean); stale
+  "~42 theorems" → ~280.
+
+CONSTRUCTION RE-PROBE (did NOT close #196; reproduced PROBING LOG 22's wall, did not advance it):
+- LV `oddAvoiderInv` has an even-diff 4-AP at values 0,2,4,6 (positions 0,1,3,4) — confirms it is the k=1
+  layer only, as expected.
+- Greedy lexicographically-least 4-AP-free sequence avoids all 4-APs but DEFERS small values indefinitely
+  (value 3 unplaced through 120 positions) → unbounded displacement = the drift lemma in action; it is NOT
+  a bounded-f order.
+- z3 (int+Distinct encoding) confirms FiniteFeasible(2v+6) per-N SAT to N≥48, then times out (UNKNOWN, not
+  UNSAT) — strictly weaker than LOG 22's CaDiCaL/Kissat order-encoding (N=96, slack2 pinned). The z3
+  witnesses are unstructured (displacement −26..+17, no self-similarity) — no recursive pattern to lift to
+  a global order. Net: the construction route remains alive-but-unconstructed; closing it needs the same
+  infinitary object LOG 22 isolated. No new ground gained on the construction side this session.

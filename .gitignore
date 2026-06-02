@@ -1,2 +1,6 @@
 /.lake
 /.claude
+
+# Exploratory scratch for the permutation-monotone-AP study (contains a `sorry`;
+# never built — not imported by Erdos.lean). Kept local, out of version control.
+/Erdos/PermutationMonotoneAP/scratch/

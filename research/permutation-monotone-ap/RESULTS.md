@@ -35,6 +35,7 @@ densities. **#197 has answer NO if `α(3) + β(3) < 1`** (since a partition forc
 | `Reflection.lean` | the reflection leak at records; record values are 3-AP-free; **the conditional reduction of `β(3)<1`** |
 | `Descent.lean` | **rank descent** + **no infinite doubling orbit** — the first ω-essential consequence |
 | `Dyadic.lean` | **#196 layer**: k-generic affine invariance `HasMonotoneAP (c+a·g) k ↔ HasMonotoneAP g k`; the **dyadic 4-AP reduction** `isFree_four_dyadicRestrict`; `Erdos196Avoidable ↔ ¬Erdos196 ↔ IsFree univ 4`. Plus `vdc_no_monotone_fourAP` (vdc avoids 4-APs) in `VanDerCorput.lean` |
+| `OddDifference.lean` | **#196 odd-difference layer (LeSaulnier–Vijay 2011) + Adenwalla reduction, formalized**: `exists_perm_no_oddDiff_mono4` — explicit permutation of `ℕ` (`g(3k)=4k, g(3k+1)=4k+2, g(3k+2)=2k+1`) with **no monotone 4-term AP of odd common difference**, via property (P) `odd x before even y ⟹ y>2x`. Bridge `oddDiffSafe_oddAvoiderInv` to the `Compactness.lean` socket (meets `OddDiffSafe N` ∀N, bound `≤2v`). Plus the **dyadic reduction towards Adenwalla Thm 4**: `AvoidV2 σ k` (avoid 4-APs with diff not divisible by `2^k`), `avoidV2_succ` (the reduction: (P) + both dyadic children avoid `2^k`-indivisible ⟹ avoids `2^(k+1)`-indivisible), and `adenwalla_of_hasPMerge : HasPMerge → ∀k ∃ G, AvoidV2 G k` — reducing Adenwalla's theorem (axiom-clean) to one (unproved) merge hypothesis. Plus the **quantifier-swap characterisation**: `mono4_free_iff_forall_avoidV2` (a fixed order is `AvoidV2` at all `k` ⟺ avoids every 4-AP) and `erdos196Avoidable_iff_exists_injective_avoidV2_all` (**#196-NO ⟺ `∃ G, Injective G ∧ ∀ k, AvoidV2 G k`**), exhibiting the open content as the swap `(∀k ∃G) ⟹ (∃G ∀k)` against Adenwalla's `∀k ∃G` |
 | `Compactness.lean` | **#196 finitary bridge**: `exists_finiteFeasible_iff_avoidable` — a 4-AP-avoiding permutation of ℕ exists **iff** some uniform bound `f` makes every initial segment `[0,N)` 4-AP-free-orderable with `σ v ≤ f v` (König's lemma + rank-compression). Plus the **drift lemma** `unbounded_displacement_of_avoiding`: every 4-AP avoider has unbounded displacement (`f v − v → ∞`) |
 
 ### Headline results
@@ -121,8 +122,36 @@ question via the `2ᵏ`-divisible case. Key outcomes:
 
 - **#197 lower bounds**: `α(3) ≥ 1/4` formalized.
 - **#197 upper bounds** (`α(3)≤1/2`, `β(3)<1`): **open**; `β(3)<1` reduced to a record-rank bound; barrier map shows it is a global ω-order-type problem.
-- **#196/#195**: **open**; reframed as "4-AP-free order of type ω". Now **construction-ready**:
-  `exists_finiteFeasible_iff_avoidable` reduces #196 (NO) to one explicit uniform bound `f` with
-  `FiniteFeasible f`; the drift lemma pins that `f` must diverge from `id`. Evidence for YES; the
-  all-scales construction (an explicit `FiniteFeasible f`) is the remaining frontier.
-- ~30 theorems across 9 files, all axiom-clean; full project builds green.
+- **#196/#195**: **open** (confirmed: erdosproblems.com/196). The open content is precisely avoiding
+  monotone 4-APs over **all 2-adic valuations of the common difference at once**. Each *fixed* valuation
+  bound is solved in the literature: **odd difference** (LeSaulnier–Vijay 2011) and **difference not
+  divisible by `2^k`** for each `k` (Adenwalla). Formalized this circle:
+  - `exists_finiteFeasible_iff_avoidable` (proved, both directions, lossless) reduces #196 to one explicit
+    uniform `f` with `FiniteFeasible f`. The drift lemma forces *that* `f` (`= g.symm`) to diverge from
+    `id`. The dyadic socket's `OddDiffSafe` obligation is, *heuristically*, the LV layer: the **single-order**
+    fact `oddDiffSafe_oddAvoiderInv` (any `N`, bound `≤ 2v`) is proved, but the socket needs `OddDiffSafe`
+    of the **recursively merged parent at every stage**, which is *not* discharged by the single order —
+    "faithful / loses no slack" is an informal judgement, not a theorem.
+  - **`exists_perm_no_oddDiff_mono4`** (`OddDifference.lean`): the LeSaulnier–Vijay odd-difference theorem,
+    via an explicit closed-form permutation + property (P). Strongest KNOWN partial result on #196.
+  - **Adenwalla Thm 4 (bounded `v2`), reduced to one merge lemma**: the dyadic reduction `avoidV2_succ`
+    and capstone `adenwalla_of_hasPMerge` formally reduce "for each `k`, a permutation avoiding 4-APs
+    with difference not divisible by `2^k`" to a single merge hypothesis `HasPMerge` (`∀ k, ∃ G, …`).
+    `HasPMerge` is **unproved in Lean**; an explicit recursive deadline-merge avoids all `v2(d) < k` APs in
+    *external* SAT/Python probes up to `k = 6`, but no Lean proof exists, and (as `notes.md` PROBING LOG
+    21–22 records) the per-`k` output is a rank function, **not** the global ω-bijection the bridge consumes.
+  - **The quantifier swap, pinned in Lean** (`erdos196Avoidable_iff_exists_injective_avoidV2_all`,
+    `mono4_free_iff_forall_avoidV2`): a single fixed order avoiding `2^k`-indivisible-difference 4-APs at
+    *all* scales `k` is the same as avoiding *every* 4-AP (any `d>0` has `2^d ∤ d`), so
+    **#196-NO ⟺ `∃ G, Injective G ∧ ∀ k, AvoidV2 G k`**. Adenwalla (`adenwalla_of_hasPMerge`) gives the
+    **swapped** `∀ k, ∃ G, AvoidV2 G k` (a different order per scale). The open content of #196 is exactly
+    this `(∀ k ∃ G) ⟹ (∃ G ∀ k)` swap; the drift lemma is why no compactness bound threads the per-scale
+    orders. A scale-`j` AP rescales to an odd-difference AP in class `a mod 2^j`, and the scale-`j`
+    (P)-orders impose conflicting magnitude orderings (nested keys leak at `v2=2`; matches Adenwalla
+    bounded-`v2`): resolvable for *fixed* `k` (geometric/deadline merge), open across all scales — the
+    50-year wall, not yet broken in either direction.
+- ~280 theorems across 10 files, all axiom-clean (`propext`, `Classical.choice`, `Quot.sound` only);
+  full project builds green. (Note: the construction-side socket tower in `Compactness.lean` is exploratory
+  scaffolding — ~14 `finiteFeasible_of_child_*` constructors + ~18 `erdos196Avoidable_of_child_*` wrappers,
+  each conditional on an undischarged merge step; the load-bearing reduction is the iff + drift + the
+  quantifier-swap characterisation above.)
