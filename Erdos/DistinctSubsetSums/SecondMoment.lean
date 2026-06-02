@@ -45,49 +45,67 @@ theorem sum_powerset_centered_sq (A : Finset ℕ) :
     push_cast
     ring
 
-/-- **Distinct integers spread out.** For any finite set `G` of integers and any `k`, at most
-`2k+1` of its elements lie in `[−k, k]`, so the sum of squares is at least
-`(|G| − (2k+1)) · (k+1)²`: the remaining elements each have `|y| ≥ k+1`. -/
-theorem card_sub_mul_le_sum_sq (G : Finset ℤ) (k : ℕ) :
-    ((G.card : ℤ) - (2 * (k : ℤ) + 1)) * ((k : ℤ) + 1) ^ 2 ≤ ∑ y ∈ G, y ^ 2 := by
+/-- `∑_{r<n} (2r+1) = n²`. -/
+private theorem sum_two_mul_add_one (n : ℕ) :
+    ∑ r ∈ Finset.range n, (2 * (r : ℤ) + 1) = (n : ℤ) ^ 2 := by
+  induction n with
+  | zero => simp
+  | succ k ih => rw [Finset.sum_range_succ, ih]; push_cast; ring
+
+/-- `3·∑_{r<n} (2r+1)² = 4n³ − n` (the sum of squares of the first `n` odd numbers). -/
+private theorem sum_two_mul_add_one_sq (n : ℕ) :
+    3 * ∑ r ∈ Finset.range n, (2 * (r : ℤ) + 1) ^ 2 = 4 * (n : ℤ) ^ 3 - n := by
+  induction n with
+  | zero => simp
+  | succ k ih => rw [Finset.sum_range_succ, mul_add, ih]; push_cast; ring
+
+/-- **Tight spread bound (layer cake).** For any finite set `G` of integers and any `R`,
+`∑_{r<R} (2r+1)·(|G| − (2r+1)) ≤ ∑_{y∈G} y²`. Summing all shells `r` (rather than using a
+single threshold) is what yields the sharp constant: `∑ y² ≥ |G|³/12` near optimum. -/
+theorem layer_le_sum_sq (G : Finset ℤ) (R : ℕ) :
+    ∑ r ∈ Finset.range R, (2 * (r : ℤ) + 1) * ((G.card : ℤ) - (2 * r + 1)) ≤ ∑ y ∈ G, y ^ 2 := by
   classical
-  set Gbig := G.filter (fun y => (k : ℤ) < |y|) with hGbig
-  -- the "small" part embeds in `Icc (-k) k`, of size `2k+1`
-  have hsmall : G.filter (fun y => ¬ (k : ℤ) < |y|) ⊆ Finset.Icc (-(k : ℤ)) k := by
-    intro y hy
-    rw [Finset.mem_filter] at hy
-    rw [Finset.mem_Icc]
-    have hyabs : |y| ≤ (k : ℤ) := not_lt.mp hy.2
-    rwa [abs_le] at hyabs
-  have hsmallcard : (G.filter (fun y => ¬ (k : ℤ) < |y|)).card ≤ 2 * k + 1 := by
-    calc (G.filter (fun y => ¬ (k : ℤ) < |y|)).card
-        ≤ (Finset.Icc (-(k : ℤ)) k).card := Finset.card_le_card hsmall
-      _ = 2 * k + 1 := by rw [Int.card_Icc]; omega
-  have hcardsplit : Gbig.card + (G.filter (fun y => ¬ (k : ℤ) < |y|)).card = G.card := by
-    rw [hGbig]; exact Finset.filter_card_add_filter_neg_card_eq_card _
-  have hbigcard : (G.card : ℤ) - (2 * (k : ℤ) + 1) ≤ (Gbig.card : ℤ) := by
-    have e : (G.card : ℤ)
-        = (Gbig.card : ℤ) + ((G.filter (fun y => ¬ (k : ℤ) < |y|)).card : ℤ) := by
-      exact_mod_cast hcardsplit.symm
-    have hle : ((G.filter (fun y => ¬ (k : ℤ) < |y|)).card : ℤ) ≤ 2 * (k : ℤ) + 1 := by
-      exact_mod_cast hsmallcard
-    linarith
-  -- each big element contributes at least `(k+1)²`
-  have hpt : ∀ y ∈ Gbig, ((k : ℤ) + 1) ^ 2 ≤ y ^ 2 := by
-    intro y hy
-    rw [hGbig, Finset.mem_filter] at hy
-    have h1 : (k : ℤ) + 1 ≤ |y| := Int.add_one_le_iff.mpr hy.2
-    have h0 : (0 : ℤ) ≤ (k : ℤ) + 1 := by positivity
-    rw [← sq_abs y]
-    nlinarith [h1, h0, abs_nonneg y]
-  calc ((G.card : ℤ) - (2 * (k : ℤ) + 1)) * ((k : ℤ) + 1) ^ 2
-      ≤ (Gbig.card : ℤ) * ((k : ℤ) + 1) ^ 2 :=
-        mul_le_mul_of_nonneg_right hbigcard (by positivity)
-    _ = ∑ _y ∈ Gbig, ((k : ℤ) + 1) ^ 2 := by rw [Finset.sum_const, nsmul_eq_mul]
-    _ ≤ ∑ y ∈ Gbig, y ^ 2 := Finset.sum_le_sum hpt
-    _ ≤ ∑ y ∈ G, y ^ 2 :=
-        Finset.sum_le_sum_of_subset_of_nonneg (Finset.filter_subset _ _)
-          (fun y _ _ => sq_nonneg y)
+  calc ∑ r ∈ Finset.range R, (2 * (r : ℤ) + 1) * ((G.card : ℤ) - (2 * r + 1))
+      ≤ ∑ r ∈ Finset.range R,
+          (2 * (r : ℤ) + 1) * ((G.filter (fun y => (r : ℤ) < |y|)).card : ℤ) := by
+        refine Finset.sum_le_sum (fun r _ => ?_)
+        refine mul_le_mul_of_nonneg_left ?_ (by positivity)
+        -- `|G| − (2r+1) ≤ #{y : r < |y|}` since at most `2r+1` elements have `|y| ≤ r`
+        have hsmall : (G.filter (fun y => ¬ (r : ℤ) < |y|)).card ≤ 2 * r + 1 := by
+          calc (G.filter (fun y => ¬ (r : ℤ) < |y|)).card
+              ≤ (Finset.Icc (-(r : ℤ)) r).card := by
+                refine Finset.card_le_card (fun y hy => ?_)
+                rw [Finset.mem_filter] at hy
+                rw [Finset.mem_Icc, ← abs_le]; exact not_lt.mp hy.2
+            _ = 2 * r + 1 := by rw [Int.card_Icc]; omega
+        have hsplit : (G.filter (fun y => (r : ℤ) < |y|)).card
+            + (G.filter (fun y => ¬ (r : ℤ) < |y|)).card = G.card :=
+          Finset.filter_card_add_filter_neg_card_eq_card _
+        have e : (G.card : ℤ)
+            = ((G.filter (fun y => (r : ℤ) < |y|)).card : ℤ)
+              + ((G.filter (fun y => ¬ (r : ℤ) < |y|)).card : ℤ) := by exact_mod_cast hsplit.symm
+        have hle : ((G.filter (fun y => ¬ (r : ℤ) < |y|)).card : ℤ) ≤ 2 * r + 1 := by
+          exact_mod_cast hsmall
+        linarith
+    _ = ∑ r ∈ Finset.range R, ∑ y ∈ G, (if (r : ℤ) < |y| then 2 * (r : ℤ) + 1 else 0) := by
+        refine Finset.sum_congr rfl (fun r _ => ?_)
+        rw [← Finset.sum_filter, Finset.sum_const, nsmul_eq_mul, mul_comm]
+    _ = ∑ y ∈ G, ∑ r ∈ Finset.range R, (if (r : ℤ) < |y| then 2 * (r : ℤ) + 1 else 0) :=
+        Finset.sum_comm
+    _ ≤ ∑ y ∈ G, y ^ 2 := by
+        refine Finset.sum_le_sum (fun y _ => ?_)
+        have hcast : ((y.natAbs : ℤ)) ^ 2 = y ^ 2 := by
+          rw [← Int.abs_eq_natAbs]; exact sq_abs y
+        calc ∑ r ∈ Finset.range R, (if (r : ℤ) < |y| then 2 * (r : ℤ) + 1 else 0)
+            ≤ ∑ r ∈ Finset.range y.natAbs, (2 * (r : ℤ) + 1) := by
+              rw [← Finset.sum_filter]
+              refine Finset.sum_le_sum_of_subset_of_nonneg ?_ (fun r _ _ => by positivity)
+              intro r hr
+              rw [Finset.mem_filter] at hr
+              rw [Finset.mem_range, ← Int.ofNat_lt, Int.abs_eq_natAbs] at *
+              exact_mod_cast hr.2
+          _ = (y.natAbs : ℤ) ^ 2 := sum_two_mul_add_one y.natAbs
+          _ = y ^ 2 := hcast
 
 /-- A nonempty set with distinct subset sums has all elements `≥ 1` (`0 ∈ A` would give `∅` and
 `{0}` the same sum, contradicting distinctness). -/
@@ -99,14 +117,15 @@ theorem one_le_of_mem {A : Finset ℕ} (h : HasDistinctSubsetSums A) {x : ℕ} (
     simp [hx0]
   · exact hpos
 
-/-- **Erdős–Moser second-moment bound.** If `A` has distinct subset sums and every element is
-`≤ M`, then `2^{2|A|} ≤ 64 · |A| · M²` — equivalently the largest element satisfies
-`M ≥ 2^{|A|}/(8√{|A|})`. This is the classical `2^n/√n`-shape improvement over the elementary
-counting bound `2^n/n` (`inv_card_mul_pred_le_of_hasDistinct`). The engine is the sign-orthogonality
-identity `sum_powerset_centered_sq` together with the spread bound `card_sub_mul_le_sum_sq`. -/
+/-- **Erdős–Moser second-moment bound (sharp constant).** If `A` has distinct subset sums and
+every element is `≤ M`, then `2^{2|A|} ≤ 12 · |A| · M²` — equivalently the largest element
+satisfies `M ≥ 2^{|A|}/(2√3·√{|A|})`. This is the classical `2^n/√n`-shape improvement over the
+elementary counting bound `2^n/n` (`inv_card_mul_pred_le_of_hasDistinct`), with the sharp
+second-moment constant `1/(2√3)` (Erdős–Moser). The engine is the sign-orthogonality identity
+`sum_powerset_centered_sq` together with the layer-cake spread bound `layer_le_sum_sq`. -/
 theorem two_pow_two_mul_card_le {A : Finset ℕ} {M : ℕ}
     (h : HasDistinctSubsetSums A) (hM : ∀ x ∈ A, x ≤ M) (hA : A.Nonempty) :
-    2 ^ (2 * A.card) ≤ 64 * A.card * M ^ 2 := by
+    2 ^ (2 * A.card) ≤ 12 * A.card * M ^ 2 := by
   classical
   set g : Finset ℕ → ℤ := fun S => 2 * (∑ x ∈ S, (x : ℤ)) - ∑ x ∈ A, (x : ℤ) with hg
   -- injectivity of the centered subset-sum map
@@ -133,54 +152,56 @@ theorem two_pow_two_mul_card_le {A : Finset ℕ} {M : ℕ}
           have hx0 : (0 : ℤ) ≤ x := by positivity
           nlinarith [hxM, hx0]
       _ = (A.card : ℤ) * M ^ 2 := by rw [Finset.sum_const, nsmul_eq_mul]
-  rcases Nat.lt_or_ge A.card 2 with hlt | hge
-  · -- |A| = 1: `4 ≤ 64 M²` with `M ≥ 1`
-    obtain ⟨x, hxA⟩ := hA
-    have hM1 : 1 ≤ M := le_trans (one_le_of_mem h hxA) (hM x hxA)
-    have hc1 : A.card = 1 := by have := Finset.card_pos.mpr ⟨x, hxA⟩; omega
-    have hMsq : 1 ≤ M ^ 2 := Nat.one_le_pow 2 M (by omega)
-    rw [hc1]
-    calc (2 : ℕ) ^ (2 * 1) = 4 := by norm_num
-      _ ≤ 64 * 1 * M ^ 2 := by nlinarith [hMsq]
-  · -- |A| ≥ 2: write |A| = m + 2 and run the second moment
-    obtain ⟨m, hmcard⟩ : ∃ m, A.card = m + 2 := ⟨A.card - 2, by omega⟩
-    set t : ℤ := (2 : ℤ) ^ m with ht
-    have ht1 : (1 : ℤ) ≤ t := one_le_pow₀ (by norm_num)
-    have ht0 : (0 : ℤ) < t := by linarith
-    have hP1 : (2 : ℤ) ^ A.card = 4 * t := by rw [hmcard, ht, pow_add]; ring
-    have hP1' : ((2 ^ A.card : ℕ) : ℤ) = 4 * t := by rw [hmcard, ht]; push_cast; ring
-    have htk : ((2 ^ m : ℕ) : ℤ) = t := by rw [ht]; push_cast; ring
-    -- combine the extremal bound with the identity and `∑a² ≤ n M²`
-    have hextr := card_sub_mul_le_sum_sq (A.powerset.image g) (2 ^ m)
-    rw [hGcard, hsumeq, hP1, htk, hP1'] at hextr
-    -- hextr : (4t − (2t+1))(t+1)² ≤ 4t · ∑a²
-    have hchain : (2 * t - 1) * (t + 1) ^ 2 ≤ 4 * t * ((A.card : ℤ) * M ^ 2) := by
-      nlinarith [hextr, hsumsq_le, ht0]
-    have hpoly : t ^ 3 ≤ (2 * t - 1) * (t + 1) ^ 2 := by nlinarith [ht1]
-    have hcube : t * t ^ 2 ≤ t * (4 * ((A.card : ℤ) * M ^ 2)) := by nlinarith [hchain, hpoly]
-    have hcancel : t ^ 2 ≤ 4 * ((A.card : ℤ) * M ^ 2) := le_of_mul_le_mul_left hcube ht0
-    have hP2 : (2 : ℤ) ^ (2 * A.card) = 16 * t ^ 2 := by
-      rw [hmcard, ht]; rw [show 2 * (m + 2) = m * 2 + 4 by ring, pow_add, pow_mul]; ring
-    have hgoalZ : (2 : ℤ) ^ (2 * A.card) ≤ 64 * A.card * M ^ 2 := by
-      rw [hP2]; nlinarith [hcancel]
-    exact_mod_cast hgoalZ
+  -- tight extremal at threshold-sum `R = 2^{|A|-1}` (every dyadic shell counted)
+  have hcardpos : 1 ≤ A.card := Finset.card_pos.mpr hA
+  set R : ℕ := 2 ^ (A.card - 1) with hR
+  have hRpos : (0 : ℤ) < R := by rw [hR]; positivity
+  have hR2 : (2 : ℤ) ^ A.card = 2 * (R : ℤ) := by
+    rw [hR]; push_cast
+    conv_lhs => rw [← Nat.sub_add_cancel hcardpos, pow_succ]
+    ring
+  have hGcZ : ((2 ^ A.card : ℕ) : ℤ) = 2 * (R : ℤ) := by push_cast; exact hR2
+  have hextr := layer_le_sum_sq (A.powerset.image g) R
+  rw [hGcard, hGcZ, hsumeq, hR2] at hextr
+  -- `3·(layer sum at |G| = 2R) = 2R³ + R`
+  have cubic : 3 * ∑ r ∈ Finset.range R, (2 * (r : ℤ) + 1) * (2 * (R : ℤ) - (2 * r + 1))
+      = 2 * (R : ℤ) ^ 3 + R := by
+    have expand : ∑ r ∈ Finset.range R, (2 * (r : ℤ) + 1) * (2 * (R : ℤ) - (2 * r + 1))
+        = 2 * (R : ℤ) * (∑ r ∈ Finset.range R, (2 * (r : ℤ) + 1))
+          - ∑ r ∈ Finset.range R, (2 * (r : ℤ) + 1) ^ 2 := by
+      rw [Finset.mul_sum, ← Finset.sum_sub_distrib]
+      exact Finset.sum_congr rfl (fun r _ => by ring)
+    rw [expand, sum_two_mul_add_one]
+    linear_combination -sum_two_mul_add_one_sq R
+  have hprod : 6 * (R : ℤ) * (∑ x ∈ A, (x : ℤ) ^ 2) ≤ 6 * (R : ℤ) * ((A.card : ℤ) * M ^ 2) :=
+    mul_le_mul_of_nonneg_left hsumsq_le (by positivity)
+  have key : 2 * (R : ℤ) ^ 3 ≤ 6 * (R : ℤ) * ((A.card : ℤ) * M ^ 2) := by
+    nlinarith [cubic, hextr, hprod, hRpos]
+  have hcancel : (R : ℤ) ^ 2 ≤ 3 * ((A.card : ℤ) * M ^ 2) := by
+    have hmul : 2 * (R : ℤ) * (R ^ 2) ≤ 2 * (R : ℤ) * (3 * ((A.card : ℤ) * M ^ 2)) := by
+      nlinarith [key]
+    exact le_of_mul_le_mul_left hmul (by linarith)
+  have hpow : (2 : ℤ) ^ (2 * A.card) = 4 * (R : ℤ) ^ 2 := by rw [two_mul, pow_add, hR2]; ring
+  have hgoalZ : (2 : ℤ) ^ (2 * A.card) ≤ 12 * A.card * M ^ 2 := by rw [hpow]; nlinarith [hcancel]
+  exact_mod_cast hgoalZ
 
-/-- **Erdős–Moser, square-root form.** A set with distinct subset sums and all elements `≤ M`
-satisfies `2^{|A|} ≤ 8·√{|A|}·M`, i.e. its largest element is at least `2^{|A|}/(8√{|A|})` — the
-classical `Θ(2^n/√n)` lower bound. -/
+/-- **Erdős–Moser, square-root form (sharp constant).** A set with distinct subset sums and all
+elements `≤ M` satisfies `2^{|A|} ≤ √(12|A|)·M = 2√3·√{|A|}·M`, i.e. its largest element is at
+least `2^{|A|}/(2√3·√{|A|})` — the classical `Θ(2^n/√n)` lower bound with the sharp second-moment
+constant `1/(2√3) ≈ 0.289`. -/
 theorem two_pow_le_sqrt_mul {A : Finset ℕ} {M : ℕ}
     (h : HasDistinctSubsetSums A) (hM : ∀ x ∈ A, x ≤ M) (hA : A.Nonempty) :
-    (2 : ℝ) ^ A.card ≤ 8 * Real.sqrt A.card * M := by
-  have hbR : (2 : ℝ) ^ (2 * A.card) ≤ 64 * A.card * M ^ 2 := by
+    (2 : ℝ) ^ A.card ≤ Real.sqrt (12 * A.card) * M := by
+  have hbR : (2 : ℝ) ^ (2 * A.card) ≤ 12 * A.card * M ^ 2 := by
     exact_mod_cast two_pow_two_mul_card_le h hM hA
-  have hsq : (8 * Real.sqrt A.card * M) ^ 2 = 64 * A.card * M ^ 2 := by
-    rw [mul_pow, mul_pow, Real.sq_sqrt (by positivity)]; ring
+  have hsq : (Real.sqrt (12 * A.card) * M) ^ 2 = 12 * A.card * M ^ 2 := by
+    rw [mul_pow, Real.sq_sqrt (by positivity)]
   have e2n : ((2 : ℝ) ^ A.card) ^ 2 = (2 : ℝ) ^ (2 * A.card) := by
-    rw [← pow_mul, mul_comm]
-  have key : ((2 : ℝ) ^ A.card) ^ 2 ≤ (8 * Real.sqrt A.card * M) ^ 2 := by
+    rw [two_mul, pow_add, pow_two]
+  have key : ((2 : ℝ) ^ A.card) ^ 2 ≤ (Real.sqrt (12 * A.card) * M) ^ 2 := by
     rw [e2n, hsq]; exact hbR
   have h2n : (0 : ℝ) ≤ (2 : ℝ) ^ A.card := by positivity
-  have hrhs : (0 : ℝ) ≤ 8 * Real.sqrt A.card * M := by positivity
+  have hrhs : (0 : ℝ) ≤ Real.sqrt (12 * A.card) * M := by positivity
   have hsqrt := Real.sqrt_le_sqrt key
   rwa [Real.sqrt_sq h2n, Real.sqrt_sq hrhs] at hsqrt
 
