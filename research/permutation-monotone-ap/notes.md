@@ -1311,3 +1311,33 @@ CONSTRUCTION RE-PROBE (did NOT close #196; reproduced PROBING LOG 22's wall, did
   witnesses are unstructured (displacement −26..+17, no self-similarity) — no recursive pattern to lift to
   a global order. Net: the construction route remains alive-but-unconstructed; closing it needs the same
   infinitary object LOG 22 isolated. No new ground gained on the construction side this session.
+
+## ★ PROBING LOG 24 (2026-06-02) — IMPOSSIBILITY DIRECTION opened: sub-lemma (b) "scale-controlled DEGS" PROVED ★
+
+Pivot from the construction (NO) side to the impossibility (YES) side, and mapped what such a proof must
+establish: three sanity gates — (1) use ω essentially (finite + dense vdc are 4-AP-free-orderable),
+(2) escalate the dyadic scale (every fixed scale is refuted by Adenwalla), (3) cut off at length 4 (DEGS
+build a 5-AP-free ω-permutation). Any natural argument violates one and is refuted by a known construction.
+
+Reformulation (elementary, not yet formalized): `f` avoids monotone 4-APs ⟺ every monotone 3-AP in `f` has
+**both completions tucked into its interior** (forward completion before the last term's position, backward
+completion after the first term's). Since DEGS makes 3-APs unavoidable, impossibility = this completion web
+has no ω-solution. Bootstraps from the proven base case, so it's "force one more term," not "from scratch".
+
+LADDER: (a) [proved] DEGS, a monotone 3-AP exists. (b) [PROVED NOW] monotone 3-APs of arbitrarily high
+2-adic difference-valuation exist. (c) [open, the crux] some high-scale 3-AP has an un-tuckable completion.
+
+### (b) formalized — `Erdos/PermutationMonotoneAP/Unavoidability.lean` (axiom-clean, builds green)
+- `hasMonotoneAP_three_dvd (f : ℕ ≃ ℕ) (M) (0<M)` : ∃ monotone 3-AP with `M ∣ d`, `d ≠ 0`.
+- `hasMonotoneAP_three_pow_two (f) (k)` : ∃ monotone 3-AP with `2^k ∣ d`, `d ≠ 0`.
+- Proof = the DEGS argument run inside the residue class of `f 0` mod `M`: `b` = first value `> f 0` and
+  `≡ f 0 (mod M)`; reflection `m = 2b − f 0 ≡ f 0 (mod M)` is forced later by the same prefix counting;
+  `(f 0, b, m)` is a monotone 3-AP with `M | (b − f 0)`. `hasMonotoneAP_three` is the `M = 1` case.
+- Empirically (LV avoider): residue-DEGS yields exactly `(0, 2^k, 2^{k+1})` for every k≤8 — clean.
+- Axioms: propext/Classical.choice/Quot.sound only. Sanity gates: (b) passes gate 1 (uses DEGS = an
+  ω-statement; breaks for dense orders, which have no monotone 3-AP at all) and delivers gate 2.
+
+NEXT (c): the genuine content — show the completion web is over-determined. Needs either a global potential
+that "sees density" (strengthening rank-descent, currently only density-0) or a partition-regularity theorem
+for AP-completions on ω-well-orders. A concrete intermediate: bound how early all completions of the forced
+high-scale 3-APs must sit, and derive a packing contradiction. Direction still genuinely open (SAT leans NO).

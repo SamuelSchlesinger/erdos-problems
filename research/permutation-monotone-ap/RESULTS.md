@@ -37,6 +37,7 @@ densities. **#197 has answer NO if `α(3) + β(3) < 1`** (since a partition forc
 | `Dyadic.lean` | **#196 layer**: k-generic affine invariance `HasMonotoneAP (c+a·g) k ↔ HasMonotoneAP g k`; the **dyadic 4-AP reduction** `isFree_four_dyadicRestrict`; `Erdos196Avoidable ↔ ¬Erdos196 ↔ IsFree univ 4`. Plus `vdc_no_monotone_fourAP` (vdc avoids 4-APs) in `VanDerCorput.lean` |
 | `OddDifference.lean` | **#196 odd-difference layer (LeSaulnier–Vijay 2011) + Adenwalla reduction, formalized**: `exists_perm_no_oddDiff_mono4` — explicit permutation of `ℕ` (`g(3k)=4k, g(3k+1)=4k+2, g(3k+2)=2k+1`) with **no monotone 4-term AP of odd common difference**, via property (P) `odd x before even y ⟹ y>2x`. Bridge `oddDiffSafe_oddAvoiderInv` to the `Compactness.lean` socket (meets `OddDiffSafe N` ∀N, bound `≤2v`). Plus the **dyadic reduction towards Adenwalla Thm 4**: `AvoidV2 σ k` (avoid 4-APs with diff not divisible by `2^k`), `avoidV2_succ` (the reduction: (P) + both dyadic children avoid `2^k`-indivisible ⟹ avoids `2^(k+1)`-indivisible), and `adenwalla_of_hasPMerge : HasPMerge → ∀k ∃ G, AvoidV2 G k` — reducing Adenwalla's theorem (axiom-clean) to one (unproved) merge hypothesis. Plus the **quantifier-swap characterisation**: `mono4_free_iff_forall_avoidV2` (a fixed order is `AvoidV2` at all `k` ⟺ avoids every 4-AP) and `erdos196Avoidable_iff_exists_injective_avoidV2_all` (**#196-NO ⟺ `∃ G, Injective G ∧ ∀ k, AvoidV2 G k`**), exhibiting the open content as the swap `(∀k ∃G) ⟹ (∃G ∀k)` against Adenwalla's `∀k ∃G` |
 | `Compactness.lean` | **#196 finitary bridge**: `exists_finiteFeasible_iff_avoidable` — a 4-AP-avoiding permutation of ℕ exists **iff** some uniform bound `f` makes every initial segment `[0,N)` 4-AP-free-orderable with `σ v ≤ f v` (König's lemma + rank-compression). Plus the **drift lemma** `unbounded_displacement_of_avoiding`: every 4-AP avoider has unbounded displacement (`f v − v → ∞`) |
+| `Unavoidability.lean` | **#196 impossibility (YES) direction, sub-lemma (b)**: `hasMonotoneAP_three_dvd` — every permutation of ℕ has a monotone **3**-AP whose common difference is a nonzero multiple of any prescribed `M` (the DEGS argument run inside one residue class mod `M`); `hasMonotoneAP_three_pow_two` specialises to `2^k ∣ d`, giving monotone 3-APs of **arbitrarily high 2-adic valuation**. This is the "scale-controlled DEGS" hinge that an impossibility argument needs to escalate past Adenwalla's bounded-`v₂` regime. (`hasMonotoneAP_three` is the `M=1` case.) |
 
 ### Headline results
 
@@ -150,7 +151,17 @@ question via the `2ᵏ`-divisible case. Key outcomes:
     (P)-orders impose conflicting magnitude orderings (nested keys leak at `v2=2`; matches Adenwalla
     bounded-`v2`): resolvable for *fixed* `k` (geometric/deadline merge), open across all scales — the
     50-year wall, not yet broken in either direction.
-- ~280 theorems across 10 files, all axiom-clean (`propext`, `Classical.choice`, `Quot.sound` only);
+  - **Impossibility (YES) direction, a ladder** (`Unavoidability.lean`): an impossibility proof must
+    (1) use the ω order-type essentially (finite/dense orders are 4-AP-free-orderable), (2) escalate the
+    dyadic scale unboundedly (each fixed scale is refuted by Adenwalla), and (3) cut off at length 4
+    (DEGS build a 5-AP-free ω-permutation). Steps: **(a)** [proved] DEGS — a monotone 3-AP always exists;
+    **(b)** [**proved now**] `hasMonotoneAP_three_dvd` / `hasMonotoneAP_three_pow_two` — monotone 3-APs of
+    *arbitrarily high* `2`-adic difference-valuation always exist (DEGS run inside a residue class), the
+    hinge between (a) and the scale-escalation in (2); **(c)** [open, the crux] some such high-scale 3-AP
+    has an un-tuckable completion, forcing a monotone 4-AP. A natural reformulation for (c): `f` avoids
+    monotone 4-APs ⟺ every monotone 3-AP has both completions placed in its interior — impossibility is
+    that this completion web has no ω-solution.
+- ~280 theorems across 11 files, all axiom-clean (`propext`, `Classical.choice`, `Quot.sound` only);
   full project builds green. (Note: the construction-side socket tower in `Compactness.lean` is exploratory
   scaffolding — ~14 `finiteFeasible_of_child_*` constructors + ~18 `erdos196Avoidable_of_child_*` wrappers,
   each conditional on an undischarged merge step; the load-bearing reduction is the iff + drift + the

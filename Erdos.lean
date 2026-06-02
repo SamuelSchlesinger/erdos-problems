@@ -144,3 +144,4 @@ import Erdos.PermutationMonotoneAP.Descent
 import Erdos.PermutationMonotoneAP.Dyadic
 import Erdos.PermutationMonotoneAP.Compactness
 import Erdos.PermutationMonotoneAP.OddDifference
+import Erdos.PermutationMonotoneAP.Unavoidability
