@@ -57,6 +57,7 @@ import Erdos.DistinctDistances.Statement
 import Erdos.DistinctDistances.Elementary
 import Erdos.DistinctSubsetSums.Statement
 import Erdos.DistinctSubsetSums.ElementaryBounds
+import Erdos.DistinctSubsetSums.SecondMoment
 import Erdos.PlanePairColorings.Statement
 import Erdos.PlanePairColorings.Elementary
 import Erdos.C4MinDegree.Statement
