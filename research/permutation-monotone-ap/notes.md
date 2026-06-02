@@ -1341,3 +1341,26 @@ NEXT (c): the genuine content — show the completion web is over-determined. Ne
 that "sees density" (strengthening rank-descent, currently only density-0) or a partition-regularity theorem
 for AP-completions on ω-well-orders. A concrete intermediate: bound how early all completions of the forced
 high-scale 3-APs must sit, and derive a packing contradiction. Direction still genuinely open (SAT leans NO).
+
+## ★ PROBING LOG 25 (2026-06-02) — DEAD END: the packing/quantitative-(b) route to (c) is BLOCKED ★
+
+Probed the "quantitative (b) ⟹ finite packing contradiction" sub-step (bound how early completions must
+sit, pigeonhole them). **It cannot work, and the block is a theorem we already have:**
+`finite_initial_segments_vdc_orderable : FiniteOrderable4` — every finite `[0,N)` is 4-AP-free-orderable
+with NO displacement bound (vdc). So the *unbounded* completion web is satisfiable on every finite value
+set; a packing/counting argument is inherently finite, hence can never contradict it. Any "how early must
+completions sit" bound has slack for every N.
+
+- The ONLY finite contradictions live in the *bounded* problem (`slack2(N) > C` = UNSAT cell), and those
+  refute one fixed `f = 2v+C`, not the `∀ f` statement #196 requires. So no fixed-bound packing reaches #196.
+- Crude empirical confirmation (cadical witnesses, completion-web metric): forward completions number
+  far fewer than positions (ncompletions ≈ 36–64 vs N = 48–80), fit comfortably, no bottleneck, for tight
+  (C=slack2) AND loose (C=20) bounds. (Metric was degenerate at small P; the decisive argument is the
+  theorem, not the measurement.)
+
+SHARPER SYNTHESIS: `FiniteOrderable4` is the SINGLE linchpin making #196 infinitary from BOTH sides —
+construction side (no finite construction; must supply a uniform ω-bound `f`) AND impossibility side (no
+finite obstruction; any impossibility proof is irreducibly infinitary). Same theorem blocks finite methods
+in both directions. DO NOT re-attempt finite packing/counting for (c). The only remaining lever for (c) is
+genuinely infinitary (density-seeing global potential, or order-completion partition regularity) — the
+50-year frontier, no foothold found. #196 push stopped here; sub-lemma (b) banked as the session's gain.
