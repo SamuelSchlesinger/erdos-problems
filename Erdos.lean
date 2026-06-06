@@ -25,6 +25,7 @@ import Erdos.DivisibilityAvoidingSets.CoprimeSelection
 import Erdos.DivisibilityAvoidingSets.CommonFactorDescent
 import Erdos.DivisibilityAvoidingSets.ThresholdStrategy
 import Erdos.DivisibilityAvoidingSets.RankGrowthKernel
+import Erdos.DivisibilityAvoidingSets.CollectiveDescent
 import Erdos.DivisibilityAvoidingSets.BertrandTags
 import Erdos.DivisibilityAvoidingSets.BertrandConstruction
 import Erdos.DivisorChains.Statement
