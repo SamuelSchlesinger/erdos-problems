@@ -214,7 +214,7 @@ theorem disjoint_oddPlusPowersOfTwo_largePrimeDoubles (N : ℕ) :
 
 /-- A power of 2 (with k ≥ 1) cannot pair with `2p` for prime p odd ≥ 3. -/
 private theorem powerOfTwo_largePrimeDouble_pair_free {k p : ℕ} (hk : 1 ≤ k)
-    (hp_prime : Nat.Prime p) (hp_odd : p % 2 = 1) (hp_ge : 3 ≤ p) :
+    (hp_odd : p % 2 = 1) (hp_ge : 3 ≤ p) :
     ¬IsUnitFractionPair (2 ^ k) (p * 2) := by
   intro hpair
   have h_gcd : Nat.gcd (2 ^ k) (p * 2) = 2 := by
@@ -269,7 +269,7 @@ theorem pairFree_oddPlusPowersOfTwoPlusLargePrimes (N : ℕ) :
           have h2 := hp_prime.two_le
           have : p ≠ 2 := by intro hp_eq2; rw [hp_eq2] at hp_odd; norm_num at hp_odd
           omega
-        exact powerOfTwo_largePrimeDouble_pair_free hk hp_prime hp_odd hp_ge3 hpair
+        exact powerOfTwo_largePrimeDouble_pair_free hk hp_odd hp_ge3 hpair
   · rcases hy with hy | hy
     · -- y in oddPlusPowersOfTwo, x in largePrimeDoubles — symmetric.
       rw [oddPlusPowersOfTwo, Finset.mem_union] at hy
@@ -287,7 +287,7 @@ theorem pairFree_oddPlusPowersOfTwoPlusLargePrimes (N : ℕ) :
           have h2 := hp_prime.two_le
           have : p ≠ 2 := by intro hp_eq2; rw [hp_eq2] at hp_odd; norm_num at hp_odd
           omega
-        exact powerOfTwo_largePrimeDouble_pair_free hk hp_prime hp_odd hp_ge3
+        exact powerOfTwo_largePrimeDouble_pair_free hk hp_odd hp_ge3
           (pair_symm.mp hpair)
     · -- both in largePrimeDoubles
       exact pairFree_largePrimeDoubles N x hx y hy hxy hpair
@@ -382,7 +382,7 @@ theorem primeCounting_le_largePrimeIndex (N : ℕ) :
     · refine Finset.mem_union_right _ ?_
       rw [Nat.mem_primesLE]
       exact ⟨hp_small, hp_prime⟩
-    · push_neg at hp_small
+    · push Not at hp_small
       refine Finset.mem_union_left _ ?_
       simp only [largePrimeIndex, Finset.mem_filter, Finset.mem_Ioc]
       refine ⟨⟨?_, hp_le⟩, hp_prime, ?_⟩

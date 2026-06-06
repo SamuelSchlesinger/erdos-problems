@@ -95,7 +95,7 @@ theorem triple_free_forces_exclusion (A : Finset ℕ) (hA : TripleFree A)
   have hbc : b < c := by
     change a + d < a + a ^ 2 / d
     apply Nat.add_lt_add_left
-    by_contra hle; push_neg at hle
+    by_contra hle; push Not at hle
     have : a ^ 2 ≤ d * d := by
       calc a ^ 2 = d * (a ^ 2 / d) := h_cancel.symm
         _ ≤ d * d := mul_le_mul_of_nonneg_left hle (Nat.zero_le d)
@@ -106,7 +106,7 @@ theorem triple_free_forces_exclusion (A : Finset ℕ) (hA : TripleFree A)
   have htrip_rat : (1 / a : ℚ) = 1 / b + 1 / c :=
     (triple_iff_div ha_pos hb_pos hc_pos).mpr htrip
   -- Suppose both endpoints are in A; derive contradiction with TripleFree
-  by_contra h; push_neg at h; obtain ⟨hb_mem, hc_mem⟩ := h
+  by_contra h; push Not at h; obtain ⟨hb_mem, hc_mem⟩ := h
   exact hA a ha b hb_mem c hc_mem (by omega) (by omega) (by omega)
     ⟨ha_pos, hb_pos, hc_pos, htrip_rat⟩
 
@@ -143,7 +143,7 @@ theorem exclusion_endpoint_ranges {a d : ℕ} (_ha : 0 < a)
   · omega
   · -- Need: a < a²/d. Since d < a, we get d² < a², so d < a²/d.
     suffices a < a ^ 2 / d by omega
-    by_contra hle; push_neg at hle
+    by_contra hle; push Not at hle
     have h1 : a ^ 2 ≤ d * a := by
       calc a ^ 2 = d * (a ^ 2 / d) := h_cancel.symm
         _ ≤ d * a := mul_le_mul_of_nonneg_left hle (Nat.zero_le d)

@@ -44,7 +44,7 @@ theorem unit_fraction_pair_iff {a b : ℕ} (ha : 0 < a) (hb : 0 < b) :
   · rintro ⟨k, hk⟩
     have hkpos : 0 < k := by
       by_contra h
-      push_neg at h
+      push Not at h
       interval_cases k
       simp at hk; omega
     refine ⟨k, hkpos, ?_⟩
@@ -74,7 +74,7 @@ theorem odd_numbers_pair_free (N : ℕ) :
   have hab_even : 2 ∣ a + b := by omega
   have hab_not_dvd : ¬ 2 ∣ a * b := by
     rw [Nat.Prime.dvd_mul Nat.prime_two]
-    push_neg; exact ⟨ha_odd, hb_odd⟩
+    push Not; exact ⟨ha_odd, hb_odd⟩
   exact hab_not_dvd (dvd_trans hab_even ⟨k, hk⟩)
 
 end UnitFractionPairs

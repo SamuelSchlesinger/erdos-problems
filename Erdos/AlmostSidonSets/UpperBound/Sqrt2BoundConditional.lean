@@ -278,7 +278,7 @@ theorem strong_almostSidon_card_le_sqrt2_sqrt_of_sidon_interval
       _ ≤ (Real.sqrt 2 + ε / 2) * Real.sqrt N + (ε / 2) * Real.sqrt N := by linarith
       _ = (Real.sqrt 2 + ε) * Real.sqrt N := by ring
   · -- Case 2: no exceptional value. Then A is genuinely Sidon.
-    push_neg at hExists
+    push Not at hExists
     have hSidon : IsSidonFinset A := by
       intro a₁ a₂ b₁ b₂ ha₁ ha₂ hb₁ hb₂ hle12 hle12' hsum
       by_contra hne

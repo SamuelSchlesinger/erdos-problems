@@ -159,7 +159,7 @@ theorem weird_mul_prime {n p : ℕ} (hw : Weird n) (hp : Nat.Prime p)
     -- p | S₀.sum (since S₀.sum = pn - p*(S₁.sum(·/p)))
     have hp_dvd : p ∣ S₀.sum id := by
       have hle : S₁.sum (· / p) ≤ n := by
-        by_contra hc; push_neg at hc
+        by_contra hc; push Not at hc
         have := Nat.mul_lt_mul_of_pos_left hc hp_pos
         linarith [Nat.zero_le (S₀.sum id)]
       refine ⟨n - S₁.sum (· / p), ?_⟩

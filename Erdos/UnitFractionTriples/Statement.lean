@@ -55,6 +55,6 @@ theorem triple_lt {a b c : ℕ} (ha : 0 < a) (hb : 0 < b) (hc : 0 < c)
     (_hab : a ≠ b) (_hac : a ≠ c)
     (h : (1 / a : ℚ) = 1 / b + 1 / c) : a < b ∧ a < c := by
   rw [triple_iff_div ha hb hc] at h
-  constructor <;> by_contra hle <;> push_neg at hle <;> nlinarith
+  constructor <;> by_contra hle <;> push Not at hle <;> nlinarith
 
 end UnitFractionTriples

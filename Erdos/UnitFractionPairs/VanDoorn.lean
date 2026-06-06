@@ -868,7 +868,7 @@ private theorem s_pair_inter_card_le_one {A : Finset ℕ} (hA : PairFree A)
               (Finset.mem_inter.mp hb).1⟩
       _ = ({3*a, 6*a} : Finset ℕ).card - 1 := Finset.card_erase_of_mem hxS
       _ = 1 := by rw [s_pair_card_eq_two ha]
-  by_contra h; push_neg at h
+  by_contra h; push Not at h
   exact pair_free_not_3k_6k hA ha (h _ (by simp)) (h _ (by simp))
 
 /-- A pair-free set keeps at most 1 element from {4a, 12a}. -/
@@ -884,7 +884,7 @@ private theorem t_pair_inter_card_le_one {A : Finset ℕ} (hA : PairFree A)
               (Finset.mem_inter.mp hb).1⟩
       _ = ({4*a, 12*a} : Finset ℕ).card - 1 := Finset.card_erase_of_mem hxT
       _ = 1 := by rw [t_pair_card_eq_two ha]
-  by_contra h; push_neg at h
+  by_contra h; push Not at h
   exact pair_free_not_4k_12k hA ha (h _ (by simp)) (h _ (by simp))
 
 /-! ### Section 8: Overlap-aware mixed bounds -/

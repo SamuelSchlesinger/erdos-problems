@@ -147,7 +147,7 @@ private theorem unit_sum_to_pseudoperfect {n : ℕ} (hn : 0 < n)
     intro t ht
     have htd := Nat.mem_divisors.mp (hTsub ht)
     have ht_pos : 0 < t := Nat.pos_of_dvd_of_pos htd.1 hn
-    by_contra h; push_neg at h
+    by_contra h; push Not at h
     -- t ≤ 1 and t > 0 means t = 1, contradicting 1 ∉ T
     interval_cases t; exact h1 ht
   -- S ⊆ n.properDivisors
@@ -327,7 +327,7 @@ theorem weird_reciprocal_overshoot {n : ℕ} (hw : Weird n) :
     have h : n.divisors.sum id = n.properDivisors.sum id + n :=
       Nat.sum_divisors_eq_sum_properDivisors_add_self
     have hab := hw.1.2
-    by_contra hle; push_neg at hle
+    by_contra hle; push Not at hle
     have heq : n.properDivisors.sum id = n := by omega
     exact hw.2 (perfect_implies_pseudoperfect hn heq)
   -- Full reciprocal sum > 2

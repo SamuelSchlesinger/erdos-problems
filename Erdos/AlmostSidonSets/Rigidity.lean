@@ -97,7 +97,7 @@ theorem r1_atMostTwoReprs_implies_sidon_after_one_removal
     have hq₂_ne : q₂ ≠ a₁ := (Finset.mem_erase.mp (Finset.mem_coe.mp hq₂)).1
     -- By contradiction: assume (p₁, p₂) ≠ (q₁, q₂); derive HasThreeSumReprs.
     by_contra hcontra
-    push_neg at hcontra
+    push Not at hcontra
     -- hcontra : p₁ = q₁ → p₂ ≠ q₂
     have hpqneq : p₁ ≠ q₁ ∨ p₂ ≠ q₂ := by
       by_cases h1 : p₁ = q₁
@@ -131,7 +131,7 @@ theorem r1_atMostTwoReprs_implies_sidon_after_one_removal
        hap_neq, haq_neq, hpqneq⟩
     exact h_atMostTwo n h_three
   · -- Case: no exceptional value; A is genuinely Sidon. Remove any element.
-    push_neg at hExists
+    push Not at hExists
     obtain ⟨x, hx⟩ := hA_ne
     refine ⟨x, hx, ?_⟩
     intro p₁ p₂ q₁ q₂ hp₁ hp₂ hq₁ hq₂ hp_le hq_le hsum
@@ -140,7 +140,7 @@ theorem r1_atMostTwoReprs_implies_sidon_after_one_removal
     have hq₁A : q₁ ∈ A := (Finset.mem_erase.mp (Finset.mem_coe.mp hq₁)).2
     have hq₂A : q₂ ∈ A := (Finset.mem_erase.mp (Finset.mem_coe.mp hq₂)).2
     by_contra hcontra
-    push_neg at hcontra
+    push Not at hcontra
     have hpqneq : p₁ ≠ q₁ ∨ p₂ ≠ q₂ := by
       by_cases h1 : p₁ = q₁
       · right; exact hcontra h1
@@ -194,9 +194,9 @@ theorem r2_extreme_pair_on_exception_axis_or_unique
   · -- No: any pair summing to m + M must equal (m, M).
     right
     intro a b ha hb hab_le hab_sum
-    push_neg at h_alt
+    push Not at h_alt
     by_contra h_ne
-    push_neg at h_ne
+    push Not at h_ne
     have := h_alt a b ha hb hab_le hab_sum
     exact h_ne this.1 this.2
 
@@ -436,7 +436,7 @@ theorem isSidonFinset_of_no_twoSumReprs {A : Finset ℕ}
   have hb₁' : b₁ ∈ A := Finset.mem_coe.mp hb₁
   have hb₂' : b₂ ∈ A := Finset.mem_coe.mp hb₂
   by_contra hne
-  push_neg at hne
+  push Not at hne
   have hneq : a₁ ≠ b₁ ∨ a₂ ≠ b₂ := by
     by_cases h1 : a₁ = b₁
     · right; exact hne h1
@@ -483,7 +483,7 @@ theorem r1_general_multiplicity_bound
     by_cases h_inner : ∀ n, ¬ HasKPlusOneSumReprs A n (k + 1)
     · obtain ⟨S, hS_sub, hS_sidon, hS_card⟩ := ih A hA h_inner
       exact ⟨S, hS_sub, hS_sidon, by omega⟩
-    · push_neg at h_inner
+    · push Not at h_inner
       obtain ⟨nstar, h_many⟩ := h_inner
       -- `h_many : HasKPlusOneSumReprs A nstar (k + 1)`
       -- i.e. `k + 2 ≤ (sumReprsFinset A nstar).card`
@@ -505,7 +505,7 @@ theorem r1_general_multiplicity_bound
         have h_card_back : k + 2 ≤ (sumReprsFinset A n).card :=
           le_trans h_many_erase (Finset.card_le_card h_sub)
         have h_card_at_n : (sumReprsFinset A n).card ≤ k + 2 := by
-          by_contra hgt; push_neg at hgt
+          by_contra hgt; push Not at hgt
           have h_target : HasKPlusOneSumReprs A n (k + 1 + 1) := by
             unfold HasKPlusOneSumReprs; omega
           exact h_atMost n h_target
@@ -578,7 +578,7 @@ theorem r3_off_axis_unique_representation
       a₁ = b₁ ∧ a₂ = b₂ := by
   intro a₁ a₂ b₁ b₂ ha₁ ha₂ hb₁ hb₂ hle1 hle2 hsum1 hsum2
   by_contra h_ne
-  push_neg at h_ne
+  push Not at h_ne
   have hneq : a₁ ≠ b₁ ∨ a₂ ≠ b₂ := by
     by_cases h1 : a₁ = b₁
     · right; exact h_ne h1
@@ -734,13 +734,13 @@ theorem r3_second_min_reflection_bounded
   have hr_lt_M : r < M := by simp only [hr_def]; omega
   have hm₂_lt_M : m₂ < M := by
     by_contra h
-    push_neg at h
+    push Not at h
     have h_eq : m₂ = M := le_antisymm hm₂_le_M h
     have h_erase_2 : 2 ≤ (A.erase m).card := by
       rw [Finset.card_erase_of_mem hm_mem]; omega
     have h_exists_two : ∃ x ∈ A.erase m, x ≠ m₂ := by
       by_contra hne
-      push_neg at hne
+      push Not at hne
       have h_sub : A.erase m ⊆ {m₂} := fun x hx => Finset.mem_singleton.mpr (hne x hx)
       have : (A.erase m).card ≤ 1 := by
         calc (A.erase m).card ≤ ({m₂} : Finset ℕ).card := Finset.card_le_card h_sub
@@ -841,7 +841,7 @@ theorem r3_second_extreme_pair
       rw [Finset.card_erase_of_mem hm_mem]; omega
     have : ∃ y ∈ A.erase m, y ≠ m₂ := by
       by_contra hne
-      push_neg at hne
+      push Not at hne
       have h_sub : A.erase m ⊆ {m₂} := fun x hx => Finset.mem_singleton.mpr (hne x hx)
       have : (A.erase m).card ≤ 1 := by
         calc (A.erase m).card ≤ ({m₂} : Finset ℕ).card := Finset.card_le_card h_sub
@@ -1172,7 +1172,7 @@ theorem pairElements_card_with_self_pair
     rw [Finset.mem_singleton] at hx
     subst hx
     rw [Finset.mem_union]
-    push_neg
+    push Not
     exact ⟨h_fst_R'_no_c, h_snd_R'_no_c⟩
   rw [Finset.card_union_of_disjoint h_c_disj, Finset.card_singleton,
       Finset.card_union_of_disjoint h_R'_disj, h_card_fst_R', h_card_snd_R']
@@ -1309,7 +1309,7 @@ theorem r4_ef_decomposition
     by_cases h : 2 * x ≤ nstar
     · left; exact ⟨hx, h⟩
     · right
-      push_neg at h
+      push Not at h
       refine ⟨nstar - x, ⟨h_refl x hx, ?_⟩, ?_⟩
       · omega
       · omega

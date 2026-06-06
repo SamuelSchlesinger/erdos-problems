@@ -420,7 +420,7 @@ theorem t_triple_inter_card_le_two {A : Finset ℕ} (hA : TripleFree A)
               (Finset.mem_inter.mp ha).1⟩
       _ = ({4*e, 5*e, 20*e} : Finset ℕ).card - 1 := Finset.card_erase_of_mem hxT
       _ = 2 := by rw [t_triple_card_eq_three he]
-  by_contra h; push_neg at h
+  by_contra h; push Not at h
   exact triple_free_excludes_one_T hA he (h _ (by simp)) (h _ (by simp)) (h _ (by simp))
 
 /-- The S-triple {2d, 3d, 6d} has exactly 3 elements for d > 0. -/
@@ -451,7 +451,7 @@ private theorem s_triple_inter_card_le_two {A : Finset ℕ} (hA : TripleFree A)
               (Finset.mem_inter.mp ha).1⟩
       _ = ({2*d, 3*d, 6*d} : Finset ℕ).card - 1 := Finset.card_erase_of_mem hxT
       _ = 2 := by rw [s_triple_card_eq_three hd]
-  by_contra h; push_neg at h
+  by_contra h; push Not at h
   exact triple_free_excludes_one hA hd (h _ (by simp)) (h _ (by simp)) (h _ (by simp))
 
 /-! ### Section 8: Capstone counting theorem -/

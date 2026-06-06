@@ -129,7 +129,7 @@ private lemma v3_mul_of_coprime3 {k m : ℕ} (hk : k ≠ 0) (hm : m ≠ 0)
 /-- **Cross-disjointness with the `S`-family.** For `m, a` both positive,
 if `NewParam m` (so `v₃(m)` is odd) and `VDParam a` (so `v₃(a)` is even),
 then `{6m, 30m} ∩ {3a, 6a} = ∅`. -/
-theorem new_S_disjoint {m a : ℕ} (hm : 0 < m) (ha : 0 < a)
+theorem new_S_disjoint {m a : ℕ} (hm : 0 < m)
     (hNew : NewParam m) (hVD : VDParam a) :
     Disjoint ({6 * m, 30 * m} : Finset ℕ) {3 * a, 6 * a} := by
   obtain ⟨_, hm3⟩ := hNew  -- v₃(m) odd
@@ -378,7 +378,7 @@ theorem three_family_pair_upper_bound (N : ℕ) (A : Finset ℕ)
       rw [Finset.disjoint_biUnion_left]
       intro a ha; rw [Finset.disjoint_biUnion_right]; intro m hm
       -- new_S_disjoint gives U disjoint with S; we need S with U.
-      exact (new_S_disjoint (hDU_mem m hm).1 (hDS_mem a ha).1
+      exact (new_S_disjoint (hDU_mem m hm).1
         (hDU_mem m hm).2.1 (hDS_mem a ha).2.1).symm)
     -- T vs U cross-disjointness (uses new_T_disjoint, swapped)
     (by

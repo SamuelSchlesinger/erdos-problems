@@ -46,7 +46,7 @@ theorem consecutive_triple (m : ℕ) (hm : 2 ≤ m) :
     1/y + 1/z > 0 (since y, z ≥ 2), so 4/n = 1/x + 1/y + 1/z > 1/x,
     giving 4x > n by cross-multiplication. -/
 theorem witness_4x_gt_n {n : ℕ} (hn : 2 < n) (w : Witness n) : n < 4 * w.x := by
-  by_contra h; push_neg at h
+  by_contra h; push Not at h
   have hx := w.hx; have hxy := w.hxy; have hyz := w.hyz
   have hy_pos : 0 < w.y := by omega
   have hz_pos : 0 < w.z := by omega

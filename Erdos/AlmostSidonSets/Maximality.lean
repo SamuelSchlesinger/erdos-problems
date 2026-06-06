@@ -71,7 +71,7 @@ theorem not_almostSidon_insert_creates_offAxis_exception
     ∃ m : ℕ, m ≠ nstar ∧ HasTwoSumReprs (insert y A) m := by
   classical
   rw [AlmostSidonFinset] at hnot
-  push_neg at hnot
+  push Not at hnot
   rcases hnot with ⟨m, n, hm, hn, hmn⟩
   by_cases hmstar : m = nstar
   · refine ⟨n, ?_, hn⟩
@@ -1511,7 +1511,7 @@ theorem exists_extra_not_high_of_maximal_missingReflection
       ∀ yz, z + yz = nstar → z ≤ 2 * yz := by
   classical
   by_contra hnone
-  push_neg at hnone
+  push Not at hnone
   have hAllHigh :
       ∀ z ∈ extraElements A nstar,
         ∃ yz, z + yz = nstar ∧ 2 * yz < z := by

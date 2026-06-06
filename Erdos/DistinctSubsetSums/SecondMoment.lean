@@ -80,7 +80,7 @@ theorem layer_le_sum_sq (G : Finset ℤ) (R : ℕ) :
             _ = 2 * r + 1 := by rw [Int.card_Icc]; omega
         have hsplit : (G.filter (fun y => (r : ℤ) < |y|)).card
             + (G.filter (fun y => ¬ (r : ℤ) < |y|)).card = G.card :=
-          Finset.filter_card_add_filter_neg_card_eq_card _
+          Finset.card_filter_add_card_filter_not _
         have e : (G.card : ℤ)
             = ((G.filter (fun y => (r : ℤ) < |y|)).card : ℤ)
               + ((G.filter (fun y => ¬ (r : ℤ) < |y|)).card : ℤ) := by exact_mod_cast hsplit.symm

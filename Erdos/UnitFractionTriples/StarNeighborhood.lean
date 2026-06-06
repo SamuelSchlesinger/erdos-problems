@@ -350,7 +350,7 @@ theorem triple_inter_card_le_two {A : Finset ℕ} (hA : TripleFree A)
       _ = ({2*d, 3*d, 6*d} : Finset ℕ).card - 1 := Finset.card_erase_of_mem hxT
       _ = 2 := by rw [triple_card_eq_three hd]
   -- By contradiction: if all three in A, triple_free_excludes_one gives False
-  by_contra h; push_neg at h
+  by_contra h; push Not at h
   exact triple_free_excludes_one hA hd (h _ (by simp)) (h _ (by simp)) (h _ (by simp))
 
 /-- The partial triple {2d, 3d, 6d} ⊆ {1, …, N} when 6d ≤ N and d > 0. -/

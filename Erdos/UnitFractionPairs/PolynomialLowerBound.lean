@@ -643,7 +643,6 @@ theorem primeCounting_sqrt_le_half_primeCounting_div_2 :
       _ ≤ Real.sqrt N + 2 := sqrtN_plus_2_le
   have h_R : (2 * Nat.primeCounting (Nat.sqrt N + 2) : ℝ) ≤
       (Nat.primeCounting (N / 2) : ℝ) := by
-    push_cast
     calc 2 * (Nat.primeCounting (Nat.sqrt N + 2) : ℝ)
         ≤ 2 * (Real.sqrt N + 2) := by linarith
       _ ≤ ((N / 2 : ℕ) : ℝ) * Real.log 2 / (2 * Real.log (N / 2 : ℕ)) := h_two_sqrt_le

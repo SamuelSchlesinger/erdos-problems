@@ -27,7 +27,7 @@ conjecture, only finitely many such triples can exist.** The proof goes via:
   finite.
 -/
 import Erdos.ConsecutivePowerful.Search
-import Mathlib.RingTheory.Radical
+import Mathlib.RingTheory.Radical.NatInt
 
 namespace ConsecutivePowerful
 
@@ -51,7 +51,7 @@ theorem radical_sq_dvd_of_powerful {n : ℕ} (hn : Powerful n) :
   have hn0 : n ≠ 0 := hn.1.ne'
   have hn_eq : (∏ p ∈ n.primeFactors, p ^ (n.factorization p)) = n := by
     have hprod : n.factorization.prod (· ^ ·) = n :=
-      Nat.factorization_prod_pow_eq_self hn0
+      Nat.prod_factorization_pow_eq_self hn0
     rwa [Finsupp.prod, Nat.support_factorization] at hprod
   have hpow_dvd : ∀ p ∈ n.primeFactors, p ^ 2 ∣ p ^ (n.factorization p) := by
     intro p hp

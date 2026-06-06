@@ -99,7 +99,7 @@ theorem distinct_subset_sums_integral {A : Finset ℕ} (h : HasDistinctSubsetSum
         intervalIntegral.integral_congr (fun t _ => hpt t)
     _ = ∑ p ∈ A.powerset ×ˢ A.powerset,
           ∫ t in (0 : ℝ)..1, e ((∑ x ∈ p.1, (x : ℤ)) - (∑ x ∈ p.2, (x : ℤ))) t :=
-        intervalIntegral.integral_finset_sum (fun p _ => e_integrable _)
+        intervalIntegral.integral_finsetSum (fun p _ => e_integrable _)
     _ = ∑ p ∈ A.powerset ×ˢ A.powerset,
           (if (∑ x ∈ p.1, (x : ℤ)) - (∑ x ∈ p.2, (x : ℤ)) = 0 then (1 : ℂ) else 0) := by
         simp_rw [e_integral]

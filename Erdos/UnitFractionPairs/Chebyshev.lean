@@ -115,7 +115,7 @@ theorem chebyshevSafePrimeSet_isSafePrimeSet (K : ℕ) :
     have hp_ge : 11 ≤ p := hp.1.1
     by_cases hd_le : d ≤ Nat.log 2 (p + 2)
     · exact hp.2.2.2 d (Finset.mem_Ioc.mpr ⟨hd, hd_le⟩) heq
-    · push_neg at hd_le
+    · push Not at hd_le
       have hN_pos : 0 < p + 2 := by omega
       have h2d_gt : p + 2 < 2 ^ d :=
         (Nat.log_lt_iff_lt_pow (by norm_num : 1 < 2) hN_pos.ne').mp hd_le
@@ -316,7 +316,7 @@ theorem chebyshevSafePrimeSet41_isSafePrimeSet (K : ℕ) :
     have hp_ge : 11 ≤ p := hp.1.1
     by_cases hd_le : d ≤ Nat.log 2 (p + 1)
     · exact hp.2.2.2 d (Finset.mem_Ioc.mpr ⟨hd, hd_le⟩) heq
-    · push_neg at hd_le
+    · push Not at hd_le
       have hN_pos : 0 < p + 1 := by omega
       have h2d_gt : p + 1 < 2 ^ d :=
         (Nat.log_lt_iff_lt_pow (by norm_num : 1 < 2) hN_pos.ne').mp hd_le
@@ -399,7 +399,7 @@ theorem primeCounting_le_residue_classes (K : ℕ) :
     Nat.primeCounting K ≤ (primesIn41 K).card + (primesIn43 K).card + 4 := by
   rw [← Nat.primesLE_card_eq_primeCounting]
   -- Split `primesLE K` by `(· ≤ 10)`.
-  have h_split := Finset.filter_card_add_filter_neg_card_eq_card
+  have h_split := Finset.card_filter_add_card_filter_not
     (s := Nat.primesLE K) (p := fun p => p ≤ 10)
   -- The "small" part has card ≤ 4 (it's contained in `primesLE 10`).
   have h_small : ((Nat.primesLE K).filter (fun p => p ≤ 10)).card ≤ 4 := by
@@ -414,7 +414,7 @@ theorem primeCounting_le_residue_classes (K : ℕ) :
     intro p hp
     simp only [Finset.mem_filter, Nat.mem_primesLE] at hp
     obtain ⟨⟨hp_le, hp_prime⟩, hp_gt10⟩ := hp
-    push_neg at hp_gt10
+    push Not at hp_gt10
     have hp_ge11 : 11 ≤ p := hp_gt10
     have hp_odd : p % 2 = 1 := by
       rcases hp_prime.eq_two_or_odd with h | h

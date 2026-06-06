@@ -94,7 +94,7 @@ theorem triple_count_eq_divisor_count (a : ℕ) (ha : 0 < a) :
     use b - a
     have hac : a < c := by
       by_contra h
-      push_neg at h
+      push Not at h
       -- If c ≤ a, then since b > a and c ≤ a ≤ b, but hbc' : b ≤ c gives b ≤ a, contradiction
       omega
     have hfact := triple_factor_identity ha hab hac htrip
@@ -129,7 +129,7 @@ theorem triple_has_even_element {a b c : ℕ} (_ha : 0 < a) (_hb : 0 < b) (_hc :
     (htrip : a * (b + c) = b * c) :
     Even a ∨ Even b ∨ Even c := by
   by_contra h
-  push_neg at h
+  push Not at h
   obtain ⟨ha_odd, hb_odd, hc_odd⟩ := h
   rw [Nat.not_even_iff_odd] at ha_odd hb_odd hc_odd
   -- b + c is even (odd + odd), so a*(b+c) is even.

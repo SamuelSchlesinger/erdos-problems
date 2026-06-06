@@ -39,7 +39,7 @@ theorem obstructionCoveredInInterval_of_maximal {A : Finset ℕ} {N : ℕ}
   have hnot : ¬ IsSidonFinset (insert x A) := hmax.2 x hx hxa
   have hSidonA : IsSidonFinset A := hmax.1.1
   unfold IsSidonFinset SidonSumsets.IsSidon at hnot hSidonA
-  push_neg at hnot
+  push Not at hnot
   rcases hnot with ⟨a₁, a₂, b₁, b₂, ha₁, ha₂, hb₁, hb₂, ha₁₂, hb₁₂, hsum, hneq⟩
   have hnot_mem_of_eq {y : ℕ} (hyA : y ∈ A) (hyx : y = x) : False := by
     exact hxa (hyx ▸ hyA)

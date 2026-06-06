@@ -46,7 +46,7 @@ theorem powerOfTwo_pair_free {k l : ℕ} (hk : 1 ≤ k) (hl : 1 ≤ l)
     (hkl : k ≠ l) : ¬ IsUnitFractionPair (2 ^ k) (2 ^ l) := by
   -- WLOG `k < l`.
   wlog h : k < l with hsym
-  · push_neg at h
+  · push Not at h
     have hlt : l < k := lt_of_le_of_ne h hkl.symm
     intro hpair
     apply hsym hl hk hkl.symm hlt
@@ -146,7 +146,7 @@ theorem pairFree_oddPlusPowersOfTwo (N : ℕ) :
       have hab_even : 2 ∣ a + b := by
         have := ha_odd.2; have := hb_odd.2; omega
       have hab_not_dvd : ¬ 2 ∣ a * b := by
-        rw [Nat.Prime.dvd_mul Nat.prime_two]; push_neg
+        rw [Nat.Prime.dvd_mul Nat.prime_two]; push Not
         exact ⟨ha_not_two, hb_not_two⟩
       exact hab_not_dvd (dvd_trans hab_even ⟨k, hk⟩)
     · -- a odd, b = 2^kb.

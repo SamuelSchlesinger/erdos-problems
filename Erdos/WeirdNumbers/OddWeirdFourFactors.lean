@@ -966,7 +966,7 @@ private theorem certShift1155Spec_of_corridor {r s : ℕ}
     native_decide
   have hr389 : 389 ≤ r := by
     by_contra h
-    push_neg at h
+    push Not at h
     have hr_cases : r = 385 ∨ r = 386 ∨ r = 387 ∨ r = 388 := by omega
     rcases hr_cases with rfl | rfl | rfl | rfl <;> norm_num at hr
   have hrmem : r ∈ Finset.Icc 389 761 := by
@@ -1332,7 +1332,7 @@ private theorem certShift1365Spec_of_corridor {r s : ℕ}
     native_decide
   have hr67 : 67 ≤ r := by
     by_contra h
-    push_neg at h
+    push Not at h
     have hr_cases : r = 65 ∨ r = 66 := by omega
     rcases hr_cases with rfl | rfl <;> norm_num at hr
   have hrmem : r ∈ Finset.Icc 67 127 := by
@@ -3048,7 +3048,7 @@ private theorem eq_prime_power_product_of_primeFactors_eq_three {n p q r : ℕ}
     (hn : n ≠ 0) (hpq : p ≠ q) (hpr : p ≠ r) (hqr : q ≠ r)
     (hpf : n.primeFactors = ({p, q, r} : Finset ℕ)) :
     n = p ^ n.factorization p * q ^ n.factorization q * r ^ n.factorization r := by
-  have hfact := Nat.factorization_prod_pow_eq_self hn
+  have hfact := Nat.prod_factorization_pow_eq_self hn
   conv_lhs => rw [← hfact]
   simp only [Finsupp.prod, Nat.support_factorization, hpf]
   rw [Finset.prod_insert (by simp [hpq, hpr])]
@@ -3080,7 +3080,7 @@ private theorem prime_factor_ge_five_of_ne_three {n p : ℕ} (hodd : ¬Even n)
     intro h
     exact hodd (even_iff_two_dvd.mpr (h ▸ Nat.dvd_of_mem_primeFactors hp_mem))
   by_contra h
-  push_neg at h
+  push Not at h
   have hp_two_le := hp.two_le
   have hp_ne_four : p ≠ 4 := by intro hp4; subst hp4; norm_num at hp
   omega
@@ -3094,7 +3094,7 @@ private theorem prime_factor_ge_seven_of_ne_three_five {n p : ℕ} (hodd : ¬Eve
     intro h
     exact hodd (even_iff_two_dvd.mpr (h ▸ Nat.dvd_of_mem_primeFactors hp_mem))
   by_contra h
-  push_neg at h
+  push Not at h
   have hp_two_le := hp.two_le
   have hp_ne_four : p ≠ 4 := by intro hp4; subst hp4; norm_num at hp
   have hp_ne_six : p ≠ 6 := by intro hp6; subst hp6; norm_num at hp
@@ -3104,7 +3104,7 @@ private theorem prime_factor_ge_seven_of_ne_three_five {n p : ℕ} (hodd : ¬Eve
 private theorem prime_ge_eleven_of_ge_seven_ne_seven {p : ℕ} (hp : Nat.Prime p)
     (hp7 : 7 ≤ p) (hp_ne_seven : p ≠ 7) : 11 ≤ p := by
   by_contra h
-  push_neg at h
+  push Not at h
   have hp_ne_eight : p ≠ 8 := by intro hp8; subst hp8; norm_num at hp
   have hp_ne_nine : p ≠ 9 := by intro hp9; subst hp9; norm_num at hp
   have hp_ne_ten : p ≠ 10 := by intro hp10; subst hp10; norm_num at hp
@@ -3114,7 +3114,7 @@ private theorem prime_ge_eleven_of_ge_seven_ne_seven {p : ℕ} (hp : Nat.Prime p
 private theorem prime_ge_thirteen_of_ge_eleven_ne_eleven {p : ℕ} (hp : Nat.Prime p)
     (hp11 : 11 ≤ p) (hp_ne_eleven : p ≠ 11) : 13 ≤ p := by
   by_contra h
-  push_neg at h
+  push Not at h
   have hp_ne_twelve : p ≠ 12 := by intro hp12; subst hp12; norm_num at hp
   omega
 
@@ -3122,7 +3122,7 @@ private theorem prime_ge_thirteen_of_ge_eleven_ne_eleven {p : ℕ} (hp : Nat.Pri
 private theorem prime_ge_seventeen_of_ge_thirteen_ne_thirteen {p : ℕ} (hp : Nat.Prime p)
     (hp13 : 13 ≤ p) (hp_ne_thirteen : p ≠ 13) : 17 ≤ p := by
   by_contra h
-  push_neg at h
+  push Not at h
   have hp_ne_fourteen : p ≠ 14 := by intro hp14; subst hp14; norm_num at hp
   have hp_ne_fifteen : p ≠ 15 := by intro hp15; subst hp15; norm_num at hp
   have hp_ne_sixteen : p ≠ 16 := by intro hp16; subst hp16; norm_num at hp
@@ -3132,7 +3132,7 @@ private theorem prime_ge_seventeen_of_ge_thirteen_ne_thirteen {p : ℕ} (hp : Na
 private theorem prime_ge_nineteen_of_ge_seventeen_ne_seventeen {p : ℕ} (hp : Nat.Prime p)
     (hp17 : 17 ≤ p) (hp_ne_seventeen : p ≠ 17) : 19 ≤ p := by
   by_contra h
-  push_neg at h
+  push Not at h
   have hp_ne_eighteen : p ≠ 18 := by intro hp18; subst hp18; norm_num at hp
   omega
 
@@ -3140,7 +3140,7 @@ private theorem prime_ge_nineteen_of_ge_seventeen_ne_seventeen {p : ℕ} (hp : N
 private theorem prime_ge_twentythree_of_ge_nineteen_ne_nineteen {p : ℕ} (hp : Nat.Prime p)
     (hp19 : 19 ≤ p) (hp_ne_nineteen : p ≠ 19) : 23 ≤ p := by
   by_contra h
-  push_neg at h
+  push Not at h
   have hp_ne_twenty : p ≠ 20 := by intro hp20; subst hp20; norm_num at hp
   have hp_ne_twentyone : p ≠ 21 := by intro hp21; subst hp21; norm_num at hp
   have hp_ne_twentytwo : p ≠ 22 := by intro hp22; subst hp22; norm_num at hp
@@ -3150,7 +3150,7 @@ private theorem prime_ge_twentythree_of_ge_nineteen_ne_nineteen {p : ℕ} (hp : 
 private theorem prime_ge_twentynine_of_ge_twentythree_ne_twentythree {p : ℕ} (hp : Nat.Prime p)
     (hp23 : 23 ≤ p) (hp_ne_twentythree : p ≠ 23) : 29 ≤ p := by
   by_contra h
-  push_neg at h
+  push Not at h
   have hp_ne_twentyfour : p ≠ 24 := by intro hp24; subst hp24; norm_num at hp
   have hp_ne_twentyfive : p ≠ 25 := by intro hp25; subst hp25; norm_num at hp
   have hp_ne_twentysix : p ≠ 26 := by intro hp26; subst hp26; norm_num at hp
@@ -3168,7 +3168,7 @@ private theorem prime_factor_ge_seventeen_of_not_small {n p : ℕ} (hodd : ¬Eve
     intro h
     exact hodd (even_iff_two_dvd.mpr (h ▸ Nat.dvd_of_mem_primeFactors hp_mem))
   by_contra h
-  push_neg at h
+  push Not at h
   have hp_two_le := hp.two_le
   have hp_ne_four : p ≠ 4 := by intro hp4; subst hp4; norm_num at hp
   have hp_ne_six : p ≠ 6 := by intro hp6; subst hp6; norm_num at hp
@@ -3350,7 +3350,7 @@ would need at least six distinct prime factors. -/
 theorem odd_weird_four_prime_factors {n : ℕ} (hw : Weird n) (hodd : ¬Even n) :
     4 ≤ n.primeFactors.card := by
   by_contra h
-  push_neg at h
+  push Not at h
   have hthree : 3 ≤ n.primeFactors.card := odd_weird_three_prime_factors hw hodd
   have hcard : n.primeFactors.card = 3 := by omega
   have hn : n ≠ 0 := by exact Nat.ne_of_gt hw.1.1
@@ -3536,7 +3536,7 @@ private theorem not_abundant_of_four_primeFactors_without_three {n p q r s : ℕ
   have hs5 : 5 ≤ s := prime_factor_ge_five_of_ne_three hodd hs_mem hs_ne3
   have hn_eq : n = p ^ n.factorization p * q ^ n.factorization q *
       r ^ n.factorization r * s ^ n.factorization s := by
-    have hfact := Nat.factorization_prod_pow_eq_self hn
+    have hfact := Nat.prod_factorization_pow_eq_self hn
     conv_lhs => rw [← hfact]
     simp only [Finsupp.prod, Nat.support_factorization, hpf]
     rw [Finset.prod_insert (by simp [hpq, hpr, hps])]
@@ -4059,7 +4059,7 @@ private theorem not_abundant_of_six_primeFactors_without_three {n : ℕ}
   have hn_prod : n = ∏ i : Fin 6, (e i) ^ n.factorization (e i) := by
     have hprod : n = ∏ p ∈ S, p ^ n.factorization p := by
       dsimp [S]
-      have hfact := Nat.factorization_prod_pow_eq_self hn
+      have hfact := Nat.prod_factorization_pow_eq_self hn
       conv_lhs => rw [← hfact]
       simp only [Finsupp.prod, Nat.support_factorization]
     calc
@@ -4336,7 +4336,7 @@ private theorem not_abundant_of_squarefree_six_primeFactors_without_five {n : �
   have hn_ordered : n = ∏ i : Fin 6, (e i) ^ n.factorization (e i) := by
     have hprod : n = ∏ p ∈ S, p ^ n.factorization p := by
       dsimp [S]
-      have hfact := Nat.factorization_prod_pow_eq_self hn
+      have hfact := Nat.prod_factorization_pow_eq_self hn
       conv_lhs => rw [← hfact]
       simp only [Finsupp.prod, Nat.support_factorization]
     calc
@@ -4546,7 +4546,7 @@ private theorem not_abundant_of_squarefree_six_primeFactors_without_7_11_13 {n :
   have hn_ordered : n = ∏ i : Fin 6, (e i) ^ n.factorization (e i) := by
     have hprod : n = ∏ p ∈ S, p ^ n.factorization p := by
       dsimp [S]
-      have hfact := Nat.factorization_prod_pow_eq_self hn
+      have hfact := Nat.prod_factorization_pow_eq_self hn
       conv_lhs => rw [← hfact]
       simp only [Finsupp.prod, Nat.support_factorization]
     calc
@@ -4610,7 +4610,7 @@ theorem odd_weird_squarefree_six_prime_factors_contains_7_or_11_or_13 {n : ℕ}
     (hsq : Squarefree n) : 7 ∈ n.primeFactors ∨ 11 ∈ n.primeFactors ∨
       13 ∈ n.primeFactors := by
   by_contra hnone
-  push_neg at hnone
+  push Not at hnone
   have hn : n ≠ 0 := by exact Nat.ne_of_gt hw.1.1
   exact (not_abundant_of_squarefree_six_primeFactors_without_7_11_13
     hodd hn hcard hsq hnone.1 hnone.2.1 hnone.2.2) hw.1
@@ -4836,7 +4836,7 @@ theorem squarefree_six_3_5_7_13_frontier_corridor {n : ℕ}
     by_contra hle64
     have ha61 : a ≤ 61 := by
       by_contra hle61
-      push_neg at hle61
+      push Not at hle61
       have hacases : a = 62 ∨ a = 63 ∨ a = 64 := by omega
       rcases hacases with rfl | rfl | rfl <;> norm_num at ha_prime
     exact (not_weird_of_squarefree_primeFactors_contains_3_5_7_13_small_extra
@@ -4845,7 +4845,7 @@ theorem squarefree_six_3_5_7_13_frontier_corridor {n : ℕ}
     by_contra hle64
     have hb61 : b ≤ 61 := by
       by_contra hle61
-      push_neg at hle61
+      push Not at hle61
       have hbcases : b = 62 ∨ b = 63 ∨ b = 64 := by omega
       rcases hbcases with rfl | rfl | rfl <;> norm_num at hb_prime
     exact (not_weird_of_squarefree_primeFactors_contains_3_5_7_13_small_extra
@@ -5169,7 +5169,7 @@ theorem not_weird_of_squarefree_six_primeFactors_contains_3_5_13 {n : ℕ}
   have hn_ordered : n = ∏ i : Fin 6, (e i) ^ n.factorization (e i) := by
     have hprod : n = ∏ p ∈ S, p ^ n.factorization p := by
       dsimp [S]
-      have hfact := Nat.factorization_prod_pow_eq_self hn
+      have hfact := Nat.prod_factorization_pow_eq_self hn
       conv_lhs => rw [← hfact]
       simp only [Finsupp.prod, Nat.support_factorization]
     calc
@@ -5413,7 +5413,7 @@ theorem not_weird_of_squarefree_six_primeFactors_contains_3_5_11 {n : ℕ}
   have hn_ordered : n = ∏ i : Fin 6, (e i) ^ n.factorization (e i) := by
     have hprod : n = ∏ p ∈ S, p ^ n.factorization p := by
       dsimp [S]
-      have hfact := Nat.factorization_prod_pow_eq_self hn
+      have hfact := Nat.prod_factorization_pow_eq_self hn
       conv_lhs => rw [← hfact]
       simp only [Finsupp.prod, Nat.support_factorization]
     calc

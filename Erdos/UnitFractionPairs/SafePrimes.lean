@@ -1152,7 +1152,7 @@ private lemma not_fermat_from_bounded {p : ℕ} (hp : 2 ≤ p)
   intro d hd_pos
   by_cases hd_le : d ≤ Nat.log 2 (p + 1)
   · exact h d (Finset.mem_Ioc.mpr ⟨hd_pos, hd_le⟩)
-  · push_neg at hd_le
+  · push Not at hd_le
     intro heq
     -- 2^d > 2^(log 2 (p+1)) ≥ ... actually we use: d > log 2 (p+1) ⇒ 2^d > p+1 ≥ p+1.
     have hN_pos : 0 < p + 1 := by omega
@@ -1166,7 +1166,7 @@ private lemma not_mersenne_from_bounded {p : ℕ} (hp : 2 ≤ p)
   intro d hd_pos
   by_cases hd_le : d ≤ Nat.log 2 (p + 2)
   · exact h d (Finset.mem_Ioc.mpr ⟨hd_pos, hd_le⟩)
-  · push_neg at hd_le
+  · push Not at hd_le
     intro heq
     have hN_pos : 0 < p + 2 := by omega
     have h2d_gt : p + 2 < 2 ^ d :=
@@ -1180,13 +1180,13 @@ private lemma sum_not_pow2_from_bounded {p q : ℕ} (hpq : 2 ≤ p + q)
   by_cases hd_pos : 1 ≤ d
   · by_cases hd_le : d ≤ Nat.log 2 (p + q + 1)
     · exact h d (Finset.mem_Ioc.mpr ⟨hd_pos, hd_le⟩)
-    · push_neg at hd_le
+    · push Not at hd_le
       intro heq
       have hN_pos : 0 < p + q + 1 := by omega
       have h2d_gt : p + q + 1 < 2 ^ d :=
         (Nat.log_lt_iff_lt_pow (by norm_num : 1 < 2) hN_pos.ne').mp hd_le
       omega
-  · push_neg at hd_pos
+  · push Not at hd_pos
     interval_cases d
     intro heq; simp at heq; omega
 

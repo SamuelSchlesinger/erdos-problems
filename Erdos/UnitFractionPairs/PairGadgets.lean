@@ -20,7 +20,8 @@ namespace UnitFractionPairs
 /-- For distinct `x, y`, the pair `{x, y}` has cardinality `2`. -/
 theorem pair_card_eq_two {x y : ℕ} (h : x ≠ y) :
     ({x, y} : Finset ℕ).card = 2 := by
-  rw [Finset.card_insert_of_notMem (by simp; exact h), Finset.card_singleton]
+  rw [Finset.card_insert_of_notMem (by simpa [Finset.mem_singleton] using h),
+    Finset.card_singleton]
 
 /-- For `x, y` both in `[1, N]`, the pair `{x, y}` is contained in `[1, N]`. -/
 theorem pair_subset_Icc {x y N : ℕ} (hx_lo : 1 ≤ x) (hx_hi : x ≤ N)
@@ -36,7 +37,7 @@ theorem pair_inter_card_le_one_of_pair {A : Finset ℕ} (hA : PairFree A)
     {x y : ℕ} (hxy : IsUnitFractionPair x y) (hne : x ≠ y) :
     (({x, y} : Finset ℕ) ∩ A).card ≤ 1 := by
   by_contra h_gt
-  push_neg at h_gt
+  push Not at h_gt
   have h_card_ge : (({x, y} : Finset ℕ) ∩ A).card ≥ 2 := by omega
   have h_sub : ({x, y} : Finset ℕ) ∩ A ⊆ ({x, y} : Finset ℕ) :=
     Finset.inter_subset_left

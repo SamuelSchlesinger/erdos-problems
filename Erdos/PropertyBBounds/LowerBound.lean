@@ -55,7 +55,7 @@ abbrev colorings (α : Type*) [Fintype α] [DecidableEq α] :
 
 lemma card_colorings (α : Type*) [Fintype α] [DecidableEq α] :
     (colorings α).card = 2 ^ (Fintype.card α) := by
-  simp [colorings, Finset.card_powerset]
+  simp [colorings]
 
 /-! ### Counting subsets containing a given subset -/
 
@@ -148,7 +148,7 @@ theorem exists_propertyBWitness_of_few_edges
   classical
   -- Suppose otherwise: every coloring has ≥ 1 monochromatic edge.
   by_contra hcontra
-  unfold HasPropertyB at hcontra; push_neg at hcontra
+  unfold HasPropertyB at hcontra; push Not at hcontra
   have hge : ∀ S ∈ colorings α, 1 ≤ (monoEdges H S).card := fun S _ =>
     Nat.one_le_iff_ne_zero.mpr fun h =>
       hcontra S ((propertyBWitness_iff_monoEdges_empty).mpr (Finset.card_eq_zero.mp h))
@@ -195,7 +195,7 @@ theorem badUniformHypergraph_card_ge
   -- The vertex universe must contain at least one edge of size n, so |α| ≥ n
   -- — except in the degenerate case `H = ∅`, which we handle separately.
   by_contra hlt
-  push_neg at hlt
+  push Not at hlt
   -- We need n ≤ |α| to apply the lower-bound theorem. Either H is empty
   -- (impossible: empty hypergraph has Property B by hasPropertyB_empty) or H
   -- has an edge e of size n contained in α.

@@ -26,7 +26,7 @@ namespace WeirdNumbers
 theorem odd_le_two_primes_not_abundant {n : ℕ} (hn : 0 < n) (hodd : ¬Even n)
     (hpf : n.primeFactors.card ≤ 2) : ¬Abundant n := by
   -- n = ∏ p in n.primeFactors, p ^ n.factorization p
-  have hfact := Nat.factorization_prod_pow_eq_self (Nat.ne_of_gt (by omega : 0 < n))
+  have hfact := Nat.prod_factorization_pow_eq_self (Nat.ne_of_gt (by omega : 0 < n))
   rcases h : n.primeFactors.card with _ | _ | _
   · -- 0 prime factors: n = 1
     rw [Finset.card_eq_zero] at h
@@ -88,7 +88,7 @@ theorem odd_le_two_primes_not_abundant {n : ℕ} (hn : 0 < n) (hodd : ¬Even n)
           · exact absurd hq not_prime_four
         · exact hge
       exact two_odd_primes_not_abundant hp hq hpq hp3 hq5 _ _
-    · push_neg at hle
+    · push Not at hle
       have hp5 : 5 ≤ p := by
         rcases Nat.lt_or_ge p 5 with hlt | hge
         · have : p = 3 ∨ p = 4 := by omega
@@ -106,7 +106,7 @@ theorem odd_le_two_primes_not_abundant {n : ℕ} (hn : 0 < n) (hodd : ¬Even n)
 theorem odd_weird_three_prime_factors {n : ℕ} (hw : Weird n) (hodd : ¬Even n) :
     3 ≤ n.primeFactors.card := by
   by_contra h
-  push_neg at h
+  push Not at h
   exact odd_le_two_primes_not_abundant hw.1.1 hodd (by omega) hw.1
 
 end WeirdNumbers

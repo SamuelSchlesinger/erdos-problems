@@ -115,7 +115,7 @@ theorem of_m_sq_factorization (n c m u v : ℕ) (hn : 2 < n) (hc : 0 < c)
     -- u < nx implies v > nx (since uv = (nx)²), so u + nx < v + nx, so y < z
     have hv_gt : n * x < v := by
       by_contra h
-      push_neg at h
+      push Not at h
       have h1 : u * v ≤ u * (n * x) := Nat.mul_le_mul_left u h
       have h2 : u * (n * x) < n * x * (n * x) := by nlinarith [hu_lt]
       nlinarith
