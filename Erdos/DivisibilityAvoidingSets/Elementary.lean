@@ -25,6 +25,63 @@ theorem AvoidingSet.mono {A B : Set ℕ} (hB : AvoidingSet B) (hAB : A ⊆ B) :
   intro a b c h
   exact hB (ForbiddenTriple.mono hAB h)
 
+/-- The no-forbidden-triple formulation is equivalent to the problem-page
+formulation: if three members `a,b,c` satisfy `a ∣ b + c` and both `b,c` are
+larger than `a`, then the two larger members must be equal. -/
+theorem avoidingSet_iff_eq_of_dvd {A : Set ℕ} :
+    AvoidingSet A ↔
+      ∀ ⦃a b c : ℕ⦄, a ∈ A → b ∈ A → c ∈ A →
+        a ∣ b + c → a < b → a < c → b = c := by
+  constructor
+  · intro hA a b c ha hb hc hdvd hab hac
+    by_contra hbc
+    exact hA ⟨ha, hb, hc, hab.ne, hac.ne, hbc, hdvd, hab, hac⟩
+  · intro hA a b c h
+    rcases h with ⟨ha, hb, hc, _hab_ne, _hac_ne, hbc_ne, hdvd, hab, hac⟩
+    exact hbc_ne (hA ha hb hc hdvd hab hac)
+
+/-- Positivity is monotone under taking subsets. -/
+theorem PositiveSet.mono {A B : Set ℕ} (hB : PositiveSet B) (hAB : A ⊆ B) :
+    PositiveSet A := by
+  intro n hn
+  exact hB (hAB hn)
+
+/-- The finset-filter definition of `countUpTo` agrees with the standard
+`Set.ncard` count of `A ∩ {1, ..., N}`.  This bridge lets later arguments use
+whichever finite-set API is most convenient. -/
+theorem countUpTo_eq_ncard_inter_Icc (A : Set ℕ) (N : ℕ) :
+    countUpTo A N = (A ∩ Set.Icc 1 N).ncard := by
+  classical
+  unfold countUpTo
+  rw [← Set.ncard_coe_finset]
+  congr 1
+  ext n
+  simp [Finset.mem_Icc]
+  tauto
+
+/-- Enlarging the set cannot decrease its counting function. -/
+theorem countUpTo_mono_set {A B : Set ℕ} (hAB : A ⊆ B) (N : ℕ) :
+    countUpTo A N ≤ countUpTo B N := by
+  classical
+  unfold countUpTo
+  exact Finset.card_le_card (by
+    intro n hn
+    exact Finset.mem_filter.mpr
+      ⟨(Finset.mem_filter.mp hn).1, hAB (Finset.mem_filter.mp hn).2⟩)
+
+/-- Increasing the cutoff cannot decrease the counting function. -/
+theorem countUpTo_mono_right (A : Set ℕ) {M N : ℕ} (hMN : M ≤ N) :
+    countUpTo A M ≤ countUpTo A N := by
+  classical
+  unfold countUpTo
+  exact Finset.card_le_card (by
+    intro n hn
+    rcases Finset.mem_filter.mp hn with ⟨hI, hnA⟩
+    have hI_N : n ∈ Finset.Icc 1 N := by
+      rcases Finset.mem_Icc.mp hI with ⟨h1n, hnM⟩
+      exact Finset.mem_Icc.mpr ⟨h1n, hnM.trans hMN⟩
+    exact Finset.mem_filter.mpr ⟨hI_N, hnA⟩)
+
 /-- The empty set contains no forbidden triple. -/
 @[simp] theorem avoidingSet_empty :
     AvoidingSet (∅ : Set ℕ) := by
