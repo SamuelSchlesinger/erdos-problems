@@ -608,6 +608,32 @@ The self-similarity might be a STRENGTH (infinite descent on the prime tree) not
 wall. ATTACK (M) next — it's the one angle that USES the self-similarity instead of being
 blocked by it.
 
+## Angle M VERDICT + EXHAUSTION of the hunt (honest endpoint)
+M (quotient recursion / infinite descent): the density recursion has a STABLE power-law
+fixed point δ_k~k^{-c} (∑_p L_p² ~ 0.45 M² ⟹ constant Turán rank, consistent for any c
+incl. c<1 non-summable). Avoidance does NOT force c>1 through the recursion. Same
+small-prime-convergence wall. Descent-on-mass fails too (W(A/p)=p·budget(p) GROWS).
+
+### Mechanisms tried to a verdict (≈16), ALL reduce to small-prime convergence:
+residue packing, multi-modulus, Fourier energy, density increment, descent-forced
+increment, AP rigidity, weighted Ramsey, rough decomposition, large sieve, hypergraph
+removal, cross-scale functional, Dirichlet, p-adic, Turán/GCD-energy (L), quotient
+recursion (M), + construction (greedy lacunary, probabilistic √N ⟹ evidence TRUE).
+UNIVERSAL OBSTRUCTION (proven sharp): every density/rank bound for an avoiding set is
+controlled by a SMALL-PRIME-WEIGHTED sum that CONVERGES (∑1/p, ∑1/p², density 1/2), so
+the bound saturates at a constant / k^{-c<1}. The breakthrough must show avoiding sets'
+small-prime layers are anomalously sparse (o(M/p)) — the self-similar quotient recursion,
+whose only obstruction is its own power-law fixed point. I could not break this, and have
+no further genuinely-new angle that doesn't reduce here. This is, I believe, the genuine
+mathematical heart of why #12 is open.
+
+### State for resumption
+If a SPECIFIC new idea arrives (a paper, a technique that defeats small-prime
+convergence, a way to rule out the power-law fixed point), the hunt reopens with a fresh
+angle. Absent that, the productive move is CONSOLIDATION: 13 axiom-clean verified lemmas +
+pinned kernel (EventuallyFastCoprimeRank) + this precise obstruction map = a genuine,
+self-contained artifact. The breakthrough itself is open research beyond my current reach.
+
 ## Formalized partial results so far (axiom-clean, committed)
 RankGrowthKernel.lean (kernel naming) + CollectiveDescent.lean (scale-uniform room
 bound, sharp prefix bound, bounded-mass⇒unbounded-rank, smooth-part summability,
