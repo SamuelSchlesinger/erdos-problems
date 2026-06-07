@@ -208,6 +208,40 @@ autonomous looping now re-derives this wall; further real progress needs either 
 new idea (interactive) or accept the open core. Not a failure of ambition — the
 maximal standard attack genuinely converges here.
 
+## Frontier: Bohr-set / Bourgain density increment (T6) — the one tool that COULD escape
+
+The AP increment is a rank-1 Bohr-set increment; its modulus budget `∏aᵢ ≤ N` caps
+steps at the coprime rank `t(N)`. Bourgain's insight (Roth 3-AP): use a Bohr set
+`B(θ₁,…,θ_d; ρ)` of dimension `d`, where each large Fourier coefficient adds a
+frequency; the dimension can grow to `~log N` (vs rank) before the Bohr set goes
+trivial (`ρ^d N ≥ 1`).
+
+For us: sum-free mod `a` ⟹ `∑_{j≠0}|f̂(j/a)|² ≥ |A|²` (FULL-strength coefficient,
+not `δ²`) ⟹ a Bohr-step density increment of a CONSTANT factor (×2-ish), not the
+weak `×(1+cδ)` of Roth. If the Bohr dimension reaches `~log N` with ×const
+increments, then `δ_N ≤ const^{-log N} = N^{-c}` ⟹ **SUMMABLE**. This is the
+genuine candidate close.
+
+**The crux of T6 (= why the problem is plausibly open):**
+- If the large coefficient is at `j/a` with `gcd(j,a)=1`, concentration is mod `a`
+  (full → rank-1 AP, modulus `a`); combining `d` of these → modulus `∏aᵢ`, rank-
+  capped AGAIN. The Bohr advantage needs PARTIAL concentration (radius `ρ` not `1/a`)
+  so the Bohr set stays thick across many frequencies.
+- Sum-free gives concentration in `≤a/2+1` residues — but that's an ARBITRARY
+  residue set, not a Bohr interval `{‖x/a‖<ρ}`. To run the Bohr increment one needs
+  the occupied residues to have additive structure (a Bohr/GAP), which sum-free does
+  NOT directly provide. Bridging "≤a/2 occupied residues" → "thick Bohr structure"
+  is the open analytic gap.
+- So T6's success hinges on: does the sum-free Fourier concentration live in a
+  bounded-dimension Bohr set (escape) or spread to rank-1 pieces (cap)? Unresolved —
+  this is the genuine research frontier and almost certainly where the open
+  difficulty sits.
+
+**Honest status of T6:** the right modern tool; plausibly the close; but executing it
+rigorously (radius bookkeeping, dimension growth vs Bohr-set triviality, the
+sum-free→Bohr-structure bridge) is open-research-level and HIGH-RISK for autonomous
+unverified work. Best pursued interactively/carefully, not in a commit-loop.
+
 ## Formalized partial results so far (axiom-clean, committed)
 RankGrowthKernel.lean (kernel naming) + CollectiveDescent.lean (scale-uniform room
 bound, sharp prefix bound, bounded-mass⇒unbounded-rank, smooth-part summability,
