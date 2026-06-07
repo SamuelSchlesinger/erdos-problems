@@ -330,6 +330,29 @@ support size / coprime rank at scale `k`) forcing `∑_k(3/4)^{R_k}<∞`. Two su
     "new support prime" ⟹ "new coprime core element" (the carrier). Formalizable link:
     a fresh support prime's carrier extends a coprime family. ATTACK.
 
+## P1 iteration 3 — escape lemma FORMALIZED; honest trajectory note
+
+- FORMALIZED `exists_mem_forall_not_dvd_of_finset_primes` (axiom-clean): counterexample
+  has an element coprime to any finite prime set. ⟹ (greedy) infinite coprime subfamily
+  ⟹ coprime rank → ∞. Clean qualitative unbounded-rank via covers.
+- **BUT this is QUALITATIVE (rank→∞), and the escape's coprime subsequence is LACUNARY**
+  (pick a_{i+1} with spf > a_i ⟹ a_{i+1}>a_i², rank ~ log log) — too slow for the
+  `(3/4)^rank` summability threshold (needs rank ≳ log k). So it re-confirms the core
+  without touching the RATE.
+
+### HONEST TRAJECTORY (for the human)
+Iterations are banking clean verified lemmas (finite-cover summability; escape; scale-
+uniform room mass; etc.) that precisely MAP and BRIDGE the open core, and the math
+keeps confirming the core = the coprime-rank-growth RATE (`R_k ≳ log k`). But NONE of
+these closes it: every route reaches "rank → ∞" (qualitative) and stops at the rate.
+The genuine close needs a lower bound on the rate, which is the open analytic problem
+(Bohr/energy, P3/P4) — and even that I could not show escapes the rank cap. The loop is
+producing real, honest, verified infrastructure + a precise core-map, NOT converging on
+a resolution. Continuing has value (toolkit + possibly the Bohr attempt surfaces
+something), but it is honestly infrastructure-building around an open core, not a
+solution in progress. Next: either commit to the heavy P3/P4 Fourier-energy formalization
+(real but long, toward an open gap) or consolidate.
+
 ## Formalized partial results so far (axiom-clean, committed)
 RankGrowthKernel.lean (kernel naming) + CollectiveDescent.lean (scale-uniform room
 bound, sharp prefix bound, bounded-mass⇒unbounded-rank, smooth-part summability,
