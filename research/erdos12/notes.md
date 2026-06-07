@@ -454,6 +454,34 @@ non-coprime cliques are short". ATTACK NEXT: is there a number-theoretic bound o
 pairwise-non-coprime ROUGH integers (all prime factors ≥Q) in [1,N]? (Each ≥Q^? ;
 pairwise sharing a prime ≥Q ⟹ structure.)
 
+## Breakthrough hunt cont. — weighted Ramsey + probabilistic construction
+
+### (iii) Weighted Ramsey — the killer cliques are LIGHT, but...
+Plain Ramsey killed by sparse non-coprime cliques (prime-multiple layers). KEY: those
+are SUMMABLE ⟹ bounded reciprocal weight (≤ primeLayerBudget(p)). Reweight by 1/a:
+obstruction cliques have bounded weight. Hope: weighted-Ramsey ⟹ heavy COPRIME set ⟹
+rank. BREAKS: a projective-plane-structured pairwise-non-coprime set (mixed primes,
+cover number ~√#) could carry large weight; can't rule out. Reduces to: fresh primes
+are distinct (coprime) but their CARRIERS (smallest A-multiple) needn't be pairwise
+coprime ⟹ same fresh-prime core. Sub-question to settle: do avoiding sets admit
+projective-plane-heavy non-coprime sets? (If NO ⟹ weighted Ramsey closes it.)
+
+### Probabilistic construction ⟹ √N density (strong evidence #12 is TRUE)
+Random density-δ set in [N,2N]: #forbidden triples a|b+c ~ δ³N². Delete 1 elt/triple,
+preserves density iff δ³N² < δN ⟹ δ < 1/√N. So avoiding sets of density ~1/√N exist
+(matches #12 part-1 sqrt question), and ∑_k 2^{-k/2} CONVERGES ⟹ the extremal avoiding
+set is SUMMABLE. Independent confirmation the answer is "summable."
+
+### HONEST META-STATE of the breakthrough hunt
+Avenues tried with genuine invention: B (add-mult coupling)=residue packing; E (Ramsey)
+killed by sparse cliques; F (rough decomposition)=fresh-prime core; iii (weighted
+Ramsey)=fresh-prime-carrier coprimality; construction (greedy lacunary + probabilistic
+√N) ⟹ strong evidence TRUE. EVERY novel mechanism reduces to the SAME open core
+(coprime-rank rate / fresh-prime carrier coprimality). The breakthrough is a genuine
+open research problem; not found despite real invention. Best remaining concrete
+sub-question (could close E/iii): "avoiding ⟹ no large/heavy projective-plane-structured
+pairwise-non-coprime subset" — number-theoretic, possibly attackable. Next: attack THAT.
+
 ## Formalized partial results so far (axiom-clean, committed)
 RankGrowthKernel.lean (kernel naming) + CollectiveDescent.lean (scale-uniform room
 bound, sharp prefix bound, bounded-mass⇒unbounded-rank, smooth-part summability,
