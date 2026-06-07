@@ -29,6 +29,23 @@ Full primary-source review done. **Decisive facts:**
   `⌊n/3⌋+1` finite (#13). These build the exact residue-counting + coprime-√N-packing
   machinery any inverse theorem reuses. The positive kernel stays a correctly-aimed long shot.
 
+## ✅ DELIVERED (2026-06-07): conditional density-0, axiom-clean
+
+`Erdos/DivisibilityAvoidingSets/DensityZero.lean` (builds, `[propext, Classical.choice,
+Quot.sound]` only, no sorry/native_decide):
+- `def UnboundedDyadicCoprimeRank A := ∀ r, ∃ T, CoprimeLCMSelectionThreshold A r T`
+  (dyadic coprime rank → ∞, the *qualitative* hypothesis — strictly weaker than the
+  summability rate `t(k) ≳ log k`).
+- `AvoidingSet.density_zero_of_unboundedDyadicCoprimeRank` :
+  `AvoidingSet A → UnboundedDyadicCoprimeRank A → Tendsto (fun N => |A∩[1,N)|/N) atTop (𝓝 0)`.
+  Proof = assemble the existing shell bound `dyadicShell_mass_le_two_mul_geometric_of_coprime`
+  (shell count ≤ 2·(3/4)^r·2^k) → sum shells → `|A∩[1,2^K)| ≤ 2^T + 2(3/4)^R·2^K` →
+  density `≤ 2(3/4)^R` for all R → 0. This is the Erdős–Sárközy density-0 theorem for the
+  irreducible/unbounded-rank case (the bounded-rank case is closed elsewhere by descent).
+- REMAINING for unconditional density-0 = discharge `UnboundedDyadicCoprimeRank` for ALL
+  infinite avoiding sets = the descent/`hirred` gap (qualitative, easier than the summability
+  rate). Next target.
+
 ## The exact crux (proved equivalence)
 
 For avoiding `A`, the dyadic shell mass satisfies `shell_k ≤ 2·(3/4)^{t(k)}` where
