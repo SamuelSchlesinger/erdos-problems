@@ -188,4 +188,27 @@ theorem SummabilityCounterexample.exists_large_coprime_core_of_bounded_collectiv
   rw [div_mul_cancel₀ _ hD.ne', div_mul_cancel₀ _ hD.ne'] at hmul
   exact_mod_cast hmul
 
+/-- **The `Q`-smooth part of any set has summable reciprocals** (Euler product
+bound `∏_{p<Q} (1-1/p)⁻¹`).  Purely an Euler-product fact about smooth numbers;
+needs no hypothesis on `A`. -/
+theorem reciprocalSummable_inter_smoothNumbers (A : Set ℕ) (Q : ℕ) :
+    ReciprocalSummable (A ∩ Nat.smoothNumbers Q) := by
+  classical
+  let f : ℕ →* ℝ :=
+    { toFun := fun n => (n : ℝ)⁻¹
+      map_one' := by norm_num
+      map_mul' := fun m n => by push_cast; rw [mul_inv] }
+  have hfval : ∀ n : ℕ, f n = (n : ℝ)⁻¹ := fun _ => rfl
+  have hf : ∀ {p : ℕ}, p.Prime → ‖f p‖ < 1 := by
+    intro p hp
+    have hppos : (0 : ℝ) < (p : ℝ) := by exact_mod_cast hp.pos
+    rw [hfval, Real.norm_eq_abs, abs_of_nonneg (by positivity), inv_lt_one₀ hppos]
+    exact_mod_cast hp.one_lt
+  have hsmooth : Summable (fun m : Nat.smoothNumbers Q => ‖f (m : ℕ)‖) :=
+    (EulerProduct.summable_and_hasSum_smoothNumbers_prod_primesBelow_geometric hf Q).1
+  refine (hsmooth.comp_injective
+    (Set.inclusion_injective (Set.inter_subset_right))).congr (fun x => ?_)
+  show ‖f (x : ℕ)‖ = (1 : ℝ) / ((x : ℕ) : ℝ)
+  rw [hfval, Real.norm_eq_abs, abs_of_nonneg (by positivity), one_div]
+
 end DivisibilityAvoidingSets
