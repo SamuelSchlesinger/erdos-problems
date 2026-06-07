@@ -271,6 +271,37 @@ attempt construction (#12 reciprocal-sum direction is genuinely undecided here).
 - **P4 (Bohr/Bourgain increment).** Use `Combinatorics/Additive/{Dissociation,Approximate
   Subgroup}` to attempt the dimension-`log N` increment. The make-or-break analytic step.
 
+## P1 iteration 1 — dense blocks self-destruct, but only FAR out (product constraint)
+
+Worked the cross-block obstruction for a bursty `A=⋃_{m∈M}B_m`, `B_m` dense in
+`[2^m,2^{m+1})`:
+- A dense block `B_m` (~`2^m` elts) contains `R~2^m/log m` pairwise-coprime elts
+  (all ~`2^m`). Avoiding ⟹ every later element is sum-free mod each of them.
+- **BUT the product constraint bites:** these moduli are LARGE (~`2^m`), so the
+  multi-modulus bound at scale `k` can use only `≤ k/m` of them (`∏ ≤ 2^k`). So
+  `δ_k ≤ (3/4)^{min(R, k/m)}`. The crush to `(3/4)^R` only kicks in at `k ≳ m·R ~
+  m·2^m` — VERY far out. For `m<k<m·2^m`, density is NOT crushed.
+- **Consequence:** dense blocks must be LACUNARILY spaced (`m_{i+1} ≳ m_i·2^{m_i}`)
+  to coexist ⟹ then `∑δ` over dense blocks converges (lacunary ⟹ summable). Two
+  "nearby" dense blocks DO crush each other.
+- **BUT the thin adversary survives:** `δ_k ~ 1/k` (∑=∞, non-summable) needs only
+  rank `R_k ≤ 2.4 log k`, and `~2^k/k` shell elts CAN be covered by `~log k` small
+  primes (2,3,5,… as DIVISORS, not elements). Not obviously blocked. **Direction
+  still UNDECIDED** — the real fight is the thin `δ_k~1/k` set, not bursty.
+
+### Sharpened P1 target (thin construction / its obstruction)
+Probe `δ_k ~ 1/k`: elements `~2^k/k` per shell, each a multiple of small primes,
+pairwise structure sum-free mod all smaller A-elements. KEY tension to resolve:
+the smaller A-elements (`~2^j/j` per shell `j<k`) — what is THEIR coprime rank? If
+the thin set's own elements accumulate coprime rank `≫ 2.4 log k`, then
+`δ_k ≤ (3/4)^{rank} ≪ 1/k`, contradiction ⟹ summable. So: **does a thin
+(`δ_j~1/j`) avoiding set accumulate coprime rank faster than `2.4 log k`?** This is
+the crux in its sharpest form — attack via: how many pairwise-coprime elements
+must `~∑_{j<k}2^j/j` integers (sum-free-structured) contain? Ramsey/Turán-type:
+N integers with bounded coprime-clique ⟹ covered by few primes ⟹ structure.
+Formalizable sub-lemma: "N pairwise-non-coprime... " → relate coprime number to
+prime cover (Mathlib `Nat.primeFactors`, `Finset` covering). NEXT.
+
 ## Formalized partial results so far (axiom-clean, committed)
 RankGrowthKernel.lean (kernel naming) + CollectiveDescent.lean (scale-uniform room
 bound, sharp prefix bound, bounded-mass⇒unbounded-rank, smooth-part summability,
