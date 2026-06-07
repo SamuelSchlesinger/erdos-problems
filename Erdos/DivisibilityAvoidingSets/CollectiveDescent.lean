@@ -240,4 +240,45 @@ theorem SummabilityCounterexample.not_reciprocalSummable_diff_smoothNumbers
   rw [heq]
   exact h1.add h2
 
+/-- **Finite cover by reciprocal-summable sets ⟹ reciprocal-summable.**  If `A` is
+contained in a finite union of reciprocal-summable sets, then `A` is itself
+reciprocal-summable.  (Pointwise, the reciprocal indicator of `A` is dominated by the
+finite sum of the covers' indicators.) -/
+theorem reciprocalSummable_of_subset_biUnion {ι : Type*} {A : Set ℕ}
+    {s : Finset ι} {T : ι → Set ℕ}
+    (hsub : A ⊆ ⋃ i ∈ s, T i) (hT : ∀ i ∈ s, ReciprocalSummable (T i)) :
+    ReciprocalSummable A := by
+  classical
+  rw [reciprocalSummable_iff_indicator]
+  have hTsum : ∀ i ∈ s, Summable (reciprocalIndicator (T i)) :=
+    fun i hi => (reciprocalSummable_iff_indicator (T i)).mp (hT i hi)
+  have hsum : Summable (fun n => ∑ i ∈ s, reciprocalIndicator (T i) n) :=
+    summable_sum hTsum
+  refine hsum.of_nonneg_of_le (reciprocalIndicator_nonneg A) (fun n => ?_)
+  by_cases hn : n ∈ A
+  · obtain ⟨i, hi, hni⟩ : ∃ i ∈ s, n ∈ T i := by
+      have hmem := hsub hn
+      simpa [Set.mem_iUnion] using hmem
+    calc
+      reciprocalIndicator A n = reciprocalIndicator (T i) n := by
+        simp [reciprocalIndicator, Set.indicator_of_mem hn, Set.indicator_of_mem hni]
+      _ ≤ ∑ j ∈ s, reciprocalIndicator (T j) n :=
+        Finset.single_le_sum (fun j _ => reciprocalIndicator_nonneg (T j) n) hi
+  · have h0 : reciprocalIndicator A n = 0 := by
+      simp [reciprocalIndicator, Set.indicator_of_notMem hn]
+    rw [h0]
+    exact Finset.sum_nonneg (fun j _ => reciprocalIndicator_nonneg (T j) n)
+
+/-- **The open core, crisply.**  A summability counterexample can never be covered by
+finitely many reciprocal-summable sets — in particular not by finitely many prime
+multiple-layers (each summable under irreducibility).  So the residual difficulty is
+exactly *unbounded* prime support: the elements of a counterexample must escape every
+finite union of summable layers, which is the fresh-prime proliferation. -/
+theorem SummabilityCounterexample.not_subset_biUnion_reciprocalSummable
+    {ι : Type*} {A : Set ℕ} (hA : SummabilityCounterexample A)
+    {s : Finset ι} {T : ι → Set ℕ}
+    (hsub : A ⊆ ⋃ i ∈ s, T i) (hT : ∀ i ∈ s, ReciprocalSummable (T i)) :
+    False :=
+  hA.2.2.2 (reciprocalSummable_of_subset_biUnion hsub hT)
+
 end DivisibilityAvoidingSets
