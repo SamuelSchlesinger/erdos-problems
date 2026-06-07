@@ -304,4 +304,49 @@ theorem SummabilityCounterexample.exists_mem_forall_not_dvd_of_finset_primes
   · intro p hp
     exact hA.reciprocalSummable_multipleLayer_prime_of_quotient_irreducible hirred (hP p hp)
 
+/-- **Density-increment primitive.**  A finite set `F` inside a `0`-sum-free residue
+structure mod `a` occupies at most `a/2+1` residue classes, so by pigeonhole some
+class mod `a` captures at least a `1/(a/2+1)` fraction of `F`:
+`(a/2+1) · |F ∩ {≡ r mod a}| ≥ |F|`.  This is the single-step concentration that drives
+the iterated (Bohr/Bourgain-style) density increment. -/
+theorem exists_residue_class_card_ge_of_pairwiseNoZeroResidueSum
+    {a : ℕ} {B : Set ℕ} {F : Finset ℕ}
+    (ha : 0 < a) (hB : PairwiseNoZeroResidueSum a B) (hF : ∀ n ∈ F, n ∈ B) :
+    ∃ r, (a / 2 + 1) * (F.filter (fun n => n % a = r)).card ≥ F.card := by
+  classical
+  rcases F.eq_empty_or_nonempty with hFe | hFne
+  · exact ⟨0, by simp [hFe]⟩
+  set s := F.image (fun n => n % a) with hs
+  have hs_card : s.card ≤ a / 2 + 1 := by
+    refine le_trans (Finset.card_le_card ?_)
+      (residueFinset_card_le_of_pairwiseNoZeroResidueSum hB)
+    intro r hr
+    rcases Finset.mem_image.mp hr with ⟨n, hnF, rfl⟩
+    exact mem_residueFinset.mpr ⟨Nat.mod_lt n ha, n, hF n hnF, rfl⟩
+  have hsne : s.Nonempty := hFne.image _
+  obtain ⟨r, hr_mem, hr_max⟩ :=
+    s.exists_max_image (fun r => (F.filter (fun n => n % a = r)).card) hsne
+  refine ⟨r, ?_⟩
+  have hsum : F.card = ∑ t ∈ s, (F.filter (fun n => n % a = t)).card :=
+    Finset.card_eq_sum_card_fiberwise (fun n hn => Finset.mem_image_of_mem _ hn)
+  calc
+    F.card = ∑ t ∈ s, (F.filter (fun n => n % a = t)).card := hsum
+    _ ≤ ∑ _t ∈ s, (F.filter (fun n => n % a = r)).card :=
+        Finset.sum_le_sum (fun t ht => hr_max t ht)
+    _ = s.card * (F.filter (fun n => n % a = r)).card := by
+        rw [Finset.sum_const, smul_eq_mul]
+    _ ≤ (a / 2 + 1) * (F.filter (fun n => n % a = r)).card :=
+        Nat.mul_le_mul_right _ hs_card
+
+/-- Avoiding-set density increment: for `a ∈ A` and a finite set `F` of `A`-elements
+all exceeding `a`, some residue class mod `a` captures a `1/(a/2+1)` fraction of `F`.
+The avoiding hypothesis supplies the `0`-sum-free residue structure on the tail above
+`a`. -/
+theorem AvoidingSet.exists_residue_class_card_ge
+    {A : Set ℕ} (hA : AvoidingSet A) {a : ℕ} (haA : a ∈ A) (ha : 0 < a)
+    {F : Finset ℕ} (hF : ∀ n ∈ F, n ∈ tailAbove A a) :
+    ∃ r, (a / 2 + 1) * (F.filter (fun n => n % a = r)).card ≥ F.card :=
+  exists_residue_class_card_ge_of_pairwiseNoZeroResidueSum ha
+    (hA.tail_pairwiseNoZeroResidueSum haA) hF
+
 end DivisibilityAvoidingSets
