@@ -211,4 +211,33 @@ theorem reciprocalSummable_inter_smoothNumbers (A : Set ℕ) (Q : ℕ) :
   show ‖f (x : ℕ)‖ = (1 : ℝ) / ((x : ℕ) : ℝ)
   rw [hfval, Real.norm_eq_abs, abs_of_nonneg (by positivity), one_div]
 
+/-- **A counterexample's divergence concentrates on large-prime-factor elements.**
+For every threshold `Q`, the non-`Q`-smooth part of a summability counterexample
+(its elements with a prime factor `≥ Q`) is itself non-reciprocal-summable.  The
+`Q`-smooth part always converges (`reciprocalSummable_inter_smoothNumbers`), so all
+of the divergence lives on large-prime-factor elements — at every threshold `Q`.
+This is the structural counterpart of the fresh-prime room-cover obstruction:
+"fresh" (large) primes are exactly where the mass that must be covered resides. -/
+theorem SummabilityCounterexample.not_reciprocalSummable_diff_smoothNumbers
+    {A : Set ℕ} (hA : SummabilityCounterexample A) (Q : ℕ) :
+    ¬ ReciprocalSummable (A \ Nat.smoothNumbers Q) := by
+  classical
+  intro hdiff
+  refine hA.2.2.2 ((reciprocalSummable_iff_indicator A).2 ?_)
+  have h1 := (reciprocalSummable_iff_indicator _).1
+    (reciprocalSummable_inter_smoothNumbers A Q)
+  have h2 := (reciprocalSummable_iff_indicator _).1 hdiff
+  have heq : reciprocalIndicator A =
+      reciprocalIndicator (A ∩ Nat.smoothNumbers Q) +
+        reciprocalIndicator (A \ Nat.smoothNumbers Q) := by
+    ext n
+    simp only [reciprocalIndicator, Pi.add_apply, Set.indicator_apply]
+    by_cases hAn : n ∈ A
+    · by_cases hsn : n ∈ Nat.smoothNumbers Q
+      · simp [hAn, hsn]
+      · simp [hAn, hsn]
+    · simp [hAn]
+  rw [heq]
+  exact h1.add h2
+
 end DivisibilityAvoidingSets
