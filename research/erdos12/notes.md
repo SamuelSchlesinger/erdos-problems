@@ -302,6 +302,34 @@ N integers with bounded coprime-clique ⟹ covered by few primes ⟹ structure.
 Formalizable sub-lemma: "N pairwise-non-coprime... " → relate coprime number to
 prime cover (Mathlib `Nat.primeFactors`, `Finset` covering). NEXT.
 
+## P1 iteration 2 — thin set = fresh-prime union (spf route); FORMALIZED the boundary
+
+- **Single-prime layers are summable (descent).** `A ⊆ {mult of d}`, `d>1` ⟹ `A=d·B`,
+  `B` avoiding (quotient), summable by irreducibility ⟹ `A` summable. So a thin set
+  cannot concentrate on one prime's multiples.
+- **Thin set lives in a GROWING prime union.** Plateau shells (covered, no coprime
+  extension) ⟹ shell elts covered by the support primes (mostly small, stable). Via
+  smallest-prime-factor: `A ⊆ ⋃_{p ≤ P_{R_k}}(mult p)`, `R_k~log k` GROWING. Each layer
+  summable (irreducible), but `∑_{p}primeLayerBudget = ∑ ω(a)/a = ∞` ⟹ union diverges.
+  This is the fresh-prime escape reached from the thin-set side. SAME open core.
+- **FORMALIZED (CollectiveDescent.lean, axiom-clean):**
+  `reciprocalSummable_of_subset_biUnion` (finite union of summable ⟹ summable) and
+  `SummabilityCounterexample.not_subset_biUnion_reciprocalSummable` (a counterexample
+  escapes every FINITE union of summable sets). This pins the open core precisely in
+  Lean: the difficulty is exactly that the prime support is UNBOUNDED (finite would
+  close it). The fight is the RATE at which the support must grow.
+
+### NEXT angle: quantify the support-growth rate vs density
+Open core now: counterexample's support `P_R` grows; need a lower bound on `R_k` (=
+support size / coprime rank at scale `k`) forcing `∑_k(3/4)^{R_k}<∞`. Two sub-attacks:
+(a) **P2 Selberg/large-sieve** — formalize `δ_k ≤ 1/(sieve sum over A-PRIME elts ≤√2^k)`;
+    if prime-element count grows, done. Needs Mathlib SelbergSieve (heavy struct) — try.
+(b) **support-vs-mass**: each NEW support prime `p` added at scale `k` carries
+    `primeLayerBudget(p)` mass; total mass diverges, so infinitely many primes added;
+    but does each addition force a coprime RANK increment (→ (3/4)^rank decay)? Relate
+    "new support prime" ⟹ "new coprime core element" (the carrier). Formalizable link:
+    a fresh support prime's carrier extends a coprime family. ATTACK.
+
 ## Formalized partial results so far (axiom-clean, committed)
 RankGrowthKernel.lean (kernel naming) + CollectiveDescent.lean (scale-uniform room
 bound, sharp prefix bound, bounded-mass⇒unbounded-rank, smooth-part summability,
