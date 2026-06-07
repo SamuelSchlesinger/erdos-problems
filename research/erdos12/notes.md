@@ -531,6 +531,27 @@ bridge is unresolved. EVERY route reduces to either (a) fresh-prime mass bounded
 (b) beat the 1/2 residue density. Both are THE open problem. Verified lemmas banked: 12.
 The breakthrough genuinely requires a sub-1/e packing (Bohr) — beyond what I've found.
 
+## Long-shot mechanism log (user: keep inventing novel angles)
+Tried + cleared (reduce to core / don't apply) — DON'T repeat:
+- Hypergraph removal/counting on {(a,b,c):a|b+c}: qualitative δ→0, weak rate; config not
+  translation-invariant ⟹ removal lemma doesn't sharpen.
+- Cross-scale functional ∑_{a<N}∑_{b,c~N}[a|b+c]=0: collapses term-by-term to per-a
+  residue packing (exact-0 rigidity ⟹ no averaging leverage).
+- Dirichlet series / p-adic valuation: a|b+c additive in b+c, no multiplicative linearization.
+
+UNTRIED novel angles to generate next (hunt for one NOT reducing to core):
+- (G) Ergodic/Furstenberg correspondence: A ↦ dynamical system; avoiding ⟹ a recurrence/
+  multiple-recurrence obstruction; density via ergodic averages.
+- (H) Polynomial/algebraic: encode a|b+c via b+c ≡0, a Combinatorial Nullstellensatz or
+  slice-rank / tensor argument (cap-set style) — does the triple system have bounded
+  slice rank ⟹ small?
+- (I) Stepping-up / entropy compression: a Lovász-Local-Lemma / entropy-compression
+  argument bounding |A∩[N,2N]| from the per-a constraints jointly.
+- (J) A different invariant than coprime rank: e.g. additive dimension, or the "Q-rough
+  coprime rank" only, or a weighted rank ∑1/a over a coprime family.
+- (K) Use that b,c BOTH range over A (not just b): the constraint is on the SUMSET A+A
+  vs A multiplicatively — a multiplicative-energy / GCD-sumset incidence bound.
+
 ## Formalized partial results so far (axiom-clean, committed)
 RankGrowthKernel.lean (kernel naming) + CollectiveDescent.lean (scale-uniform room
 bound, sharp prefix bound, bounded-mass⇒unbounded-rank, smooth-part summability,
