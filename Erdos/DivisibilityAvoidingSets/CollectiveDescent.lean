@@ -349,4 +349,52 @@ theorem AvoidingSet.exists_residue_class_card_ge
   exists_residue_class_card_ge_of_pairwiseNoZeroResidueSum ha
     (hA.tail_pairwiseNoZeroResidueSum haA) hF
 
+/-- **Weight bound for a pairwise-non-coprime clique.**  If `S ⊆ A` is a finite set in
+which some element `a₀` shares a prime factor with every other element (in particular if
+`S` is pairwise non-coprime), then the reciprocal weight of `S` is controlled by the
+prime layers of `a₀`:
+`∑_{a∈S} 1/a ≤ 1/a₀ + ∑_{p | a₀} primeLayerBudget A p`.
+Reason: every other element of `S` shares one of the finitely many primes of `a₀`, so
+`S \ {a₀}` is covered by the layers `multipleLayer p A` (`p | a₀`), each reciprocal-
+summable under irreducibility.  This bounds the "non-coprime clique" weight that defeats
+a plain Ramsey lower bound on the coprime rank — by the smallest element's prime layers
+rather than uniformly. -/
+theorem SummabilityCounterexample.reciprocal_weight_pairwiseNonCoprime_le
+    {A : Set ℕ} (hA : SummabilityCounterexample A)
+    (hirred : ∀ a d : ℕ, d ∣ a → 1 < d →
+      ¬ SummabilityCounterexample (quotientSet d (multipleLayer d A)))
+    {S : Finset ℕ} {a₀ : ℕ}
+    (ha₀S : a₀ ∈ S) (ha₀pos : 0 < a₀) (hSA : ∀ a ∈ S, a ∈ A)
+    (hshare : ∀ a ∈ S, a ≠ a₀ → ¬ Nat.Coprime a₀ a) :
+    ∑ a ∈ S, (1 : ℝ) / (a : ℝ) ≤
+      (1 : ℝ) / (a₀ : ℝ) + ∑ p ∈ a₀.primeFactors, primeLayerBudget A p := by
+  classical
+  have ha₀ne : a₀ ≠ 0 := ha₀pos.ne'
+  have hsum : ∑ a ∈ S, (1 : ℝ) / (a : ℝ) =
+      (1 : ℝ) / (a₀ : ℝ) + ∑ a ∈ S.erase a₀, (1 : ℝ) / (a : ℝ) :=
+    (Finset.add_sum_erase S (fun a => (1 : ℝ) / (a : ℝ)) ha₀S).symm
+  rw [hsum]
+  have herase : ∑ a ∈ S.erase a₀, (1 : ℝ) / (a : ℝ) ≤
+      ∑ p ∈ a₀.primeFactors, primeLayerBudget A p := by
+    have hcover : ∀ a ∈ S.erase a₀, ∃ p ∈ a₀.primeFactors, a ∈ {x : ℕ | p ∣ x} := by
+      intro a ha
+      obtain ⟨hane, haS⟩ := Finset.mem_erase.mp ha
+      obtain ⟨p, hp, hpa₀, hpa⟩ :=
+        (Nat.Prime.not_coprime_iff_dvd).mp (hshare a haS hane)
+      exact ⟨p, Nat.mem_primeFactors.mpr ⟨hp, hpa₀, ha₀ne⟩, hpa⟩
+    refine (finset_sum_le_sum_filter_of_cover
+      (F := S.erase a₀) (I := a₀.primeFactors) (B := fun p => {x : ℕ | p ∣ x})
+      (w := fun a => (1 : ℝ) / (a : ℝ)) (fun a => by positivity) hcover).trans ?_
+    refine Finset.sum_le_sum fun p hp => ?_
+    have hpp : Nat.Prime p := (Nat.mem_primeFactors.mp hp).1
+    have hlayer : ReciprocalSummable (multipleLayer p A) :=
+      hA.reciprocalSummable_multipleLayer_prime_of_quotient_irreducible hirred hpp
+    have hsub : ∀ a ∈ (S.erase a₀).filter (fun a => a ∈ {x : ℕ | p ∣ x}),
+        a ∈ multipleLayer p A := by
+      intro a ha
+      obtain ⟨haerase, hpa⟩ := Finset.mem_filter.mp ha
+      exact mem_multipleLayer.mpr ⟨hSA a (Finset.mem_erase.mp haerase).2, hpa⟩
+    exact finset_sum_reciprocal_le_tsum_indicator_of_subset hlayer hsub
+  linarith [herase]
+
 end DivisibilityAvoidingSets
