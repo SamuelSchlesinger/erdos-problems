@@ -281,4 +281,27 @@ theorem SummabilityCounterexample.not_subset_biUnion_reciprocalSummable
     False :=
   hA.2.2.2 (reciprocalSummable_of_subset_biUnion hsub hT)
 
+/-- **A counterexample escapes every finite prime set.**  In a quotient-irreducible
+counterexample, for any finite set of primes `P` there is an element of `A` divisible
+by none of them (equivalently, an element coprime to `∏ P`).  Proof: otherwise `A` is
+covered by the finitely many summable prime layers `multipleLayer p A` (`p ∈ P`),
+forcing summability.  Iterating gives elements of arbitrarily large smallest prime
+factor, hence an infinite pairwise-coprime subfamily — the unbounded-support ⟹
+unbounded-coprime-rank bridge, proved here via covers rather than descent. -/
+theorem SummabilityCounterexample.exists_mem_forall_not_dvd_of_finset_primes
+    {A : Set ℕ} (hA : SummabilityCounterexample A)
+    (hirred : ∀ a d : ℕ, d ∣ a → 1 < d →
+      ¬ SummabilityCounterexample (quotientSet d (multipleLayer d A)))
+    {P : Finset ℕ} (hP : ∀ p ∈ P, Nat.Prime p) :
+    ∃ a ∈ A, ∀ p ∈ P, ¬ p ∣ a := by
+  by_contra h
+  push_neg at h
+  refine hA.not_subset_biUnion_reciprocalSummable
+    (s := P) (T := fun p => multipleLayer p A) ?_ ?_
+  · intro a ha
+    obtain ⟨p, hp, hpa⟩ := h a ha
+    exact Set.mem_iUnion₂.mpr ⟨p, hp, mem_multipleLayer.mpr ⟨ha, hpa⟩⟩
+  · intro p hp
+    exact hA.reciprocalSummable_multipleLayer_prime_of_quotient_irreducible hirred (hP p hp)
+
 end DivisibilityAvoidingSets
