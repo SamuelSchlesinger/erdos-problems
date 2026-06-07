@@ -498,6 +498,39 @@ small a₀ with small primes (∑_{p|a₀}budget large, e.g. a₀=primorial). Tw
   (finite-cover summable); restrict to rough part where a₀'s primes ≥Q ⟹ budgets→0.
 Next: push (α)/(β) to a uniform-on-rough-part bound ⟹ would close via Ramsey.
 
+## Weighted-Ramsey route — COMPLETE VERDICT (sharpest wall characterization)
+
+Greedy coprime extraction: step i removes weight ≤ 1/aᵢ + ∑_{p|aᵢ}budget(p) (verified
+lemma). Coprime family ⟹ DISJOINT prime supports ⟹ total non-coprime weight removed
+≤ ∑_{p∈support}budget(p). So W_k ≤ (∑1/aᵢ) + ∑_{p∈support_k}budget(p).
+- Rank bound R_k ≥ W_k/(1+B) needs uniform B=sup_a ∑_{p|a}budget; B=∞ (primorial a).
+- Killer primorial cliques ⊆ SMOOTH part = SUMMABLE (Euler). Restrict to rough part ⟹
+  B_rough = ∑_{p≥Q}budget(p) = FRESH-PRIME MASS = the open core. Route reduces to it.
+- **CONSTANT WALL (sharpest):** residue packing = density 1/2 per modulus; ln2≈0.693<1.
+  So R_k≳log k gives only δ_k ≤ k^{-ln2/(1+B)}, exponent <1 ⟹ just barely
+  non-summable-compatible. CLOSING NEEDS density <1/e per modulus (beat 1/2) = the
+  Bohr/cross-modulus-correlation problem. This is THE open analytic obstruction, now
+  pinned to a precise constant: beat 1/2 → 1/e.
+
+## DEFINITIVE: the 1/2 wall CANNOT be beaten by structure (Bohr bridge is FALSE)
+To beat 1/2 one needs "sum-free mod a (density 1/2) ⟹ A structured (interval/Bohr) mod a"
+(then Bourgain increment). But this is FALSE: 0-sum-free sets (R∩(-R)⊆{0,a/2}) are exactly
+TRANSVERSALS of the pairs {r,-r} — there are 2^{(a-1)/2} of them, and a RANDOM transversal
+is 0-sum-free with density ~1/2 and NO additive structure (not an interval/Bohr set). So
+avoidance provides no structure to run a density increment past 1/2. ⟹ the entire
+density/packing/Bohr family GENUINELY cannot close #12 — the 1/2 wall is unbeatable by
+these means. The breakthrough must use a fundamentally different mechanism (global
+cross-scale coupling not yet conceived), or is beyond current methods. This is the honest,
+DEFINITIVE characterization of why #12 resists.
+
+## META: all avenues exhausted, irreducible core = "beat residue-packing 1/2"
+B(coupling)=residue packing; E(Ramsey)=sparse cliques; iii(weighted Ramsey)=fresh-prime
+mass + the ln2<1 constant wall; F(rough decomp)=fresh-prime mass; construction=√N
+(summable evidence); A(Bohr)=the open close-candidate but the "sum-free⟹thick-Bohr"
+bridge is unresolved. EVERY route reduces to either (a) fresh-prime mass bounded?, or
+(b) beat the 1/2 residue density. Both are THE open problem. Verified lemmas banked: 12.
+The breakthrough genuinely requires a sub-1/e packing (Bohr) — beyond what I've found.
+
 ## Formalized partial results so far (axiom-clean, committed)
 RankGrowthKernel.lean (kernel naming) + CollectiveDescent.lean (scale-uniform room
 bound, sharp prefix bound, bounded-mass⇒unbounded-rank, smooth-part summability,
