@@ -552,6 +552,38 @@ UNTRIED novel angles to generate next (hunt for one NOT reducing to core):
 - (K) Use that b,c BOTH range over A (not just b): the constraint is on the SUMSET A+A
   vs A multiplicatively — a multiplicative-energy / GCD-sumset incidence bound.
 
+## ⭐ ANGLE L (Caro-Wei/Turán rank bound) — PROMISING, does NOT obviously reduce
+Coprime rank = independence number α(G), G = non-coprime graph on A∩[1,2^k].
+**Caro-Wei: α(G) ≥ ∑_{a} 1/(1+d(a))**, d(a)=#non-coprime partners ≤ ∑_{p|a}|A∩pℤ∩[1,2^k]|.
+FUNDAMENTALLY different from multi-modulus (1/2)^rank — bypasses residue packing & the
+ln2<1 wall entirely. Rough elts (large primes ⟹ small layers) have small degree ⟹
+contribute ~1 ⟹ large rank. So:
+  **rank ≥ ∑_{a∈A∩[1,2^k]} 1/(1 + ∑_{p|a}|A∩pℤ∩[1,2^k]|).**
+Whether this ≳ log k reduces to the edge density D ~ ∑_p|A∩pℤ|²/M (layer-size
+distribution) — BUT via a new inequality, NOT the 1/2 wall. Genuinely new bound.
+PLAN: (1) FORMALIZE the Caro-Wei coprime-rank bound (check Mathlib SimpleGraph
+independence number / Caro-Wei; else prove via greedy-min-degree). This is a real new
+verified rank lower bound. (2) Then bound the RHS: combine with irreducibility
+(layers summable ⟹ |A∩pℤ| small) to push rank ≳ log k or beyond. The edge-density
+estimate ∑_p|A∩pℤ|² is the new quantity to control — relate to ∑1/a via the layers.
+This is the live lead — push it hard.
+
+### L refined ⟹ GCD-ENERGY target (concrete, classical, new)
+Caro-Wei/Jensen: **rank ≥ M²/(M + 𝓔)**, M=|A∩[1,2^k]|, 𝓔 := ∑_p|A∩pℤ∩[1,2^k]|² =
+∑_{a,b∈A∩[1,2^k]} #{p:p|gcd(a,b)} = GCD-ENERGY of A. CLOSES #12 if 𝓔 = o(M²/log k);
+else reduces to bounding 𝓔. KEY: 𝓔 is ONE concrete classical quantity (vs amorphous
+fresh-prime mass). Irreducibility ⟹ every layer |A∩pℤ| SUMMABLE (sparse) ⟹ pushes 𝓔
+down. Generic A: L_p~M/p ⟹ 𝓔~M²∑1/p²~0.45M² ⟹ weak (rank~2). Avoiding A: layers
+sparse (L_p≪M/p by summability) ⟹ 𝓔 ≪ M² hopefully. THE NEW TARGET: bound GCD-energy
+𝓔 of an avoiding set, using sum-free (the layers A∩pℤ are themselves avoiding quotients,
+summable). If 𝓔 = O(M·polylog) ⟹ rank ≳ M/polylog ≫ log k ⟹ CLOSE.
+TWO concrete steps to formalize/push:
+1. FORMALIZE Turán rank bound: coprime rank ≥ ∑_a 1/(1+d(a)) (Caro-Wei; Mathlib has
+   IsIndepSet/IsClique but NOT Caro-Wei — prove via random-order/greedy, or delegate).
+2. Bound 𝓔 = ∑_p L_p²: relate to ∑_a 1/a via summable layers; use that A∩pℤ avoiding.
+   Sub-question: is ∑_p L_p² = O(M·(∑_{a≤2^k}1/a)·2^k)... or O(M^{2-δ})? Attack with
+   sum-free structure on the layers.
+
 ## Formalized partial results so far (axiom-clean, committed)
 RankGrowthKernel.lean (kernel naming) + CollectiveDescent.lean (scale-uniform room
 bound, sharp prefix bound, bounded-mass⇒unbounded-rank, smooth-part summability,
