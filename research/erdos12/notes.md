@@ -242,6 +242,35 @@ rigorously (radius bookkeeping, dimension growth vs Bohr-set triviality, the
 sum-free→Bohr-structure bridge) is open-research-level and HIGH-RISK for autonomous
 unverified work. Best pursued interactively/carefully, not in a commit-loop.
 
+## CAMPAIGN: autonomous formal-verification attack (user-authorized, reviewed before publish)
+
+Mathlib leverage found:
+- `Mathlib/Analysis/Fourier/ZMod.lean` — discrete Fourier transform on ZMod N (energy/Parseval).
+- `Mathlib/Combinatorics/Additive/{Energy,PluenneckeRuzsa,Dissociation,ApproximateSubgroup,Convolution,Corner,AP}` — additive combinatorics (Bohr/Bourgain world).
+- `Mathlib/NumberTheory/SelbergSieve.lean` — sieve (siftedSum ≤ mainSum + errSum).
+
+**Critical new finding (verification earned its keep): the LARGE-SIEVE route does NOT
+close it, and the answer may not even be "summable".** The sieve gives
+`δ_N ≲ 1/|A∩[1,√N]|`. Tried to PROVE this ⟹ `∑δ_k<∞`: FALSE. Counterexample to the
+implication: set `δ_j = 1/2` on even dyadic blocks `j∈⋃_{m even}[2^m,2^{m+1})`, tiny on
+odd blocks. Then the dyadic constraint `δ_k·δ_{⌊k/2⌋} ≤ C·2^{-k/2}` (the sieve coupling)
+holds yet `∑δ_j = ∑_{m even}2^{m-1} = ∞`. So a **BURSTY** set evades the sieve. This is
+exactly what a non-summable avoiding CONSTRUCTION would exploit ⟹ MUST also seriously
+attempt construction (#12 reciprocal-sum direction is genuinely undecided here).
+
+### Campaign phases (Lean-verified; sorry = explicit gap, kept out of the library)
+- **P1 (construction probe).** Can a bursty avoiding set be non-summable? Try to build
+  dense dyadic blocks `(3·2^{m-1},2^{m+1})` (each internally avoiding, density ~1/4) on a
+  sparse scale sequence `m∈M`, with cross-block triples avoided. If YES ⟹ #12 reciprocal
+  is FALSE (huge). If the cross-block constraints force `M` lacunary ⟹ summable evidence.
+  FORMALIZE the cross-block obstruction precisely.
+- **P2 (Selberg-sieve density bound).** Formalize `δ_N ≲ 1/Σ_{prime a∈A,≤√N}(...)` via
+  Mathlib SelbergSieve. Real density bound for avoiding sets (also #12 part-1). Verified.
+- **P3 (Fourier energy, Mathlib DFT).** Formalize sum-free ⟹ `∑n_r² ≥ |A_k|²/(a/2+1)` and
+  the density increment, via `Analytic/Fourier/ZMod`. Substrate for Bohr.
+- **P4 (Bohr/Bourgain increment).** Use `Combinatorics/Additive/{Dissociation,Approximate
+  Subgroup}` to attempt the dimension-`log N` increment. The make-or-break analytic step.
+
 ## Formalized partial results so far (axiom-clean, committed)
 RankGrowthKernel.lean (kernel naming) + CollectiveDescent.lean (scale-uniform room
 bound, sharp prefix bound, bounded-mass⇒unbounded-rank, smooth-part summability,
