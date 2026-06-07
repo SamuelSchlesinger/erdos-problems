@@ -88,6 +88,37 @@ sum-free mod `a`) compounding to force density `o(x/log x)`. This is where any r
 progress must come from (ideas 3,4,5). Likely needs analytic input (Fourier/energy),
 not elementary residue packing.
 
+## Deep attempt 2 (analytic + density increment) — convergence finding
+
+- **Energy bound, elementary.** Sum-free mod `a` ⟹ occupied residues `≤ a/2+1` ⟹
+  (Cauchy-Schwarz) `∑_r n_r² ≥ |A_k|²/(a/2+1)`. No Fourier needed.
+- **Density increment.** ⟹ a residue class mod `a` with `A_k`-density `≥ 2δ_k`.
+  Iterate over coprime small moduli `a₁..a_t` ⟹ `δ_k ≤ ∏(1/2+1/aᵢ)`. This EQUALS
+  the existing multi-modulus count bound (density-increment ≡ direct count; the
+  "2^{-t}" and "(3/4)^t" are both `∏(1/2+1/aᵢ)`). No improvement.
+- **Single-shell is unconstrained beyond residue packing.** A shell can be a full
+  AP `{r+mD : r≢0 mod D}`: `x_b+x_c=2x_a` is impossible for `b,c>a`, and `=3x_a`
+  forces `r≡0`. So no INTERNAL triples. ⟹ the summability force is purely
+  CROSS-SCALE (a low-shell divisor `a` constraining a high shell `A_k`), which
+  single-scale energy cannot capture.
+- **Construction evidence the conjecture is TRUE.** Greedy avoiding sets are forced
+  lacunary (summable); slow growth ⟹ residue constraints unsatisfiable.
+
+### NEW concrete target (cross-scale coupling)
+The open crux `t(k)≳log k` must come from coupling low-shell elements (as moduli)
+to high shells SIMULTANEOUSLY across many scales. Concretely:
+- (T1) If `δ_j ≳ c` for many low `j` (non-summable lower part), those shells supply
+  many candidate moduli; the obstruction is they may share prime factors. Need:
+  a dense lower part forces a coprime sub-family growing with the number of dense
+  shells. = "coprime rank ≳ #dense-shells". UNRESOLVED — attack next.
+- (T2) Telescoping: combine the per-scale increments across a RANGE of shells into a
+  single multi-scale density increment, so the modulus budget is `2^{(range)}` not
+  `2^k`. If the increment compounds across shells, the effective `t` could grow with
+  the range ⟹ rank growth. Needs the increment to not "reset" between shells.
+- (T3) Energy across scales: count triples `(a,b,c)` with `a` in a low shell, `b,c`
+  in a high shell — this is 0 (avoiding). The cross-scale energy `∑_{a low} (#sum-free
+  deficit)` might force aggregate structure. Genuinely analytic, unexplored.
+
 ## Formalized partial results so far (axiom-clean, committed)
 RankGrowthKernel.lean (kernel naming) + CollectiveDescent.lean (scale-uniform room
 bound, sharp prefix bound, bounded-mass⇒unbounded-rank, smooth-part summability,
