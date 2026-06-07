@@ -374,6 +374,31 @@ repo `residueFinset_card_le` + Mathlib pigeonhole (`Finset.exists_max_image`,
   `Combinatorics/Additive/{Dissociation,ApproximateSubgroup}`. If unprovable, STATE it as
   the precise open kernel (documented sorry in research file) — honest endpoint.
 
+## P4 iteration 1 — interval-vs-spread residues; the open kernel is the Bohr dimension
+
+Pushed the make-or-break Bohr question:
+- **Interval residues ⟹ AP-collapse (rank cap), but SUMMABLE.** If `A∩[N,2N]`'s residues
+  mod `a` form an interval (e.g. the avoiding `(3N/2,2N)` block), the indicator's large
+  Fourier coeff is at `j≈1` ⟹ rank-1 AP ⟹ iterated increment = coprime-rank cap. These
+  are exactly the summable single-scale structures (and P1: unioning them breaks
+  avoiding). So AP-collapse ≠ counterexample.
+- **Spread residues ⟹ Bohr regime = OPEN.** A non-summable set needs spread (non-interval)
+  residue structure SUSTAINED across scales. Then the large Fourier mass `∑_{j≠0}|f̂(j)|²
+  ≥ |F|²` is spread, no single AP direction; the increment must run in a thick Bohr set of
+  dimension `~log N` combining many `aᵢ`. Whether that escapes the rank cap (giving
+  `δ_N ≤ N^{-c}` ⟹ summable) is THE open analytic problem — unresolved here.
+- **Verifiable pieces remaining are RE-DERIVATIONS** (iterated increment ⟹ `∏(1/2+1/aᵢ)`,
+  already in repo) — low leverage, skip. The genuine content is the open Bohr step.
+
+### Honest status of the analytic campaign
+Open kernel is PINNED (verified): `EventuallyFastCoprimeRank` (RankGrowthKernel.lean) is
+an iff with Erdős-#12 summability — a machine-checked statement of exactly what's left.
+Extensive verified infrastructure banked (finite-cover, escape, scale-uniform room mass,
+density-increment primitive, smooth-part, divergence-concentration). The remaining close
+is the open analytic rate/Bohr problem; further autonomous iterations produce honest
+verified infra but do NOT converge on a resolution. Continue only for toolkit value or a
+genuine new idea; otherwise consolidate.
+
 ## Formalized partial results so far (axiom-clean, committed)
 RankGrowthKernel.lean (kernel naming) + CollectiveDescent.lean (scale-uniform room
 bound, sharp prefix bound, bounded-mass⇒unbounded-rank, smooth-part summability,
