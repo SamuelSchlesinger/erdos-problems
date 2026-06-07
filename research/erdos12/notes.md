@@ -424,6 +424,36 @@ autonomous iterations = honest verified infra/evidence, NOT a resolution. The ca
 mapped the problem thoroughly and pinned the exact open kernel; closing it needs a research
 breakthrough (Bohr/energy) beyond the standard toolkit.
 
+## BREAKTHROUGH HUNT (single target: rate R_k ≳ log k)
+
+### Avenue B (additive-mult coupling) — COLLAPSES to residue packing
+"A+A avoids a-multiples" ≡ "sum-free mod a" ≡ residue packing. Divisor-incidence
+`#{(a,s):a∈A,s∈A+A,a|s}=0` is the same. AP-substructure ⟹ known AP-rigidity. Not new.
+
+### Avenue E (Ramsey on coprime graph) — NEW, fails on a PRECISE obstruction
+Coprime rank = ω(coprime graph G). Ramsey: max(ω(G), α(G)) ≥ ½log₂M, M=|A∩[1,2^k]|.
+If ω (=coprime rank) is the big one ⟹ ~k/2 ⟹ δ_k ≤ (3/4)^{k/2} ⟹ SUMMABLE (would close!).
+OBSTRUCTION: α(G) (pairwise-NON-coprime set) can be the big one — e.g. even elements
+form a non-coprime clique; A∩2ℤ is summable (irreducible) but can still have ~2^k/k^{1.1}
+≫ ½log M elements. So large-but-SPARSE prime-multiple cliques defeat Ramsey.
+
+### NEW LEAD (F): decompose to kill the sparse cliques
+The Ramsey-killer cliques ARE the summable prime-multiple layers. Decompose
+`A = (⋃_{p<Q} A∩pℤ : each summable) ⊔ A_rough(Q)` (A_rough = coprime to first π(Q)
+primes). The summable part contributes O_Q(1) to ∑1/a. On A_rough, the coprime graph
+has NO clique via primes <Q (those shared factors are gone) — cliques only via primes
+≥Q. A non-coprime clique in A_rough ⟹ pairwise share a prime ≥Q ⟹ (counting) some
+prime p≥Q divides ≥ s/t of them ⟹ A∩pℤ ≥ s/t. KEY question: can we bound non-coprime
+cliques in A_rough? If A_rough's non-coprime cliques are o(log M_rough), Ramsey gives
+coprime rank ≳ log on A_rough ⟹ summable. BUT same fresh-prime issue: p≥Q sparse
+cliques. The decomposition THINS small-prime cliques but fresh-prime cliques remain.
+Need: bound on # rough elements sharing a fresh prime, SUMMED — relates to ∑_{p≥Q}
+(A∩pℤ size). This is the fresh-prime mass AGAIN. So F reduces to the open core too,
+BUT via a cleaner Ramsey/clique formulation — worth pinning: "rate ⟺ rough-part
+non-coprime cliques are short". ATTACK NEXT: is there a number-theoretic bound on
+pairwise-non-coprime ROUGH integers (all prime factors ≥Q) in [1,N]? (Each ≥Q^? ;
+pairwise sharing a prime ≥Q ⟹ structure.)
+
 ## Formalized partial results so far (axiom-clean, committed)
 RankGrowthKernel.lean (kernel naming) + CollectiveDescent.lean (scale-uniform room
 bound, sharp prefix bound, bounded-mass⇒unbounded-rank, smooth-part summability,
