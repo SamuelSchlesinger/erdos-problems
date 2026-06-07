@@ -119,6 +119,95 @@ to high shells SIMULTANEOUSLY across many scales. Concretely:
   in a high shell — this is 0 (avoiding). The cross-scale energy `∑_{a low} (#sum-free
   deficit)` might force aggregate structure. Genuinely analytic, unexplored.
 
+## Deep attempt 3 (descent-FORCED density increment) — genuinely new argument
+
+Iterate the density increment on `A∩[N,2N]` (positive upper density δ), but use
+DESCENT at each step:
+- **Each increment is FORCED to a nonzero class.** Densest class mod `a` (a∈A) has
+  rel. density `≥2δ`. If that class is `≡0 mod a`, then `A∩aℕ` has upper density
+  `≥2δ`, i.e. `quotientSet a A` has density `≥2δ`; but it is summable (irreducible)
+  ⟹ density 0 ⟹ δ≤0. So **the densest class is always `r≢0 mod a`.** (New: descent
+  rules out the 0-class branch.)
+- Iterate with moduli `a₁,…,a_t` (small A-elts): rel. density `≥2^t δ`, in AP
+  `{≡r mod D}`, `D=lcm(aᵢ)`, with `r≢0 mod each aᵢ`.
+- **Termination ⟹ near-full AP, killed by any coprime small elt.** When `2^tδ→1`
+  we get a near-full AP `{r+iD}∩[N,2N]` (~N/D elts) ⊆ A. It has NO internal triples
+  (`b+c=2a` impossible for `b,c>a`; `b+c=3a` needs `D|r`, false). BUT if ∃ `a'∈A`,
+  `a'<N`, `gcd(a',D)=1`, then `{r+iD} mod a'` hits ALL residues ⟹ two elts sum `≡0
+  mod a'` ⟹ forbidden triple. So termination forces: every small A-elt shares a
+  prime with `D` ⟹ coprime rank = t ⟹ **δ ≤ 2^{-t(N)}** (same bound, now via
+  descent+AP-rigidity — a real mechanism, still rank-limited).
+- **New structural fact (descent):** `A` is "almost-primitive": `|{x∈A∩[N,2N]: a|x}|
+  = o(N/a)` for each `a∈A` (quotient summable). So `∑_{x∈A∩[N,2N]} #{a∈A,a≤Y:a|x} =
+  o(N·H_A(Y))` — A-elements are rarely divisible by smaller A-elements.
+
+T3 (cross-scale triple energy) is CIRCULAR: the energy sum `∑_a ∑_r n_r(a)²` equals
+`∑_{b,c}#{a|b-c}`, achievable `=|A_{≤Y}|` when A⊆AP (self-similar). Trivial bound.
+
+### NEW angle T4 (cross-scale AP rigidity) — fresh, unexplored
+At each scale `N`, non-summable A contains a near-full AP `{r_N + i·D_N}∩[N,2N]`,
+`D_N=lcm(rank-moduli)`, all small A-elts sharing primes with `D_N`. Compare the APs
+at scales `N, 2N, 4N,…`: do `(r_N,D_N)` and `(r_{2N},D_{2N})` conflict? The small
+A-elts (`< N`) must share primes with EVERY `D_M` (M≥N) ⟹ they share primes with
+`gcd`-structure across scales. If the `D_M` are "coprime-ish" across scales, the
+small elts can't share with all ⟹ contradiction. Concretely: a fixed small `a∈A`
+shares a prime with `D_M` for all M ⟹ `a`'s primes recur in every scale's modulus
+lcm ⟹ those primes' multiples carry mass at every scale ⟹ candidate for a FIXED
+prime descent. ATTACK NEXT.
+
+### T4 resolved (AP coprime-extraction) — converges to rank-rate again
+The near-full AP `{r_N+iD_N}` (gcd(r_N,D_N)=1) has CONSECUTIVE elements coprime
+(gcd | (i-(i+1))=1), so it contains ~(N/D_N)/log pairwise-coprime A-elements ≈ N.
+NEW coprime elements! But each is ≈N, so a product-≤N^c budget fits only ~c of
+them ⟹ they boost rank by O(1) per scale-doubling. Same rank-rate. The barrier is
+structural: coprime elements with SMALL product (small elements) are what's needed,
+and large coprime elements eat the product budget.
+
+## T5 (large sieve) — genuinely DIFFERENT tool; sub-case lever
+If `a∈A` is PRIME, then `A` sum-free mod `a` ⟹ `A` avoids ~`(a-1)/2` residues mod
+the prime `a`. The arithmetic large sieve over prime moduli `a∈A∩[1,√N]` gives
+`|A∩[N,2N]| ≤ (N+N)/L`, `L ≈ ∑_{prime a∈A,≤√N} 1`, i.e.
+**δ_N ≲ 1/π_A(√N)** where `π_A` counts PRIME elements of A. This is in terms of the
+COUNT of small prime elements, NOT coprime rank — a different quantity. 
+- Closes the sub-case "A has ≳ N^ε prime elements below N" (then δ_N→0 fast).
+- Caveat: needs PRIME (or squarefree, via a more careful sieve) A-elements; sum-free
+  mod composite `a` does NOT give mod-prime avoidance. So the lever is the
+  distribution of A's prime/squarefree elements.
+- ATTACK: (i) make the squarefree large-sieve version rigorous (sum-free mod
+  squarefree `a` ⟹ residue avoidance mod `a`, feed Montgomery's sieve);
+  (ii) handle A with FEW prime/squarefree elements — then A is mostly powerful
+  numbers / high-prime-power, a sparse set itself (powerful numbers are summable!).
+  Sub-case split: A's squarefree part (large sieve) vs powerful part (sparse).
+  THIS split might actually close it — powerful numbers ∑1/n converges, and the
+  large sieve handles the squarefree-rich case. NEXT.
+
+### T5 also CONVERGES (honest correction)
+Pushed it: the large sieve gives `δ_N ≤ 2^{-π_A(√N)}` (π_A = PRIME element count).
+But prime elements are coprime, so `π_A(√N) ≤ t(√N) ≤ t(N)` — large sieve ⊆
+multi-modulus (prime moduli ⊆ coprime moduli). No improvement. And the squarefree/
+powerful split is NOT exhaustive (most integers are neither; non-squarefree has
+positive density, only POWERFUL numbers ~√X are sparse), and "few prime elements"
+does NOT bound rank (composite coprime elements — prime powers, distinct-prime
+products — still give rank). So T5 closes only the sub-case "A has ≳log N prime
+elements below √N", which is again a rank-rate condition. CONVERGES.
+
+## FINAL CONVERGENCE ASSESSMENT (after genuine maximal-effort multi-technique attack)
+Techniques deployed to conclusion: residue packing; multi-modulus packing; Fourier/
+energy (elementary Cauchy-Schwarz form); density increment; DESCENT-FORCED density
+increment (forced-nonzero-class via quotient summability); near-full-AP rigidity;
+AP coprime-extraction; cross-scale triple energy; arithmetic large sieve; almost-
+primitivity (quotient-summable ⟹ o(N/a) multiples). **ALL converge to the same
+irreducible core: force coprime-rank-rate `t(k) ≳ log k`.** Single-scale and
+cross-scale, combinatorial and analytic — they give `δ_k ≤ ∏(1/2+1/aᵢ) ≈ 2^{-t(k)}`
+and cannot force the rate. This convergence is strong evidence the rate is the TRUE
+open core, requiring an idea outside the standard density/sieve/energy toolkit
+(candidates not attempted: Bohr-set / Bourgain density increment; Furstenberg
+correspondence — both heavy, speculative, no clear modulus-budget escape).
+GENUINE partial results banked (RankGrowthKernel + CollectiveDescent). Honest call:
+autonomous looping now re-derives this wall; further real progress needs either a
+new idea (interactive) or accept the open core. Not a failure of ambition — the
+maximal standard attack genuinely converges here.
+
 ## Formalized partial results so far (axiom-clean, committed)
 RankGrowthKernel.lean (kernel naming) + CollectiveDescent.lean (scale-uniform room
 bound, sharp prefix bound, bounded-mass⇒unbounded-rank, smooth-part summability,
