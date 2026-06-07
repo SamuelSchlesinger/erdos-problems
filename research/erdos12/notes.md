@@ -5,6 +5,30 @@ research loop: each iteration takes one concrete idea below, works it rigorously
 formalizes any TRUE partial result, and updates the obstruction map. Be Lean-honest;
 no fabricated closes.
 
+## ⚑ LITERATURE REVIEW (2026-06-07) — see `literature-review.md`
+
+Full primary-source review done. **Decisive facts:**
+- **Parts (i) [√N density] and (ii) [power-saving] are SOLVED** (DeepMind/AlphaProof,
+  Apr 2026, formalized in google-deepmind/formal-conjectures). Part **(iii)
+  reciprocal-summability — OUR target — is the SOLE open part.** Nobody has a partial
+  result on it.
+- **Experts lean (iii) = TRUE (converges).** Tao + Bloom both expect the sum always
+  converges; the proof they think it needs is an **inverse theorem**: "avoiding sets are
+  essentially congruence-block constructions, hence subject to the `∑1/q_k` barrier."
+- **Tao's barrier = our obstruction, independently rediscovered.** "Block moduli `q_k`
+  must be DISTINCT ⇒ `q_k ≳ k` ⇒ `∑1/q_k` barely diverges; side conditions cost another
+  `log k` ⇒ converges." This IS our "fresh-prime escape / small-prime convergence" wall and
+  IS `EventuallyFastCoprimeRank` (force coprime rank `t(k) ≳ log k`). The cross-block fresh
+  modulus = the coprime-rank coordinate; the within-block 3-AP-free interior = residue
+  packing. **Our "slow unbounded rank" wall is the open problem itself**, per Tao — so the
+  earlier exhaustion verdict is corroborated, not a scaffolding gap.
+- **Divergence threshold:** need density `≥ N/(log N)^{1-c}`. Best construction =
+  `N/(log N)^{O(log log log N)}` → converges, a hair from the threshold.
+- **Bankable now (NOT in Mathlib, `sorry` in DeepMind's repo):** Erdős–Sárközy density-0
+  theorem (cleanest), Schoen `N^{2/3}` / Baier `N^{2/3}/log N` (coprime case), Bedert
+  `⌊n/3⌋+1` finite (#13). These build the exact residue-counting + coprime-√N-packing
+  machinery any inverse theorem reuses. The positive kernel stays a correctly-aimed long shot.
+
 ## The exact crux (proved equivalence)
 
 For avoiding `A`, the dyadic shell mass satisfies `shell_k ≤ 2·(3/4)^{t(k)}` where
