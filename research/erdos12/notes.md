@@ -584,6 +584,30 @@ TWO concrete steps to formalize/push:
    Sub-question: is ∑_p L_p² = O(M·(∑_{a≤2^k}1/a)·2^k)... or O(M^{2-δ})? Attack with
    sum-free structure on the layers.
 
+## Angle L VERDICT — reduces to core (GCD-energy), but most CONCRETE form yet
+Turán rank ≥ M²/(M+𝓔). Worked 𝓔=∑_p L_p²: small primes dominate; self-similar
+L_p~δ2^k/p ⟹ 𝓔 ~ δ²2^{2k}∑1/p² ~ 0.45 M² ⟹ Turán rank ~ CONSTANT. The ∑1/p²
+convergence (small primes carry GCD-energy) = exact analogue of the residue-packing 1/2
+wall. Irreducibility ⟹ each L_p=o(M) ⟹ only 𝓔=o(M² loglog k), NOT the o(M²/log k) needed.
+So L reduces to: **is GCD-energy 𝓔 = o(M²/log k)?** — sharp, classical, OPEN (core anew).
+Caro-Wei bound itself: TRUE new inequality but gives constant rank ⟹ doesn't close ⟹ not
+worth formalizing per breakthrough-only directive (it's a non-closing reduction).
+
+### Unifying observation (why EVERYTHING reduces)
+Two "wall constants" appear and BOTH come from ∑_p (small prime weight) converging:
+- residue/density: density 1/2 per modulus, ln2<1.
+- Turán/GCD: 𝓔 ~ M²∑1/p², ∑1/p² = O(1).
+The breakthrough must DEFEAT the small-prime convergence — i.e. show the small-prime
+layers of an AVOIDING set are MUCH sparser than generic (o(M/p) not Θ(M/p)), which is the
+"layers are summable avoiding quotients" recursion = the self-similar open core. Pinned.
+
+### Still-untried (next): (G) ergodic, (I) entropy-compression on joint constraints.
+Plus a NEW one (M): the quotient RECURSION itself — δ_k(A) ≤ f(δ(A/p)) is a functional
+recursion over the prime tree; does a fixed-point/contraction argument force δ→0 summably?
+The self-similarity might be a STRENGTH (infinite descent on the prime tree) not just a
+wall. ATTACK (M) next — it's the one angle that USES the self-similarity instead of being
+blocked by it.
+
 ## Formalized partial results so far (axiom-clean, committed)
 RankGrowthKernel.lean (kernel naming) + CollectiveDescent.lean (scale-uniform room
 bound, sharp prefix bound, bounded-mass⇒unbounded-rank, smooth-part summability,
