@@ -353,6 +353,27 @@ something), but it is honestly infrastructure-building around an open core, not 
 solution in progress. Next: either commit to the heavy P3/P4 Fourier-energy formalization
 (real but long, toward an open gap) or consolidate.
 
+## P3 iteration 1 — density-increment PRIMITIVE formalized (axiom-clean)
+
+`exists_residue_class_card_ge_of_pairwiseNoZeroResidueSum` + `AvoidingSet.exists_
+residue_class_card_ge`: single-step concentration — a finite `F` in a 0-sum-free
+residue structure mod `a` has a residue class with `≥ |F|/(a/2+1)` elements. Built on
+repo `residueFinset_card_le` + Mathlib pigeonhole (`Finset.exists_max_image`,
+`card_eq_sum_card_fiberwise`). This is the substrate for the iterated increment.
+
+### Next (P3→P4): iterate the increment, then the Bohr bridge
+- **Iterate:** apply the primitive with coprime moduli `a₁,…,a_t` ⟹ a residue class mod
+  `∏aᵢ` with `≥ |F|/∏(aᵢ/2+1)` elements. This RE-DERIVES `δ ≤ ∏(1/2+1/aᵢ)` (the known
+  multi-modulus bound) — formalizable but NOT new math; the increment's value is only as
+  a Bohr substrate. Modulus product `≤ 2^k` caps `t` at the coprime rank (the wall).
+- **P4 Bohr bridge (the open close-candidate):** to beat the rank cap, the increment must
+  run with PARTIAL concentration in a THICK Bohr set combining many frequencies, dim
+  `~log N`. The make-or-break Lean goal to pin: "sum-free mod `a` ⟹ `F`'s indicator has a
+  large Fourier coeff at some `j/a` with the concentration living in a bounded-dim Bohr
+  set (not collapsing to rank-1 AP)". Mathlib `Analysis/Fourier/ZMod` (dft, Parseval) +
+  `Combinatorics/Additive/{Dissociation,ApproximateSubgroup}`. If unprovable, STATE it as
+  the precise open kernel (documented sorry in research file) — honest endpoint.
+
 ## Formalized partial results so far (axiom-clean, committed)
 RankGrowthKernel.lean (kernel naming) + CollectiveDescent.lean (scale-uniform room
 bound, sharp prefix bound, bounded-mass⇒unbounded-rank, smooth-part summability,
