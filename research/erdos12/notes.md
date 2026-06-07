@@ -399,6 +399,31 @@ is the open analytic rate/Bohr problem; further autonomous iterations produce ho
 verified infra but do NOT converge on a resolution. Continue only for toolkit value or a
 genuine new idea; otherwise consolidate.
 
+## Construction side (P1 deep) — VERDICT: strongly suggests #12 is TRUE (summable)
+
+Greedy build `A={a₁<a₂<…}`: `aₙ` avoids `{-aₖ mod aᵢ : i<k<n}`. A sum-free mod each
+`aᵢ` ⟹ occupied residues `occ_i ≤ aᵢ/2+1` ⟹ valid-`aₙ` density `∏ᵢ(1-occ_i/aᵢ) ~ (1/2)ⁿ`
+⟹ `aₙ ~ 2ⁿ` ⟹ LACUNARY ⟹ summable. To evade (slow `aₙ~n`, non-summable) need
+`∑ᵢ occ_i/aᵢ < ∞` (sparse constraints = heavy residue concentration). But:
+- concentration mod many coprime elts ⟹ CRT/multi-modulus `δ_N ≤ ∏(occ/aᵢ)` = SAME rank
+  wall;
+- concentration mod ALL elts (single residue) ⟹ `A ⊆ {≡c mod lcm}`, lcm→∞ ⟹ `A` finite.
+Both regimes ⟹ summable. **No counterexample construction exists by these means; the
+obstruction is the rank wall from the other side.** Net: the evidence says #12 is TRUE.
+
+Single-modulus density bound used: `A∩[N,2N] ⊆ occ(a) residues mod a` ⟹ `δ_N ≤ 2·occ(a)/a`
+for each `a∈A`, `a≤N` (formalizable from repo `residueFinset_card_le`, but weak/known).
+
+## OVERALL CAMPAIGN STATUS (honest)
+Both directions (proof + construction) converge on the SAME open kernel: the coprime-rank
+RATE `R_k ≳ log k` (equivalently the analytic Bohr-increment escaping the rank cap).
+Pinned & verified in Lean: `EventuallyFastCoprimeRank` ⟺ #12-summability. Banked ~11
+axiom-clean lemmas mapping/bridging it. The genuine close is an open analytic problem; the
+construction side gives strong evidence the answer is "summable" but no proof. Further
+autonomous iterations = honest verified infra/evidence, NOT a resolution. The campaign has
+mapped the problem thoroughly and pinned the exact open kernel; closing it needs a research
+breakthrough (Bohr/energy) beyond the standard toolkit.
+
 ## Formalized partial results so far (axiom-clean, committed)
 RankGrowthKernel.lean (kernel naming) + CollectiveDescent.lean (scale-uniform room
 bound, sharp prefix bound, bounded-mass⇒unbounded-rank, smooth-part summability,
