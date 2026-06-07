@@ -482,6 +482,22 @@ open research problem; not found despite real invention. Best remaining concrete
 sub-question (could close E/iii): "avoiding ⟹ no large/heavy projective-plane-structured
 pairwise-non-coprime subset" — number-theoretic, possibly attackable. Next: attack THAT.
 
+## VERIFIED breakthrough-step: non-coprime-clique weight bound
+`reciprocal_weight_pairwiseNonCoprime_le` (CollectiveDescent.lean, axiom-clean):
+for S⊆A with a₀∈S sharing a prime with all others, `∑_{a∈S}1/a ≤ 1/a₀ + ∑_{p|a₀}
+primeLayerBudget A p`. (S\{a₀} covered by a₀'s ≤ω(a₀) prime layers, each summable.)
+First verified piece of the weighted-Ramsey route to the rate bound.
+
+REMAINING GAP (to close weighted Ramsey): the bound is a₀-DEPENDENT. Heavy cliques have
+small a₀ with small primes (∑_{p|a₀}budget large, e.g. a₀=primorial). Two finishing ideas:
+- (α) In a shell A∩[N,2N], non-coprime cliques have a₀~N (large) ⟹ 1/a₀~1/N tiny AND
+  if a₀ rough (primes≥Q) the budgets ∑_{p|a₀}budget are small ⟹ shell non-coprime cliques
+  are LIGHT ⟹ weighted Ramsey on the shell ⟹ coprime rank in the shell. Need: quantify
+  ∑_{p|a₀}budget for a₀ in the rough part of the shell, summed appropriately.
+- (β) Iterate: the heavy small-a₀ cliques live in the summable small-prime part
+  (finite-cover summable); restrict to rough part where a₀'s primes ≥Q ⟹ budgets→0.
+Next: push (α)/(β) to a uniform-on-rough-part bound ⟹ would close via Ramsey.
+
 ## Formalized partial results so far (axiom-clean, committed)
 RankGrowthKernel.lean (kernel naming) + CollectiveDescent.lean (scale-uniform room
 bound, sharp prefix bound, bounded-mass⇒unbounded-rank, smooth-part summability,
