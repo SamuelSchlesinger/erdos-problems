@@ -147,6 +147,7 @@ import Erdos.UnitFractionSets.UpperBound
 import Erdos.UnitFractionSets.WeightedPacking
 import Erdos.UnitFractionSets.TemplateSchema
 import Erdos.UnitFractionSets.DenseTemplate
+import Erdos.UnitFractionSets.SplittingReduction
 import Erdos.UnitFractionSets.Cambie
 import Erdos.UnitFractionSets.ExtendedStar
 import Erdos.UnitFractionSets.MultiplierFiber

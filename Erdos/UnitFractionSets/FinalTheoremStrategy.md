@@ -134,13 +134,40 @@ dense A above density 1/2 + epsilon
 
 Checklist:
 
-- [ ] Formalize the repeated-denominator `1/2` obstruction as a clean theorem.
+- [x] Formalize the repeated-denominator `1/2` obstruction as a clean theorem.
+  Done in `SplittingReduction.lean`: `card_gt_half_implies_dvd_pair` proves that
+  any `A ⊆ {1,…,N}` with `|A| > ⌈N/2⌉` contains a divisor pair `a ∣ b`, `a < b`
+  (largest-odd-divisor injection `ordCompl[2]` + pigeonhole; axiom-clean). This is
+  the "with repeats, threshold is `1/2`" core.
 - [ ] Define a splitting reservoir: elements of `A` usable to replace repeated
   denominators by distinct unit fractions.
 - [ ] Prove small local splitting lemmas, then parameterize them.
 - [ ] Search for finite splitting templates analogous to the multiplier
   certificates.
 - [ ] Compare the splitting route against the template-packing route.
+
+### Reduction-layer finding (2026-06-16): the naive reduction is circular
+
+`SplittingReduction.lean` also pins down what the splitting route's analytic
+hypothesis must look like. The clean, *non-vacuous* density-triggered form
+
+```text
+DensityForcesRep N :=
+  ∀ A ⊆ Icc 1 N, ⌈N/2⌉ < |A| → ∃ a ∈ A, ∃ nonempty S ⊆ witnessPool A N a,
+    ∑_{b∈S} 1/b = 1/a
+```
+
+is **logically equivalent** to the #301 upper bound itself — both directions are
+proved (`sumFree_card_le_half_under_R` and `upperBound_implies_DensityForcesRep`).
+So a hypothesis strong enough to drive the reduction in one step is just a
+restatement of the goal; discharging it *is* solving the problem. An adversarial
+review also found that the earlier "for every `a` with nonempty tail there is a
+representation" form is **vacuity-inducing** (it plus `SumFree` forces `|A| ≤ 1`),
+because it asserts exactly the configuration `SumFree` forbids. Lesson: the
+genuine work is not a clean logical reduction but the *constructive* splitting
+argument (Lemma 1 → bounded in-`A` splits → Bloom-type reservoir filling), and the
+honest interface (`witnessPool`, `poolRep_contradicts_sumFree`,
+`DensityForcesRep`) isolates exactly the Bloom–Mehta analytic content that remains.
 
 ## Immediate Next Actions
 

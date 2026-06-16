@@ -814,6 +814,21 @@ improvement beyond this published bound.
   whose parameter families are dense enough, or overlap-aware enough, to beat
   the current `145/168` disjoint-gadget bound.
 
+- **Splitting-route reduction layer for #301**: ✓ **DONE**
+  (`UnitFractionSets/SplittingReduction.lean`, axiom-clean). Formalizes the
+  "with repeated denominators the threshold is `1/2`" core as
+  `card_gt_half_implies_dvd_pair`: any `A ⊆ {1,…,N}` with `|A| > ⌈N/2⌉` contains
+  a divisor pair `a ∣ b`, `a < b` (largest-odd-divisor `ordCompl[2]` injection +
+  pigeonhole). Plus a clean Bloom–Mehta-facing interface (`witnessPool`,
+  `poolRep_contradicts_sumFree`, the hypothesis `DensityForcesRep`) and the
+  conditional reduction `sumFree_card_le_half_under_R`. **Honest finding:** an
+  adversarial design review established that `DensityForcesRep N` is logically
+  *equivalent* to the #301 upper bound at `N` (converse
+  `upperBound_implies_DensityForcesRep` is proved), so the one-step reduction is a
+  restatement, not a shortcut — the genuine remaining content is the constructive
+  splitting / targeted-Egyptian (Bloom-type) argument. This complements the
+  template route, which is now *proven* to stall near constant `0.6`.
+
 - **Dense same-signature 163/195 bound for #301**: ✓ **DONE**
   (`UnitFractionSets/DenseTemplate.lean`, `scripts/weighted_sumfree_lp.py`).
   The `{2:4,3:3,5:2}` p-adic signature grid with 23 multipliers
