@@ -200,6 +200,202 @@ theorem prefix_hitting_of_branch_search {V : Type*} [DecidableEq V]
     hsearch hTlist (by simp) hTcard
   exact containsHyperedge_mono (by simpa using hTS) hhit
 
+/-! ### Bitmask branch search
+
+`finiteBranchSearch` manipulates `Finset` values in its inner loop, which is
+far too slow for closed-term evaluation.  The variants below carry the chosen
+set as a natural-number bitmask and the candidate vertices as bit indices, so
+every step of the search is plain `Nat` bitwise arithmetic — which the kernel
+evaluates with GMP fast paths.  Certificates checked by `maskSearch` can
+therefore be verified by `decide` instead of `native_decide`. -/
+
+/-- The bitmask of a finite vertex set under the bit assignment `toBit`:
+bit `toBit v` is set for each `v ∈ S`. -/
+def maskOfFn {V : Type*} (toBit : V → ℕ) (S : Finset V) : ℕ :=
+  S.fold (· ||| ·) 0 fun v => 1 <<< toBit v
+
+@[simp] theorem maskOfFn_empty {V : Type*} (toBit : V → ℕ) :
+    maskOfFn toBit (∅ : Finset V) = 0 :=
+  Finset.fold_empty
+
+/-- Bit `k` of `maskOfFn toBit S` is set exactly when some `v ∈ S` has
+`toBit v = k`. -/
+theorem testBit_maskOfFn {V : Type*} (toBit : V → ℕ) (S : Finset V) (k : ℕ) :
+    (maskOfFn toBit S).testBit k = true ↔ ∃ v ∈ S, toBit v = k := by
+  induction S using Finset.cons_induction with
+  | empty => simp [maskOfFn]
+  | cons x s hx ih =>
+      have hfold : maskOfFn toBit (Finset.cons x s hx) =
+          (1 <<< toBit x) ||| maskOfFn toBit s := Finset.fold_cons hx
+      rw [hfold, Nat.testBit_or]
+      simp only [Bool.or_eq_true, Nat.one_shiftLeft, Nat.testBit_two_pow,
+        decide_eq_true_eq, ih, Finset.mem_cons]
+      constructor
+      · rintro (rfl | ⟨v, hv, rfl⟩)
+        · exact ⟨x, Or.inl rfl, rfl⟩
+        · exact ⟨v, Or.inr hv, rfl⟩
+      · rintro ⟨v, rfl | hv, rfl⟩
+        · exact Or.inl rfl
+        · exact Or.inr ⟨v, hv, rfl⟩
+
+/-- Inserting a vertex sets the corresponding bit.  No freshness hypothesis is
+needed: if the vertex is already present, its bit is already set. -/
+theorem maskOfFn_insert {V : Type*} [DecidableEq V] (toBit : V → ℕ) (x : V)
+    (S : Finset V) :
+    maskOfFn toBit (insert x S) = maskOfFn toBit S ||| 1 <<< toBit x := by
+  refine Nat.eq_of_testBit_eq fun k => ?_
+  rw [Bool.eq_iff_iff]
+  simp only [testBit_maskOfFn, Nat.testBit_or, Bool.or_eq_true,
+    Nat.one_shiftLeft, Nat.testBit_two_pow, decide_eq_true_eq,
+    Finset.mem_insert]
+  constructor
+  · rintro ⟨v, rfl | hv, rfl⟩
+    · exact Or.inr rfl
+    · exact Or.inl ⟨v, hv, rfl⟩
+  · rintro (⟨v, hv, rfl⟩ | rfl)
+    · exact ⟨v, Or.inr hv, rfl⟩
+    · exact ⟨x, Or.inl rfl, rfl⟩
+
+/-- For an injective bit assignment, mask containment characterizes set
+containment. -/
+theorem maskOfFn_land_eq_left_iff {V : Type*} {toBit : V → ℕ}
+    (htoBit : Function.Injective toBit) {E S : Finset V} :
+    maskOfFn toBit E &&& maskOfFn toBit S = maskOfFn toBit E ↔ E ⊆ S := by
+  constructor
+  · intro h v hv
+    have hbit : (maskOfFn toBit E).testBit (toBit v) = true :=
+      (testBit_maskOfFn toBit E (toBit v)).mpr ⟨v, hv, rfl⟩
+    have hS := congrArg (fun n => n.testBit (toBit v)) h
+    simp only [Nat.testBit_and, hbit, Bool.true_and] at hS
+    obtain ⟨w, hw, hwv⟩ := (testBit_maskOfFn toBit S (toBit v)).mp hS
+    exact htoBit hwv ▸ hw
+  · intro hES
+    refine Nat.eq_of_testBit_eq fun k => ?_
+    rcases hE : (maskOfFn toBit E).testBit k with _ | _
+    · simp [Nat.testBit_and, hE]
+    · obtain ⟨v, hv, rfl⟩ := (testBit_maskOfFn toBit E k).mp hE
+      simp [Nat.testBit_and, hE,
+        (testBit_maskOfFn toBit S (toBit v)).mpr ⟨v, hES hv, rfl⟩]
+
+/-- Bitmask mirror of `finiteBranchSearch`: `chosen` is the bitmask of the
+chosen vertex set, the candidate vertices are bit indices, and an edge with
+mask `m` is present exactly when `m &&& chosen = m`.
+
+The inner loop is plain `Nat` bitwise arithmetic, so closed runs of this
+search are cheap enough for kernel reduction. -/
+def maskSearch (masks : List ℕ) : List ℕ → ℕ → ℕ → Bool
+  | [], need, chosen =>
+      if masks.any (fun m => m &&& chosen == m) then false else decide (need = 0)
+  | x :: xs, need, chosen =>
+      if masks.any (fun m => m &&& chosen == m) then false
+      else if need = 0 then true
+      else if xs.length + 1 < need then false
+      else maskSearch masks xs need chosen ||
+        maskSearch masks xs (need - 1) (chosen ||| (1 <<< x))
+
+/-- `maskSearch` computes `finiteBranchSearch` for the mask-based edge
+detector, along the bitmask image of the search state. -/
+theorem maskSearch_eq_finiteBranchSearch {V : Type*} [DecidableEq V]
+    (masks : List ℕ) (toBit : V → ℕ) (xs : List V) (need : ℕ)
+    (chosen : Finset V) :
+    maskSearch masks (xs.map toBit) need (maskOfFn toBit chosen) =
+      finiteBranchSearch
+        (fun S => masks.any fun m => m &&& maskOfFn toBit S == m)
+        xs need chosen := by
+  induction xs generalizing need chosen with
+  | nil => rfl
+  | cons x xs ih =>
+      simp only [List.map_cons, maskSearch, finiteBranchSearch,
+        List.length_map, ← maskOfFn_insert, ih]
+
+/-- Prefix-hitting from a closed bitmask search: if `maskSearch` finds no way
+to choose `keep + 1` vertices from the prefix list `xs` while avoiding all
+listed edge masks, then every subset of `P` larger than `keep` contains a
+listed hyperedge. -/
+theorem prefix_hitting_of_mask_search {V : Type*} [DecidableEq V]
+    {badEdges : Finset (Finset V)} {toBit : V → ℕ}
+    (htoBit : Function.Injective toBit)
+    {edgeList : List (Finset V)}
+    (hedges : ∀ E ∈ edgeList, E ∈ badEdges)
+    {P : Finset V} {xs : List V} {keep : ℕ}
+    (hxs : xs.toFinset = P)
+    (hsearch : maskSearch (edgeList.map fun E => maskOfFn toBit E)
+        (xs.map toBit) (keep + 1) 0 = false) :
+    ∀ S : Finset V, S ⊆ P → keep < S.card → ContainsHyperedge badEdges S := by
+  have hsound : ∀ S : Finset V,
+      ((edgeList.map fun E => maskOfFn toBit E).any
+        fun m => m &&& maskOfFn toBit S == m) = true →
+      ContainsHyperedge badEdges S := by
+    intro S hS
+    rw [List.any_eq_true] at hS
+    obtain ⟨m, hm, hmask⟩ := hS
+    obtain ⟨E, hE, rfl⟩ := List.mem_map.mp hm
+    exact ⟨E, hedges E hE,
+      (maskOfFn_land_eq_left_iff htoBit).mp (by simpa using hmask)⟩
+  have hsearch' :
+      finiteBranchSearch
+        (fun S => (edgeList.map fun E => maskOfFn toBit E).any
+          fun m => m &&& maskOfFn toBit S == m)
+        xs (keep + 1) ∅ = false := by
+    rw [← maskSearch_eq_finiteBranchSearch]
+    simpa [maskOfFn_empty] using hsearch
+  exact prefix_hitting_of_branch_search hsound hxs hsearch'
+
+/-- The bitmask of a vertex *list* under the bit assignment `toBit`.
+
+This is the `List`/`Nat`-only mirror of `maskOfFn`: it never builds a `Finset`,
+so it is exactly the data that the closed bitmask search reduces over.  The
+structural bridge `maskOfList_eq_maskOfFn_toFinset` connects it to the
+`Finset`-based proof layer. -/
+def maskOfList {V : Type*} (toBit : V → ℕ) (l : List V) : ℕ :=
+  l.foldr (fun v acc => acc ||| 1 <<< toBit v) 0
+
+@[simp] theorem maskOfList_nil {V : Type*} (toBit : V → ℕ) :
+    maskOfList toBit ([] : List V) = 0 := rfl
+
+theorem maskOfList_cons {V : Type*} (toBit : V → ℕ) (x : V) (l : List V) :
+    maskOfList toBit (x :: l) = maskOfList toBit l ||| 1 <<< toBit x := rfl
+
+/-- The list mask equals the `Finset` mask of the corresponding `toFinset`.
+
+Purely structural (induction on the list, no `decide`): this is the key lemma
+that keeps `Finset` entirely out of the compute path while still licensing the
+`Finset`-based hitting proof. -/
+theorem maskOfList_eq_maskOfFn_toFinset {V : Type*} [DecidableEq V]
+    (toBit : V → ℕ) (l : List V) :
+    maskOfList toBit l = maskOfFn toBit l.toFinset := by
+  induction l with
+  | nil => simp
+  | cons x xs ih =>
+      rw [maskOfList_cons, ih, List.toFinset_cons, maskOfFn_insert]
+
+/-- Prefix-hitting from a closed bitmask search over *lists* of vertices.
+
+Identical conclusion to `prefix_hitting_of_mask_search`, but the edges are
+given as plain `List V` (with `toFinset` taken only in the proof layer) and the
+search runs over `maskOfList`, so the closed boolean compiles with no `Finset`
+in the compute path. -/
+theorem prefix_hitting_of_mask_search_list {V : Type*} [DecidableEq V]
+    {badEdges : Finset (Finset V)} {toBit : V → ℕ}
+    (htoBit : Function.Injective toBit)
+    {edgeLists : List (List V)}
+    (hedges : ∀ l ∈ edgeLists, l.toFinset ∈ badEdges)
+    {P : Finset V} {xs : List V} {keep : ℕ}
+    (hxs : xs.toFinset = P)
+    (hsearch : maskSearch (edgeLists.map (maskOfList toBit))
+        (xs.map toBit) (keep + 1) 0 = false) :
+    ∀ S : Finset V, S ⊆ P → keep < S.card → ContainsHyperedge badEdges S := by
+  have hmap : edgeLists.map (maskOfList toBit) =
+      (edgeLists.map (fun l => l.toFinset)).map (fun E => maskOfFn toBit E) := by
+    rw [List.map_map]
+    exact List.map_congr_left fun l _ => maskOfList_eq_maskOfFn_toFinset toBit l
+  refine prefix_hitting_of_mask_search (badEdges := badEdges) (toBit := toBit)
+    htoBit (edgeList := edgeLists.map (fun l => l.toFinset)) ?_ hxs ?_
+  · intro E hE
+    obtain ⟨l, hl, rfl⟩ := List.mem_map.mp hE
+    exact hedges l hl
+  · rw [← hmap]; exact hsearch
+
 /-- A replayable branch certificate for finite prefix hitting.
 
 At an `edge E` leaf, the currently chosen vertices already contain the forbidden

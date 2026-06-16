@@ -13,15 +13,22 @@ bound, so the whole problem is to force this omission density.
 ## Current Position
 
 - Public baseline: van Doorn's `25/28 + o(1)` upper bound.
-- Formalized project bound: `145/168 + o(1)` via the same-signature
-  multiplier gadget `{2,3,4,5,6,10,12,15,20,30,60}`.
-- Best current searched candidate: `163/195 + o(1)` from the denser
-  `{2:4,3:3,5:2}` p-adic signature grid.
+- Formalized project bound: **`163/195 + o(1)`** via the dense `{2:4,3:3,5:2}`
+  signature grid (`DenseTemplate.lean`, `sum_free_dense_template_163_195_bound`),
+  improving the earlier `145/168` same-signature gadget
+  `{2,3,4,5,6,10,12,15,20,30,60}` (`UpperBound.lean`).
 - Distance to the final theorem:
   - `145/168` forces omitted density `23/168`, about `27.4%` of the required
     `1/2` omission mass.
   - `163/195` forces omitted density `32/195`, about `32.8%` of the required
     `1/2` omission mass.
+- **Open frontier (Phase 3):** measure whether the same-signature template
+  family stalls strictly above `1/2`. The LP integrality gap is already visible
+  — per-row fractional-matching values fall well short of the integral deficits
+  (worst row `7.67` vs `13`) — and the local hitting numbers far exceed the
+  upper-half trace, suggesting disjoint same-signature packing cannot reach
+  `1/2` on its own. Run the grid sweep + LP duals to confirm, then pivot to the
+  overlap-aware / splitting-reservoir routes.
 
 ## Core Proof Campaign
 
@@ -40,10 +47,14 @@ bound, so the whole problem is to force this omission density.
   219-witness dense template.
 - [x] Add a smaller vertex-cover lower-bound certificate route and verify the
   compressed dense certificate with `27,578` nodes in the largest row.
-- [ ] Emit/import the generated cover certificate into Lean and prove the finite
-  prefix hitting theorem over `Fin 23`.
-- [ ] Package the resulting finite theorem as a disjoint-gadget packing bound.
-- [ ] Record the asymptotic calculation yielding `163/195 + o(1)`.
+- [x] Prove the finite prefix-hitting theorem over `Fin 23`. (Done via a bitmask
+  branch search `maskSearch` on `List`/`Nat` data — faster and lighter than the
+  cover-certificate route, which proved unnecessary. `Finset` is confined to the
+  proof layer through the structural bridge `maskOfList_eq_maskOfFn_toFinset`.)
+- [x] Package the resulting finite theorem as a disjoint-gadget packing bound
+  (`sum_free_dense_template_163_195_bound`, nineteen bands).
+- [x] Record the asymptotic calculation yielding `163/195 + o(1)`
+  (`dense_template_density_calculation`).
 
 ### Phase 2: Make Certificates Data-Driven
 

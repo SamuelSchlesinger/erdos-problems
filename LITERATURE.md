@@ -737,6 +737,7 @@ no general proof is known.
 | van Doorn (erdosproblems.com) | Upper bound f(N) ≤ (25/28+o(1))N (same as #327!) |
 | This project | Extended-star packing inequality with asymptotic shape f(N) ≤ (149/168+o(1))N |
 | This project | Larger same-signature packing inequality with asymptotic shape f(N) ≤ (145/168+o(1))N |
+| This project | Dense `{2:4,3:3,5:2}`-template packing inequality with asymptotic shape f(N) ≤ (163/195+o(1))N |
 | Bloom 2021 ([arXiv:2112.03726](https://arxiv.org/abs/2112.03726)) | Any set of positive upper density contains finite subset with reciprocals summing to 1 |
 | Bloom-Mehta (Lean formalization) | [b-mehta.github.io/unit-fractions](https://b-mehta.github.io/unit-fractions/) — formalized Hardy-Littlewood circle method |
 | Liu-Sawhney 2024/2026 ([arXiv:2404.07113](https://arxiv.org/abs/2404.07113)) | Quantitative threshold: \|A\| ≥ (1-1/e+ε)N forces a reciprocal-sum-1 subset; constant 1-1/e is sharp |
@@ -813,19 +814,28 @@ improvement beyond this published bound.
   whose parameter families are dense enough, or overlap-aware enough, to beat
   the current `145/168` disjoint-gadget bound.
 
-- **Dense same-signature 163/195 candidate for #301**: ◐ **STARTED**
+- **Dense same-signature 163/195 bound for #301**: ✓ **DONE**
   (`UnitFractionSets/DenseTemplate.lean`, `scripts/weighted_sumfree_lp.py`).
-  Exact multiplier-template search now
-  rediscovers the formalized `{2:3,3:2,5:2}` grid and finds a stronger
-  `{2:4,3:3,5:2}` p-adic signature grid with 23 multipliers
-  `{2,3,4,5,6,8,9,10,12,15,18,20,24,30,36,40,45,60,72,90,120,180,360}`.
-  The finite prefix hitting numbers force asymptotic omission density
-  `32/195`, i.e. candidate upper shape `f(N)≤(163/195+o(1))N`. The script
-  also compresses the raw 2,980 identity pool to a 219-witness prefix-hitting
-  certificate. Lean now has the 23-multiplier grid, the `{2:4,3:3,5:2}`
-  parameter class, p-adic signature separation, dense gadget infrastructure,
-  and the generic scaled-identity obstruction lemma. Next step: add the
-  219-witness prefix certificate and prove the finite hitting theorem.
+  The `{2:4,3:3,5:2}` p-adic signature grid with 23 multipliers
+  `{2,3,4,5,6,8,9,10,12,15,18,20,24,30,36,40,45,60,72,90,120,180,360}` has
+  signature density `4/13`. Its 219 forbidden reciprocal identities (compressed
+  from a raw pool of 2,980 by `scripts/weighted_sumfree_lp.py`) force per-cutoff
+  prefix-hitting deficits `13,12,11,10,9,9,8,7,6,6,5,4,3,3,2,1,1,1,1` at cutoffs
+  `360,…,6`. Weighted by the band widths these sum to `8/15`; times the `4/13`
+  density gives forced omission mass `32/195`, hence
+  `f(N)≤(163/195+o(1))N` — improving the project's `145/168`. The theorem
+  `sum_free_dense_template_163_195_bound` packages the nineteen-band disjoint
+  packing inequality, and `dense_template_density_calculation` records the
+  limiting constant. The finite hitting check is a bitmask branch search
+  (`maskSearch` in `TemplateSchema.lean`) whose witness edges are plain
+  `List`/`Nat` data, with `Finset` confined to the proof layer via the
+  structural bridge `maskOfList_eq_maskOfFn_toFinset`; the certificate verifies
+  in seconds. Axiom-clean apart from the `native_decide` finite checks (the
+  same trust basis as the `145/168` bound). The keep-numbers were independently
+  cross-checked by a maximum-independent-set search, and the per-row
+  fractional-matching LP value is strictly below the integral deficit (worst
+  row `7.67` vs `13`), so no small one-shot weighted certificate replaces the
+  branch search.
 
 - **Extended star gadget analysis**: ✓ **DONE** (ExtendedStar.lean). The extended star
   E_d = {2d, 3d, 4d, 6d, 10d, 12d, 15d} has 7 elements with 4 triple violations
@@ -1283,6 +1293,7 @@ their blueprint approach (dependency graphs, modular proof structure) is a good 
 | — | Van Doorn's 25/28 upper bound (sum-free) | #301 | **DONE** ✓ |
 | — | Extended-star 149/168 packing improvement (sum-free) | #301 | **DONE** ✓ |
 | — | Larger same-signature 145/168 packing improvement (sum-free) | #301 | **DONE** ✓ |
+| — | Dense-template 163/195 packing improvement (sum-free) | #301 | **DONE** ✓ |
 | — | Cambie set NOT sum-free (structural gap #301 vs #302) | #301 | **DONE** ✓ |
 | — | Erdős-Straus → triples connection | #242 → #302 | **DONE** ✓ |
 | — | ValSignature abstraction library | Infra | **DONE** ✓ |
@@ -1307,7 +1318,7 @@ their blueprint approach (dependency graphs, modular proof structure) is a good 
 | Priority | Theorem / Task | Problem | Effort | Notes |
 |----------|---------------|---------|--------|-------|
 | **A** | **Odd weird ≥ 4 prime factors** | #470 | Medium | Incremental push toward Liddy-Riedl (≥6). Same proof flavor as ≥3 (σ multiplicativity + coprimality decomposition), scales linearly with cases. |
-| **B** | **Formalize dense-template 163/195 candidate** | #301 | Medium | Use the `{2:4,3:3,5:2}` signature grid and the 219-witness compressed prefix certificate from `scripts/weighted_sumfree_lp.py`. This should be the next concrete bound improvement after `145/168`. |
+| **B** | ~~Formalize dense-template 163/195 candidate~~ | #301 | — | ✓ **DONE** — `sum_free_dense_template_163_195_bound` in `DenseTemplate.lean`. Next #301 step is the Phase-3 limiting-constant sweep (does the same-signature family stall above 1/2?), per `FinalTheoremStrategy.md`. |
 | **C** | **Non-uniform gadgets** | #302 | Medium | Variable-size gadgets whose size scales with τ(a²). Requires generalizing PackingBound to variable sizes. Could bypass S+T barrier. |
 | **D** | **Fiber-density forcing for #301** | #301 | Hard | Build on `sum_free_fiber_egyptian_free` and apply quantitative reciprocal-sum-1 thresholds (Bloom/Liu-Sawhney) to force contradictions from dense fibers. Most direct route from constant-factor gadget improvements toward the conjectured 1/2. |
 | **E** | **Pair gadget mining for #327** | #327 | Medium | **PARTIAL:** triangle gadget now has global packing bound (`pair_free_triangle_family_bound`), and new barrier theorems (`vd_triangle_t_not_disjoint`, `vd_triangle_s_not_disjoint`, `vd_triangle_t_overlap_card_lb`, `vd_triangle_t_overlap_card_lb_strong`, `vd_triangle_t_overlap_card_ge_two`, `vd_triangle_t_overlap_card_ge_three`, `vd_triangle_t_overlap_subset_channels`, `vd_triangle_t_overlap_card_le_strong`, `vd_triangle_t_overlap_card_eq_strong`, `vd_triangle_t_net_bound`, `vd_triangle_s_overlap_card_lb`, `vd_triangle_s_overlap_card_pos`, `vd_triangle_s_overlap_card_ge_two`) show full-family disjoint merge with van Doorn S/T is impossible and quantify unavoidable overlap with both T and S (including exact T-overlap formula). We now also have overlap-aware merge inequalities (`vd_triangle_t_overlap_penalty_bound`, `vd_triangle_s_overlap_penalty_bound`). Triage update: no known published upper bound better than 25/28; likely wins are finite-`N` improvements, refined lower bounds, or overlap-aware constants. |
@@ -1383,6 +1394,7 @@ or **Known** (formalization of a published result or folklore).
 | Van Doorn 25/28 bound (sum-free sets) | van Doorn, erdosproblems.com | `UnitFractionSets/UpperBound.lean` |
 | Extended-star 149/168 packing improvement (sum-free sets) | This project | `UnitFractionSets/UpperBound.lean` |
 | Larger same-signature 145/168 packing improvement (sum-free sets) | This project | `UnitFractionSets/UpperBound.lean` |
+| Dense-template 163/195 packing improvement (sum-free sets) | This project | `UnitFractionSets/DenseTemplate.lean` |
 | Benkoski-Erdős (pn weird) | Benkoski & Erdős (1974) | `WeirdNumbers/Structure.lean` |
 | Pseudoperfect ↔ unit fraction sum | Friedman (1993) | `WeirdNumbers/EgyptianBridge.lean` |
 | Factor identity (b−a)(c−a) = a² | Classical | `UnitFractionTriples/UpperHalf.lean` |
