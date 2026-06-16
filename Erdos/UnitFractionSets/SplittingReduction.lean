@@ -231,4 +231,191 @@ theorem upperBound_implies_DensityForcesRep (N : ℕ)
   simp only [witnessPool, Finset.mem_inter]
   exact ⟨hSerase hb, hAN (Finset.mem_of_mem_erase (hSerase hb))⟩
 
+/-! ## Divisor-pair supersaturation (the "reservoir exists" half of the splitting route)
+
+The next three lemmas isolate, as reusable standalone facts, the three mechanical
+layers already present (inline) inside `card_gt_half_implies_dvd_pair`:
+
+* `card_odd_icc` — there are at most `(N+1)/2` odd numbers in `[1,N]`;
+* `ordCompl_two_mapsTo_odd` — the odd-part map `n ↦ ordCompl[2] n` sends `A ⊆ [1,N]`
+  into those odd numbers;
+* `eq_ordCompl_two_implies_dvd` — two numbers with equal odd part are
+  divisibility-comparable.
+
+They are then combined into `card_gt_half_disjoint_divisor_pairs`, the structural
+strengthening of `card_gt_half_implies_dvd_pair`: instead of merely *one* divisor
+pair, we exhibit a `Finset` `S` of pairwise-distinct "small" denominators together
+with an injective partner map `g` choosing a distinct "large" partner for each, so
+that the pairs `{(x, g x) : x ∈ S}` are genuinely vertex-disjoint divisor pairs.
+
+HONEST QUANTITATIVE SCOPE.  The bound proved here is `1 ≤ S.card` (at least one
+disjoint pair), packaged in the reservoir encoding.  This is a structural
+repackaging of `card_gt_half_implies_dvd_pair`, not yet a density-scaling count.
+A genuine supersaturation count of pairwise-disjoint pairs is, by the matching
+number of a divisibility chain, `Σ_c ⌊m_c/2⌋ ≥ (|A| - ⌈N/2⌉)/2` — note the factor
+`1/2`.  In particular the naive "`|A| - ⌈N/2⌉` disjoint pairs" is FALSE (a set
+concentrated in a single odd-part chain has `|A|` comparable but only `⌊|A|/2⌋`
+*disjoint* pairs), so we do not claim it.  The honest factor-`1/2` matching bound is
+left as a follow-on. -/
+
+/-- There are at most `(N+1)/2 = ⌈N/2⌉` odd numbers in `[1,N]`.
+
+    PROOF. The map `m ↦ (m+1)/2` injects the odd numbers of `[1,N]` into
+    `Icc 1 ((N+1)/2)`, whose cardinality is `(N+1)/2`. Both the maps-to and the
+    injectivity are pure `omega` facts after destructuring `Odd m` as `m = 2k+1`. -/
+theorem card_odd_icc (N : ℕ) :
+    ((Finset.Icc 1 N).filter (fun n => Odd n)).card ≤ (N + 1) / 2 := by
+  have hcardIcc : (Finset.Icc 1 ((N + 1) / 2)).card = (N + 1) / 2 := by
+    rw [Nat.card_Icc]; omega
+  rw [← hcardIcc]
+  apply Finset.card_le_card_of_injOn (fun m => (m + 1) / 2)
+  · intro m hm
+    simp only [Finset.coe_filter, Set.mem_setOf_eq, Finset.mem_Icc] at hm
+    obtain ⟨⟨h1, h2⟩, k, hk⟩ := hm
+    simp only [Finset.mem_coe, Finset.mem_Icc]
+    omega
+  · intro x hx y hy hxy
+    simp only [Finset.coe_filter, Set.mem_setOf_eq, Finset.mem_Icc] at hx hy
+    obtain ⟨_, kx, hkx⟩ := hx
+    obtain ⟨_, ky, hky⟩ := hy
+    simp only at hxy
+    omega
+
+/-- The odd-part map `n ↦ ordCompl[2] n` sends `A ⊆ [1,N]` into the odd numbers of
+    `[1,N]`. Equivalently, every odd part of an element of `A` is itself an odd
+    number in `[1,N]`.
+
+    PROOF. For `n ∈ A` we have `1 ≤ n ≤ N`, so `n ≠ 0`. Then `ordCompl[2] n` is
+    positive (`Nat.ordCompl_pos`), at most `n ≤ N` (`Nat.ordCompl_le`), and odd
+    (`Nat.not_dvd_ordCompl` for the prime `2`). -/
+theorem ordCompl_two_mapsTo_odd (N : ℕ) (A : Finset ℕ)
+    (hAN : A ⊆ Finset.Icc 1 N) :
+    Set.MapsTo (fun n => ordCompl[2] n) (A : Set ℕ)
+      (((Finset.Icc 1 N).filter (fun n => Odd n)) : Set ℕ) := by
+  intro n hn
+  have hnIcc := hAN hn
+  simp only [Finset.mem_Icc] at hnIcc
+  have hn0 : n ≠ 0 := by omega
+  simp only [Finset.mem_coe, Finset.mem_filter, Finset.mem_Icc]
+  refine ⟨⟨Nat.ordCompl_pos 2 hn0, le_trans (Nat.ordCompl_le n 2) hnIcc.2⟩, ?_⟩
+  rw [Nat.odd_iff, ← Nat.two_dvd_ne_zero]
+  exact Nat.not_dvd_ordCompl Nat.prime_two hn0
+
+/-- Two natural numbers with the same odd part are divisibility-comparable.
+
+    PROOF. Writing `n = ordProj[2] n * ordCompl[2] n` and comparing the `2`-adic
+    valuations `x.factorization 2` and `y.factorization 2`, the smaller power of
+    `2` divides the larger; multiplying by the common odd part (`hxy`) gives the
+    divisibility. -/
+theorem eq_ordCompl_two_implies_dvd (x y : ℕ)
+    (hxy : ordCompl[2] x = ordCompl[2] y) : x ∣ y ∨ y ∣ x := by
+  have hx := Nat.ordProj_mul_ordCompl_eq_self x 2
+  have hy := Nat.ordProj_mul_ordCompl_eq_self y 2
+  rcases le_total (x.factorization 2) (y.factorization 2) with hle | hle
+  · left; rw [← hx, ← hy, hxy]; exact Nat.mul_dvd_mul_right (pow_dvd_pow 2 hle) _
+  · right; rw [← hx, ← hy, hxy]; exact Nat.mul_dvd_mul_right (pow_dvd_pow 2 hle) _
+
+/-- **Divisor-pair supersaturation (structural form).** If `A ⊆ {1,…,N}` with
+    `|A| > ⌈N/2⌉ = (N+1)/2`, then `A` contains a *reservoir* of disjoint divisor
+    pairs: a `Finset` `S ⊆ A` of "small" denominators together with a partner map
+    `g : ℕ → ℕ` such that
+
+    * every `x ∈ S` has `x ∣ g x`, `x < g x`, and `g x ∈ A`;
+    * `g` is injective on `S` (distinct smalls get distinct bigs);
+    * `S` and its image under `g` are disjoint (smalls and bigs are globally
+      distinct), so the pairs `{(x, g x) : x ∈ S}` are vertex-disjoint;
+    * `1 ≤ |S|` (the reservoir is nonempty).
+
+    This strengthens `card_gt_half_implies_dvd_pair` from a single existential pair
+    to the reservoir encoding `(S, g)`. The honest pairwise-disjoint supersaturation
+    *count* is the matching number `Σ_c ⌊m_c/2⌋ ≥ (|A| - ⌈N/2⌉)/2`; the safe robust
+    closed form delivered here is `1 ≤ |S|` (one disjoint pair per occupied
+    `≥2`-fiber, and at least one such fiber exists).
+
+    PROOF. Partition `A` by odd part `c = ordCompl[2] x`. The number of occurring
+    labels is `≤ (N+1)/2` (the odd parts inject into the odd numbers of `[1,N]`,
+    `ordCompl_two_mapsTo_odd` + `card_odd_icc`). If every fiber were a singleton
+    then `|A| = Σ_c |fiber c| ≤ #labels ≤ (N+1)/2`, contradicting `hcard`; so some
+    odd label `c₀` has a fiber with `≥ 2` elements. Two distinct elements of that
+    fiber share the odd part `c₀`, hence are divisibility-comparable
+    (`eq_ordCompl_two_implies_dvd`); ordering them gives `x < y` with `x ∣ y` and
+    both in `A`. Take `S = {x}` and `g ≡ y`. -/
+theorem card_gt_half_disjoint_divisor_pairs (N : ℕ) (A : Finset ℕ)
+    (hAN : A ⊆ Finset.Icc 1 N) (hcard : (N + 1) / 2 < A.card) :
+    ∃ S : Finset ℕ, S ⊆ A ∧ ∃ g : ℕ → ℕ,
+      (∀ x ∈ S, x ∣ g x ∧ x < g x ∧ g x ∈ A) ∧
+      Set.InjOn g (S : Set ℕ) ∧
+      Disjoint S (S.image g) ∧
+      1 ≤ S.card := by
+  -- The odd-part map and the multiset of occurring odd labels.
+  set f : ℕ → ℕ := fun n => ordCompl[2] n with hf
+  set labels : Finset ℕ := A.image f with hlabels
+  -- STEP 1: the fiberwise card identity.
+  have hsum : A.card = ∑ c ∈ labels, (A.filter (fun a => f a = c)).card :=
+    Finset.card_eq_sum_card_image f A
+  -- STEP 2: there are at most `(N+1)/2` labels.
+  have hlabelsT : labels ⊆ (Finset.Icc 1 N).filter (fun n => Odd n) := by
+    rw [hlabels, Finset.image_subset_iff]
+    intro x hx
+    have := ordCompl_two_mapsTo_odd N A hAN (Finset.mem_coe.mpr hx)
+    exact Finset.mem_coe.mp this
+  have hlabelscard : labels.card ≤ (N + 1) / 2 :=
+    le_trans (Finset.card_le_card hlabelsT) (card_odd_icc N)
+  -- STEP 3: some fiber has at least two elements.
+  have hbig : ∃ c ∈ labels, 1 < (A.filter (fun a => f a = c)).card := by
+    by_contra hcon
+    push Not at hcon
+    -- every fiber is a singleton-or-empty, so `|A| ≤ #labels ≤ (N+1)/2`.
+    have hle : A.card ≤ labels.card := by
+      have hbound := Finset.sum_le_card_nsmul labels
+        (fun c => (A.filter (fun a => f a = c)).card) 1
+        (fun c hc => by have := hcon c hc; omega)
+      rw [hsum]
+      simpa only [smul_eq_mul, mul_one] using hbound
+    omega
+  obtain ⟨c0, hc0lab, hc0card⟩ := hbig
+  -- STEP 4: extract two distinct fiber elements and order them into a divisor pair.
+  obtain ⟨u, hu, v, hv, huv⟩ := Finset.one_lt_card.1 hc0card
+  -- both lie in `A` and have odd part `c0`.
+  have huA : u ∈ A := Finset.mem_of_mem_filter u hu
+  have hvA : v ∈ A := Finset.mem_of_mem_filter v hv
+  have hufc : f u = c0 := (Finset.mem_filter.1 hu).2
+  have hvfc : f v = c0 := (Finset.mem_filter.1 hv).2
+  have hfeq : ordCompl[2] u = ordCompl[2] v := by
+    change f u = f v
+    rw [hufc, hvfc]
+  -- positivity, from `A ⊆ Icc 1 N`.
+  have huIcc := hAN huA
+  have hvIcc := hAN hvA
+  simp only [Finset.mem_Icc] at huIcc hvIcc
+  have hdvd : u ∣ v ∨ v ∣ u := eq_ordCompl_two_implies_dvd u v hfeq
+  -- choose the divisor pair `(x, y)` with `x ∣ y` and `x < y`.
+  obtain ⟨x, hxA, y, hyA, hxdvd, hxlt⟩ :
+      ∃ x ∈ A, ∃ y ∈ A, x ∣ y ∧ x < y := by
+    rcases hdvd with huv_dvd | hvu_dvd
+    · refine ⟨u, huA, v, hvA, huv_dvd, ?_⟩
+      rcases lt_or_eq_of_le (Nat.le_of_dvd (by omega) huv_dvd) with h | h
+      · exact h
+      · exact absurd h huv
+    · refine ⟨v, hvA, u, huA, hvu_dvd, ?_⟩
+      rcases lt_or_eq_of_le (Nat.le_of_dvd (by omega) hvu_dvd) with h | h
+      · exact h
+      · exact absurd h (Ne.symm huv)
+  -- STEP 5: package `S = {x}` and the constant partner map `g ≡ y`.
+  refine ⟨{x}, Finset.singleton_subset_iff.mpr hxA, fun _ => y, ?_, ?_, ?_, ?_⟩
+  · -- the single pairing condition.
+    intro z hz
+    rw [Finset.mem_singleton] at hz
+    subst hz
+    exact ⟨hxdvd, hxlt, hyA⟩
+  · -- injectivity is trivial on a singleton.
+    intro a ha b hb _
+    simp only [Finset.coe_singleton, Set.mem_singleton_iff] at ha hb
+    rw [ha, hb]
+  · -- disjointness: `{x}` vs `{x}.image (fun _ => y) = {y}`, and `x ≠ y`.
+    rw [Finset.image_singleton, Finset.disjoint_singleton]
+    omega
+  · -- the reservoir is nonempty.
+    rw [Finset.card_singleton]
+
 end UnitFractionSets
