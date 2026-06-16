@@ -248,15 +248,13 @@ pair, we exhibit a `Finset` `S` of pairwise-distinct "small" denominators togeth
 with an injective partner map `g` choosing a distinct "large" partner for each, so
 that the pairs `{(x, g x) : x ∈ S}` are genuinely vertex-disjoint divisor pairs.
 
-HONEST QUANTITATIVE SCOPE.  The bound proved here is `1 ≤ S.card` (at least one
-disjoint pair), packaged in the reservoir encoding.  This is a structural
-repackaging of `card_gt_half_implies_dvd_pair`, not yet a density-scaling count.
-A genuine supersaturation count of pairwise-disjoint pairs is, by the matching
-number of a divisibility chain, `Σ_c ⌊m_c/2⌋ ≥ (|A| - ⌈N/2⌉)/2` — note the factor
-`1/2`.  In particular the naive "`|A| - ⌈N/2⌉` disjoint pairs" is FALSE (a set
+QUANTITATIVE SCOPE.  `card_gt_half_disjoint_divisor_pairs` (below) proves the
+base bound `1 ≤ S.card` (at least one disjoint pair) by the odd-part fiber count;
+`card_disjoint_divisor_pairs_quant` proves the full density-scaling count
+`(|A| - ⌈N/2⌉)/2 ≤ S.card` by induction.  The factor `1/2` is the unavoidable cost
+of disjointness: the naive "`|A| - ⌈N/2⌉` disjoint pairs" is FALSE (a set
 concentrated in a single odd-part chain has `|A|` comparable but only `⌊|A|/2⌋`
-*disjoint* pairs), so we do not claim it.  The honest factor-`1/2` matching bound is
-left as a follow-on. -/
+*disjoint* pairs), matching `Σ_c ⌊m_c/2⌋ ≥ (|A| - ⌈N/2⌉)/2`. -/
 
 /-- There are at most `(N+1)/2 = ⌈N/2⌉` odd numbers in `[1,N]`.
 
@@ -417,5 +415,114 @@ theorem card_gt_half_disjoint_divisor_pairs (N : ℕ) (A : Finset ℕ)
     omega
   · -- the reservoir is nonempty.
     rw [Finset.card_singleton]
+
+/-- **Divisor-pair supersaturation (quantitative).** `A ⊆ {1,…,N}` contains at
+    least `(|A| - ⌈N/2⌉)/2` pairwise-disjoint divisor pairs, in the reservoir
+    encoding `(S, g)`. This is the honest matching count
+    `Σ_c ⌊m_c/2⌋ ≥ (|A| - ⌈N/2⌉)/2`; the factor `1/2` is the unavoidable cost of
+    disjointness (each pair consumes two elements).
+
+    PROOF by strong induction on `A` (well-founded on `⊂`). If `|A| ≤ ⌈N/2⌉` the
+    bound is `0 ≤ |S|`, witnessed by the empty reservoir. Otherwise
+    `card_gt_half_implies_dvd_pair` yields a divisor pair `x ∣ y`, `x < y` in `A`;
+    remove both, recurse on the proper subset `A' = (A.erase x).erase y`
+    (`|A'| = |A| - 2`), and adjoin `x` to the returned reservoir with partner `y`.
+    Since `x, y ∉ A'` and the recursive partner map lands in `A'`, the new pair is
+    vertex-disjoint from all previous ones, and the count rises by one:
+    `(|A| - ⌈N/2⌉)/2 ≤ (|A'| - ⌈N/2⌉)/2 + 1`. -/
+theorem card_disjoint_divisor_pairs_quant (N : ℕ) (A : Finset ℕ)
+    (hAN : A ⊆ Finset.Icc 1 N) :
+    ∃ S : Finset ℕ, S ⊆ A ∧ ∃ g : ℕ → ℕ,
+      (∀ x ∈ S, x ∣ g x ∧ x < g x ∧ g x ∈ A) ∧
+      Set.InjOn g (S : Set ℕ) ∧
+      Disjoint S (S.image g) ∧
+      (A.card - (N + 1) / 2) / 2 ≤ S.card := by
+  revert hAN
+  induction A using Finset.strongInduction with
+  | _ A ih =>
+    intro hAN
+    by_cases hcard : (N + 1) / 2 < A.card
+    · -- Find and remove a divisor pair, then recurse.
+      obtain ⟨x, hxA, y, hyA, hxdvd, hxlt⟩ := card_gt_half_implies_dvd_pair N A hAN hcard
+      have hxne : x ≠ y := Nat.ne_of_lt hxlt
+      have hyex : y ∈ A.erase x := Finset.mem_erase.mpr ⟨fun h => hxne h.symm, hyA⟩
+      set A' := (A.erase x).erase y with hA'
+      have hA'sub : A' ⊆ A := (Finset.erase_subset _ _).trans (Finset.erase_subset _ _)
+      have hyA' : y ∉ A' := Finset.notMem_erase y (A.erase x)
+      have hxA' : x ∉ A' :=
+        fun h => Finset.notMem_erase x A (Finset.mem_of_mem_erase h)
+      have hssub : A' ⊂ A := ⟨hA'sub, fun hsup => hxA' (hsup hxA)⟩
+      have hA'N : A' ⊆ Finset.Icc 1 N := hA'sub.trans hAN
+      obtain ⟨S', hS'sub, g', hg'pair, hg'inj, hg'disj, hg'card⟩ := ih A' hssub hA'N
+      -- Elements of S' avoid x and y, and partners land in A'.
+      have hS'A' : ∀ z ∈ S', z ∈ A' := fun z hz => hS'sub hz
+      have hxnotS' : x ∉ S' := fun h => hxA' (hS'A' x h)
+      have hg'A' : ∀ z ∈ S', g' z ∈ A' := fun z hz => (hg'pair z hz).2.2
+      -- The augmented partner map.
+      classical
+      set g : ℕ → ℕ := fun z => if z = x then y else g' z with hg
+      have hgx : g x = y := by simp [hg]
+      have hgS' : ∀ z ∈ S', g z = g' z := by
+        intro z hz; simp only [hg]; rw [if_neg (by rintro rfl; exact hxnotS' hz)]
+      refine ⟨insert x S', Finset.insert_subset_iff.mpr ⟨hxA, hS'sub.trans hA'sub⟩,
+        g, ?_, ?_, ?_, ?_⟩
+      · -- pairing condition
+        intro z hz
+        rw [Finset.mem_insert] at hz
+        rcases hz with rfl | hz
+        · rw [hgx]; exact ⟨hxdvd, hxlt, hyA⟩
+        · rw [hgS' z hz]
+          obtain ⟨hd, hl, hm⟩ := hg'pair z hz
+          exact ⟨hd, hl, hA'sub hm⟩
+      · -- InjOn g on insert x S'
+        intro a ha b hb hgab
+        simp only [Finset.coe_insert, Set.mem_insert_iff, Finset.mem_coe] at ha hb
+        rcases ha with rfl | ha
+        · rcases hb with rfl | hb
+          · rfl
+          · rw [hgx, hgS' b hb] at hgab
+            rw [hgab] at hyA'
+            exact absurd (hg'A' b hb) hyA'
+        · rcases hb with rfl | hb
+          · rw [hgS' a ha, hgx] at hgab
+            rw [← hgab] at hyA'
+            exact absurd (hg'A' a ha) hyA'
+          · rw [hgS' a ha, hgS' b hb] at hgab
+            exact hg'inj (Finset.mem_coe.mpr ha) (Finset.mem_coe.mpr hb) hgab
+      · -- Disjoint (insert x S') ((insert x S').image g), via disjoint_left
+        rw [Finset.disjoint_left]
+        intro c hc hcimg
+        rw [Finset.mem_insert] at hc
+        rcases Finset.mem_image.mp hcimg with ⟨w, hw, hwc⟩
+        rw [Finset.mem_insert] at hw
+        rcases hw with rfl | hw
+        · -- w = x ⇒ c = g x = y
+          rw [hgx] at hwc
+          rcases hc with rfl | hc
+          · exact hxne hwc.symm
+          · rw [← hwc] at hc; exact hyA' (hS'A' y hc)
+        · -- w ∈ S' ⇒ c = g' w ∈ A'
+          rw [hgS' w hw] at hwc
+          rcases hc with rfl | hc
+          · have hgwA' := hg'A' w hw; rw [hwc] at hgwA'; exact hxA' hgwA'
+          · have hcimg' : c ∈ S'.image g' := by
+              rw [← hwc]; exact Finset.mem_image.mpr ⟨w, hw, rfl⟩
+            exact (Finset.disjoint_left.mp hg'disj) hc hcimg'
+      · -- cardinality
+        have hA'card : A'.card = A.card - 2 := by
+          rw [hA', Finset.card_erase_of_mem hyex, Finset.card_erase_of_mem hxA]
+          omega
+        have hins : (insert x S').card = S'.card + 1 :=
+          Finset.card_insert_of_notMem hxnotS'
+        rw [hins]
+        rw [hA'card] at hg'card
+        omega
+    · -- Sparse case: |A| ≤ ⌈N/2⌉, so the bound is 0.
+      refine ⟨∅, Finset.empty_subset _, fun _ => 0, ?_, ?_, ?_, ?_⟩
+      · intro z hz; exact absurd hz (Finset.notMem_empty z)
+      · intro a ha; exact absurd ha (Finset.notMem_empty a)
+      · simp
+      · have : A.card - (N + 1) / 2 = 0 := by omega
+        rw [this]; simp
 
 end UnitFractionSets

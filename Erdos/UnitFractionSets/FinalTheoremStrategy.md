@@ -139,9 +139,19 @@ Checklist:
   any `A ⊆ {1,…,N}` with `|A| > ⌈N/2⌉` contains a divisor pair `a ∣ b`, `a < b`
   (largest-odd-divisor injection `ordCompl[2]` + pigeonhole; axiom-clean). This is
   the "with repeats, threshold is `1/2`" core.
-- [ ] Define a splitting reservoir: elements of `A` usable to replace repeated
-  denominators by distinct unit fractions.
-- [ ] Prove small local splitting lemmas, then parameterize them.
+- [x] Define a splitting reservoir: elements of `A` usable to replace repeated
+  denominators by distinct unit fractions. Done in `SplittingReduction.lean`:
+  `card_disjoint_divisor_pairs_quant` proves `A ⊆ {1,…,N}` contains
+  `≥ (|A| − ⌈N/2⌉)/2` pairwise-disjoint divisor pairs (the reservoir), in the
+  encoding `(S, g)` (small elements `S` + injective partner map `g`). The
+  factor `1/2` is the cost of disjointness; an adversarial review killed the
+  naive `|A| − ⌈N/2⌉` claim (false: a single odd-part chain has only `⌊|A|/2⌋`
+  disjoint pairs). Axiom-clean.
+- [ ] Prove small local splitting lemmas, then parameterize them. (The atomic
+  one is done: `not_sum_free_contains_a_2a_3a_6a` in `MultiplierFiber.lean` —
+  `{a,2a,3a,6a} ⊆ A ⇒ ¬SumFree` via `1/a = 1/2a+1/3a+1/6a`. Remaining: BOUNDED
+  in-`A` splits converting a reservoir pair into a scaled Egyptian partition —
+  the Bloom-type wall.)
 - [ ] Search for finite splitting templates analogous to the multiplier
   certificates.
 - [ ] Compare the splitting route against the template-packing route.
