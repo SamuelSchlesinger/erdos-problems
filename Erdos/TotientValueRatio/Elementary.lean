@@ -86,4 +86,54 @@ theorem vPrime_le_v (x : ℕ) : VPrime x ≤ V x := by
 theorem v_pos {x : ℕ} (hx : 1 ≤ x) : 0 < V x := by
   exact lt_of_lt_of_le (vPrime_pos hx) (vPrime_le_v x)
 
+/-!
+## A structural constraint on the values counted by `V`
+
+The set whose cardinality is `V(x)` consists of the totient values `≤ x`.  A
+basic but useful structural fact is that this set is extremely sparse among the
+odd numbers: apart from `1 = φ(1) = φ(2)`, *no* odd number is ever a totient
+value.  Indeed `φ(m)` is even for every `m > 2`, while `φ(0) = 0`,
+`φ(1) = φ(2) = 1`.
+
+Consequently `V(x)` counts only the value `1` together with even numbers `≤ x`,
+which already caps `V(x)` by roughly `x/2 + 1`.  This is a genuine density
+constraint on the quantity studied in Erdős problem `#417` (it does not by itself
+resolve the convergence question, which concerns the comparison with `V'`). -/
+
+/-- **The only odd value taken by Euler's totient is `1`.** If `n` is odd and
+`n ≠ 1`, then no `m` satisfies `φ(m) = n`.
+
+The proof is a four–way case split on the argument `m`:
+`φ(0) = 0` is not odd, `φ(1) = φ(2) = 1` contradicts `n ≠ 1`, and `φ(m)` is even
+for every `m > 2` (so again not odd). -/
+theorem no_odd_totient {n : ℕ} (hodd : Odd n) (h1 : n ≠ 1) :
+    ¬ ∃ m : ℕ, Nat.totient m = n := by
+  rintro ⟨m, rfl⟩
+  -- Split into the small arguments `m ∈ {0,1,2}` and the generic case `m ≥ 3`.
+  rcases Nat.lt_or_ge m 3 with hm | hm
+  · -- `m < 3`: check `m = 0, 1, 2` explicitly.
+    interval_cases m
+    · -- `m = 0`: `φ 0 = 0` is not odd.
+      rw [Nat.totient_zero] at hodd
+      exact (by decide : ¬ Odd 0) hodd
+    · -- `m = 1`: `φ 1 = 1`, contradicting `n ≠ 1`.
+      exact h1 Nat.totient_one
+    · -- `m = 2`: `φ 2 = 1`, contradicting `n ≠ 1`.
+      exact h1 Nat.totient_two
+  · -- `m ≥ 3`: `φ m` is even, hence not odd.
+    exact (Nat.not_odd_iff_even.mpr (Nat.totient_even (by omega))) hodd
+
+/-- **Problem-relevant corollary.** Odd numbers greater than `1` are never
+counted by `V`, since they never occur as totient values.  Hence every value
+counted by `V(x)` is either `1` or even — a structural constraint on the set
+whose cardinality is `V(x)` in Erdős problem `#417`. -/
+theorem not_mem_totientValuesAtMost_of_odd {x n : ℕ}
+    (hodd : Odd n) (h1 : n ≠ 1) :
+    n ∉ totientValuesAtMost x := by
+  classical
+  unfold totientValuesAtMost
+  rw [Finset.mem_filter]
+  rintro ⟨-, hex⟩
+  exact no_odd_totient hodd h1 hex
+
 end TotientValueRatio
