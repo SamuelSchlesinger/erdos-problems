@@ -129,4 +129,74 @@ theorem fValue_le_sq {n : ℕ} (hn : 2 ≤ n) :
     fValue n ≤ n ^ 2 := by
   exact fValue_le_of_validConfiguration (validConfiguration_quadratic hn)
 
+/-- For every `n ≥ 1` there is at least one valid configuration, so the set of
+admissible interval lengths is nonempty. (For `n = 1` use the interval `(1, 3)`;
+for `n ≥ 2` use the explicit quadratic construction `a₁ = n + 1`, `a_k = nk`.)
+This is exactly what is needed to guarantee that `fValue n`, defined as an
+infimum, is *attained* and hence is itself an admissible length rather than the
+junk value `0` produced by `sInf ∅`. -/
+theorem validConfiguration_nonempty {n : ℕ} (hn : 1 ≤ n) :
+    {m : ℕ | ValidConfiguration n m}.Nonempty := by
+  rcases Nat.lt_or_ge n 2 with h1 | h2
+  · -- `n = 1`
+    have hn1 : n = 1 := by omega
+    subst hn1
+    exact ⟨2, validConfiguration_one⟩
+  · -- `n ≥ 2`
+    exact ⟨n ^ 2, validConfiguration_quadratic h2⟩
+
+/-- Lower bound coming from the last divisibility constraint.
+
+In any valid configuration on `(n, n + m)` (with `n ≥ 1`) the witness `a_{n-1}`
+attached to the index `n - 1` must satisfy `n ∣ a_{n-1}` and `n < a_{n-1}`. A
+multiple of `n` that is strictly larger than `n` is at least `2n`, so
+`2n ≤ a_{n-1} < n + m`, which forces `n < m`. -/
+theorem lt_of_validConfiguration {n m : ℕ} (hn : 1 ≤ n)
+    (h : ValidConfiguration n m) : n < m := by
+  obtain ⟨a, _hinj, hbound, hdvd⟩ := h
+  -- The last index `n - 1 : Fin n` (valid because `n ≥ 1`).
+  have hlt : n - 1 < n := by omega
+  let i : Fin n := ⟨n - 1, hlt⟩
+  -- The underlying value of this index is `n - 1`.
+  have hival : i.1 = n - 1 := rfl
+  -- Its divisibility condition is `(n - 1) + 1 = n` divides `a i`.
+  have hidx : i.1 + 1 = n := by rw [hival]; omega
+  have hdvdn : n ∣ a i := by
+    have := hdvd i
+    rwa [hidx] at this
+  -- Interval bounds on `a i`.
+  obtain ⟨hgt, hlt'⟩ := hbound i
+  -- Write `a i = n * c`.
+  obtain ⟨c, hc⟩ := hdvdn
+  -- From `n < a i = n * c` and `n ≥ 1` we get `2 ≤ c`.
+  have hncn : n * 1 < n * c := by rw [Nat.mul_one, ← hc]; exact hgt
+  have h1c : 1 < c := Nat.lt_of_mul_lt_mul_left hncn
+  have hc2 : 2 ≤ c := h1c
+  -- Hence `2 * n ≤ a i`.
+  have h2n : 2 * n ≤ a i := by
+    rw [hc]
+    calc 2 * n = n * 2 := by ring
+      _ ≤ n * c := Nat.mul_le_mul_left n hc2
+  -- Combine with `a i < n + m`.
+  omega
+
+/-- **Main lower bound for problem #710.** For every `n ≥ 1` we have
+
+`n < fValue n`,
+
+i.e. the shortest admissible interval has length strictly greater than `n`.
+
+The hypothesis `n ≥ 1` is essential: for `n = 0` the divisibility constraints
+are vacuous (`Fin 0` is empty), so `ValidConfiguration 0 m` holds for *every*
+`m`, whence `fValue 0 = sInf {m | True} = 0` and the strict bound `0 < 0` is
+false. For `n ≥ 1`, `validConfiguration_nonempty` guarantees the infimum is
+attained, and `lt_of_validConfiguration` applied to that attaining length gives
+the bound. -/
+theorem lt_fValue {n : ℕ} (hn : 1 ≤ n) : n < fValue n := by
+  -- The infimum is attained at some valid length `m₀ = fValue n`.
+  have hmem : fValue n ∈ {m : ℕ | ValidConfiguration n m} :=
+    Nat.sInf_mem (validConfiguration_nonempty hn)
+  -- That length is itself a valid configuration length, so the bound applies.
+  exact lt_of_validConfiguration hn hmem
+
 end IntervalDivisibility

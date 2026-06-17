@@ -46,4 +46,38 @@ theorem isClusterPrime_three : IsClusterPrime 3 := by
   subst n
   exact primeDifferenceWitness_zero_of_two_le (by norm_num)
 
+/--
+The prime `5` is a cluster prime.
+
+The even numbers `n` with `n + 3 <= 5` are `n = 0` and `n = 2`.  We realize
+`0 = 2 - 2` with the existing zero witness and `2 = 5 - 3` using the primes
+`5` and `3`, both bounded by `5`.
+-/
+theorem isClusterPrime_five : IsClusterPrime 5 := by
+  refine ⟨Nat.prime_five, ?_⟩
+  intro n hnEven hnBound
+  have hn2 : n <= 2 := by omega
+  interval_cases n
+  · exact primeDifferenceWitness_zero_of_two_le (by norm_num)
+  · exact absurd hnEven (by decide)
+  · exact ⟨5, 3, Nat.prime_five, Nat.prime_three, by norm_num, by norm_num, by norm_num⟩
+
+/--
+The prime `7` is a cluster prime.
+
+The even numbers `n` with `n + 3 <= 7` are `n = 0`, `n = 2` and `n = 4`.  We
+realize `0 = 2 - 2` with the existing zero witness, `2 = 5 - 3` and `4 = 7 - 3`,
+all primes involved being bounded by `7`.
+-/
+theorem isClusterPrime_seven : IsClusterPrime 7 := by
+  refine ⟨Nat.prime_seven, ?_⟩
+  intro n hnEven hnBound
+  have hn4 : n <= 4 := by omega
+  interval_cases n
+  · exact primeDifferenceWitness_zero_of_two_le (by norm_num)
+  · exact absurd hnEven (by decide)
+  · exact ⟨5, 3, Nat.prime_five, Nat.prime_three, by norm_num, by norm_num, by norm_num⟩
+  · exact absurd hnEven (by decide)
+  · exact ⟨7, 3, Nat.prime_seven, Nat.prime_three, by norm_num, by norm_num, by norm_num⟩
+
 end ClusterPrimes

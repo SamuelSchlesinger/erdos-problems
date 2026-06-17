@@ -50,4 +50,51 @@ theorem swap_mem_sumRepPairs_iff {A : Set ℕ} {n a b : ℕ} :
   · intro h
     exact ⟨h.2.1, h.1, by simpa [Nat.add_comm] using h.2.2⟩
 
+/-- The finite "window" of `A` below `n`: the elements of `A` in `{0, 1, …, n}`.
+
+Every additive representation of `n` from `A` has both coordinates in this set,
+which is the key to the quadratic upper bound on `sumRep` (Erdős #66). -/
+noncomputable def windowBelow (A : Set ℕ) (n : ℕ) : Finset ℕ := by
+  classical
+  exact (Finset.range (n + 1)).filter fun a => a ∈ A
+
+@[simp] theorem mem_windowBelow {A : Set ℕ} {n a : ℕ} :
+    a ∈ windowBelow A n ↔ a ≤ n ∧ a ∈ A := by
+  classical
+  unfold windowBelow
+  rw [Finset.mem_filter, Finset.mem_range]
+  constructor
+  · intro h; exact ⟨by omega, h.2⟩
+  · intro h; exact ⟨by omega, h.2⟩
+
+/-- Every additive representation of `n` lives in the square of the window
+`windowBelow A n`, since `a + b = n` forces `a, b ≤ n`. -/
+theorem sumRepPairs_subset_windowBelow_product (A : Set ℕ) (n : ℕ) :
+    sumRepPairs A n ⊆ windowBelow A n ×ˢ windowBelow A n := by
+  intro ab hab
+  rw [mem_sumRepPairs] at hab
+  obtain ⟨ha, hb, hsum⟩ := hab
+  rw [Finset.mem_product]
+  refine ⟨?_, ?_⟩
+  · rw [mem_windowBelow]; exact ⟨by omega, ha⟩
+  · rw [mem_windowBelow]; exact ⟨by omega, hb⟩
+
+/-- **Erdős #66 quadratic upper bound.** The number of ordered additive
+representations of `n` from `A` is at most the square of the number of elements
+of `A` in `{0, 1, …, n}`.
+
+Indeed every pair `(a, b)` with `a, b ∈ A` and `a + b = n` has `a, b ≤ n`, so it
+belongs to `windowBelow A n ×ˢ windowBelow A n`, a set of size
+`(windowBelow A n).card ^ 2`. -/
+theorem sumRep_le_windowBelow_card_sq (A : Set ℕ) (n : ℕ) :
+    sumRep A n ≤ (windowBelow A n).card ^ 2 := by
+  unfold sumRep
+  calc
+    (sumRepPairs A n).card
+        ≤ (windowBelow A n ×ˢ windowBelow A n).card :=
+          Finset.card_le_card (sumRepPairs_subset_windowBelow_product A n)
+    _ = (windowBelow A n).card * (windowBelow A n).card :=
+          Finset.card_product _ _
+    _ = (windowBelow A n).card ^ 2 := by rw [sq]
+
 end AdditiveRepresentationLog
