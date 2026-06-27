@@ -213,8 +213,7 @@ theorem finset_card_le_two_moduli_of_pairwiseNoZeroResidueSum {a b : ℕ}
     F.card = (F.image phi).card := hcard_image.symm
     _ ≤ (Ra ×ˢ Rb).card := Finset.card_le_card hsub
     _ = Ra.card * Rb.card := Finset.card_product _ _
-    _ ≤ (a / 2 + 1) * (b / 2 + 1) := by
-      exact Nat.mul_le_mul
+    _ ≤ (a / 2 + 1) * (b / 2 + 1) := Nat.mul_le_mul
         (residueFinset_card_le_of_pairwiseNoZeroResidueSum hB)
         (residueFinset_card_le_of_pairwiseNoZeroResidueSum hC)
 
@@ -246,8 +245,7 @@ theorem finset_card_le_multi_moduli_of_pairwiseNoZeroResidueSum {ι : Type*}
     intro i hi
     have hcoord := congrFun hxy (⟨i, hi⟩ : ↥J)
     exact Subtype.ext_iff.mp hcoord
-  have hFcard : F.card = Fintype.card {n // n ∈ F} := by
-    exact (Fintype.card_coe F).symm
+  have hFcard : F.card = Fintype.card {n // n ∈ F} := (Fintype.card_coe F).symm
   have htarget_eq :
       Fintype.card Target =
         ∏ i ∈ J, (residueFinset (m i) (B i)).card := by
@@ -257,8 +255,7 @@ theorem finset_card_le_multi_moduli_of_pairwiseNoZeroResidueSum {ι : Type*}
     F.card = Fintype.card {n // n ∈ F} := hFcard
     _ ≤ Fintype.card Target := Fintype.card_le_of_injective phi hphi_inj
     _ = ∏ i ∈ J, (residueFinset (m i) (B i)).card := htarget_eq
-    _ ≤ ∏ i ∈ J, (m i / 2 + 1) := by
-      exact Finset.prod_le_prod' fun i hi =>
+    _ ≤ ∏ i ∈ J, (m i / 2 + 1) := Finset.prod_le_prod' fun i hi =>
         residueFinset_card_le_of_pairwiseNoZeroResidueSum (hB i hi)
 
 /-- If two numbers agree modulo every modulus in a finite family, they agree
@@ -286,8 +283,8 @@ theorem eq_of_forall_mod_eq_of_mem_Ico_lcm {ι : Type*}
     (hx : x ∈ Set.Ico N (N + J.lcm m))
     (hy : y ∈ Set.Ico N (N + J.lcm m))
     (hmods : ∀ i ∈ J, x % m i = y % m i) :
-    x = y := by
-  exact eq_of_mod_eq_of_mem_Ico_length hx hy
+    x = y :=
+  eq_of_mod_eq_of_mem_Ico_length hx hy
     (mod_eq_finset_lcm_of_forall_mod_eq hmods)
 
 /-- Product packing inside a concrete LCM window. -/
@@ -311,8 +308,8 @@ theorem AvoidingSet.finset_card_le_two_tail_moduli {A : Set ℕ}
     (hFb : ∀ n ∈ F, n ∈ tailAbove A b)
     (hinj : ∀ ⦃m n : ℕ⦄, m ∈ F → n ∈ F →
       m % a = n % a → m % b = n % b → m = n) :
-    F.card ≤ (a / 2 + 1) * (b / 2 + 1) := by
-  exact finset_card_le_two_moduli_of_pairwiseNoZeroResidueSum
+    F.card ≤ (a / 2 + 1) * (b / 2 + 1) :=
+  finset_card_le_two_moduli_of_pairwiseNoZeroResidueSum
     ha_pos hb_pos (hA.tail_pairwiseNoZeroResidueSum haA)
     (hA.tail_pairwiseNoZeroResidueSum hbA) hFa hFb hinj
 
@@ -323,8 +320,8 @@ theorem AvoidingSet.finset_card_le_two_tail_moduli_of_positive {A : Set ℕ}
     (hFb : ∀ n ∈ F, n ∈ tailAbove A b)
     (hinj : ∀ ⦃m n : ℕ⦄, m ∈ F → n ∈ F →
       m % a = n % a → m % b = n % b → m = n) :
-    F.card ≤ (a / 2 + 1) * (b / 2 + 1) := by
-  exact hA.finset_card_le_two_tail_moduli haA hbA
+    F.card ≤ (a / 2 + 1) * (b / 2 + 1) :=
+  hA.finset_card_le_two_tail_moduli haA hbA
     (hpos haA) (hpos hbA) hFa hFb hinj
 
 /-- Avoiding-set specialization of the multi-modulus product bound. -/
@@ -335,8 +332,8 @@ theorem AvoidingSet.finset_card_le_multi_tail_moduli {ι : Type*} {A : Set ℕ}
     (hFtail : ∀ i ∈ J, ∀ n ∈ F, n ∈ tailAbove A (m i))
     (hinj : ∀ ⦃x y : ℕ⦄, x ∈ F → y ∈ F →
       (∀ i ∈ J, x % m i = y % m i) → x = y) :
-    F.card ≤ ∏ i ∈ J, (m i / 2 + 1) := by
-  exact finset_card_le_multi_moduli_of_pairwiseNoZeroResidueSum hmpos
+    F.card ≤ ∏ i ∈ J, (m i / 2 + 1) :=
+  finset_card_le_multi_moduli_of_pairwiseNoZeroResidueSum hmpos
     (fun i hi => hA.tail_pairwiseNoZeroResidueSum (hmA i hi)) hFtail hinj
 
 theorem AvoidingSet.finset_card_le_multi_tail_moduli_of_positive
@@ -346,8 +343,8 @@ theorem AvoidingSet.finset_card_le_multi_tail_moduli_of_positive
     (hFtail : ∀ i ∈ J, ∀ n ∈ F, n ∈ tailAbove A (m i))
     (hinj : ∀ ⦃x y : ℕ⦄, x ∈ F → y ∈ F →
       (∀ i ∈ J, x % m i = y % m i) → x = y) :
-    F.card ≤ ∏ i ∈ J, (m i / 2 + 1) := by
-  exact hA.finset_card_le_multi_tail_moduli hmA
+    F.card ≤ ∏ i ∈ J, (m i / 2 + 1) :=
+  hA.finset_card_le_multi_tail_moduli hmA
     (fun i hi => hpos (hmA i hi)) hFtail hinj
 
 /-- Avoiding-set LCM-window specialization of the multi-modulus product bound. -/
@@ -358,8 +355,8 @@ theorem AvoidingSet.finset_card_le_multi_tail_moduli_of_subset_Ico_lcm
     {F : Finset ℕ} {N : ℕ}
     (hFtail : ∀ i ∈ J, ∀ n ∈ F, n ∈ tailAbove A (m i))
     (hIco : ∀ n ∈ F, n ∈ Set.Ico N (N + J.lcm m)) :
-    F.card ≤ ∏ i ∈ J, (m i / 2 + 1) := by
-  exact finset_card_le_multi_moduli_of_pairwiseNoZeroResidueSum_of_subset_Ico_lcm
+    F.card ≤ ∏ i ∈ J, (m i / 2 + 1) :=
+  finset_card_le_multi_moduli_of_pairwiseNoZeroResidueSum_of_subset_Ico_lcm
     hmpos (fun i hi => hA.tail_pairwiseNoZeroResidueSum (hmA i hi))
     hFtail hIco
 
@@ -369,8 +366,8 @@ theorem AvoidingSet.finset_card_le_multi_tail_moduli_of_subset_Ico_lcm_of_positi
     {F : Finset ℕ} {N : ℕ}
     (hFtail : ∀ i ∈ J, ∀ n ∈ F, n ∈ tailAbove A (m i))
     (hIco : ∀ n ∈ F, n ∈ Set.Ico N (N + J.lcm m)) :
-    F.card ≤ ∏ i ∈ J, (m i / 2 + 1) := by
-  exact hA.finset_card_le_multi_tail_moduli_of_subset_Ico_lcm hmA
+    F.card ≤ ∏ i ∈ J, (m i / 2 + 1) :=
+  hA.finset_card_le_multi_tail_moduli_of_subset_Ico_lcm hmA
     (fun i hi => hpos (hmA i hi)) hFtail hIco
 
 /-- The common LCM window of numbers lying in all tails above the selected
@@ -407,8 +404,8 @@ theorem AvoidingSet.multiTailLCMWindow_card_le_of_positive
     {ι : Type*} {A : Set ℕ} (hA : AvoidingSet A) (hpos : PositiveSet A)
     {J : Finset ι} {m : ι → ℕ} (hmA : ∀ i ∈ J, m i ∈ A) (N : ℕ) :
     (multiTailLCMWindowFinset A J m N).card ≤
-      ∏ i ∈ J, (m i / 2 + 1) := by
-  exact hA.multiTailLCMWindow_card_le hmA (fun i hi => hpos (hmA i hi)) N
+      ∏ i ∈ J, (m i / 2 + 1) :=
+  hA.multiTailLCMWindow_card_le hmA (fun i hi => hpos (hmA i hi)) N
 
 theorem finset_lcm_pos_of_forall_pos {ι : Type*}
     {J : Finset ι} {m : ι → ℕ} (hmpos : ∀ i ∈ J, 0 < m i) :
@@ -446,12 +443,10 @@ theorem AvoidingSet.finset_card_le_multi_tail_moduli_of_subset_Ico_lcm_cover
     have hn_lt : n < X + H := hnIco.2
     let t := (n - X) / L
     have hn_sub_le : n - X ≤ H := by omega
-    have ht_le : t ≤ H / L := by
-      exact Nat.div_le_div_right hn_sub_le
-    have ht_mem : t ∈ Finset.range (H / L + 1) := by
-      exact Finset.mem_range.mpr (Nat.lt_succ_of_le ht_le)
-    have hdiv_le : t * L ≤ n - X := by
-      exact Nat.div_mul_le_self (n - X) L
+    have ht_le : t ≤ H / L := Nat.div_le_div_right hn_sub_le
+    have ht_mem : t ∈ Finset.range (H / L + 1) :=
+      Finset.mem_range.mpr (Nat.lt_succ_of_le ht_le)
+    have hdiv_le : t * L ≤ n - X := Nat.div_mul_le_self (n - X) L
     have hlow : X + t * L ≤ n := by
       omega
     have hsub_lt' : n - X < ((n - X) / L + 1) * L := by
@@ -510,8 +505,8 @@ theorem AvoidingSet.tailWindow_card_le {A : Set ℕ} (hA : AvoidingSet A)
 theorem AvoidingSet.tailWindow_card_le_of_positive {A : Set ℕ}
     (hA : AvoidingSet A) (hpos : PositiveSet A)
     {a : ℕ} (haA : a ∈ A) (N : ℕ) :
-    (tailWindowFinset A a N).card ≤ a / 2 + 1 := by
-  exact hA.tailWindow_card_le haA (hpos haA) N
+    (tailWindowFinset A a N).card ≤ a / 2 + 1 :=
+  hA.tailWindow_card_le haA (hpos haA) N
 
 /-- Any finite union of length-`a` windows in the tail above `a` has size at
 most the single-window bound times the number of windows.  Later interval and
@@ -529,8 +524,8 @@ theorem AvoidingSet.finset_card_le_of_subset_tailWindow_biUnion {ι : Type*}
     {A : Set ℕ} (hA : AvoidingSet A) {a : ℕ} (haA : a ∈ A) (ha_pos : 0 < a)
     {F : Finset ℕ} (J : Finset ι) (N : ι → ℕ)
     (hsub : F ⊆ J.biUnion fun j => tailWindowFinset A a (N j)) :
-    F.card ≤ (a / 2 + 1) * J.card := by
-  exact (Finset.card_le_card hsub).trans
+    F.card ≤ (a / 2 + 1) * J.card :=
+  (Finset.card_le_card hsub).trans
     (hA.tailWindow_biUnion_card_le haA ha_pos J N)
 
 end DivisibilityAvoidingSets

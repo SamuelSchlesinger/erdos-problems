@@ -93,8 +93,7 @@ theorem not_badUniformHypergraph_zero_edges (n : ℕ) :
 /-- Any explicit bad witness bounds `m(n)` from above by minimality. -/
 theorem mValue_le_of_badUniformHypergraph {n m : ℕ}
     (h : BadUniformHypergraph n m) :
-    mValue n ≤ m := by
-  exact Nat.sInf_le h
+    mValue n ≤ m := Nat.sInf_le h
 
 /-- Once a bad `n`-uniform hypergraph exists, the minimum bad edge count is at
 least one. -/

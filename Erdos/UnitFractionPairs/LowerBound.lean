@@ -113,7 +113,7 @@ theorem odd_powerOfTwo_pair_free {a k : ℕ} (ha : 0 < a) (hodd : a % 2 = 1)
   -- A coprime divisor must divide 1.
   have hone : (a + 2 ^ k) ∣ 1 := by
     have hdvd' : (a + 2 ^ k) ∣ (a * 2 ^ k) * 1 := by
-      rw [Nat.mul_one]; exact hdvd
+      rwa [Nat.mul_one]
     exact hcop.dvd_of_dvd_mul_left hdvd'
   have hle : a + 2 ^ k ≤ 1 := Nat.le_of_dvd (by norm_num) hone
   have h2le : 2 ≤ 2 ^ k := by
@@ -267,8 +267,8 @@ subset of `[1, N]` is at least `(N + 1) / 2 + ⌊log₂ N⌋`. This beats the
 folklore odd-numbers bound by `Θ(log N)`. -/
 theorem exists_pairFree_card_ge (N : ℕ) :
     ∃ A : Finset ℕ, A ⊆ Finset.Icc 1 N ∧ PairFree A ∧
-      A.card = (N + 1) / 2 + Nat.log 2 N := by
-  exact ⟨oddPlusPowersOfTwo N,
+      A.card = (N + 1) / 2 + Nat.log 2 N :=
+  ⟨oddPlusPowersOfTwo N,
     oddPlusPowersOfTwo_subset_Icc N,
     pairFree_oddPlusPowersOfTwo N,
     card_oddPlusPowersOfTwo N⟩
@@ -315,12 +315,12 @@ theorem fivePow_odd_pair_free {a k : ℕ} (ha : 0 < a) (hodd : a % 2 = 1)
       exact (Nat.gcd_dvd_left _ _).trans ⟨2 ^ k, rfl⟩
   -- `gcd(a + 5·2^k, a) = gcd(5·2^k, a) = gcd(5, a)`.
   have hg1 : Nat.gcd (a + 5 * 2 ^ k) a = Nat.gcd 5 a := by
-    rw [Nat.add_comm, Nat.gcd_add_self_left]; exact hgcd_a_5pow
+    rwa [Nat.add_comm, Nat.gcd_add_self_left]
   -- `gcd(a + 5·2^k, 5·2^k) = gcd(a, 5·2^k) = gcd(a, 5)`.
   have hgcd_a_5pow' : Nat.gcd a (5 * 2 ^ k) = Nat.gcd a 5 := by
     rw [Nat.gcd_comm a (5 * 2 ^ k), hgcd_a_5pow, Nat.gcd_comm]
   have hg2 : Nat.gcd (a + 5 * 2 ^ k) (5 * 2 ^ k) = Nat.gcd a 5 := by
-    rw [Nat.gcd_add_self_left]; exact hgcd_a_5pow'
+    rwa [Nat.gcd_add_self_left]
   -- Bezout-style: `gcd(d, a · (5·2^k)) ∣ gcd(d, a) · gcd(d, 5·2^k)`.
   set d := a + 5 * 2 ^ k with hd_def
   have hbez : d.gcd (a * (5 * 2 ^ k)) ∣ d.gcd a * d.gcd (5 * 2 ^ k) :=
@@ -391,7 +391,7 @@ theorem fivePow_powerOfTwo_pair_free {k l : ℕ} (_hk : 3 ≤ k) (hl : 1 ≤ l) 
         rw [show (2 * k) = k + k from by ring, pow_add]; ring
       rw [hreq] at hdvd
       have hcancel' : 2 ^ k * 6 ∣ 2 ^ k * (5 * 2 ^ k) := by
-        rw [Nat.mul_comm (2 ^ k) 6]; exact hdvd
+        rwa [Nat.mul_comm (2 ^ k) 6]
       exact (Nat.mul_dvd_mul_iff_left h2k_pos).mp hcancel'
     have h3dvd : (3 : ℕ) ∣ 5 * 2 ^ k := dvd_trans (by norm_num : (3 : ℕ) ∣ 6) hcancel
     have hcop3 : Nat.Coprime 3 (5 * 2 ^ k) := by
@@ -702,8 +702,8 @@ theorem exists_pairFree_card_ge_v2 (N : ℕ) :
     ∃ A : Finset ℕ, A ⊆ Finset.Icc 1 N ∧ PairFree A ∧
       A.card = (N + 1) / 2 + Nat.log 2 N +
         ((Finset.Icc 0 (Nat.log 2 N)).filter
-          (fun k => k % 4 = 3 ∧ 5 * 2 ^ k ≤ N)).card := by
-  exact ⟨oddPlusPowersOfTwoPlusM5 N,
+          (fun k => k % 4 = 3 ∧ 5 * 2 ^ k ≤ N)).card :=
+  ⟨oddPlusPowersOfTwoPlusM5 N,
     oddPlusPowersOfTwoPlusM5_subset_Icc N,
     pairFree_oddPlusPowersOfTwoPlusM5 N,
     card_oddPlusPowersOfTwoPlusM5 N⟩

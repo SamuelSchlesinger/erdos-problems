@@ -162,8 +162,8 @@ theorem oddPrimeTag_dvd_of_mem_taggedBlock {T L : ℕ → ℕ} {i x : ℕ}
 
 theorem taggedBlock_modEq_one_of_lt {T L : ℕ → ℕ} {i j x : ℕ} (hij : i < j)
     (hx : x ∈ apBlock (tagResidue j) (tagModulus j) (T j) (L j)) :
-    x ≡ 1 [MOD oddPrimeTag i] := by
-  exact modEq_of_mem_apBlock
+    x ≡ 1 [MOD oddPrimeTag i] :=
+  modEq_of_mem_apBlock
     (oddPrimeTag_dvd_tagModulus_of_le (j := i) (i := j) hij.le)
     (tagResidue_modEq_one_of_lt hij) hx
 

@@ -158,8 +158,7 @@ theorem mod_four_obstruction {m k : ℕ} (hsol : IsSolution m k) :
   have hcastEq : (m : ZMod 2) = (m * (m - 1) / 2 : ℕ) := by
     calc
       (m : ZMod 2) = ((m ^ k : ℕ) : ZMod 2) := hpow.symm
-      _ = ((powerSum m k : ℕ) : ZMod 2) := by
-        exact congrArg (fun t : ℕ => (t : ZMod 2)) hEq.symm
+      _ = ((powerSum m k : ℕ) : ZMod 2) := congrArg (fun t : ℕ => (t : ZMod 2)) hEq.symm
       _ = (m * (m - 1) / 2 : ℕ) := hsum
   have hmod : (2 : ℕ).ModEq m (m * (m - 1) / 2) :=
     (ZMod.natCast_eq_natCast_iff m (m * (m - 1) / 2) 2).1 hcastEq
@@ -254,8 +253,7 @@ theorem mod_three_obstruction_of_odd {m k : ℕ} (hsol : IsSolution m k) (hkodd 
   have hcastEq : (m : ZMod 3) = (m * (m - 1) / 2 : ℕ) := by
     calc
       (m : ZMod 3) = ((m ^ k : ℕ) : ZMod 3) := hpow.symm
-      _ = ((powerSum m k : ℕ) : ZMod 3) := by
-        exact congrArg (fun t : ℕ => (t : ZMod 3)) hEq.symm
+      _ = ((powerSum m k : ℕ) : ZMod 3) := congrArg (fun t : ℕ => (t : ZMod 3)) hEq.symm
       _ = (m * (m - 1) / 2 : ℕ) := hsum
   have hmzero : (m : ZMod 3) = 0 := zmod3_zero_of_triangular_eq m hmpos hcastEq
   have hmod : (3 : ℕ).ModEq m 0 :=
@@ -336,8 +334,7 @@ theorem mod_five_obstruction_of_mod_four_eq_one {m k : ℕ}
   have hcastEq : (m : ZMod 5) = (m * (m - 1) / 2 : ℕ) := by
     calc
       (m : ZMod 5) = ((m ^ k : ℕ) : ZMod 5) := hpow.symm
-      _ = ((powerSum m k : ℕ) : ZMod 5) := by
-        exact congrArg (fun t : ℕ => (t : ZMod 5)) hEq.symm
+      _ = ((powerSum m k : ℕ) : ZMod 5) := congrArg (fun t : ℕ => (t : ZMod 5)) hEq.symm
       _ = (m * (m - 1) / 2 : ℕ) := hsum
   exact mod5_of_triangular_eq m hmpos hcastEq
 
@@ -445,8 +442,7 @@ theorem mod_five_obstruction_of_mod_four_eq_three {m k : ℕ}
   have hEqCast : (m : ZMod 5) ^ 3 = ((m * (m - 1) / 2) ^ 2 : ℕ) := by
     calc
       (m : ZMod 5) ^ 3 = ((m ^ k : ℕ) : ZMod 5) := hpow.symm
-      _ = ((powerSum m k : ℕ) : ZMod 5) := by
-        exact congrArg (fun t : ℕ => (t : ZMod 5)) hEq.symm
+      _ = ((powerSum m k : ℕ) : ZMod 5) := congrArg (fun t : ℕ => (t : ZMod 5)) hEq.symm
       _ = ((m * (m - 1) / 2) ^ 2 : ℕ) := hsum
   let B : ℕ := m * (m - 1) / 2
   have heven : Even (m * (m - 1)) := by
@@ -508,8 +504,7 @@ theorem mod_five_obstruction_of_mod_four_eq_three {m k : ℕ}
         ((m : ZMod 5) ^ 2) * ((((m : ZMod 5) - 1) ^ 2) - (4 : ZMod 5) * (m : ZMod 5)) := by
       ring_nf
       simp [h6]
-    rw [hrewrite]
-    exact hpoly0
+    rwa [hrewrite]
   exact mod5_zero_of_poly m hpoly
 
 private lemma six_mul_sum_range_sq_nat (m : ℕ) :
@@ -586,13 +581,12 @@ theorem mod_five_obstruction_of_mod_four_eq_two {m k : ℕ}
     calc
       ((m ^ k : ℕ) : ZMod 5) = (m : ZMod 5) ^ k := by simp [Nat.cast_pow]
       _ = (m : ZMod 5) ^ 2 := zmod5_pow_eq_sq_of_mod_four_eq_two (m : ZMod 5) hk
-  have hsum : ((powerSum m k : ℕ) : ZMod 5) = ∑ i ∈ Finset.range m, (i : ZMod 5) ^ 2 := by
-    exact powerSum_cast_zmod5_of_mod_four_eq_two m k hk
+  have hsum : ((powerSum m k : ℕ) : ZMod 5) = ∑ i ∈ Finset.range m, (i : ZMod 5) ^ 2 :=
+    powerSum_cast_zmod5_of_mod_four_eq_two m k hk
   have hEqCast : (m : ZMod 5) ^ 2 = ∑ i ∈ Finset.range m, (i : ZMod 5) ^ 2 := by
     calc
       (m : ZMod 5) ^ 2 = ((m ^ k : ℕ) : ZMod 5) := hpow.symm
-      _ = ((powerSum m k : ℕ) : ZMod 5) := by
-        exact congrArg (fun t : ℕ => (t : ZMod 5)) hEq.symm
+      _ = ((powerSum m k : ℕ) : ZMod 5) := congrArg (fun t : ℕ => (t : ZMod 5)) hEq.symm
       _ = ∑ i ∈ Finset.range m, (i : ZMod 5) ^ 2 := hsum
   have hsqNatCast :
       (∑ i ∈ Finset.range m, (i : ZMod 5) ^ 2) = ((∑ i ∈ Finset.range m, i ^ 2 : ℕ) : ZMod 5) := by
@@ -605,8 +599,7 @@ theorem mod_five_obstruction_of_mod_four_eq_two {m k : ℕ}
     calc
       (((6 : ℕ) : ZMod 5) * ((∑ i ∈ Finset.range m, i ^ 2 : ℕ) : ZMod 5)) =
           ((6 * (∑ i ∈ Finset.range m, i ^ 2 : ℕ) : ℕ) : ZMod 5) := by simp
-      _ = (m * (m - 1) * (2 * m - 1) : ℕ) := by
-        exact congrArg (fun t : ℕ => (t : ZMod 5)) hsixNat
+      _ = (m * (m - 1) * (2 * m - 1) : ℕ) := congrArg (fun t : ℕ => (t : ZMod 5)) hsixNat
   have hEq6 :
       (((6 : ℕ) : ZMod 5) * ((m : ZMod 5) ^ 2)) =
         (m * (m - 1) * (2 * m - 1) : ℕ) := by
@@ -622,8 +615,8 @@ theorem mod_five_obstruction_of_mod_four_eq_two {m k : ℕ}
     have h6mul : (((6 : ℕ) : ZMod 5) * ((m : ZMod 5) ^ 2)) = (m : ZMod 5) ^ 2 := by
       calc
         (((6 : ℕ) : ZMod 5) * ((m : ZMod 5) ^ 2)) =
-            ((1 : ZMod 5) * ((m : ZMod 5) ^ 2)) := by
-          exact congrArg (fun t : ZMod 5 => t * ((m : ZMod 5) ^ 2)) h6
+            ((1 : ZMod 5) * ((m : ZMod 5) ^ 2)) :=
+              congrArg (fun t : ZMod 5 => t * ((m : ZMod 5) ^ 2)) h6
         _ = (m : ZMod 5) ^ 2 := by simp
     calc
       (m : ZMod 5) ^ 2 = (((6 : ℕ) : ZMod 5) * ((m : ZMod 5) ^ 2)) := h6mul.symm
@@ -638,8 +631,7 @@ theorem mod_five_obstruction_of_mod_four_eq_two {m k : ℕ}
           simp [Nat.cast_sub hm1, Nat.cast_sub hm2]
     have hmain :
         (m : ZMod 5) ^ 2 -
-          ((m : ZMod 5) * ((m : ZMod 5) - 1) * (2 * (m : ZMod 5) - 1)) = 0 := by
-      exact sub_eq_zero.mpr hEq2'
+          ((m : ZMod 5) * ((m : ZMod 5) - 1) * (2 * (m : ZMod 5) - 1)) = 0 := sub_eq_zero.mpr hEq2'
     have hrew :
         (m : ZMod 5) ^ 2 -
             ((m : ZMod 5) * ((m : ZMod 5) - 1) * (2 * (m : ZMod 5) - 1)) =
@@ -751,13 +743,12 @@ theorem mod_seven_obstruction_of_mod_six_eq_two {m k : ℕ}
     calc
       ((m ^ k : ℕ) : ZMod 7) = (m : ZMod 7) ^ k := by simp [Nat.cast_pow]
       _ = (m : ZMod 7) ^ 2 := zmod7_pow_eq_sq_of_mod_six_eq_two (m : ZMod 7) hk
-  have hsum : ((powerSum m k : ℕ) : ZMod 7) = ∑ i ∈ Finset.range m, (i : ZMod 7) ^ 2 := by
-    exact powerSum_cast_zmod7_of_mod_six_eq_two m k hk
+  have hsum : ((powerSum m k : ℕ) : ZMod 7) = ∑ i ∈ Finset.range m, (i : ZMod 7) ^ 2 :=
+    powerSum_cast_zmod7_of_mod_six_eq_two m k hk
   have hEqCast : (m : ZMod 7) ^ 2 = ∑ i ∈ Finset.range m, (i : ZMod 7) ^ 2 := by
     calc
       (m : ZMod 7) ^ 2 = ((m ^ k : ℕ) : ZMod 7) := hpow.symm
-      _ = ((powerSum m k : ℕ) : ZMod 7) := by
-        exact congrArg (fun t : ℕ => (t : ZMod 7)) hEq.symm
+      _ = ((powerSum m k : ℕ) : ZMod 7) := congrArg (fun t : ℕ => (t : ZMod 7)) hEq.symm
       _ = ∑ i ∈ Finset.range m, (i : ZMod 7) ^ 2 := hsum
   have hsqNatCast :
       (∑ i ∈ Finset.range m, (i : ZMod 7) ^ 2) = ((∑ i ∈ Finset.range m, i ^ 2 : ℕ) : ZMod 7) := by
@@ -770,8 +761,7 @@ theorem mod_seven_obstruction_of_mod_six_eq_two {m k : ℕ}
     calc
       (((6 : ℕ) : ZMod 7) * ((∑ i ∈ Finset.range m, i ^ 2 : ℕ) : ZMod 7)) =
           ((6 * (∑ i ∈ Finset.range m, i ^ 2 : ℕ) : ℕ) : ZMod 7) := by simp
-      _ = (m * (m - 1) * (2 * m - 1) : ℕ) := by
-        exact congrArg (fun t : ℕ => (t : ZMod 7)) hsixNat
+      _ = (m * (m - 1) * (2 * m - 1) : ℕ) := congrArg (fun t : ℕ => (t : ZMod 7)) hsixNat
   have hEq6 :
       (((6 : ℕ) : ZMod 7) * ((m : ZMod 7) ^ 2)) =
         (m * (m - 1) * (2 * m - 1) : ℕ) := by
@@ -792,8 +782,7 @@ theorem mod_seven_obstruction_of_mod_six_eq_two {m k : ℕ}
         simp [Nat.cast_sub hm1, Nat.cast_sub hm2]
   have hmain :
       (m : ZMod 7) * ((m : ZMod 7) - 1) * (2 * (m : ZMod 7) - 1) -
-        (((6 : ℕ) : ZMod 7) * ((m : ZMod 7) ^ 2)) = 0 := by
-    exact sub_eq_zero.mpr hEq6'.symm
+        (((6 : ℕ) : ZMod 7) * ((m : ZMod 7) ^ 2)) = 0 := sub_eq_zero.mpr hEq6'.symm
   have hrew9 :
       (m : ZMod 7) * ((m : ZMod 7) - 1) * (2 * (m : ZMod 7) - 1) -
           (((6 : ℕ) : ZMod 7) * ((m : ZMod 7) ^ 2)) =
@@ -860,13 +849,12 @@ theorem mod_thirteen_obstruction_of_mod_twelve_eq_two {m k : ℕ}
     calc
       ((m ^ k : ℕ) : ZMod 13) = (m : ZMod 13) ^ k := by simp [Nat.cast_pow]
       _ = (m : ZMod 13) ^ 2 := zmod13_pow_eq_sq_of_mod_twelve_eq_two (m : ZMod 13) hk
-  have hsum : ((powerSum m k : ℕ) : ZMod 13) = ∑ i ∈ Finset.range m, (i : ZMod 13) ^ 2 := by
-    exact powerSum_cast_zmod13_of_mod_twelve_eq_two m k hk
+  have hsum : ((powerSum m k : ℕ) : ZMod 13) = ∑ i ∈ Finset.range m, (i : ZMod 13) ^ 2 :=
+    powerSum_cast_zmod13_of_mod_twelve_eq_two m k hk
   have hEqCast : (m : ZMod 13) ^ 2 = ∑ i ∈ Finset.range m, (i : ZMod 13) ^ 2 := by
     calc
       (m : ZMod 13) ^ 2 = ((m ^ k : ℕ) : ZMod 13) := hpow.symm
-      _ = ((powerSum m k : ℕ) : ZMod 13) := by
-        exact congrArg (fun t : ℕ => (t : ZMod 13)) hEq.symm
+      _ = ((powerSum m k : ℕ) : ZMod 13) := congrArg (fun t : ℕ => (t : ZMod 13)) hEq.symm
       _ = ∑ i ∈ Finset.range m, (i : ZMod 13) ^ 2 := hsum
   have hsqNatCast :
       (∑ i ∈ Finset.range m, (i : ZMod 13) ^ 2) =
@@ -880,8 +868,7 @@ theorem mod_thirteen_obstruction_of_mod_twelve_eq_two {m k : ℕ}
     calc
       (((6 : ℕ) : ZMod 13) * ((∑ i ∈ Finset.range m, i ^ 2 : ℕ) : ZMod 13)) =
           ((6 * (∑ i ∈ Finset.range m, i ^ 2 : ℕ) : ℕ) : ZMod 13) := by simp
-      _ = (m * (m - 1) * (2 * m - 1) : ℕ) := by
-        exact congrArg (fun t : ℕ => (t : ZMod 13)) hsixNat
+      _ = (m * (m - 1) * (2 * m - 1) : ℕ) := congrArg (fun t : ℕ => (t : ZMod 13)) hsixNat
   have hEq6 :
       (((6 : ℕ) : ZMod 13) * ((m : ZMod 13) ^ 2)) =
         (m * (m - 1) * (2 * m - 1) : ℕ) := by
@@ -902,8 +889,7 @@ theorem mod_thirteen_obstruction_of_mod_twelve_eq_two {m k : ℕ}
         simp [Nat.cast_sub hm1, Nat.cast_sub hm2]
   have hmain :
       (m : ZMod 13) * ((m : ZMod 13) - 1) * (2 * (m : ZMod 13) - 1) -
-        (((6 : ℕ) : ZMod 13) * ((m : ZMod 13) ^ 2)) = 0 := by
-    exact sub_eq_zero.mpr hEq6'.symm
+        (((6 : ℕ) : ZMod 13) * ((m : ZMod 13) ^ 2)) = 0 := sub_eq_zero.mpr hEq6'.symm
   have hrew9 :
       (m : ZMod 13) * ((m : ZMod 13) - 1) * (2 * (m : ZMod 13) - 1) -
           (((6 : ℕ) : ZMod 13) * ((m : ZMod 13) ^ 2)) =
@@ -967,13 +953,12 @@ theorem mod_eleven_obstruction_of_mod_ten_eq_two {m k : ℕ}
     calc
       ((m ^ k : ℕ) : ZMod 11) = (m : ZMod 11) ^ k := by simp [Nat.cast_pow]
       _ = (m : ZMod 11) ^ 2 := zmod11_pow_eq_sq_of_mod_ten_eq_two (m : ZMod 11) hk
-  have hsum : ((powerSum m k : ℕ) : ZMod 11) = ∑ i ∈ Finset.range m, (i : ZMod 11) ^ 2 := by
-    exact powerSum_cast_zmod11_of_mod_ten_eq_two m k hk
+  have hsum : ((powerSum m k : ℕ) : ZMod 11) = ∑ i ∈ Finset.range m, (i : ZMod 11) ^ 2 :=
+    powerSum_cast_zmod11_of_mod_ten_eq_two m k hk
   have hEqCast : (m : ZMod 11) ^ 2 = ∑ i ∈ Finset.range m, (i : ZMod 11) ^ 2 := by
     calc
       (m : ZMod 11) ^ 2 = ((m ^ k : ℕ) : ZMod 11) := hpow.symm
-      _ = ((powerSum m k : ℕ) : ZMod 11) := by
-        exact congrArg (fun t : ℕ => (t : ZMod 11)) hEq.symm
+      _ = ((powerSum m k : ℕ) : ZMod 11) := congrArg (fun t : ℕ => (t : ZMod 11)) hEq.symm
       _ = ∑ i ∈ Finset.range m, (i : ZMod 11) ^ 2 := hsum
   have hsqNatCast :
       (∑ i ∈ Finset.range m, (i : ZMod 11) ^ 2) =
@@ -987,8 +972,7 @@ theorem mod_eleven_obstruction_of_mod_ten_eq_two {m k : ℕ}
     calc
       (((6 : ℕ) : ZMod 11) * ((∑ i ∈ Finset.range m, i ^ 2 : ℕ) : ZMod 11)) =
           ((6 * (∑ i ∈ Finset.range m, i ^ 2 : ℕ) : ℕ) : ZMod 11) := by simp
-      _ = (m * (m - 1) * (2 * m - 1) : ℕ) := by
-        exact congrArg (fun t : ℕ => (t : ZMod 11)) hsixNat
+      _ = (m * (m - 1) * (2 * m - 1) : ℕ) := congrArg (fun t : ℕ => (t : ZMod 11)) hsixNat
   have hEq6 :
       (((6 : ℕ) : ZMod 11) * ((m : ZMod 11) ^ 2)) =
         (m * (m - 1) * (2 * m - 1) : ℕ) := by
@@ -1009,8 +993,7 @@ theorem mod_eleven_obstruction_of_mod_ten_eq_two {m k : ℕ}
         simp [Nat.cast_sub hm1, Nat.cast_sub hm2]
   have hmain :
       (m : ZMod 11) * ((m : ZMod 11) - 1) * (2 * (m : ZMod 11) - 1) -
-        (((6 : ℕ) : ZMod 11) * ((m : ZMod 11) ^ 2)) = 0 := by
-    exact sub_eq_zero.mpr hEq6'.symm
+        (((6 : ℕ) : ZMod 11) * ((m : ZMod 11) ^ 2)) = 0 := sub_eq_zero.mpr hEq6'.symm
   have hrew9 :
       (m : ZMod 11) * ((m : ZMod 11) - 1) * (2 * (m : ZMod 11) - 1) -
           (((6 : ℕ) : ZMod 11) * ((m : ZMod 11) ^ 2)) =
@@ -1301,8 +1284,8 @@ private lemma odd_indicator_sum_cast_zmod8 (m : ℕ) :
   have hNat : (∑ i ∈ Finset.range m, if Odd i then i else 0) = (m / 2) ^ 2 :=
     odd_indicator_sum_nat m
   have hCast :
-      (((∑ i ∈ Finset.range m, if Odd i then i else 0) : ℕ) : ZMod 8) = ((m / 2) ^ 2 : ℕ) := by
-    exact congrArg (fun t : ℕ => (t : ZMod 8)) hNat
+      (((∑ i ∈ Finset.range m, if Odd i then i else 0) : ℕ) : ZMod 8) = ((m / 2) ^ 2 : ℕ) :=
+        congrArg (fun t : ℕ => (t : ZMod 8)) hNat
   simpa using hCast
 
 private lemma zmod8_sq_four_mul (q : ℕ) :
@@ -1366,8 +1349,7 @@ theorem mod_eight_obstruction_of_odd_ge_three {m k : ℕ}
   have hEqCast : (if Odd m then (m : ZMod 8) else 0) = ((m / 2) ^ 2 : ℕ) := by
     calc
       (if Odd m then (m : ZMod 8) else 0) = ((m ^ k : ℕ) : ZMod 8) := hpow.symm
-      _ = ((powerSum m k : ℕ) : ZMod 8) := by
-        exact congrArg (fun t : ℕ => (t : ZMod 8)) hEq.symm
+      _ = ((powerSum m k : ℕ) : ZMod 8) := congrArg (fun t : ℕ => (t : ZMod 8)) hEq.symm
       _ = ((m / 2) ^ 2 : ℕ) := hsum
   have hm8lt : m % 8 < 8 := Nat.mod_lt _ (by decide)
   interval_cases hm8 : m % 8
@@ -1760,8 +1742,7 @@ theorem no_solution_of_odd_gt_one {m k : ℕ} (hkodd : Odd k) (hk1 : 1 < k) :
     have hm_decomp : m = (m - 1) + 1 := by omega
     rw [hm_decomp]
     exact (Nat.coprime_self_add_right).2 (Nat.coprime_one_right (m - 1))
-  have hcopPow : Nat.Coprime (m - 1) (m ^ k) := by
-    exact (Nat.coprime_pow_right_iff hkpos (m - 1) m).2 hcop
+  have hcopPow : Nat.Coprime (m - 1) (m ^ k) := (Nat.coprime_pow_right_iff hkpos (m - 1) m).2 hcop
   have hsmall : (m - 1) ∣ 2 := hcopPow.dvd_of_dvd_mul_right hdiv'
   have hm1le2 : m - 1 ≤ 2 := Nat.le_of_dvd (by decide : 0 < 2) hsmall
   have hm2or3 : m = 2 ∨ m = 3 := by omega

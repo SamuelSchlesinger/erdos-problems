@@ -49,8 +49,7 @@ theorem three_pow_succ_le_tagModulus (i : ℕ) :
   calc
     3 ^ (i + 1) = ∏ _j ∈ Finset.range (i + 1), (3 : ℕ) := by
       rw [Finset.prod_const, Finset.card_range]
-    _ ≤ ∏ j ∈ Finset.range (i + 1), oddPrimeTag j := by
-      exact Finset.prod_le_prod
+    _ ≤ ∏ j ∈ Finset.range (i + 1), oddPrimeTag j := Finset.prod_le_prod
         (fun _ _ => by norm_num)
         (fun j _ => by
           have hlt : 2 < oddPrimeTag j := oddPrimeTag_two_lt j
@@ -86,9 +85,8 @@ theorem oddPrimeTag_le_two_pow (i : ℕ) :
       change 3 ≤ 2 ^ (0 + 2)
       norm_num
   | succ i ih =>
-      have h := oddPrimeTag_succ_le_two_mul i
       calc
-        oddPrimeTag (i + 1) ≤ 2 * oddPrimeTag i := h
+        oddPrimeTag (i + 1) ≤ 2 * oddPrimeTag i := oddPrimeTag_succ_le_two_mul i
         _ ≤ 2 * 2 ^ (i + 2) := Nat.mul_le_mul_left 2 ih
         _ = 2 ^ (i + 1 + 2) := by
           rw [mul_comm, ← pow_succ]
@@ -109,8 +107,7 @@ theorem tagModulus_le_two_pow_sq (i : ℕ) :
           Nat.mul_le_mul ih (oddPrimeTag_le_two_pow (i + 1))
         _ = 2 ^ (((i + 2) ^ 2) + (i + 1 + 2)) := by
           rw [← pow_add]
-        _ ≤ 2 ^ ((i + 1 + 2) ^ 2) := by
-          exact Nat.pow_le_pow_right (by norm_num) (by nlinarith)
+        _ ≤ 2 ^ ((i + 1 + 2) ^ 2) := Nat.pow_le_pow_right (by norm_num) (by nlinarith)
 
 theorem bertrandScaleExp_lt_succ (i : ℕ) :
     bertrandScaleExp i < bertrandScaleExp (i + 1) := by
@@ -151,8 +148,7 @@ theorem bertrandLength_mul_tagModulus_succ_le_sq (i : ℕ) :
       Nat.mul_le_mul_right _ (tagModulus_le_two_pow_sq (i + 1))
     _ = 2 ^ ((i + 1 + 2) ^ 2 + bertrandScaleExp (i + 1)) := by
       rw [← pow_add]
-    _ ≤ 2 ^ (2 * bertrandScaleExp i) := by
-      exact Nat.pow_le_pow_right
+    _ ≤ 2 ^ (2 * bertrandScaleExp i) := Nat.pow_le_pow_right
         (by norm_num) (by simpa using bertrandScaleExp_cover_margin i)
     _ = 2 ^ bertrandScaleExp i * 2 ^ bertrandScaleExp i := by
       rw [two_mul, pow_add]
@@ -226,8 +222,7 @@ theorem bertrand_endpoint_lt_next_min (i : ℕ) :
       _ ≤ q * (4 * Lj + 1) := Nat.mul_le_mul hq (by omega)
   have hmain : 6 * M * Li < M * q * (4 * Lj + 1) := by
     calc
-      6 * M * Li ≤ 6 * M * Lj := by
-        exact Nat.mul_le_mul_left (6 * M) hL
+      6 * M * Li ≤ 6 * M * Lj := Nat.mul_le_mul_left (6 * M) hL
       _ < 12 * M * Lj := by
         nlinarith
       _ = M * (12 * Lj) := by
@@ -293,13 +288,12 @@ theorem bertrand_narrow (i : ℕ) :
 theorem bertrandEndpoint_succ_le_hundred_sq (i : ℕ) :
     bertrandEndpoint (i + 1) ≤ (10 * bertrandLength i) ^ 2 := by
   unfold bertrandEndpoint
-  have h := bertrandLength_mul_tagModulus_succ_le_sq i
   calc
     6 * tagModulus (i + 1) * bertrandLength (i + 1)
         = 6 * (tagModulus (i + 1) * bertrandLength (i + 1)) := by
       ring
     _ ≤ 6 * (bertrandLength i * bertrandLength i) :=
-      Nat.mul_le_mul_left 6 h
+      Nat.mul_le_mul_left 6 (bertrandLength_mul_tagModulus_succ_le_sq i)
     _ ≤ (10 * bertrandLength i) ^ 2 := by
       nlinarith
 
@@ -313,8 +307,8 @@ theorem one_tenth_sqrt_le_of_le_hundred_sq {E L : ℕ}
     norm_num [Nat.cast_mul, Nat.cast_pow]
   have hreal : (E : ℝ) ≤ ((10 : ℝ) * (L : ℝ)) ^ 2 :=
     hreal_nat.trans_eq hcast
-  have hsqrt : Real.sqrt (E : ℝ) ≤ (10 : ℝ) * (L : ℝ) := by
-    exact Real.sqrt_le_iff.mpr ⟨by positivity, hreal⟩
+  have hsqrt : Real.sqrt (E : ℝ) ≤ (10 : ℝ) * (L : ℝ) :=
+    Real.sqrt_le_iff.mpr ⟨by positivity, hreal⟩
   nlinarith
 
 theorem bertrand_cover (i : ℕ) :
@@ -449,8 +443,8 @@ theorem bertrandBlockInSubtype_reciprocal_tsum_le (i : ℕ) :
         ext
         exact h
     _ ≤ ∑ n ∈ apBlockFinset (tagResidue i) (tagModulus i) (bertrandStart i)
-        (bertrandLength i), (1 : ℝ) / (n : ℝ) := by
-      exact Finset.sum_le_sum_of_subset_of_nonneg hGsub (by
+        (bertrandLength i), (1 : ℝ) / (n : ℝ) :=
+      Finset.sum_le_sum_of_subset_of_nonneg hGsub (by
         intro n _hnF _hnG
         positivity)
 
@@ -484,8 +478,8 @@ theorem bertrandSet_reciprocalSummable :
 /-- The explicit Bertrand-prime block construction answers the positive
 square-root density question in Erdős problem #12. -/
 theorem erdos12_positiveSqrtDensity_bertrand :
-    Erdos12PositiveSqrtDensityQuestion := by
-  exact erdos12_positiveSqrtDensity_of_bertrand_tagged_ap_blocks
+    Erdos12PositiveSqrtDensityQuestion :=
+  erdos12_positiveSqrtDensity_of_bertrand_tagged_ap_blocks
     (T := bertrandStart) (L := bertrandLength) (E := bertrandEndpoint)
     (c := (1 / 10 : ℝ))
     (by norm_num)

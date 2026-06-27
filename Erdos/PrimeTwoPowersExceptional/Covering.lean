@@ -141,7 +141,7 @@ theorem upperDensityPositive_of_AP_exceptional
     rcases apFinset_mem.mp hn with ⟨k, hk, rfl⟩
     have hge : N₀ ≤ a₀ + k * m := by omega
     have hmod : (a₀ + k * m) % m = a % m := by
-      rw [Nat.add_mul_mod_self_right]; exact ha₀_mod
+      rwa [Nat.add_mul_mod_self_right]
     exact hAP _ hge hmod
   -- Convert to ncard inequality.
   have hfin : (exceptionalSet ∩ Set.Icc 1 M).Finite :=
@@ -166,7 +166,7 @@ theorem upperDensityPositive_of_AP_exceptional
     omega
   -- Now translate to reals.
   have hLcard : (L : ℝ) ≤ ((exceptionalSet ∩ Set.Icc 1 M).ncard : ℝ) := by
-    have : L ≤ (exceptionalSet ∩ Set.Icc 1 M).ncard := by rw [← hS_card]; exact hcard_le
+    have : L ≤ (exceptionalSet ∩ Set.Icc 1 M).ncard := by rwa [← hS_card]
     exact_mod_cast this
   -- Goal: 1/(4m) ≤ countUpTo / M
   unfold countUpTo

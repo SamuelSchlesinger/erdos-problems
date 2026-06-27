@@ -179,9 +179,8 @@ theorem reciprocalSummable_multipleLayer_of_quotientSet
     {A : Set ℕ} (hpos : PositiveSet A) {d : ℕ} (hd : 0 < d)
     (hquot : ReciprocalSummable (quotientSet d A)) :
     ReciprocalSummable (multipleLayer d A) := by
-  let e := quotientEquivMultipleLayer d A hd
   unfold ReciprocalSummable at hquot ⊢
-  refine e.summable_iff.mp ?_
+  refine (quotientEquivMultipleLayer d A hd).summable_iff.mp ?_
   have hscaled :
       Summable fun q : quotientSet d A =>
         (1 / (d : ℝ)) * ((1 : ℝ) / ((q : ℕ) : ℝ)) :=
@@ -226,8 +225,8 @@ theorem exists_not_reciprocalSummable_multipleLayer_of_noncoprimeLayer
   have hcover : noncoprimeLayer a A ⊆ ⋃ d ∈ I, B d := by
     intro n hn
     rcases Nat.Prime.not_coprime_iff_dvd.mp hn.2 with ⟨p, hp, hpn, hpa⟩
-    have hpI : p ∈ I := by
-      exact Finset.mem_filter.mpr
+    have hpI : p ∈ I :=
+      Finset.mem_filter.mpr
         ⟨Nat.mem_divisors.mpr ⟨hpa, ha.ne'⟩, hp.one_lt⟩
     simp only [Set.mem_iUnion, B]
     exact ⟨p, ⟨hpI, hpn⟩⟩
@@ -307,8 +306,8 @@ theorem SummabilityCounterexample.reciprocalSummable_finite_iUnion_noncoprimeLay
     (hCpos : ∀ a ∈ C, 0 < a)
     (hirred : ∀ a d : ℕ, d ∣ a → 1 < d →
       ¬ SummabilityCounterexample (quotientSet d (multipleLayer d A))) :
-    ReciprocalSummable (⋃ a ∈ C, noncoprimeLayer a A) := by
-  exact ReciprocalSummable.biUnion_finset fun a ha =>
+    ReciprocalSummable (⋃ a ∈ C, noncoprimeLayer a A) :=
+  ReciprocalSummable.biUnion_finset fun a ha =>
     hA.reciprocalSummable_noncoprimeLayer_of_quotient_irreducible
       hirred (hCpos a ha)
 
@@ -625,10 +624,8 @@ theorem exists_not_reciprocalSummable_noncoprimeLayer_of_finite_core_cover
     (hSsubA : S ⊆ A)
     (hcover : S ⊆ ⋃ a ∈ J, {n | ¬ Nat.Coprime n a}) :
     ∃ a ∈ J, ¬ ReciprocalSummable (noncoprimeLayer a A) := by
-  let B : ℕ → Set ℕ := fun a => {n | ¬ Nat.Coprime n a}
-  have hcoverB : S ⊆ ⋃ a ∈ J, B a := hcover
   rcases DivisibilityAvoidingSets.exists_not_reciprocalSummable_inter_of_finite_cover
-      hSnot hcoverB with ⟨a, haJ, hanot⟩
+      hSnot hcover with ⟨a, haJ, hanot⟩
   refine ⟨a, haJ, ?_⟩
   intro hlayer
   exact hanot (hlayer.mono fun n hn => ⟨hSsubA hn.1, hn.2⟩)

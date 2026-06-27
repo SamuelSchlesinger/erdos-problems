@@ -83,8 +83,7 @@ theorem vPrime_le_v (x : ℕ) : VPrime x ≤ V x := by
   exact Finset.card_le_card (totientImageUpTo_subset_totientValuesAtMost x)
 
 /-- In particular `V(x)` is also positive once `x ≥ 1`. -/
-theorem v_pos {x : ℕ} (hx : 1 ≤ x) : 0 < V x := by
-  exact lt_of_lt_of_le (vPrime_pos hx) (vPrime_le_v x)
+theorem v_pos {x : ℕ} (hx : 1 ≤ x) : 0 < V x := lt_of_lt_of_le (vPrime_pos hx) (vPrime_le_v x)
 
 /-!
 ## A structural constraint on the values counted by `V`

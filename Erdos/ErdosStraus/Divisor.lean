@@ -135,8 +135,7 @@ Check: 1/20 + 1/210 + 1/30660 = 4/73. -/
 /-- The Erdős-Straus conjecture holds for n = 73. -/
 theorem erdos_straus_73 :
     ∃ x y z : ℕ, 1 ≤ x ∧ x < y ∧ y < z ∧
-      (4 / (73 : ℕ) : ℚ) = 1 / x + 1 / y + 1 / z := by
-  exact of_m_sq_factorization 73 7 1460 10 213160
+      (4 / (73 : ℕ) : ℚ) = 1 / x + 1 / y + 1 / z := of_m_sq_factorization 73 7 1460 10 213160
     (by omega) (by omega) (by omega) (by omega) (by norm_num) (by norm_num)
     (by omega) (by omega) (by omega) (by decide)
 

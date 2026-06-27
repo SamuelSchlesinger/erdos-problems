@@ -65,12 +65,12 @@ theorem safePrime_odd_pair_free {p a : ℕ} (hp_prime : Nat.Prime p)
       exact (Nat.gcd_dvd_left _ _).trans ⟨2 ^ α, by ring⟩
   -- gcd(a + 2^α p, a) = gcd(2^α p, a) = gcd(p, a).
   have hg1 : Nat.gcd (a + 2 ^ α * p) a = Nat.gcd p a := by
-    rw [Nat.add_comm, Nat.gcd_add_self_left]; exact hgcd_2alpha_p_a
+    rwa [Nat.add_comm, Nat.gcd_add_self_left]
   -- gcd(a + 2^α p, 2^α p) = gcd(a, 2^α p) = gcd(a, p).
   have hgcd_a_2alphap : Nat.gcd a (2 ^ α * p) = Nat.gcd a p := by
     rw [Nat.gcd_comm a (2 ^ α * p), hgcd_2alpha_p_a, Nat.gcd_comm]
   have hg2 : Nat.gcd (a + 2 ^ α * p) (2 ^ α * p) = Nat.gcd a p := by
-    rw [Nat.gcd_add_self_left]; exact hgcd_a_2alphap
+    rwa [Nat.gcd_add_self_left]
   -- Bezout: gcd(d, a · b) ∣ gcd(d, a) · gcd(d, b).
   set d := a + 2 ^ α * p with hd_def
   have hbez : d.gcd (a * (2 ^ α * p)) ∣ d.gcd a * d.gcd (2 ^ α * p) :=
@@ -248,7 +248,7 @@ theorem safePrime_cross_pair_free {p q : ℕ} (hp_prime : Nat.Prime p)
     have hcop_pq : Nat.Coprime (p + 2 ^ (β - α) * q) (p * q) :=
       hcop_p.mul_right hcop_q
     have hone : (p + 2 ^ (β - α) * q) ∣ 1 := by
-      have : (p + 2 ^ (β - α) * q) ∣ (p * q) * 1 := by rw [Nat.mul_one]; exact hcancel_pq
+      have : (p + 2 ^ (β - α) * q) ∣ (p * q) * 1 := by rwa [Nat.mul_one]
       exact hcop_pq.dvd_of_dvd_mul_left this
     have hge_three : 3 ≤ p + 2 ^ (β - α) * q := by
       have h2_ge_2 : 2 ≤ 2 ^ (β - α) := by
@@ -324,7 +324,7 @@ theorem safePrime_cross_pair_free {p q : ℕ} (hp_prime : Nat.Prime p)
     have hcop_pq' : Nat.Coprime (p * 2 ^ (α - β) + q) (p * q) :=
       hcop_p.mul_right hcop_q
     have hone : (p * 2 ^ (α - β) + q) ∣ 1 := by
-      have : (p * 2 ^ (α - β) + q) ∣ (p * q) * 1 := by rw [Nat.mul_one]; exact hcancel_pq
+      have : (p * 2 ^ (α - β) + q) ∣ (p * q) * 1 := by rwa [Nat.mul_one]
       exact hcop_pq'.dvd_of_dvd_mul_left this
     have hge_three : 3 ≤ p * 2 ^ (α - β) + q := by
       have h2_ge_2 : 2 ≤ 2 ^ (α - β) := by
@@ -808,8 +808,8 @@ of 2) gives the projected `Θ(√N / log N)` polynomial improvement. -/
 theorem exists_pairFree_card_ge_eleven (N : ℕ) :
     ∃ A : Finset ℕ, A ⊆ Finset.Icc 1 N ∧ PairFree A ∧
       A.card = (N + 1) / 2 + Nat.log 2 N +
-        ((Finset.Icc 4 (Nat.log 2 N)).filter (fun α => 2 ^ α * 11 ≤ N)).card := by
-  exact ⟨oddPlusPowersOfTwoPlusEleven N,
+        ((Finset.Icc 4 (Nat.log 2 N)).filter (fun α => 2 ^ α * 11 ≤ N)).card :=
+  ⟨oddPlusPowersOfTwoPlusEleven N,
     oddPlusPowersOfTwoPlusEleven_subset_Icc N,
     pairFree_oddPlusPowersOfTwoPlusEleven N,
     card_oddPlusPowersOfTwoPlusEleven N⟩
@@ -927,8 +927,8 @@ theorem exists_pairFree_card_ge_elevenThirteen (N : ℕ) :
     ∃ A : Finset ℕ, A ⊆ Finset.Icc 1 N ∧ PairFree A ∧
       A.card = (N + 1) / 2 + Nat.log 2 N +
         ((Finset.Icc 4 (Nat.log 2 N)).filter (fun α => 2 ^ α * 11 ≤ N)).card +
-        ((Finset.Icc 4 (Nat.log 2 N)).filter (fun α => 2 ^ α * 13 ≤ N)).card := by
-  exact ⟨oddPlusPowersOfTwoPlusElevenPlusThirteen N,
+        ((Finset.Icc 4 (Nat.log 2 N)).filter (fun α => 2 ^ α * 13 ≤ N)).card :=
+  ⟨oddPlusPowersOfTwoPlusElevenPlusThirteen N,
     oddPlusPowersOfTwoPlusElevenPlusThirteen_subset_Icc N,
     pairFree_oddPlusPowersOfTwoPlusElevenPlusThirteen N,
     card_oddPlusPowersOfTwoPlusElevenPlusThirteen N⟩
@@ -1073,8 +1073,8 @@ finset `P` of safe primes, the construction
 `oddPlusPowersOfTwo ∪ ⋃_{p ∈ P} F_p` is pair-free in `[1, N]`. -/
 theorem exists_pairFree_safePrimeSet {P : Finset ℕ}
     (hP : SafePrimeSet P) (N : ℕ) :
-    ∃ A : Finset ℕ, A ⊆ Finset.Icc 1 N ∧ PairFree A := by
-  exact ⟨oddPlusPowersOfTwoPlusSafePrimeSet P N,
+    ∃ A : Finset ℕ, A ⊆ Finset.Icc 1 N ∧ PairFree A :=
+  ⟨oddPlusPowersOfTwoPlusSafePrimeSet P N,
     oddPlusPowersOfTwoPlusSafePrimeSet_subset_Icc hP N,
     pairFree_oddPlusPowersOfTwoPlusSafePrimeSet hP N⟩
 
@@ -1243,8 +1243,8 @@ theorem safePrimeSet_safePrimesUpTo (K : ℕ) :
 `oddPlusPowersOfTwo N ∪ safePrimeSetFamily (safePrimesUpTo K) N` is a
 pair-free subset of `[1, N]`. -/
 theorem exists_pairFree_universal (K N : ℕ) :
-    ∃ A : Finset ℕ, A ⊆ Finset.Icc 1 N ∧ PairFree A := by
-  exact exists_pairFree_safePrimeSet (safePrimeSet_safePrimesUpTo K) N
+    ∃ A : Finset ℕ, A ⊆ Finset.Icc 1 N ∧ PairFree A :=
+  exists_pairFree_safePrimeSet (safePrimeSet_safePrimesUpTo K) N
 
 /-! ### Quantitative bound: cardinality of the universal construction. -/
 

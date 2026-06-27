@@ -970,8 +970,7 @@ theorem uniqueExtra_maximal_missingReflection_shadow_shape
     (∃ b ∈ A, ∃ c ∈ A, 2 * y = b + c ∧ 2 * y ≠ nstar) ∨
       ∃ a ∈ A, a ∈ pairElements A nstar ∧ y + a = 2 * x ∧ y + a ≠ nstar := by
   have hxExtra_unpacked : x ∈ A ∧ x ∉ pairElements A nstar := by
-    rw [mem_extraElements] at hxExtra
-    exact hxExtra
+    rwa [mem_extraElements] at hxExtra
   have hyA : y ∉ A :=
     reflection_not_mem_of_extra hxExtra_unpacked.1 hxExtra_unpacked.2 hxy
   rcases maximal_missing_point_has_shadow hmax h_exception hyN hyA with
@@ -980,7 +979,7 @@ theorem uniqueExtra_maximal_missingReflection_shadow_shape
   · rcases translateShadow_of_blocker ha hb hc hsum hne with ⟨b', c', hT⟩
     have hshape :=
       uniqueExtra_translateShadow_forces_selfPair hmax.1.1 h_exception
-        (by rw [mem_extraElements]; exact hxExtra_unpacked) hxy hunique hT
+        (by rwa [mem_extraElements]) hxy hunique hT
     exact Or.inr ⟨a, ha, hshape.1, hshape.2.2.2, hne⟩
 
 /-- If the self-shadow branch is absent in the unique-extra situation, the
@@ -1009,8 +1008,7 @@ theorem uniqueExtra_translateSelfPair_gives_selfShadow
     (hshape : y + a = 2 * x) :
     ∃ b ∈ A, ∃ c ∈ A, 2 * y = b + c ∧ 2 * y ≠ nstar := by
   have hxExtra_unpacked : x ∈ A ∧ x ∉ pairElements A nstar := by
-    rw [mem_extraElements] at hxExtra
-    exact hxExtra
+    rwa [mem_extraElements] at hxExtra
   have ha_le : a ≤ nstar := le_nstar_of_mem_pairElements haPE
   have ha_refl : nstar - a ∈ A := pairElements_has_reflection haPE
   have h2y_ne : 2 * y ≠ nstar :=
@@ -1148,8 +1146,7 @@ theorem uniqueExtra_selfShadow_forces_x_and_paired_endpoint
     (b = x ∧ c ∈ pairElements A nstar) ∨
       (c = x ∧ b ∈ pairElements A nstar) := by
   have hxExtra_unpacked : x ∈ A ∧ x ∉ pairElements A nstar := by
-    rw [mem_extraElements] at hxExtra
-    exact hxExtra
+    rwa [mem_extraElements] at hxExtra
   have hyA : y ∉ A :=
     reflection_not_mem_of_extra hxExtra_unpacked.1 hxExtra_unpacked.2 hxy
   have hendpoint :=
@@ -1317,8 +1314,7 @@ theorem allExtrasHigh_no_selfShadow
     ¬ ∃ b ∈ A, ∃ c ∈ A, b + c = 2 * y := by
   intro hself
   have hxExtra_unpacked : x ∈ A ∧ x ∉ pairElements A nstar := by
-    rw [mem_extraElements] at hxExtra
-    exact hxExtra
+    rwa [mem_extraElements] at hxExtra
   rcases hself with ⟨b, hbA, c, hcA, hbc⟩
   have hendpoint :=
     selfShadow_forces_extra_endpoint hA h_exception hxExtra_unpacked.1
@@ -1350,8 +1346,7 @@ theorem allExtrasHigh_no_pairedAnchor_translateShadow
     (hT : TranslateShadow A nstar y a b c) :
     False := by
   have hxExtra_unpacked : x ∈ A ∧ x ∉ pairElements A nstar := by
-    rw [mem_extraElements] at hxExtra
-    exact hxExtra
+    rwa [mem_extraElements] at hxExtra
   rcases hT with ⟨haA, hbA, hcA, hbc, hsum, hne⟩
   have hendpoints :=
     translateShadow_pairedAnchor_forces_oldPair_endpoints_extra hA h_exception
@@ -1413,8 +1408,7 @@ theorem allExtrasHigh_maximal_missingReflection_has_unpaired_translateShadow
     ∃ a ∈ A, a ∉ pairElements A nstar ∧
       ∃ b : ℕ, ∃ c : ℕ, TranslateShadow A nstar y a b c := by
   have hxExtra_unpacked : x ∈ A ∧ x ∉ pairElements A nstar := by
-    rw [mem_extraElements] at hxExtra
-    exact hxExtra
+    rwa [mem_extraElements] at hxExtra
   have hyA : y ∉ A :=
     reflection_not_mem_of_extra hxExtra_unpacked.1 hxExtra_unpacked.2 hxy
   have hhigh : 2 * y < x :=
@@ -1468,14 +1462,13 @@ theorem allExtrasHigh_maximal_missingReflection_false
     (hxy : x + y = nstar) (hyN : y ∈ ground N) :
     False := by
   have hxExtra_unpacked : x ∈ A ∧ x ∉ pairElements A nstar := by
-    rw [mem_extraElements] at hxExtra
-    exact hxExtra
+    rwa [mem_extraElements] at hxExtra
   have hyA : y ∉ A :=
     reflection_not_mem_of_extra hxExtra_unpacked.1 hxExtra_unpacked.2 hxy
   obtain ⟨a, _haExtra, b, c, hT, hpaired⟩ :=
     allExtrasHigh_maximal_missingReflection_has_mixed_translateShadow
       hmax h_exception hAllHigh
-      (by rw [mem_extraElements]; exact hxExtra_unpacked) hxy hyN
+      (by rwa [mem_extraElements]) hxy hyN
   have hendpoints :=
     translateShadow_forces_oldPair_endpoints_extra hmax.1.1 h_exception
       hxExtra_unpacked.1 hxy hyA hT
@@ -1752,8 +1745,7 @@ theorem minExtra_high_forces_larger_extraElement
   intro x hxy hyN hhigh
   have hxExtra : x ∈ extraElements A nstar := (extraElements A nstar).min'_mem hE
   have hxExtra_unpacked : x ∈ A ∧ x ∉ pairElements A nstar := by
-    rw [mem_extraElements] at hxExtra
-    exact hxExtra
+    rwa [mem_extraElements] at hxExtra
   have hyA : y ∉ A :=
     reflection_not_mem_of_extra hxExtra_unpacked.1 hxExtra_unpacked.2 hxy
   have hleast : ∀ z ∈ extraElements A nstar, x ≤ z := by
@@ -1992,7 +1984,6 @@ theorem cardinalityMaximal_extraElements_empty_of_r4SaturationDefect_zero
     (_hopt : IsCardinalityMaximalAlmostSidonInInterval A N)
     (_h_exception : HasTwoSumReprs A nstar)
     (hdef : r4SaturationDefect A nstar = 0) :
-    extraElements A nstar = ∅ := by
-  exact extraElements_empty_of_r4SaturationDefect_zero A hdef
+    extraElements A nstar = ∅ := extraElements_empty_of_r4SaturationDefect_zero A hdef
 
 end AlmostSidonSets

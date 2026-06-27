@@ -2817,7 +2817,7 @@ theorem rank_surjective {σ : ℕ → ℕ} (hinj : Function.Injective σ) :
   obtain ⟨b, hb_mem, hb_gt⟩ := hrange_inf.exists_gt n
   obtain ⟨v, hv⟩ := hb_mem
   -- `n < b = rank σ v`, so downward closure gives a preimage of `n`
-  have : n < rank σ v := by rw [hv]; exact hb_gt
+  have : n < rank σ v := by rwa [hv]
   exact rank_range_downward hinj this
 
 /-- **The compactness bridge for Erdős #196.** If, for some uniform bound `f`, every

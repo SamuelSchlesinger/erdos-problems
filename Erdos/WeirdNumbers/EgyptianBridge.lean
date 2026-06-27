@@ -366,8 +366,7 @@ theorem abundant_iff_reciprocal_sum_ge_two {n : ℕ} (hn : 0 < n) :
     refine ⟨hn, ?_⟩
     have hle : (↑(2 * n) : ℚ) ≤ ↑(n.divisors.sum id) := by
       calc (↑(2 * n) : ℚ) = 2 * ↑n := by push_cast; ring
-        _ ≤ (↑(n.divisors.sum id) / ↑n) * ↑n := by
-            exact mul_le_mul_of_nonneg_right h (le_of_lt hn_pos)
+        _ ≤ (↑(n.divisors.sum id) / ↑n) * ↑n := mul_le_mul_of_nonneg_right h (le_of_lt hn_pos)
         _ = ↑(n.divisors.sum id) := by field_simp
     have hσ : 2 * n ≤ n.divisors.sum id := by exact_mod_cast hle
     have h' : n.divisors.sum id = n.properDivisors.sum id + n :=

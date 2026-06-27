@@ -94,7 +94,6 @@ theorem adjacent_flip {n : ℕ} (x : Vertex n) (i : Fin n) :
 
 /-- The same one-coordinate flip is an edge of the bundled hypercube graph. -/
 theorem hypercubeGraph_adj_flip {n : ℕ} (x : Vertex n) (i : Fin n) :
-    (hypercubeGraph n).Adj x (flip x i) := by
-  exact adjacent_flip x i
+    (hypercubeGraph n).Adj x (flip x i) := adjacent_flip x i
 
 end HypercubeC4

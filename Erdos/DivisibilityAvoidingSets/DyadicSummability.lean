@@ -65,8 +65,7 @@ theorem dyadicShellInSubtype_reciprocal_tsum_le (A : Set ℕ) (k : ℕ) :
     (∑' a : S, (1 : ℝ) / ((a : A) : ℕ)) =
         ∑ a : S, (1 : ℝ) / (((a : A) : ℕ) : ℝ) := by
       rw [tsum_fintype]
-    _ ≤ ∑ _a : S, (1 : ℝ) / ((2 : ℝ) ^ k) := by
-      exact Finset.sum_le_sum fun a _ha => by
+    _ ≤ ∑ _a : S, (1 : ℝ) / ((2 : ℝ) ^ k) := Finset.sum_le_sum fun a _ha => by
         have ha_lower_nat : 2 ^ k ≤ ((a : A) : ℕ) := a.property.1
         have ha_lower : (2 : ℝ) ^ k ≤ (((a : A) : ℕ) : ℝ) := by
           exact_mod_cast ha_lower_nat
@@ -158,8 +157,8 @@ theorem reciprocalSummable_of_dyadicShell_bound {A : Set ℕ} {u : ℕ → ℝ}
     (hApos : PositiveSet A) (hu : Summable u)
     (hbound : ∀ k,
       ((A ∩ dyadicShell k).ncard : ℝ) / ((2 : ℝ) ^ k) ≤ u k) :
-    ReciprocalSummable A := by
-  exact reciprocalSummable_of_dyadicShell_summable hApos
+    ReciprocalSummable A :=
+  reciprocalSummable_of_dyadicShell_summable hApos
     (Summable.of_nonneg_of_le
       (fun _ => div_nonneg (Nat.cast_nonneg _) (by positivity)) hbound hu)
 
@@ -171,8 +170,8 @@ theorem reciprocalSummable_of_eventually_dyadicShell_bound
     (hApos : PositiveSet A) (hu : Summable u) {N : ℕ}
     (hbound : ∀ k, N ≤ k →
       ((A ∩ dyadicShell k).ncard : ℝ) / ((2 : ℝ) ^ k) ≤ u k) :
-    ReciprocalSummable A := by
-  exact reciprocalSummable_of_dyadicShell_summable hApos
+    ReciprocalSummable A :=
+  reciprocalSummable_of_dyadicShell_summable hApos
     (summable_of_nonneg_of_eventually_le_summable
       (fun _ => div_nonneg (Nat.cast_nonneg _) (by positivity)) hu hbound)
 

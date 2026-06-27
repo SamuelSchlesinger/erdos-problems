@@ -65,8 +65,8 @@ theorem avoidingSet_iUnion_apBlock_of_tagged {r M T L q : ℕ → ℕ}
         x ∈ apBlock (r j) (M j) (T j) (L j) → x ≡ 1 [MOD q i])
     (hq_not_dvd_one : ∀ i, ¬ q i ∣ 1)
     (hq_not_dvd_two : ∀ i, ¬ q i ∣ 2) :
-    AvoidingSet (⋃ i, apBlock (r i) (M i) (T i) (L i)) := by
-  exact avoidingSet_iUnion_of_tagged_blocks
+    AvoidingSet (⋃ i, apBlock (r i) (M i) (T i) (L i)) :=
+  avoidingSet_iUnion_of_tagged_blocks
     (B := fun i => apBlock (r i) (M i) (T i) (L i)) (q := q)
     horder
     (fun i => avoidingSet_apBlock_of_narrow (hmin i) (hnarrow i))

@@ -16,8 +16,7 @@ namespace PrimeGapHarmonic
 
 /-- A prime `p` with `p < n` is one of the indices in the reciprocal gap sum. -/
 theorem prime_mem_primesBelow {n p : ℕ} (hpn : p < n) (hp : Nat.Prime p) :
-    p ∈ primesBelow n := by
-  exact mem_primesBelow.mpr ⟨hpn, hp⟩
+    p ∈ primesBelow n := mem_primesBelow.mpr ⟨hpn, hp⟩
 
 theorem gapSummand_nonneg {n p : ℕ} (hp : p ∈ primesBelow n) :
     0 ≤ 1 / (((n - p : ℕ) : ℝ)) := by
@@ -97,8 +96,7 @@ theorem inv_sub_prime_le_gapReciprocalSum {n p : ℕ} (hpn : p < n)
   simp [gapReciprocalSum]
 
 theorem two_mem_primesBelow {n : ℕ} (hn : 2 < n) :
-    2 ∈ primesBelow n := by
-  exact prime_mem_primesBelow hn Nat.prime_two
+    2 ∈ primesBelow n := prime_mem_primesBelow hn Nat.prime_two
 
 theorem inv_sub_two_le_gapReciprocalSum {n : ℕ} (hn : 2 < n) :
     1 / (((n - 2 : ℕ) : ℝ)) ≤ gapReciprocalSum n := by

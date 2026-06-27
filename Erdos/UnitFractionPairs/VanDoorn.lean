@@ -52,7 +52,7 @@ ValSignature simp lemmas for v_p(c) and `padicValNat.mul` for the shift. -/
 /-- v₂(3·a) ≡ 0 (mod 3) when 3 ∣ v₂(a). -/
 private lemma v2_three_mul_mod3 {a : ℕ} (ha : a ≠ 0) (h3 : 3 ∣ padicValNat 2 a) :
     3 ∣ padicValNat 2 (3 * a) := by
-  rw [padicValNat.mul (by decide) ha, ValSignature.v2_3, zero_add]; exact h3
+  rwa [padicValNat.mul (by decide) ha, ValSignature.v2_3, zero_add]
 
 /-- v₂(6·a) ≡ 1 (mod 3) when 3 ∣ v₂(a), so ¬(3 ∣ v₂(6a)). -/
 private lemma v2_six_mul_not_mod3 {a : ℕ} (ha : a ≠ 0) (h3 : 3 ∣ padicValNat 2 a) :
@@ -1043,10 +1043,8 @@ theorem vd_triangle_t_overlap_subset_channels (N : ℕ) :
   rcases Finset.mem_inter.mp hx with ⟨hx_tri, hx_t⟩
   rcases Finset.mem_biUnion.mp hx_tri with ⟨d, hdD, hxin_tri⟩
   rcases Finset.mem_biUnion.mp hx_t with ⟨a, haD, hxin_t⟩
-  have hd_mem : d ∈ Finset.Icc 1 (N / 180) ∧ Nat.Coprime d 6 := by
-    exact Finset.mem_filter.mp hdD
-  have ha_mem : a ∈ Finset.Icc 1 (N / 12) ∧ VDParam a := by
-    exact Finset.mem_filter.mp haD
+  have hd_mem : d ∈ Finset.Icc 1 (N / 180) ∧ Nat.Coprime d 6 := Finset.mem_filter.mp hdD
+  have ha_mem : a ∈ Finset.Icc 1 (N / 12) ∧ VDParam a := Finset.mem_filter.mp haD
   simp only [Finset.mem_insert, Finset.mem_singleton] at hxin_tri hxin_t
   rcases hxin_tri with rfl | rfl | rfl
   · rcases hxin_t with h4 | h12

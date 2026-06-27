@@ -139,8 +139,7 @@ theorem obstructionTail_sum_large {m x y : ℕ}
   omega
 
 theorem obstructionSet_mem_of_tail {m x : ℕ} (hx : x ∈ obstructionTail m) :
-    x ∈ obstructionSet m := by
-  exact Or.inr hx
+    x ∈ obstructionSet m := Or.inr hx
 
 theorem zero_mem_obstructionSet (m : ℕ) : 0 ∈ obstructionSet m := by
   simp [obstructionSet]

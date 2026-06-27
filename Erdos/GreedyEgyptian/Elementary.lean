@@ -116,16 +116,14 @@ theorem greedyStep_unitFraction {A : Set ℕ} {n : ℕ}
 /-- Therefore every unit fraction `1 / n` with `n ∈ A` terminates in one step. -/
 theorem greedyTerminatesIn_one_unitFraction {A : Set ℕ} {n : ℕ}
     (hn : 0 < n) (hA : n ∈ A) :
-    GreedyTerminatesIn A 1 (1 / n : ℚ) := by
-  exact GreedyTerminatesIn.succ (greedyStep_unitFraction hn hA)
+    GreedyTerminatesIn A 1 (1 / n : ℚ) := GreedyTerminatesIn.succ (greedyStep_unitFraction hn hA)
     GreedyTerminatesIn.zero
 
 /-- Consequently every unit fraction `1 / n` with `n ∈ A` lies in the
 terminating region. -/
 theorem greedyTerminates_unitFraction {A : Set ℕ} {n : ℕ}
     (hn : 0 < n) (hA : n ∈ A) :
-    GreedyTerminates A (1 / n : ℚ) := by
-  exact ⟨1, greedyTerminatesIn_one_unitFraction hn hA⟩
+    GreedyTerminates A (1 / n : ℚ) := ⟨1, greedyTerminatesIn_one_unitFraction hn hA⟩
 
 /-- In particular, every odd unit fraction terminates on the odd numbers. -/
 theorem greedyTerminates_odd_unitFraction {n : ℕ}

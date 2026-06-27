@@ -27,8 +27,7 @@ noncomputable def extensionCandidates (A : Finset ℕ) (N : ℕ) : Finset (Finse
 
 /-- Any Sidon set in `{1, ..., N}` belongs to its own extension-candidate family. -/
 theorem self_mem_extensionCandidates {A : Finset ℕ} {N : ℕ} (hA : SidonInInterval A N) :
-    A ∈ extensionCandidates A N := by
-  exact mem_extensionCandidates_iff.mpr ⟨subset_rfl, hA⟩
+    A ∈ extensionCandidates A N := mem_extensionCandidates_iff.mpr ⟨subset_rfl, hA⟩
 
 /-- Every Sidon set in `{1, ..., N}` extends to a maximal Sidon set in the same
 interval. -/
@@ -42,8 +41,7 @@ theorem exists_maximalSidonInInterval_extends {A : Finset ℕ} {N : ℕ}
   have hB : A ⊆ B ∧ SidonInInterval B N := mem_extensionCandidates_iff.mp hBmem
   refine ⟨B, hB.1, hB.2, ?_⟩
   intro x hx hxB hSidonInsert
-  have hInsert : A ⊆ insert x B := by
-    exact hB.1.trans (Finset.subset_insert _ _)
+  have hInsert : A ⊆ insert x B := hB.1.trans (Finset.subset_insert _ _)
   have hInsertGround : ∀ b ∈ insert x B, b ∈ ground N := by
     intro b hb
     rcases Finset.mem_insert.mp hb with rfl | hbB

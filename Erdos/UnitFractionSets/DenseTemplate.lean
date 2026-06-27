@@ -692,7 +692,7 @@ private theorem denseBadEdge_forbidden {A : Finset ℕ} (hA : SumFree A) {a : �
     List.sum_toFinset (fun j => 360 / denseMul j) htail_nodup
   have hclear' :
       360 / denseMul t = ∑ j ∈ ts.toFinset, 360 / denseMul j := by
-    rw [hsum_bridge]; exact hclear
+    rwa [hsum_bridge]
   refine dense_identity_edge_forbidden hA ha ?_ htarget_not_R hRnonempty
     (dense_reciprocal_identity_of_clear hclear')
   intro j hj

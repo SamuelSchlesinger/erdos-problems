@@ -103,7 +103,7 @@ theorem avoidingSet_of_subset_singleton {A : Set ℕ} {n : ℕ}
 
 /-- A singleton is avoiding. -/
 @[simp] theorem avoidingSet_singleton (n : ℕ) :
-    AvoidingSet ({n} : Set ℕ) := by
-  exact avoidingSet_of_subset_singleton (Set.Subset.rfl)
+    AvoidingSet ({n} : Set ℕ) :=
+  avoidingSet_of_subset_singleton (Set.Subset.rfl)
 
 end DivisibilityAvoidingSets

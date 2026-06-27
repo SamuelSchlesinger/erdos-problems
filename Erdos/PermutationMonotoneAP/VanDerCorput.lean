@@ -120,7 +120,7 @@ theorem vdcLt_iff_of_firstDiff {a b v : ℕ} (hlow : ∀ i < v, Nat.testBit a i 
       · exact absurd (hlow w h) (by rw [haw, hbw]; simp)
       · exact h
       · exact absurd (hlt v h) hdiff
-    rw [hw] at haw; exact haw
+    rwa [hw] at haw
   · intro ha0
     have hb1 : Nat.testBit b v = true := by
       by_contra hb

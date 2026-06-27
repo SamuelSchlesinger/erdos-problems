@@ -199,7 +199,7 @@ theorem two_pow_le_sqrt_mul {A : Finset ℕ} {M : ℕ}
   have e2n : ((2 : ℝ) ^ A.card) ^ 2 = (2 : ℝ) ^ (2 * A.card) := by
     rw [two_mul, pow_add, pow_two]
   have key : ((2 : ℝ) ^ A.card) ^ 2 ≤ (Real.sqrt (12 * A.card) * M) ^ 2 := by
-    rw [e2n, hsq]; exact hbR
+    rwa [e2n, hsq]
   have h2n : (0 : ℝ) ≤ (2 : ℝ) ^ A.card := by positivity
   have hrhs : (0 : ℝ) ≤ Real.sqrt (12 * A.card) * M := by positivity
   have hsqrt := Real.sqrt_le_sqrt key

@@ -63,7 +63,6 @@ theorem no_solution_one (k : ℕ) : ¬IsSolution 1 k := by
   exact hFalse.elim
 
 /-- A concrete witness exists, namely `(3, 1)`. -/
-theorem witness_exists : Nonempty Witness := by
-  exact ⟨⟨3, 1, solution_three_one⟩⟩
+theorem witness_exists : Nonempty Witness := ⟨⟨3, 1, solution_three_one⟩⟩
 
 end ErdosMoser

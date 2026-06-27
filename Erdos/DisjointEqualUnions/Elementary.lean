@@ -78,8 +78,7 @@ theorem starFamily_pairwiseNonDisjoint {n t : ℕ} (v : Fin n) :
   exact (Finset.disjoint_left.mp hdis hAv) hBv
 
 theorem not_hasForbiddenQuad_starFamily {n t : ℕ} (v : Fin n) :
-    ¬ HasForbiddenQuad (starFamily v t) := by
-  exact not_hasForbiddenQuad_of_pairwiseNonDisjoint
+    ¬ HasForbiddenQuad (starFamily v t) := not_hasForbiddenQuad_of_pairwiseNonDisjoint
     (starFamily_pairwiseNonDisjoint (t := t) v)
 
 /-- The star family witnesses that the forcing threshold must exceed

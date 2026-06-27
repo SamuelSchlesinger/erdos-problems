@@ -30,7 +30,7 @@ theorem sumFree_implies_tripleFree {A : Finset ℕ} (hA : SumFree A) :
   have hbA : b ∈ A.erase a := Finset.mem_erase.mpr ⟨hab.symm, hb⟩
   have hcA : c ∈ A.erase a := Finset.mem_erase.mpr ⟨hac.symm, hc⟩
   have hbne : b ∉ ({c} : Finset ℕ) := by
-    rw [Finset.mem_singleton]; exact hbc
+    rwa [Finset.mem_singleton]
   let S : Finset ℕ := {b, c}
   have hSsub : S ⊆ A.erase a := by
     intro x hx

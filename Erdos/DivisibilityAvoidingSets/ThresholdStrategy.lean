@@ -126,11 +126,9 @@ theorem CoprimeLCMSelection.lcm_erase_lt
       (∏ x ∈ J.erase a, x) * a := by
     nlinarith [Nat.mul_lt_mul_of_pos_left ha_gt hprod_pos]
   calc
-    (J.erase a).lcm (fun x : ℕ => x) = ∏ x ∈ J.erase a, x := by
-      exact Finset.lcm_eq_prod hcop_erase
+    (J.erase a).lcm (fun x : ℕ => x) = ∏ x ∈ J.erase a, x := Finset.lcm_eq_prod hcop_erase
     _ < (∏ x ∈ J.erase a, x) * a := hprod_lt
-    _ = ∏ x ∈ J, x := by
-      exact Finset.prod_erase_mul J (fun x : ℕ => x) haJ
+    _ = ∏ x ∈ J, x := Finset.prod_erase_mul J (fun x : ℕ => x) haJ
     _ = J.lcm (fun x : ℕ => x) := by
       rw [Finset.lcm_eq_prod hJ.2.2.2.1]
 
@@ -216,8 +214,7 @@ theorem CoprimeLCMSelection.LCMMinimal.le_of_replacement
       J'.lcm (fun y : ℕ => y) =
         (J.erase a).lcm (fun y : ℕ => y) * x := by
     calc
-      J'.lcm (fun y : ℕ => y) = ∏ y ∈ J', y := by
-        exact Finset.lcm_eq_prod hcop_insert
+      J'.lcm (fun y : ℕ => y) = ∏ y ∈ J', y := Finset.lcm_eq_prod hcop_insert
       _ = x * ∏ y ∈ J.erase a, y := by
         dsimp [J']
         rw [Finset.prod_insert hxnotErase]
@@ -257,10 +254,8 @@ theorem CoprimeLCMSelection.LCMMinimal.le_of_replacement
       J.lcm (fun y : ℕ => y) =
         (J.erase a).lcm (fun y : ℕ => y) * a := by
     calc
-      J.lcm (fun y : ℕ => y) = ∏ y ∈ J, y := by
-        exact Finset.lcm_eq_prod hJ.1.2.2.2.1
-      _ = (∏ y ∈ J.erase a, y) * a := by
-        exact (Finset.prod_erase_mul J (fun y : ℕ => y) haJ).symm
+      J.lcm (fun y : ℕ => y) = ∏ y ∈ J, y := Finset.lcm_eq_prod hJ.1.2.2.2.1
+      _ = (∏ y ∈ J.erase a, y) * a := (Finset.prod_erase_mul J (fun y : ℕ => y) haJ).symm
       _ = (J.erase a).lcm (fun y : ℕ => y) * a := by
         rw [Finset.lcm_eq_prod hcop_erase]
   have hmul :
@@ -308,8 +303,7 @@ theorem CoprimeLCMSelection.LCMMinimal.lcm_le_of_prior_selection
     (hJ : CoprimeLCMSelection.LCMMinimal A K r J)
     (hJ₀ : CoprimeLCMSelection A T r J₀)
     (hTK : T ≤ K) :
-    J.lcm (fun a : ℕ => a) ≤ J₀.lcm (fun a : ℕ => a) := by
-  exact hJ.2 J₀ (hJ₀.scale_mono hTK)
+    J.lcm (fun a : ℕ => a) ≤ J₀.lcm (fun a : ℕ => a) := hJ.2 J₀ (hJ₀.scale_mono hTK)
 
 /-- Prior selection witness turned into delayed-prefix headroom for an
 LCM-minimal later core. -/
@@ -441,8 +435,7 @@ theorem sum_Ico_dyadicShellReciprocalMass_le_dyadicPrefixReciprocalMass
       ⟨Finset.mem_Ico.mpr ⟨hprefixLower, hprefixUpper⟩, hxA⟩
   calc
     (∑ k ∈ Finset.Ico N n, dyadicShellReciprocalMass A k) =
-        ∑ x ∈ U, (1 : ℝ) / (x : ℝ) := by
-      exact hsumU.symm
+        ∑ x ∈ U, (1 : ℝ) / (x : ℝ) := hsumU.symm
     _ ≤ ∑ x ∈ dyadicPrefixFinset A N (n - 1), (1 : ℝ) / (x : ℝ) := by
       refine Finset.sum_le_sum_of_subset_of_nonneg hUsub ?_
       intro x _hxPrefix _hxMissing
@@ -539,12 +532,11 @@ theorem dyadicPrefixNoncoreReciprocalMass_le_lcmRoomReciprocalMass_of_delay
         Nat.lt_of_lt_of_le (by norm_num : 0 < 4)
           (hJ.2.2.2.2.1 a ha)
     have hupper_le_delay :
-        2 ^ (m + 1) ≤ J.lcm (fun a : ℕ => a) * 2 ^ (m + 1) := by
-      exact Nat.le_mul_of_pos_left _ hLpos
+        2 ^ (m + 1) ≤ J.lcm (fun a : ℕ => a) * 2 ^ (m + 1) := Nat.le_mul_of_pos_left _ hLpos
     have hxltK : x < 2 ^ K :=
       hxupper.trans_le (hupper_le_delay.trans hdelay)
-    have hxroom : J.lcm (fun a : ℕ => a) * x ≤ 2 ^ K := by
-      exact (Nat.mul_le_mul_left _ (Nat.le_of_lt hxupper)).trans hdelay
+    have hxroom : J.lcm (fun a : ℕ => a) * x ≤ 2 ^ K :=
+      (Nat.mul_le_mul_left _ (Nat.le_of_lt hxupper)).trans hdelay
     exact mem_lcmRoomFinset.mpr ⟨hxlarge, hxltK, hxA, hxnot, hxroom⟩
   · intro x _hxRoom _hxMissing
     exact one_div_nonneg.mpr (Nat.cast_nonneg x)
@@ -1349,8 +1341,7 @@ theorem CoprimeLCMSelection.LCMMinimal.carrier_quotient_window_split
       have hne : a ≠ p * q := by
         intro haeq
         exact hxnotJ (by simpa [haeq] using haJ)
-      have htail : p * q ∈ tailAbove A a := by
-        exact ⟨hxA, lt_of_le_of_ne hlarge hne⟩
+      have htail : p * q ∈ tailAbove A a := ⟨hxA, lt_of_le_of_ne hlarge hne⟩
       exact mem_tailWindowFinset.mpr ⟨hIco, htail⟩
     have haA : a ∈ A := hJ.1.1 a haJ
     have hapos : 0 < a := by
@@ -1565,8 +1556,7 @@ theorem add_lt_scale_of_two_pow_lt_of_sq_le_two_pow
   have hp_pos : 0 < p := (by positivity : 0 < 2 ^ B).trans hp
   have hleft : 2 ^ B * 2 ^ B < p * 2 ^ B := by
     exact (Nat.mul_lt_mul_right (by positivity : 0 < 2 ^ B)).mpr hp
-  have hright : p * 2 ^ B < p * p := by
-    exact (Nat.mul_lt_mul_left hp_pos).mpr hp
+  have hright : p * 2 ^ B < p * p := (Nat.mul_lt_mul_left hp_pos).mpr hp
   have hpow : 2 ^ (B + B) < 2 ^ K := by
     rw [pow_add]
     exact (hleft.trans hright).trans_le hsq
@@ -1655,7 +1645,7 @@ theorem corePrimeSupport_prod_dvd_lcm (J : Finset ℕ) :
 /-- The core-prime-support product is positive. -/
 theorem corePrimeSupport_prod_pos (J : Finset ℕ) :
     0 < ∏ p ∈ corePrimeSupport J, p := by
-  exact Finset.prod_pos fun p hp => (prime_of_mem_corePrimeSupport hp).pos
+      exact Finset.prod_pos fun p hp => (prime_of_mem_corePrimeSupport hp).pos
 
 /-- A positive LCM bounds the product of all support primes. -/
 theorem corePrimeSupport_prod_le_lcm_of_lcm_pos {J : Finset ℕ}
@@ -1859,8 +1849,7 @@ theorem lcmRoomPrimeSupportMassWithin_le_within_add_fresh
         = (∑ p ∈ (S.filter (fun p => p ∈ Q)).filter (fun p => p ∈ P), w p) +
             ∑ p ∈ (S.filter (fun p => p ∈ Q)).filter (fun p => p ∉ P), w p := hsplit
     _ ≤ (∑ p ∈ S.filter (fun p => p ∈ P), w p) +
-          ∑ p ∈ (S.filter (fun p => p ∈ Q)).filter (fun p => p ∉ P), w p := by
-      exact add_le_add hold le_rfl
+          ∑ p ∈ (S.filter (fun p => p ∈ Q)).filter (fun p => p ∉ P), w p := add_le_add hold le_rfl
     _ = (∑ p ∈ S.filter (fun p => p ∈ P), w p) +
           ∑ p ∈ S.filter (fun p => p ∈ Q.filter (fun p => p ∉ P)), w p := by
       rw [hfresh_eq]
@@ -1898,8 +1887,7 @@ theorem exists_fresh_lt_lcmRoomPrimeDivisorMass_of_freshMass_scale
     by_contra hle
     exact hnone ⟨p, hpSupport, hpP, lt_of_not_ge hle⟩
   have hsum_le_card : (∑ p ∈ S, w p) ≤ (S.card : ℝ) * c := by
-    have hsum_le : (∑ p ∈ S, w p) ≤ ∑ _p ∈ S, c := by
-      exact Finset.sum_le_sum fun p hp => hpoint p hp
+    have hsum_le : (∑ p ∈ S, w p) ≤ ∑ _p ∈ S, c := Finset.sum_le_sum fun p hp => hpoint p hp
     simpa [Finset.sum_const, nsmul_eq_mul] using hsum_le
   have hcard_nat : S.card ≤ K := by
     have hsub : S ⊆ corePrimeSupport J := by
@@ -2379,8 +2367,7 @@ theorem exists_lt_primeLayerBudget_of_corePrimeLayerPrefixBound
   by_contra hnone
   push Not at hnone
   have hsum_le : (∑ p ∈ corePrimeSupport J, primeLayerBudget A p) ≤
-      ∑ _p ∈ corePrimeSupport J, c := by
-    exact Finset.sum_le_sum fun p hp => hnone p hp
+      ∑ _p ∈ corePrimeSupport J, c := Finset.sum_le_sum fun p hp => hnone p hp
   have hsum_le_card : (∑ p ∈ corePrimeSupport J, primeLayerBudget A p) ≤
       ((corePrimeSupport J).card : ℝ) * c := by
     simpa [Finset.sum_const, nsmul_eq_mul] using hsum_le
@@ -2447,8 +2434,7 @@ theorem exists_fresh_lt_primeLayerBudget_of_corePrimeLayerPrefixBound_scale
       exact primeLayerBudget_nonneg A p
   have houtside_le_card :
       (∑ p ∈ S.filter (fun p => p ∉ P), w p) ≤
-        ∑ _p ∈ S.filter (fun p => p ∉ P), c := by
-    exact Finset.sum_le_sum fun p hp => houtside_point p hp
+        ∑ _p ∈ S.filter (fun p => p ∉ P), c := Finset.sum_le_sum fun p hp => houtside_point p hp
   have houtside_le_card_mul :
       (∑ p ∈ S.filter (fun p => p ∉ P), w p) ≤
         (((S.filter fun p => p ∉ P).card : ℕ) : ℝ) * c := by
@@ -2574,12 +2560,10 @@ theorem SummabilityCounterexample.prefixMass_le_corePrimeLayerBound_of_room_cove
           lcmRoomReciprocalMass A K J := by
       rw [hcard]
     _ ≤ (r : ℝ) / (((2 ^ N : ℕ) : ℝ)) +
-          lcmRoomPrimeSupportMassWithin A K J P := by
-      exact add_le_add le_rfl hroom_le_within
+          lcmRoomPrimeSupportMassWithin A K J P := add_le_add le_rfl hroom_le_within
     _ ≤ (r : ℝ) / (((2 ^ N : ℕ) : ℝ)) +
           ∑ p ∈ P, ∑' n : ℕ,
-            reciprocalIndicator (multipleLayer p A) n := by
-      exact add_le_add le_rfl hfinite
+            reciprocalIndicator (multipleLayer p A) n := add_le_add le_rfl hfinite
     _ = corePrimeLayerPrefixBound A N r J := by
       simp [corePrimeLayerPrefixBound, primeLayerBudget, P]
 
@@ -2687,12 +2671,10 @@ theorem SummabilityCounterexample.exists_fresh_large_lcmRoomPrimeDivisorMass
       _ = (r : ℝ) / (((2 ^ N : ℕ) : ℝ)) +
             lcmRoomReciprocalMass A K J := by rw [hcard]
       _ ≤ (r : ℝ) / (((2 ^ N : ℕ) : ℝ)) +
-            lcmRoomPrimeSupportMass A K J := by
-          exact add_le_add le_rfl hroom_le_support
+            lcmRoomPrimeSupportMass A K J := add_le_add le_rfl hroom_le_support
       _ ≤ (r : ℝ) / (((2 ^ N : ℕ) : ℝ)) +
             (lcmRoomPrimeSupportMassWithin A K J P +
-              lcmRoomFreshPrimeSupportMass A K J P) := by
-          exact add_le_add le_rfl hsplit
+              lcmRoomFreshPrimeSupportMass A K J P) := add_le_add le_rfl hsplit
       _ ≤ (r : ℝ) / (((2 ^ N : ℕ) : ℝ)) +
             ((∑ p ∈ P, primeLayerBudget A p) +
               lcmRoomFreshPrimeSupportMass A K J P) := by
@@ -2737,8 +2719,8 @@ theorem SummabilityCounterexample.exists_prefix_forces_large_scale_or_fresh_prim
         0 ≤ (R : ℝ) / (((2 ^ N : ℕ) : ℝ)) := by
       positivity
     have hsum_nonneg :
-        0 ≤ ∑ p ∈ P, primeLayerBudget A p := by
-      exact Finset.sum_nonneg fun p _hp => primeLayerBudget_nonneg A p
+        0 ≤ ∑ p ∈ P, primeLayerBudget A p :=
+          Finset.sum_nonneg fun p _hp => primeLayerBudget_nonneg A p
     have hBc_nonneg : 0 ≤ (B : ℝ) * c :=
       mul_nonneg (Nat.cast_nonneg B) hc_nonneg
     dsimp [C]
@@ -3091,12 +3073,10 @@ theorem SummabilityCounterexample.prefixMass_le_fixedPriorPrimeLayerBound_of_roo
           lcmRoomReciprocalMass A K J := by
       rw [hcard]
     _ ≤ (r : ℝ) / (((2 ^ N : ℕ) : ℝ)) +
-          lcmRoomPrimeSupportMassWithin A K J P := by
-      exact add_le_add le_rfl hroom_le_within
+          lcmRoomPrimeSupportMassWithin A K J P := add_le_add le_rfl hroom_le_within
     _ ≤ (r : ℝ) / (((2 ^ N : ℕ) : ℝ)) +
           ∑ p ∈ P, ∑' n : ℕ,
-            reciprocalIndicator (multipleLayer p A) n := by
-      exact add_le_add le_rfl hfinite
+            reciprocalIndicator (multipleLayer p A) n := add_le_add le_rfl hfinite
     _ = fixedPriorPrimeLayerPrefixBound A N r J₀ := by
       simp [fixedPriorPrimeLayerPrefixBound, P]
 
@@ -3378,8 +3358,8 @@ theorem dyadicHarmonicMass_le (k : ℕ) :
       have hsplit :
           Finset.Ico (1 : ℕ) ((2 ^ (k + 1) : ℕ)) =
             Finset.Ico (1 : ℕ) ((2 ^ k : ℕ)) ∪
-              Finset.Ico ((2 ^ k : ℕ)) ((2 ^ (k + 1) : ℕ)) := by
-        exact (Finset.Ico_union_Ico_eq_Ico hone_le hpow_le).symm
+              Finset.Ico ((2 ^ k : ℕ)) ((2 ^ (k + 1) : ℕ)) :=
+                (Finset.Ico_union_Ico_eq_Ico hone_le hpow_le).symm
       have hdisj : Disjoint (Finset.Ico (1 : ℕ) ((2 ^ k : ℕ)))
           (Finset.Ico ((2 ^ k : ℕ)) ((2 ^ (k + 1) : ℕ))) :=
         Finset.Ico_disjoint_Ico_consecutive 1 (2 ^ k) (2 ^ (k + 1))
@@ -3461,8 +3441,7 @@ theorem finite_multipleLayer_sum_eq_inv_mul_quotient_image_sum
   calc
     (∑ n ∈ F, (1 : ℝ) / (n : ℝ)) =
         ∑ n ∈ F,
-          (1 / (d : ℝ)) * ((1 : ℝ) / ((n / d : ℕ) : ℝ)) := by
-      exact Finset.sum_congr rfl hterm
+          (1 / (d : ℝ)) * ((1 : ℝ) / ((n / d : ℕ) : ℝ)) := Finset.sum_congr rfl hterm
     _ = (1 / (d : ℝ)) *
         ∑ n ∈ F, (1 : ℝ) / ((n / d : ℕ) : ℝ) := by
       rw [Finset.mul_sum]
@@ -3722,8 +3701,7 @@ theorem exists_quotient_finset_sum_gt_of_lt_primeLayerBudget
   have hmul_lt :
       (d : ℝ) * c <
         (d : ℝ) * ((1 / (d : ℝ)) *
-          ∑ q ∈ Q, (1 : ℝ) / (q : ℝ)) := by
-    exact mul_lt_mul_of_pos_left hFmlarge_scaled hdpos
+          ∑ q ∈ Q, (1 : ℝ) / (q : ℝ)) := mul_lt_mul_of_pos_left hFmlarge_scaled hdpos
   have hright :
       (d : ℝ) * ((1 / (d : ℝ)) *
           ∑ q ∈ Q, (1 : ℝ) / (q : ℝ)) =
@@ -4015,8 +3993,7 @@ theorem nat_mul_lt_of_div_lt_inv {a p q : ℕ} (ha : 0 < a) (hq : 0 < q)
   have hreal : ((p * q : ℕ) : ℝ) < (a : ℝ) := by
     have haR : (0 : ℝ) < (a : ℝ) := by exact_mod_cast ha
     have hqR : (0 : ℝ) < (q : ℝ) := by exact_mod_cast hq
-    have hp_lt : (p : ℝ) < ((1 : ℝ) / (q : ℝ)) * (a : ℝ) := by
-      exact (div_lt_iff₀ haR).mp hη
+    have hp_lt : (p : ℝ) < ((1 : ℝ) / (q : ℝ)) * (a : ℝ) := (div_lt_iff₀ haR).mp hη
     have hmul := mul_lt_mul_of_pos_right hp_lt hqR
     have hqne : (q : ℝ) ≠ 0 := ne_of_gt hqR
     have hright :
@@ -4049,8 +4026,7 @@ theorem SummabilityCounterexample.carrier_quotient_mass_le_erased_budget_add_pac
         ((((a / 2 + 1) * ((2 ^ K) / a + 1) : ℕ) : ℝ) *
           ((p : ℝ) / (a : ℝ))) := by
   have hapos : 0 < a := hA.2.1 (hJ.1.1 a haJ)
-  have hη_nonneg : 0 ≤ (p : ℝ) / (a : ℝ) := by
-    exact div_nonneg (Nat.cast_nonneg p) (Nat.cast_nonneg a)
+  have hη_nonneg : 0 ≤ (p : ℝ) / (a : ℝ) := div_nonneg (Nat.cast_nonneg p) (Nat.cast_nonneg a)
   rcases hA.carrier_quotient_mass_le_or_large_lift_weight
       hirred hJ haJ hp hpa hQroom hη_nonneg hlarge with
     hpaid | hheavy
@@ -4235,8 +4211,8 @@ theorem SummabilityCounterexample.exists_prefix_forces_scale_or_freshRoomQuotien
         0 ≤ (R : ℝ) / (((2 ^ N : ℕ) : ℝ)) := by
       positivity
     have hsum_nonneg :
-        0 ≤ ∑ p ∈ P, primeLayerBudget A p := by
-      exact Finset.sum_nonneg fun p _hp => primeLayerBudget_nonneg A p
+        0 ≤ ∑ p ∈ P, primeLayerBudget A p :=
+          Finset.sum_nonneg fun p _hp => primeLayerBudget_nonneg A p
     have hBc_nonneg : 0 ≤ (B : ℝ) * c :=
       mul_nonneg (Nat.cast_nonneg B) hc_nonneg
     dsimp [C]
@@ -6407,8 +6383,7 @@ theorem multiplesBelowReciprocalMass_le_inv_mul_dyadicHarmonicMass
   have himage :
       (∑ m ∈ G, (1 / (p : ℝ)) * ((1 : ℝ) / (m : ℝ))) =
         ∑ x ∈ F, (1 / (p : ℝ)) *
-          ((1 : ℝ) / ((x / p : ℕ) : ℝ)) := by
-    exact Finset.sum_image hinj
+          ((1 : ℝ) / ((x / p : ℕ) : ℝ)) := Finset.sum_image hinj
   calc
     multiplesBelowReciprocalMass k p =
         ∑ x ∈ F, (1 : ℝ) / (x : ℝ) := by
@@ -6508,8 +6483,8 @@ theorem corePrimeSupportMultiplesBelowMass_le_scale_mul_card_div
     corePrimeSupportMultiplesBelowMass k J ≤
       (k : ℝ) * (((corePrimeSupport J).card : ℝ) / (M : ℝ)) := by
   have hcard_nonneg :
-      0 ≤ (((corePrimeSupport J).card : ℝ) / (M : ℝ)) := by
-    exact div_nonneg (Nat.cast_nonneg _) (le_of_lt (Nat.cast_pos.mpr hM))
+      0 ≤ (((corePrimeSupport J).card : ℝ) / (M : ℝ)) :=
+        div_nonneg (Nat.cast_nonneg _) (le_of_lt (Nat.cast_pos.mpr hM))
   exact (corePrimeSupportMultiplesBelowMass_le_harmonic_mul_card_div hM hlarge).trans
     (mul_le_mul_of_nonneg_right (dyadicHarmonicMass_le k) hcard_nonneg)
 
@@ -6592,8 +6567,8 @@ theorem corePrimeSupportOutsideMultiplesBelowMass_le_harmonic_mul_card_div
       rfl
     _ ≤ dyadicHarmonicMass k *
         ∑ p ∈ S, (1 : ℝ) / (p : ℝ) := hmajor
-    _ ≤ dyadicHarmonicMass k * ((S.card : ℝ) / (M : ℝ)) := by
-      exact mul_le_mul_of_nonneg_left hrecip (dyadicHarmonicMass_nonneg k)
+    _ ≤ dyadicHarmonicMass k * ((S.card : ℝ) / (M : ℝ)) :=
+      mul_le_mul_of_nonneg_left hrecip (dyadicHarmonicMass_nonneg k)
 
 /-- Dyadic-scale version of the outside-prime estimate. -/
 theorem corePrimeSupportOutsideMultiplesBelowMass_le_scale_mul_card_div
@@ -6605,8 +6580,7 @@ theorem corePrimeSupportOutsideMultiplesBelowMass_le_scale_mul_card_div
           (M : ℝ)) := by
   have hcard_nonneg :
       0 ≤ ((((corePrimeSupport J).filter (fun p => p ∉ P)).card : ℝ) /
-        (M : ℝ)) := by
-    exact div_nonneg (Nat.cast_nonneg _) (le_of_lt (Nat.cast_pos.mpr hM))
+        (M : ℝ)) := div_nonneg (Nat.cast_nonneg _) (le_of_lt (Nat.cast_pos.mpr hM))
   exact (corePrimeSupportOutsideMultiplesBelowMass_le_harmonic_mul_card_div
       hM hlarge).trans
     (mul_le_mul_of_nonneg_right (dyadicHarmonicMass_le k) hcard_nonneg)
@@ -6742,8 +6716,7 @@ theorem SummabilityCounterexample.prefixMass_le_primesBelowBound_of_prior_room_c
           corePrimeSupportOutsideMultiplesBelowMass K J M.primesBelow :=
         hsplit
       _ ≤ lcmRoomPrimeSupportMassWithin A K J M.primesBelow +
-          (K : ℝ) * ((K : ℝ) / (M : ℝ)) := by
-        exact add_le_add le_rfl houtside
+          (K : ℝ) * ((K : ℝ) / (M : ℝ)) := add_le_add le_rfl houtside
   exact hA.prefixMass_le_rank_add_budget_add_primesBelowBound_of_prior
     hirred hJ hJ₀ hTK hN hdelay₀ hobstruction
 
@@ -7054,8 +7027,7 @@ theorem exists_coprime_mem_lcmRoomFinset_of_mixed_primesBelow_scale_budget_bound
       hM
   have hbig' : lcmRoomPrimeSupportMassWithin A k J M.primesBelow +
         corePrimeSupportOutsideMultiplesBelowMass k J M.primesBelow <
-      lcmRoomReciprocalMass A k J := by
-    exact lt_of_le_of_lt (add_le_add_right houtside _) hbig
+      lcmRoomReciprocalMass A k J := lt_of_le_of_lt (add_le_add_right houtside _) hbig
   exact exists_coprime_mem_lcmRoomFinset_of_mixed_primeSupport_bound
     hJpos hbig'
 
@@ -7697,8 +7669,7 @@ theorem SummabilityCounterexample.exists_ge_lcmRoom_mixed_primesBelow_scale_budg
   have hsupport :
       lcmRoomPrimeSupportMass A k J ≤
         lcmRoomPrimeSupportMassWithin A k J (M k).primesBelow +
-          (k : ℝ) * ((k : ℝ) / (M k : ℝ)) := by
-    exact hsplit.trans (add_le_add_right houtside _)
+          (k : ℝ) * ((k : ℝ) / (M k : ℝ)) := hsplit.trans (add_le_add_right houtside _)
   exact ⟨k, s, J, hk, hs, hJ, hdom.trans hsupport⟩
 
 /-- Harmonic-prime-reciprocal obstruction forced in every counterexample.  Thus
@@ -9295,8 +9266,7 @@ theorem SummabilityCounterexample.false_of_no_largeScaleGapPriorRoomCover_irredu
         have hbGap : R + M + 1 < b := by
           dsimp [b]
           omega
-        have hbT : b ≤ T := by
-          exact le_rankThresholdFromIncrements b g r
+        have hbT : b ≤ T := le_rankThresholdFromIncrements b g r
         have hgap : R + M + 1 < K := by
           omega
         exact (hnoGap L T K r J J₀ hML hNL hJ hJ₀ hTK hdelay₀
@@ -10223,10 +10193,8 @@ theorem SummabilityCounterexample.exists_largeGap_budget_prior_room_cover_of_end
       hN2 hirred hendless M' R with
     ⟨m, T, K, r, J, J₀, hM'm, hNm, hJ, hJ₀, hTK, hdelay₀, hcover,
       hRcard, hgap'⟩
-  have hMm : M ≤ m := by
-    exact (le_max_left M m₀).trans hM'm
-  have hm₀m : m₀ ≤ m := by
-    exact (le_max_right M m₀).trans hM'm
+  have hMm : M ≤ m := (le_max_left M m₀).trans hM'm
+  have hm₀m : m₀ ≤ m := (le_max_right M m₀).trans hM'm
   have hdelay_m₀ : J₀.lcm (fun a : ℕ => a) * 2 ^ (m₀ + 1) ≤ 2 ^ K := by
     have hpow : 2 ^ (m₀ + 1) ≤ 2 ^ (m + 1) :=
       Nat.pow_le_pow_right (by norm_num : 0 < 2) (by omega)

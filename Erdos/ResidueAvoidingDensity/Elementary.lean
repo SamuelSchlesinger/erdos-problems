@@ -44,8 +44,7 @@ automatically satisfied. This is the first alternative in the problem
 statement. -/
 @[simp] theorem satisfiesConstraint_of_lt {S : ResidueSystem} {i n : ℕ}
     (hn : n < S.modulus i) :
-    S.SatisfiesConstraint i n := by
-  exact Or.inl hn
+    S.SatisfiesConstraint i n := Or.inl hn
 
 /-- Avoidance over the empty set of indices is vacuous. -/
 @[simp] theorem avoidsOn_empty (S : ResidueSystem) (n : ℕ) :
@@ -93,8 +92,7 @@ theorem avoidedSetUpTo_mono {S : ResidueSystem} {k l : ℕ} (hkl : k ≤ l) :
 /-- Adding the next constraint shrinks, or leaves unchanged, the finite avoided
 set. -/
 theorem avoidedSetUpTo_succ_subset {S : ResidueSystem} {k : ℕ} :
-    S.avoidedSetUpTo (k + 1) ⊆ S.avoidedSetUpTo k := by
-  exact avoidedSetUpTo_mono (Nat.le_succ k)
+    S.avoidedSetUpTo (k + 1) ⊆ S.avoidedSetUpTo k := avoidedSetUpTo_mono (Nat.le_succ k)
 
 /-- The full avoided set is contained in every finite avoided set. -/
 theorem avoidedSet_subset_avoidedSetUpTo {S : ResidueSystem} {k : ℕ} :

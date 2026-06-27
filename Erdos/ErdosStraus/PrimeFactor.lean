@@ -47,8 +47,7 @@ theorem prime_factor_3_mod_4 (n p : ℕ) (hn : 2 < n) (hmod4 : n % 4 = 1)
   set m := n * x
   have hm_dvd_p : p ∣ m := dvd_mul_of_dvd_left hp_dvd x
   -- p | (p + m) since p | m
-  have hy_div : p ∣ (p + m) := by
-    exact dvd_add (dvd_refl p) hm_dvd_p
+  have hy_div : p ∣ (p + m) := dvd_add (dvd_refl p) hm_dvd_p
   -- y = (p + m) / p = 1 + m/p
   set y := (p + m) / p
   have h2 : p * y = p + n * x := by

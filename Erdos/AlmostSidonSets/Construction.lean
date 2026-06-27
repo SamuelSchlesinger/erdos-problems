@@ -55,10 +55,8 @@ theorem IsSidon.eq_or_eq_swap_of_add_eq {A : Set ℕ} (hA : IsSidon A)
     · simpa [Nat.max_eq_left (le_of_not_ge hcd)] using hc
   have hsum' : min a b + max a b = min c d + max c d := by
     rw [min_add_max, min_add_max, hsum]
-  have hleab : min a b ≤ max a b := by
-    exact le_max_of_le_left (min_le_left _ _)
-  have hlecd : min c d ≤ max c d := by
-    exact le_max_of_le_left (min_le_left _ _)
+  have hleab : min a b ≤ max a b := le_max_of_le_left (min_le_left _ _)
+  have hlecd : min c d ≤ max c d := le_max_of_le_left (min_le_left _ _)
   rcases hA hminab hmaxab hmincd hmaxcd hleab hlecd hsum' with
     ⟨hmin, hmax⟩
   by_cases hab : a ≤ b

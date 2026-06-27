@@ -2135,8 +2135,8 @@ the finite large-prime corridor. -/
 theorem corridor_of_weird_2145_mul_mul {r s : ℕ}
     (hr : Nat.Prime r) (hs : Nat.Prime s) (hr17 : 17 ≤ r) (hrs_lt : r < s)
     (hw : Weird (2145 * r * s)) :
-    s * (43 * r - 672) ≤ 672 * (r + 1) := by
-  exact corridor_of_abundant_2145_mul_mul hr hs hr17 (by omega) (by omega) hw.1
+    s * (43 * r - 672) ≤ 672 * (r + 1) :=
+  corridor_of_abundant_2145_mul_mul hr hs hr17 (by omega) (by omega) hw.1
 
 /-- In a weird ordered product `3*5*11*13*r*s` with `17 ≤ r < s`, the first
 extra prime is at most `31`. -/
@@ -3304,8 +3304,7 @@ private theorem not_weird_of_three_primeFactors_with_three_five {n : ℕ}
     (hw : Weird n) (hodd : ¬Even n) (hn : n ≠ 0) (hcard : n.primeFactors.card = 3)
     (h3 : 3 ∈ n.primeFactors) (h5 : 5 ∈ n.primeFactors) : False := by
   let R := (n.primeFactors.erase 3).erase 5
-  have h5R0 : 5 ∈ n.primeFactors.erase 3 := by
-    exact Finset.mem_erase.mpr ⟨by norm_num, h5⟩
+  have h5R0 : 5 ∈ n.primeFactors.erase 3 := Finset.mem_erase.mpr ⟨by norm_num, h5⟩
   have hErase3card : (n.primeFactors.erase 3).card = 2 := by
     rw [Finset.card_erase_of_mem h3, hcard]
   have hRcard : R.card = 1 := by
@@ -3353,7 +3352,7 @@ theorem odd_weird_four_prime_factors {n : ℕ} (hw : Weird n) (hodd : ¬Even n) 
   push Not at h
   have hthree : 3 ≤ n.primeFactors.card := odd_weird_three_prime_factors hw hodd
   have hcard : n.primeFactors.card = 3 := by omega
-  have hn : n ≠ 0 := by exact Nat.ne_of_gt hw.1.1
+  have hn : n ≠ 0 := Nat.ne_of_gt hw.1.1
   by_cases h3 : 3 ∈ n.primeFactors
   · by_cases h5 : 5 ∈ n.primeFactors
     · exact not_weird_of_three_primeFactors_with_three_five hw hodd hn hcard h3 h5
@@ -3394,10 +3393,9 @@ private theorem sigma_four_primes_mul {p q r s : ℕ}
     rcases hs.eq_one_or_self_of_dvd r hdvd with h | h
     · exact absurd h hr.one_lt.ne'
     · exact hrs h
-  have hcop_pq_s : Nat.Coprime (p ^ a * q ^ b) (s ^ d) := by
-    exact Nat.Coprime.mul_left hcop_p_s hcop_q_s
-  have hcop_pqr_s : Nat.Coprime (p ^ a * q ^ b * r ^ c) (s ^ d) := by
-    exact Nat.Coprime.mul_left hcop_pq_s hcop_r_s
+  have hcop_pq_s : Nat.Coprime (p ^ a * q ^ b) (s ^ d) := Nat.Coprime.mul_left hcop_p_s hcop_q_s
+  have hcop_pqr_s : Nat.Coprime (p ^ a * q ^ b * r ^ c) (s ^ d) :=
+    Nat.Coprime.mul_left hcop_pq_s hcop_r_s
   have hsplit :
       (p ^ a * q ^ b * r ^ c * s ^ d).divisors.sum id =
         (p ^ a * q ^ b * r ^ c).divisors.sum id * (s ^ d).divisors.sum id :=
@@ -3599,7 +3597,7 @@ theorem odd_weird_four_prime_factors_contains_three {n : ℕ}
     (hw : Weird n) (hodd : ¬Even n) (hcard : n.primeFactors.card = 4) :
     3 ∈ n.primeFactors := by
   by_contra hno3
-  have hn : n ≠ 0 := by exact Nat.ne_of_gt hw.1.1
+  have hn : n ≠ 0 := Nat.ne_of_gt hw.1.1
   obtain ⟨p, q, r, s, hpq, hpr, hps, hqr, hqs, hrs, hpf⟩ :=
     Finset.card_eq_four.mp hcard
   exact (not_abundant_of_four_primeFactors_without_three hodd hn hpq hpr hps hqr hqs hrs hpf hno3)
@@ -4198,7 +4196,7 @@ theorem odd_weird_six_prime_factors_contains_three {n : ℕ}
     (hw : Weird n) (hodd : ¬Even n) (hcard : n.primeFactors.card = 6) :
     3 ∈ n.primeFactors := by
   by_contra hno3
-  have hn : n ≠ 0 := by exact Nat.ne_of_gt hw.1.1
+  have hn : n ≠ 0 := Nat.ne_of_gt hw.1.1
   exact (not_abundant_of_six_primeFactors_without_three hodd hn hcard hno3) hw.1
 
 /-- Squarefree six-prime odd numbers without a factor `5` are not abundant.
@@ -4400,7 +4398,7 @@ theorem odd_weird_squarefree_six_prime_factors_contains_five {n : ℕ}
     (hw : Weird n) (hodd : ¬Even n) (hcard : n.primeFactors.card = 6)
     (hsq : Squarefree n) : 5 ∈ n.primeFactors := by
   by_contra hno5
-  have hn : n ≠ 0 := by exact Nat.ne_of_gt hw.1.1
+  have hn : n ≠ 0 := Nat.ne_of_gt hw.1.1
   exact (not_abundant_of_squarefree_six_primeFactors_without_five
     hodd hn hcard hsq hno5) hw.1
 
@@ -4611,7 +4609,7 @@ theorem odd_weird_squarefree_six_prime_factors_contains_7_or_11_or_13 {n : ℕ}
       13 ∈ n.primeFactors := by
   by_contra hnone
   push Not at hnone
-  have hn : n ≠ 0 := by exact Nat.ne_of_gt hw.1.1
+  have hn : n ≠ 0 := Nat.ne_of_gt hw.1.1
   exact (not_abundant_of_squarefree_six_primeFactors_without_7_11_13
     hodd hn hcard hsq hnone.1 hnone.2.1 hnone.2.2) hw.1
 
@@ -5135,7 +5133,7 @@ theorem not_weird_of_squarefree_six_primeFactors_contains_3_5_13 {n : ℕ}
   have hp5_ne19 : p5 ≠ 19 := by intro h; omega
   have hp5_ge23 : 23 ≤ p5 :=
     prime_ge_twentythree_of_ge_nineteen_ne_nineteen hp5 hp5_ge19 hp5_ne19
-  have hn : n ≠ 0 := by exact Nat.ne_of_gt hw.1.1
+  have hn : n ≠ 0 := Nat.ne_of_gt hw.1.1
   have hf0 : n.factorization p0 = 1 :=
     Nat.factorization_eq_one_of_squarefree hsq hp0 (Nat.dvd_of_mem_primeFactors hp0_mem)
   have hf1 : n.factorization p1 = 1 :=
@@ -5379,7 +5377,7 @@ theorem not_weird_of_squarefree_six_primeFactors_contains_3_5_11 {n : ℕ}
   have hp5_ne19 : p5 ≠ 19 := by intro h; omega
   have hp5_ge23 : 23 ≤ p5 :=
     prime_ge_twentythree_of_ge_nineteen_ne_nineteen hp5 hp5_ge19 hp5_ne19
-  have hn : n ≠ 0 := by exact Nat.ne_of_gt hw.1.1
+  have hn : n ≠ 0 := Nat.ne_of_gt hw.1.1
   have hf0 : n.factorization p0 = 1 :=
     Nat.factorization_eq_one_of_squarefree hsq hp0 (Nat.dvd_of_mem_primeFactors hp0_mem)
   have hf1 : n.factorization p1 = 1 :=

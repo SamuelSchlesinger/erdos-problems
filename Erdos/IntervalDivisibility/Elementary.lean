@@ -80,8 +80,7 @@ theorem quadraticWitness_bounds {n : ℕ} (hn : 2 ≤ n) (i : Fin n) :
         simpa [two_mul] using Nat.mul_le_mul_right n hi2
       exact lt_of_lt_of_le hn2 hmul
     · rw [hq]
-      have hmul : (i.1 + 1) * n ≤ n * n := by
-        exact Nat.mul_le_mul_right n hi_le
+      have hmul : (i.1 + 1) * n ≤ n * n := Nat.mul_le_mul_right n hi_le
       have hs_lt : n * n < n + n * n := by
         have hs_lt' : n * n < n * n + n := Nat.lt_add_of_pos_right (show 0 < n by omega)
         simpa [Nat.add_comm] using hs_lt'
@@ -116,18 +115,15 @@ theorem validConfiguration_one :
 /-- Any explicit valid configuration yields an upper bound for `f(n)`. -/
 theorem fValue_le_of_validConfiguration {n m : ℕ}
     (h : ValidConfiguration n m) :
-    fValue n ≤ m := by
-  exact Nat.sInf_le h
+    fValue n ≤ m := Nat.sInf_le h
 
 theorem fValue_one_le_two :
-    fValue 1 ≤ 2 := by
-  exact fValue_le_of_validConfiguration validConfiguration_one
+    fValue 1 ≤ 2 := fValue_le_of_validConfiguration validConfiguration_one
 
 /-- Elementary quadratic upper bound coming from the explicit configuration
 `a₁ = n + 1` and `a_k = nk` for `2 ≤ k ≤ n`. -/
 theorem fValue_le_sq {n : ℕ} (hn : 2 ≤ n) :
-    fValue n ≤ n ^ 2 := by
-  exact fValue_le_of_validConfiguration (validConfiguration_quadratic hn)
+    fValue n ≤ n ^ 2 := fValue_le_of_validConfiguration (validConfiguration_quadratic hn)
 
 /-- For every `n ≥ 1` there is at least one valid configuration, so the set of
 admissible interval lengths is nonempty. (For `n = 1` use the interval `(1, 3)`;

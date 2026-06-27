@@ -207,7 +207,7 @@ theorem weird_mul_prime {n p : ℕ} (hw : Weird n) (hp : Nat.Prime p)
           _ = b / p * p := by rw [hab]
           _ = b := h2
       have hT_sum' : T.sum id = n := by
-        rw [Finset.sum_image hinj]; exact hT_sum
+        rwa [Finset.sum_image hinj]
       exact ⟨T, Finset.mem_powerset.mpr hT_sub, hT_sum'⟩
     exact hw.2 this
 

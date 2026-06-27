@@ -63,8 +63,7 @@ theorem odd_even_card_no_unit_sum {a : ℕ} {S : Finset ℕ}
     have h5 : ∑ b ∈ S, (PQ / b) = ∑ b ∈ S, ((PNat / b : ℕ) : ℚ) := by
       refine Finset.sum_congr rfl ?_
       intro b hb
-      have hbP : b ∣ PNat := by
-        exact Finset.dvd_prod_of_mem (fun x => x) hb
+      have hbP : b ∣ PNat := Finset.dvd_prod_of_mem (fun x => x) hb
       have hb0' : (b : ℚ) ≠ 0 := hb0 b hb
       simp [PQ, Nat.cast_div hbP hb0']
     calc
@@ -73,8 +72,7 @@ theorem odd_even_card_no_unit_sum {a : ℕ} {S : Finset ℕ}
       _ = (a : ℚ) * ∑ b ∈ S, (PQ / b) := by rw [h4]
       _ = (a : ℚ) * ∑ b ∈ S, ((PNat / b : ℕ) : ℚ) := by rw [h5]
       _ = (a : ℚ) * ∑ b ∈ S, ((P / b : ℕ) : ℚ) := by simp [PNat]
-  have hmulN : P = a * ∑ b ∈ S, P / b := by
-    exact_mod_cast hmulQ
+  have hmulN : P = a * ∑ b ∈ S, P / b := by exact_mod_cast hmulQ
   have hPodd : Odd P := by
     classical
     unfold P

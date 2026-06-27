@@ -60,8 +60,7 @@ theorem no_consecutive_powerful_triple_below_1000000 :
   rcases no_candidate_consecutive_powerful_triples_below_1000000 with ⟨h7, h27, h35⟩
   have hmod : n % 36 = 7 ∨ n % 36 = 27 ∨ n % 36 = 35 :=
     consecutive_powerful_triple_mod_thirtysix htriple
-  have hdiv : n = n % 36 + 36 * (n / 36) := by
-    exact (Nat.mod_add_div n 36).symm
+  have hdiv : n = n % 36 + 36 * (n / 36) := (Nat.mod_add_div n 36).symm
   rcases hmod with h7mod | h27mod | h35mod
   · have hk : n / 36 < 27778 := by omega
     have hn_eq : n = 36 * (n / 36) + 7 := by omega

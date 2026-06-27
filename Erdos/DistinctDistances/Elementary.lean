@@ -35,8 +35,7 @@ theorem distanceSet_mono {A B : Finset Plane} (hAB : A ⊆ B) :
 
 /-- Consequently the number of distinct distances is monotone under inclusion. -/
 theorem distanceCount_le_of_subset {A B : Finset Plane} (hAB : A ⊆ B) :
-    distanceCount A ≤ distanceCount B := by
-  exact Finset.card_le_card (distanceSet_mono hAB)
+    distanceCount A ≤ distanceCount B := Finset.card_le_card (distanceSet_mono hAB)
 
 /-- A finite point set with at most one point determines no distances. -/
 theorem distanceSet_eq_empty_of_card_le_one {A : Finset Plane} (hA : A.card ≤ 1) :
@@ -64,8 +63,7 @@ theorem distanceSet_nonempty_of_one_lt_card {A : Finset Plane} (hA : 1 < A.card)
 /-- Therefore a finite point set with at least two points has positive distinct
 distance count. -/
 theorem distanceCount_pos_of_one_lt_card {A : Finset Plane} (hA : 1 < A.card) :
-    0 < distanceCount A := by
-  exact Finset.card_pos.mpr (distanceSet_nonempty_of_one_lt_card hA)
+    0 < distanceCount A := Finset.card_pos.mpr (distanceSet_nonempty_of_one_lt_card hA)
 
 /-- In the natural `2 ≤ |A|` range, the distinct-distance count is at least
 one. -/

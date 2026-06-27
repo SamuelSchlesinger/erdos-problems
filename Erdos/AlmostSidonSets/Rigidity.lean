@@ -1209,7 +1209,7 @@ theorem r4_full_reflection_under_max_multiplicity_no_self_pair
   have h_pe_eq_A : pairElements A nstar = A :=
     Finset.eq_of_subset_of_card_le h_pe_sub (by omega)
   intro a ha
-  have ha_pe : a ∈ pairElements A nstar := by rw [h_pe_eq_A]; exact ha
+  have ha_pe : a ∈ pairElements A nstar := by rwa [h_pe_eq_A]
   exact pairElements_has_reflection ha_pe
 
 /-- **R4 (Full reflection symmetry under maximum multiplicity, self-pair
@@ -1234,7 +1234,7 @@ theorem r4_full_reflection_under_max_multiplicity_self_pair
   have h_pe_eq_A : pairElements A nstar = A :=
     Finset.eq_of_subset_of_card_le h_pe_sub (by omega)
   intro a ha
-  have ha_pe : a ∈ pairElements A nstar := by rw [h_pe_eq_A]; exact ha
+  have ha_pe : a ∈ pairElements A nstar := by rwa [h_pe_eq_A]
   exact pairElements_has_reflection ha_pe
 
 /-- **R4 (Full reflection symmetry under maximum multiplicity, unified
@@ -1285,7 +1285,7 @@ theorem r4_ef_decomposition
       exact Finset.eq_of_subset_of_card_le h_pe_sub (by omega)
   have h_le_nstar : ∀ a ∈ A, a ≤ nstar := by
     intro a ha
-    have ha_pe : a ∈ pairElements A nstar := by rw [h_pe_eq_A]; exact ha
+    have ha_pe : a ∈ pairElements A nstar := by rwa [h_pe_eq_A]
     unfold pairElements at ha_pe
     rw [Finset.mem_union] at ha_pe
     rcases ha_pe with h1 | h1

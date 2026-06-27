@@ -42,8 +42,7 @@ theorem prime_primePlusPowersOfTwoRep_zero {p : ℕ} (hp : Nat.Prime p) :
 
 /-- Consequently, every prime is represented for any allowed bound `k`. -/
 theorem prime_primePlusPowersOfTwoRep {k p : ℕ} (hp : Nat.Prime p) :
-    PrimePlusPowersOfTwoRep k p := by
-  exact primePlusPowersOfTwoRep_mono (Nat.zero_le k)
+    PrimePlusPowersOfTwoRep k p := primePlusPowersOfTwoRep_mono (Nat.zero_le k)
     (prime_primePlusPowersOfTwoRep_zero hp)
 
 /-- A representation with exactly `m` powers is also one with at most `k` powers
@@ -60,7 +59,6 @@ theorem primePlusPowersOfTwoRep_of_exact {m k n : ℕ} (hmk : m ≤ k)
 `k ≥ 2`. -/
 theorem primePlusPowersOfTwoRep_of_exact_two {k n : ℕ} (hk : 2 ≤ k)
     (hrep : PrimePlusExactlyTwoPowersRep n) :
-    PrimePlusPowersOfTwoRep k n := by
-  exact primePlusPowersOfTwoRep_of_exact hk hrep
+    PrimePlusPowersOfTwoRep k n := primePlusPowersOfTwoRep_of_exact hk hrep
 
 end PrimeBoundedTwoPowers

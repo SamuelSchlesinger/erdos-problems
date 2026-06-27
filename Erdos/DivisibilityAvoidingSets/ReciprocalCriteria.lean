@@ -72,8 +72,7 @@ theorem finset_sum_reciprocal_le_tsum_indicator_of_subset
         ∑ n ∈ F, reciprocalIndicator A n := by
       refine Finset.sum_congr rfl fun n hn => ?_
       simp [reciprocalIndicator, Set.indicator_of_mem (hF n hn)]
-    _ ≤ ∑' n : ℕ, reciprocalIndicator A n := by
-      exact Summable.sum_le_tsum
+    _ ≤ ∑' n : ℕ, reciprocalIndicator A n := Summable.sum_le_tsum
         (f := reciprocalIndicator A) F
         (fun n _hn => reciprocalIndicator_nonneg A n) hsumm
 
@@ -247,8 +246,8 @@ theorem finset_sum_le_sum_filter_of_cover {α ι : Type*}
       refine Finset.sum_le_sum fun x hxF => ?_
       rcases hcover x hxF with ⟨i, hiI, hxi⟩
       have hrest_nonneg :
-          0 ≤ ∑ j ∈ I.erase i, if x ∈ B j then w x else 0 := by
-        exact Finset.sum_nonneg fun j _hj => by
+          0 ≤ ∑ j ∈ I.erase i, if x ∈ B j then w x else 0 :=
+        Finset.sum_nonneg fun j _hj => by
           by_cases hxj : x ∈ B j
           · simp [hxj, hw x]
           · simp [hxj]
@@ -362,8 +361,7 @@ theorem exists_lt_sum_Ico_of_not_summable_nonneg
     linarith
   have hsplit :
       S₀ + ∑ i ∈ Finset.Ico N n, f i =
-        ∑ i ∈ Finset.range n, f i := by
-    exact Finset.sum_range_add_sum_Ico f hNn.le
+        ∑ i ∈ Finset.range n, f i := Finset.sum_range_add_sum_Ico f hNn.le
   refine ⟨n, hNn, ?_⟩
   linarith
 
@@ -380,8 +378,8 @@ theorem reciprocalSummable_of_indicator_le {A : Set ℕ} {f : ℕ → ℝ}
 theorem reciprocalSummable_of_pointwise_bound {A : Set ℕ} {f : ℕ → ℝ}
     (hf_nonneg : ∀ n, 0 ≤ f n) (hf : Summable f)
     (hbound : ∀ ⦃n : ℕ⦄, n ∈ A → (1 : ℝ) / (n : ℝ) ≤ f n) :
-    ReciprocalSummable A := by
-  exact reciprocalSummable_of_indicator_le hf fun n => by
+    ReciprocalSummable A :=
+  reciprocalSummable_of_indicator_le hf fun n => by
     unfold reciprocalIndicator
     by_cases hn : n ∈ A
     · simpa [Set.indicator_of_mem hn] using hbound hn
@@ -393,8 +391,7 @@ theorem finset_sum_reciprocal_le_card_div_min {F : Finset ℕ} {m : ℕ}
     (hm : 0 < m) (hmin : ∀ n, n ∈ F → m ≤ n) :
     (∑ n ∈ F, (1 : ℝ) / (n : ℝ)) ≤ (F.card : ℝ) / (m : ℝ) := by
   calc
-    (∑ n ∈ F, (1 : ℝ) / (n : ℝ)) ≤ ∑ n ∈ F, (1 : ℝ) / (m : ℝ) := by
-      exact Finset.sum_le_sum fun n hn =>
+    (∑ n ∈ F, (1 : ℝ) / (n : ℝ)) ≤ ∑ n ∈ F, (1 : ℝ) / (m : ℝ) := Finset.sum_le_sum fun n hn =>
         one_div_le_one_div_of_le (Nat.cast_pos.mpr hm)
           (by exact_mod_cast hmin n hn)
     _ = (F.card : ℝ) / (m : ℝ) := by

@@ -35,8 +35,8 @@ theorem lcmPackingMajorant_le_gain_plus_error {P X L : ℕ}
     (((P * (X / L + 1) : ℕ) : ℝ) / (X : ℝ)) =
         (P : ℝ) * (((X / L : ℕ) : ℝ) + 1) / (X : ℝ) := by
       norm_num [Nat.cast_mul, Nat.cast_add]
-    _ ≤ (P : ℝ) * ((X : ℝ) / (L : ℝ) + 1) / (X : ℝ) := by
-      exact div_le_div_of_nonneg_right hmul (le_of_lt (Nat.cast_pos.mpr hX))
+    _ ≤ (P : ℝ) * ((X : ℝ) / (L : ℝ) + 1) / (X : ℝ) :=
+      div_le_div_of_nonneg_right hmul (le_of_lt (Nat.cast_pos.mpr hX))
     _ = (P : ℝ) / (L : ℝ) + (P : ℝ) / (X : ℝ) := by
       field_simp [Nat.cast_pos.mpr hX, Nat.cast_pos.mpr hL]
 
@@ -90,8 +90,7 @@ theorem lcmGain_le_geometric_of_pairwise_coprime
       ((∏ i ∈ J, (m i / 2 + 1) : ℕ) : ℝ) =
           ∏ i ∈ J, (((m i / 2 + 1 : ℕ) : ℝ)) := by
         simp
-      _ ≤ ∏ i ∈ J, ((3 / 4 : ℝ) * (m i : ℝ)) := by
-        exact Finset.prod_le_prod
+      _ ≤ ∏ i ∈ J, ((3 / 4 : ℝ) * (m i : ℝ)) := Finset.prod_le_prod
           (fun i hi => by positivity)
           fun i hi =>
           half_plus_one_le_three_quarters_mul (hlarge i hi)
@@ -377,8 +376,7 @@ theorem CoprimeLCMSelection.insert {A : Set ℕ} {k r x : ℕ} {J : Finset ℕ}
         J.lcm (fun a : ℕ => a) * x := by
     calc
       (Insert.insert x J : Finset ℕ).lcm (fun a : ℕ => a) =
-          ∏ a ∈ (Insert.insert x J : Finset ℕ), a := by
-        exact Finset.lcm_eq_prod hcop_insert
+          ∏ a ∈ (Insert.insert x J : Finset ℕ), a := Finset.lcm_eq_prod hcop_insert
       _ = x * ∏ a ∈ J, a := by
         rw [Finset.prod_insert hxnot]
       _ = x * J.lcm (fun a : ℕ => a) := by
@@ -459,14 +457,14 @@ theorem exists_maximal_coprime_lcm_selection (A : Set ℕ) (k : ℕ) :
   let P : ℕ → Prop := fun r => ∃ J : Finset ℕ, CoprimeLCMSelection A k r J
   have hP0 : P 0 := ⟨∅, CoprimeLCMSelection.empty A k⟩
   let r := Nat.findGreatest P (2 ^ k)
-  have hPr : P r := by
-    exact Nat.findGreatest_spec (P := P) (m := 0) (n := 2 ^ k) (Nat.zero_le _) hP0
+  have hPr : P r :=
+    Nat.findGreatest_spec (P := P) (m := 0) (n := 2 ^ k) (Nat.zero_le _) hP0
   rcases hPr with ⟨J, hJ⟩
   refine ⟨r, J, hJ, ?_⟩
   intro K hK
   have hbound : r + 1 ≤ 2 ^ k := hK.rank_le_pow
-  have hnot : ¬ P (r + 1) := by
-    exact Nat.findGreatest_is_greatest (P := P) (n := 2 ^ k)
+  have hnot : ¬ P (r + 1) :=
+    Nat.findGreatest_is_greatest (P := P) (n := 2 ^ k)
       (k := r + 1) (Nat.lt_succ_self r) hbound
   exact hnot ⟨K, hK⟩
 
@@ -603,16 +601,16 @@ theorem mem_lcmRoomFinset_of_mem_dyadicShellFinset
     have hpow : 2 ^ 2 ≤ 2 ^ k := Nat.pow_le_pow_right (by norm_num) hk
     norm_num at hpow
     exact hpow.trans hxlower
-  have hLpos : 0 < J.lcm (fun a : ℕ => a) := by
-    exact finset_lcm_pos_of_forall_pos fun a ha =>
+  have hLpos : 0 < J.lcm (fun a : ℕ => a) :=
+    finset_lcm_pos_of_forall_pos fun a ha =>
       Nat.lt_of_lt_of_le (by norm_num : 0 < 4) (hJ.2.2.2.2.1 a ha)
   have hupper_le_delay :
-      2 ^ (k + 1) ≤ J.lcm (fun a : ℕ => a) * 2 ^ (k + 1) := by
-    exact Nat.le_mul_of_pos_left _ hLpos
+      2 ^ (k + 1) ≤ J.lcm (fun a : ℕ => a) * 2 ^ (k + 1) :=
+    Nat.le_mul_of_pos_left _ hLpos
   have hxltK : x < 2 ^ K :=
     hxupper.trans_le (hupper_le_delay.trans hdelay)
-  have hxroom : J.lcm (fun a : ℕ => a) * x ≤ 2 ^ K := by
-    exact (Nat.mul_le_mul_left _ (Nat.le_of_lt hxupper)).trans hdelay
+  have hxroom : J.lcm (fun a : ℕ => a) * x ≤ 2 ^ K :=
+    (Nat.mul_le_mul_left _ (Nat.le_of_lt hxupper)).trans hdelay
   exact mem_lcmRoomFinset.mpr ⟨hxlarge, hxltK, hxA, hxnot, hxroom⟩
 
 /-- A failed later-scale extension covers an earlier dyadic shell, after

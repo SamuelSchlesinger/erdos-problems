@@ -84,8 +84,8 @@ theorem avoidingSet_apBlock_of_narrow {r M T L : ℕ}
   have hlow : 2 * a < b + c := by omega
   have hhigh : b + c < 3 * a := by
     have hbcmax : b + c ≤ 2 * apMax r M T L := by omega
-    have hmax_lt : 2 * apMax r M T L < 3 * a := by
-      exact hnarrow.trans_le (Nat.mul_le_mul_left 3 hmina)
+    have hmax_lt : 2 * apMax r M T L < 3 * a :=
+      hnarrow.trans_le (Nat.mul_le_mul_left 3 hmina)
     omega
   rcases hadvd with ⟨d, hd⟩
   have hd_gt_two : 2 < d := by

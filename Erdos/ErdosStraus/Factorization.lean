@@ -125,8 +125,7 @@ theorem mod24_eq13_case (n : ℕ) (hn : 2 < n) (hmod : n % 24 = 13) :
   set y := (2 + m) / 3
   have h2 : 3 * y = 2 + n * x := by omega
   -- z = n*x*y/2
-  have hz_div : 2 ∣ (n * x * y) := by
-    exact dvd_mul_of_dvd_left hm_even y
+  have hz_div : 2 ∣ (n * x * y) := dvd_mul_of_dvd_left hm_even y
   set z := n * x * y / 2
   have h3 : 2 * z = n * x * y := by omega
   -- Ordering: x < y < z

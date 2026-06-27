@@ -56,8 +56,7 @@ theorem isolated_stable_under_larger_truncations {A : Set ℕ} {N M s : ℕ}
 
 /-- Lower isolated sums are genuine isolated sums of the full sumset. -/
 theorem lowerIsolated_subset_full {A : Set ℕ} {N s : ℕ} (hs : s ∈ lowerIsolated A N) :
-    Isolated (sumset A) s := by
-  exact (isolated_iff_isolated_truncateByValue_of_lt hs.1).mp hs.2
+    Isolated (sumset A) s := (isolated_iff_isolated_truncateByValue_of_lt hs.1).mp hs.2
 
 /-- The lower-isolated witness set grows monotonically with the value cutoff. -/
 theorem lowerIsolated_mono {A : Set ℕ} {N M : ℕ} (hNM : N ≤ M) :

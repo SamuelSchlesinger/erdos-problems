@@ -41,8 +41,7 @@ theorem obstructionCoveredInInterval_of_maximal {A : Finset ℕ} {N : ℕ}
   unfold IsSidonFinset SidonSumsets.IsSidon at hnot hSidonA
   push Not at hnot
   rcases hnot with ⟨a₁, a₂, b₁, b₂, ha₁, ha₂, hb₁, hb₂, ha₁₂, hb₁₂, hsum, hneq⟩
-  have hnot_mem_of_eq {y : ℕ} (hyA : y ∈ A) (hyx : y = x) : False := by
-    exact hxa (hyx ▸ hyA)
+  have hnot_mem_of_eq {y : ℕ} (hyA : y ∈ A) (hyx : y = x) : False := hxa (hyx ▸ hyA)
   rcases (show a₁ = x ∨ a₁ ∈ A by simpa using ha₁) with ha₁x | ha₁A
   · rcases (show a₂ = x ∨ a₂ ∈ A by simpa using ha₂) with ha₂x | ha₂A
     · rcases (show b₁ = x ∨ b₁ ∈ A by simpa using hb₁) with hb₁x | hb₁A
@@ -147,8 +146,7 @@ theorem lt_card_of_three_mul_cube_lt {A : Finset ℕ} {N k : ℕ}
 /-- Equivalent non-strict packaging of the same threshold statement. -/
 theorem succ_le_card_of_three_mul_cube_lt {A : Finset ℕ} {N k : ℕ}
     (hN : 1 ≤ N) (hmax : IsMaximalSidonInInterval A N) (hk : 3 * k ^ 3 < N) :
-    k + 1 ≤ A.card := by
-  exact Nat.succ_le_of_lt (lt_card_of_three_mul_cube_lt hN hmax hk)
+    k + 1 ≤ A.card := Nat.succ_le_of_lt (lt_card_of_three_mul_cube_lt hN hmax hk)
 
 /-- Packaged existence theorem: every nonempty interval admits a maximal Sidon
 subset satisfying the coarse `N^{1/3}` lower bound. -/

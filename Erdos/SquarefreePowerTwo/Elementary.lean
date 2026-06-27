@@ -22,8 +22,7 @@ theorem hasSquarefreePowerTwoRepresentation_iff {n : ℕ} :
 `q + 2 ^ k`. -/
 theorem hasSquarefreePowerTwoRepresentation_add_pow_two {q k : ℕ}
     (hq : Squarefree q) :
-    HasSquarefreePowerTwoRepresentation (q + 2 ^ k) := by
-  exact ⟨q, k, hq, rfl⟩
+    HasSquarefreePowerTwoRepresentation (q + 2 ^ k) := ⟨q, k, hq, rfl⟩
 
 /-- Access a squarefree witness from any representation. -/
 theorem HasSquarefreePowerTwoRepresentation.exists_squarefree {n : ℕ}
@@ -58,8 +57,7 @@ theorem OddRepresentableFrom.mono {N M : ℕ}
 /-- The eventual odd statement can be repackaged with any larger threshold. -/
 theorem eventuallyOddRepresentable_of_threshold {N : ℕ}
     (hN : OddRepresentableFrom N) :
-    EventuallyOddRepresentable := by
-  exact ⟨N, hN⟩
+    EventuallyOddRepresentable := ⟨N, hN⟩
 
 /-- The threshold form for the `4 ∤ n` variant is monotone in the threshold. -/
 theorem NotDivisibleByFourRepresentableFrom.mono {N M : ℕ}
@@ -71,14 +69,12 @@ theorem NotDivisibleByFourRepresentableFrom.mono {N M : ℕ}
 /-- The eventual `4 ∤ n` variant can be repackaged from a concrete threshold. -/
 theorem eventuallyNotDivisibleByFourRepresentable_of_threshold {N : ℕ}
     (hN : NotDivisibleByFourRepresentableFrom N) :
-    EventuallyNotDivisibleByFourRepresentable := by
-  exact ⟨N, hN⟩
+    EventuallyNotDivisibleByFourRepresentable := ⟨N, hN⟩
 
 /-- Every odd eventual threshold also works as an `Erdos11` proof, by definition
 of the main package. -/
 theorem erdos11_of_eventuallyOddRepresentable
-    (h : EventuallyOddRepresentable) : Erdos11 := by
-  exact h
+    (h : EventuallyOddRepresentable) : Erdos11 := h
 
 /-- The integer `3` has the representation `3 = 1 + 2 ^ 1`. -/
 theorem hasSquarefreePowerTwoRepresentation_three :

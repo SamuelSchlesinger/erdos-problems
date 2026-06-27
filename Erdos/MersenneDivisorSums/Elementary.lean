@@ -15,12 +15,10 @@ theorem mersenneNumber_ne_zero (k : ℕ) : 2 ^ (k + 1) - 1 ≠ 0 := by
 
 theorem one_le_mersenneDivisorTerm (k : ℕ) : 1 ≤ mersenneDivisorTerm k := by
   unfold mersenneDivisorTerm
-  have hmem : 1 ∈ (2 ^ (k + 1) - 1).divisors := by
-    exact Nat.one_mem_divisors.mpr (mersenneNumber_ne_zero k)
-  exact Finset.one_le_card.mpr ⟨1, hmem⟩
+  exact Finset.one_le_card.mpr ⟨1, Nat.one_mem_divisors.mpr (mersenneNumber_ne_zero k)⟩
 
-theorem mersenneDivisorTerm_pos (k : ℕ) : 0 < mersenneDivisorTerm k := by
-  exact lt_of_lt_of_le Nat.zero_lt_one (one_le_mersenneDivisorTerm k)
+theorem mersenneDivisorTerm_pos (k : ℕ) : 0 < mersenneDivisorTerm k :=
+  lt_of_lt_of_le Nat.zero_lt_one (one_le_mersenneDivisorTerm k)
 
 /-- Once the exponent is at least two, the Mersenne number `2^(k+1)-1` has the
 two distinct divisors `1` and itself. This gives the first nontrivial per-term
@@ -38,8 +36,7 @@ theorem two_le_mersenneDivisorTerm_of_one_le (k : ℕ) (hk : 1 ≤ k) :
     have hpow : 2 ^ 2 ≤ 2 ^ (k + 1) :=
       Nat.pow_le_pow_right (by decide : 0 < 2) hk_two
     omega
-  have hmem_one : 1 ∈ m.divisors := by
-    exact Nat.one_mem_divisors.mpr hm_ne_zero
+  have hmem_one : 1 ∈ m.divisors := Nat.one_mem_divisors.mpr hm_ne_zero
   have hmem_self : m ∈ m.divisors := by
     rw [Nat.mem_divisors]
     exact ⟨dvd_rfl, hm_ne_zero⟩
@@ -105,15 +102,14 @@ theorem two_n_sub_one_le_mersenneDivisorSum {n : ℕ} (hn : 1 ≤ n) :
           simpa [mersenneDivisorSum] using one_le_mersenneDivisorTerm 0
       | succ n =>
           rw [mersenneDivisorSum_succ]
-          have hprev : 2 * (n + 1) - 1 ≤ mersenneDivisorSum (n + 1) := by
-            exact ih (by omega)
-          have hterm : 2 ≤ mersenneDivisorTerm (n + 1) := by
-            exact two_le_mersenneDivisorTerm_of_one_le (n + 1) (by omega)
+          have hprev : 2 * (n + 1) - 1 ≤ mersenneDivisorSum (n + 1) := ih (by omega)
+          have hterm : 2 ≤ mersenneDivisorTerm (n + 1) :=
+            two_le_mersenneDivisorTerm_of_one_le (n + 1) (by omega)
           omega
 
 theorem mersenneDivisorSum_pos_of_pos {n : ℕ} (hn : 0 < n) :
-    0 < mersenneDivisorSum n := by
-  exact lt_of_lt_of_le hn (self_le_mersenneDivisorSum n)
+    0 < mersenneDivisorSum n :=
+  lt_of_lt_of_le hn (self_le_mersenneDivisorSum n)
 
 theorem mersenneDivisorSum_le_double {n : ℕ} :
     mersenneDivisorSum n ≤ mersenneDivisorSum (2 * n) := by

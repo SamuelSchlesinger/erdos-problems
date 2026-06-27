@@ -39,8 +39,7 @@ theorem StrictMono.exists_le_lt_succ_nat {E : ℕ → ℕ} (hE : StrictMono E)
       simpa [k, hk0] using hk
     omega
   refine ⟨k - 1, ?_, ?_⟩
-  · have hnot : ¬ N < E (k - 1) := by
-      exact Nat.find_min hex (Nat.pred_lt (Nat.ne_of_gt hkpos))
+  · have hnot : ¬ N < E (k - 1) := Nat.find_min hex (Nat.pred_lt (Nat.ne_of_gt hkpos))
     omega
   · have hk_eq : k - 1 + 1 = k := Nat.succ_pred_eq_of_pos hkpos
     simpa [hk_eq] using hk

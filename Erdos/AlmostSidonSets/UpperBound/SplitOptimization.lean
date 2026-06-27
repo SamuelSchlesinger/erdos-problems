@@ -48,7 +48,7 @@ theorem sqrt_add_sqrt_le_sqrt_two_mul_add {x y : ℝ} (hx : 0 ≤ x) (hy : 0 ≤
     Real.sq_sqrt hpos
   -- From hsq : (√x + √y)^2 ≤ 2·(x+y) = (√(2(x+y)))^2, get √x + √y ≤ √(2(x+y))
   have : (Real.sqrt x + Real.sqrt y) ^ 2 ≤ (Real.sqrt (2 * (x + y))) ^ 2 := by
-    rw [hsqrt2_sq]; exact hsq
+    rwa [hsqrt2_sq]
   exact abs_le_of_sq_le_sq' this (Real.sqrt_nonneg _) |>.2
 
 /-- The headline split-optimization inequality:

@@ -173,7 +173,7 @@ theorem isFree_of_subset {S S' : Set ℕ} {k : ℕ} (hS : IsFree S k) (hsub : S'
     · rintro ⟨s, hs⟩
       have hm : p (e.symm ⟨s, hsub hs⟩) := by
         change (e (e.symm ⟨s, hsub hs⟩) : ℕ) ∈ S'
-        rw [Equiv.apply_symm_apply]; exact hs
+        rwa [Equiv.apply_symm_apply]
       obtain ⟨n, hn⟩ := Nat.subset_range_nth (p := p) hm
       refine ⟨n, Subtype.ext ?_⟩
       change (e (Nat.nth p n) : ℕ) = s

@@ -271,8 +271,7 @@ theorem prime_not_weird {p : ℕ} (hp : Nat.Prime p) : ¬Weird p := by
 
     The number 1 has no proper divisors (properDivisors 1 = ∅), so the
     sum is 0 < 1 = n. It is deficient (and not even abundant). -/
-theorem one_not_weird : ¬Weird 1 := by
-  exact no_weird_below_70 1 (by omega)
+theorem one_not_weird : ¬Weird 1 := no_weird_below_70 1 (by omega)
 
 /-- 70 is a *primitive* weird number: it is weird, and every proper divisor
     is smaller than `70`, hence not weird by `no_weird_below_70`. -/

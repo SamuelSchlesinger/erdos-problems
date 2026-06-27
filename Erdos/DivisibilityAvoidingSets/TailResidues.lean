@@ -83,8 +83,8 @@ modulo `a` can only occur on the diagonal. -/
 theorem AvoidingSet.eq_of_tail_zero_residue_sum {A : Set ℕ} (hA : AvoidingSet A)
     {a b c : ℕ} (ha : a ∈ A) (hb : b ∈ A) (hc : c ∈ A)
     (hab : a < b) (hac : a < c) (hres : (b % a + c % a) % a = 0) :
-    b = c := by
-  exact PairwiseNoZeroResidueSum.eq_of_zero_residue_sum
+    b = c :=
+  PairwiseNoZeroResidueSum.eq_of_zero_residue_sum
     (hA.tail_pairwiseNoZeroResidueSum ha) ⟨hb, hab⟩ ⟨hc, hac⟩ hres
 
 end DivisibilityAvoidingSets

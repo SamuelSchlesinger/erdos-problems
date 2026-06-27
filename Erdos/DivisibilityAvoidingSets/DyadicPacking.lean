@@ -77,8 +77,8 @@ theorem exists_ge_mem_dyadicShellFinset_of_mem_Ici_pow
 theorem dyadicShellFinset_card_eq_ncard (A : Set ℕ) (k : ℕ) :
     (dyadicShellFinset A k).card = (A ∩ dyadicShell k).ncard := by
   classical
-  have hfin : (A ∩ dyadicShell k).Finite := by
-    exact (dyadicShell_finite k).subset fun _ hn => hn.2
+  have hfin : (A ∩ dyadicShell k).Finite :=
+    (dyadicShell_finite k).subset fun _ hn => hn.2
   rw [Set.ncard_eq_toFinset_card (A ∩ dyadicShell k) hfin]
   congr 1
   ext n
@@ -111,8 +111,7 @@ theorem dyadicShellInSubtype_reciprocal_tsum_eq_finset_sum (A : Set ℕ) (k : �
           (1 : ℝ) / (((a : A) : ℕ) : ℝ) := by
       rw [tsum_fintype]
     _ = ∑ n : {n : ℕ // n ∈ dyadicShellFinset A k},
-          (1 : ℝ) / (n : ℝ) := by
-      exact Fintype.sum_equiv e
+          (1 : ℝ) / (n : ℝ) := Fintype.sum_equiv e
         (fun a : dyadicShellInSubtype A k =>
           (1 : ℝ) / (((a : A) : ℕ) : ℝ))
         (fun n : {n : ℕ // n ∈ dyadicShellFinset A k} =>
