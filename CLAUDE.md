@@ -26,6 +26,32 @@ Every theorem in this project must satisfy:
 
 See WORKFLOW.md for the iterative problem-selection and proof process.
 
+## Golfing & verification lessons
+
+When simplifying/golfing proofs, verification gaps have bitten us — follow these:
+
+1. **`lake env lean <file>` and the LSP do NOT run the `linter.style.longLine`
+   (100-char) style linter.** That linter is set in the lakefile's leanOptions and
+   fires only during a full `lake build`. So collapsing `:= by exact <term>` onto one
+   line can silently push it past 100 chars and pass per-file checks while failing the
+   real build.
+2. **Always finish an edit/golf pass with a full `lake build`, capturing the COMPLETE
+   log** — do not pipe through `tail` (it truncates and hides warnings). Redirect to a
+   file and grep it.
+3. **Before trusting per-file checks, scan the diff for added long lines.** For each
+   `+` line in `git diff --unified=0`, flag `len(body) > 100` (unicode-aware). This
+   catches longLine regressions across all files at once.
+4. **Fix a longLine regression by breaking after `:=`** and putting the proof term on
+   the next indented line — this keeps the golf (no `by exact`) while staying ≤100.
+5. **Distinguish new from pre-existing warnings:** a warning is only a regression if its
+   line is in the diff. Warnings on files untouched by the pass are pre-existing.
+6. **Dropping `:= by exact t` → `:= t` can trigger the `unusedVariables` linter** when
+   the term contains an unused lambda binder (e.g. `fun p hp =>` with `p` unused), which
+   the surrounding tactic block had suppressed. `lake env lean` *does* catch this one —
+   revert such collapses (or underscore-prefix the binder).
+7. **`rw [h]; exact x` → `rwa [h]` only when `x` is a bare local hypothesis** — applied
+   lemmas, projections, and anonymous constructors break `rwa`'s trailing `assumption`.
+
 ## Structure
 
 ```
